@@ -16,12 +16,14 @@
 - `SUPABASE_SERVICE_ROLE_KEY`: chave server-side altamente sensivel; nunca usar no browser.
 - `SUPABASE_PROJECT_ID`: id/ref do projeto para CLI e geracao de tipos; nao e secret, mas deve ser mantido por ambiente.
 
-Valores de desenvolvimento local registrados em `.env.local`:
+`.env.local` deve permanecer ignorado e pode ficar vazio ate a etapa administrativa propria. Valores reais devem ser preenchidos apenas no ambiente local do operador ou no cofre de secrets do provedor, nunca em arquivo versionado.
 
-- Projeto Supabase: `https://bceumcfmjftoukzrfthe.supabase.co`.
+Projeto Supabase informado para desenvolvimento:
+
+- URL: `https://bceumcfmjftoukzrfthe.supabase.co`.
 - Project ref: `bceumcfmjftoukzrfthe`.
-- Chave publicavel: armazenada em `NEXT_PUBLIC_SUPABASE_ANON_KEY` para manter compatibilidade com os helpers atuais.
-- `SUPABASE_SERVICE_ROLE_KEY`: nao informado e deve permanecer vazio ate etapa administrativa propria.
+
+Chaves publicaveis devem usar `NEXT_PUBLIC_SUPABASE_ANON_KEY` para compatibilidade com os helpers atuais. `SUPABASE_SERVICE_ROLE_KEY` deve permanecer server-side e vazio ate haver necessidade administrativa controlada.
 
 ## OpenAI
 

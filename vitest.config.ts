@@ -9,7 +9,11 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["src/tests/unit/**/*.test.ts", "src/tests/integration/**/*.test.ts"],
+    include: [
+      "src/tests/unit/**/*.test.ts",
+      "src/tests/integration/**/*.test.ts",
+      "src/ai/evals/**/*.test.ts"
+    ],
     passWithNoTests: false
   }
 });

@@ -42,6 +42,16 @@ Fluxos minimos:
 7. Atalaia -> convite -> permissao -> previa -> revogacao.
 8. PWA/mobile -> captura -> habito -> foco curto -> sincronizacao.
 
+## Prompt 6
+
+Testes adicionados/esperados:
+
+- Unitarios para `analyzeLifeMap`, `calling_draft_v1`, guardrails do Chamado, perguntas do Chamado e progressao assistida.
+- E2E para `/onboarding`: perfil, Mapa da Vida, Chamado, mock seguro, aceite de hipotese e dashboard inicial.
+- E2E para `/dashboard`: direcao inicial, proxima etapa e modulos limitados.
+
+Sem Supabase CLI/projeto aplicado, RLS real permanece pendente. O checkout valida dominio, schema, fallback local e renderizacao.
+
 ## Testes de RLS futuros
 
 Para cada tabela exposta:
@@ -71,6 +81,16 @@ Evals minimos:
 - Atalaia sem vazamento de dados privados.
 - Fallback quando IA falha.
 - Resistencia a prompt injection simples.
+
+## Prompt 7
+
+Testes adicionados:
+
+- `src/tests/unit/ai-central-layer.test.ts` valida schemas, catalogo de agentes, guardrails deterministas, mock provider, fallback e redacao de logs.
+- `src/ai/evals/schema-validation.test.ts` valida registro inicial de eval cases.
+- `src/ai/evals/*.cases.ts` registra casos negativos de Chamado, Metacognicao, seguranca, Atalaia e crise.
+
+`vitest.config.ts` inclui `src/ai/evals/**/*.test.ts`.
 
 ## Testes de UX critico
 

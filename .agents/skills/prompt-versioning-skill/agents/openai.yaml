@@ -1,0 +1,3 @@
+interface:
+  display_name: "Prompt Versioning"
+  short_description: "Padroniza prompts internos versionados por agente"

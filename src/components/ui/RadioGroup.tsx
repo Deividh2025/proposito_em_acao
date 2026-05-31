@@ -9,7 +9,7 @@ type RadioOption = {
 type RadioGroupProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "value"> & {
   legend: string;
   name: string;
-  options: RadioOption[];
+  options: ReadonlyArray<RadioOption>;
   value?: string;
 };
 

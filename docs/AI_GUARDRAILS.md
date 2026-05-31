@@ -26,6 +26,9 @@ A IA nao deve:
 - Nao dizer "Deus mandou".
 - Permitir Chamado em construcao.
 - Nao transformar Chamado em sentenca imutavel.
+- No Prompt 6, `calling_draft_v1` deve ter `user_review_required = true`.
+- Mock seguro nao pode ser tratado como resposta pastoral final.
+- `guardrail_status = passed` exige schema valido e revisao de seguranca antes de persistir.
 
 ### Mapa da Vida
 
@@ -112,3 +115,16 @@ Se a IA falhar, o produto deve permitir:
 - Repetir com menos contexto.
 - Prosseguir sem IA em fluxo basico.
 - Bloquear envio externo se schema, consentimento ou guardrail falhar.
+
+## Prompt 7 - Guardrails implementados
+
+O Prompt 7 adiciona guardrails deterministas iniciais em `src/ai/guardrails/`:
+
+- `clinical.ts`: bloqueia diagnostico e substituicao de ajuda humana.
+- `pastoral.ts`: bloqueia vontade divina especifica, culpa espiritual, humilhacao e punicao nociva.
+- `privacy.ts`: identifica categorias sensiveis para redacao/log seguro.
+- `accountability.ts`: bloqueia compartilhamento ao Atalaia sem consentimento e escopo.
+- `metacognition.ts`: detecta crise grave e sai do fluxo de produtividade.
+- `composite.ts`: consolida revisao de seguranca.
+
+Estes guardrails nao substituem revisao humana. Eles sao a primeira barreira tecnica para schemas, providers e evals.

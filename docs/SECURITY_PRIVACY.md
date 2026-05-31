@@ -6,6 +6,17 @@ Este documento e fonte de verdade para seguranca, privacidade, consentimento, At
 
 Devem ser tratados como sensiveis desde a concepcao: fe, saude, sono, energia, familia, relacionamentos, financas, emocoes, pensamentos, impulsos, Chamado, Metacognicao, calendario, habitos, Placar, Revisao Semanal, Atalaia e Documento de Compromisso.
 
+## Prompt 6 - Onboarding
+
+O onboarding coleta dados sensiveis de perfil, Mapa da Vida e Chamado. Regras especificas:
+
+- Campos longos e sensiveis devem ser opcionais ou adiaveis.
+- O fluxo nao deve gravar conteudo intimo em `localStorage`.
+- Sem sessao Supabase/Auth, o app deve exibir fallback local/dev e nao prometer persistencia real.
+- Antes de producao, consentimento versionado, retencao, exportacao e exclusao devem estar definidos.
+- Chamado completo e respostas do Chamado nao devem ir ao Atalaia por padrao.
+- Mock de IA nao envia dados a OpenAI e deve ser marcado como substituivel.
+
 ## Principios
 
 - Privacidade por padrao.
@@ -108,6 +119,24 @@ Logs proibidos por padrao:
 - Chamado completo.
 - Saude, familia, financas, fe e emocoes.
 - Mensagens completas ao Atalaia.
+
+## Prompt 7 - IA e logs seguros
+
+A camada central de IA registra somente metadados por `ai_run_audit_v1`:
+
+- agente;
+- provider;
+- modelo;
+- prompt version;
+- output schema;
+- status;
+- latencia;
+- erro categorizado;
+- status de guardrail.
+
+`contains_raw_prompt` e `contains_raw_response` devem permanecer `false`. O helper `redactAiLogMetadata` remove chaves como `prompt`, `raw_prompt`, `response`, `raw_response`, `input` e `output`.
+
+OpenAI real fica isolada em modulo server-only. `OPENAI_API_KEY` nao pode ser exposta em `NEXT_PUBLIC_*`, client components, browser, mobile ou logs.
 
 ## Retencao
 

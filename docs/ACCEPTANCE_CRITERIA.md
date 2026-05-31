@@ -57,3 +57,15 @@
 - Evidencia visual/acessibilidade para UI.
 - Secret scan.
 - `git status --short --branch`.
+
+## Prompt 7 - Aceite da camada central de IA
+
+- Agentes internos existem no catalogo e em entrypoints.
+- Schemas de structured outputs existem para os fluxos exigidos.
+- Prompts internos estao versionados por agente.
+- Guardrails clinicos, pastorais, privacidade, Metacognicao e Atalaia existem.
+- Provider mock e safe invoke existem.
+- OpenAI real permanece server-side e sem uso automatico em UI.
+- Logs de IA nao contem prompt bruto nem resposta bruta.
+- Base de conhecimento placeholder existe sem material real.
+- Evals/testes iniciais existem e devem passar.

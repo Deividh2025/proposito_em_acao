@@ -169,3 +169,27 @@ Sessoes sao privadas por padrao. O usuario deve poder revisar historico e, futur
 - "Se voce nao fizer agora, voce e irresponsavel."
 - "Vou contar isso ao seu Atalaia."
 - "Nao procure ajuda, basta ser mais produtivo."
+
+## Prompt 7 - Contrato tecnico
+
+O Prompt 7 cria `metacognition_output_v1` em `src/ai/schemas/metacognition.ts` e `metacognition_prompt_v1` em `src/ai/prompts/metacognition.md`.
+
+Campos obrigatorios:
+
+- fatos;
+- interpretacoes;
+- sentimentos;
+- impulsos;
+- pensamento automatico dominante;
+- distorcoes provaveis;
+- perguntas de checagem logica;
+- confrontacao responsavel;
+- pensamento reformulado;
+- microacao;
+- roteamento;
+- crise detectada;
+- ajuda humana recomendada;
+- privado por padrao;
+- compartilhamento com Atalaia bloqueado por padrao.
+
+Isto ainda nao implementa a UI funcional de Metacognicao. E a base tecnica para etapa futura.

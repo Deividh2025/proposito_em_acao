@@ -35,6 +35,17 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Rotas da etapa de design system sao placeholders navegaveis e nao implementam fluxos finais.
 - Placar e Jardim devem comunicar progresso e cuidado sem punir falhas.
 - Camada crista visual inicial permanece discreta, opcional e dependente de configuracao futura.
+- Prompt 6 inicia a fase de Onboarding e direcao: `/onboarding` e `/dashboard` deixam de ser apenas placeholders.
+- `CallingDraft` e hipotese em discernimento, revisavel pelo usuario, nunca Chamado definitivo automatico.
+- OpenAI real permanece desativada no Prompt 6; o agente do Chamado usa mock deterministico seguro.
+- Persistencia real do onboarding depende de sessao Supabase/Auth e migrations aplicadas; sem isso, o fluxo retorna fallback local/dev explicitamente identificado.
+- Progressao assistida limita alvos completos, projetos, Atalaia, Placar completo e calendario estrategico ate existir hipotese de Chamado.
+- Prompt 7 implementa IA central como contratos server-side: agentes internos, schemas, prompts versionados, guardrails, provider mock e provider OpenAI isolado.
+- Responses API e Structured Outputs sao a direcao tecnica para OpenAI real, mas chamadas reais dependem de configuracao, revisao de guardrails e decisao de modelo.
+- Zod e a fonte local de validacao dos structured outputs nesta etapa.
+- Logs de IA usam metadados minimos `ai_run_audit_v1`; prompt bruto e resposta bruta permanecem proibidos por padrao.
+- Base de conhecimento nasce como placeholder em `knowledge/`; material real, file search ou vector store exigem autorizacao futura.
+- Nome canonico operacional permanece `Metacognicao` em portugues; mudanca de marca/nome final segue pendente do fundador.
 
 ## Pendencias
 
@@ -48,6 +59,12 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Aplicacao das migrations no projeto Supabase remoto e execucao dos testes RLS.
 - Escopo avancado do Atalaia em V1.1/V2.
 - Validacao visual aprofundada com screenshots comparativos quando houver telas finais.
+- Consentimento versionado, retencao, exportacao e exclusao antes de coleta produtiva de dados de onboarding.
+- Aplicar e testar a migration `202605310004_onboarding_calling_metadata.sql`.
+- Aplicar e testar a migration `202605310005_execution_prompt8_alignment.sql`.
+- Escolher modelo OpenAI padrao por custo, latencia, qualidade e acesso antes de ativar IA real.
+- Aprovar materiais reais para a base de conhecimento e sua politica de versionamento.
+- Definir politica de retencao de metadados `ai_run_audit_v1`.
 
 ## Template de decisao
 

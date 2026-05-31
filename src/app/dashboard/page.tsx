@@ -1,20 +1,15 @@
-import { NextActionCard, ProgressNudge } from "@/components/execution/ExecutionComponents";
-import { LifeGardenPreview } from "@/components/garden/GardenComponents";
-import { PlaceholderPage } from "@/components/layout/PlaceholderPage";
-import { ScoreboardCard } from "@/components/scoreboard/ScoreboardComponents";
-import { getPlaceholderPage } from "@/lib/design/navigation";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { InitialJourneyDashboard } from "@/components/dashboard/InitialJourneyDashboard";
 
 export default function DashboardPage() {
-  const page = getPlaceholderPage("/dashboard")!;
-
   return (
-    <PlaceholderPage page={page}>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <NextActionCard />
-        <ProgressNudge />
-        <ScoreboardCard />
-        <LifeGardenPreview />
-      </div>
-    </PlaceholderPage>
+    <div className="space-y-6">
+      <PageHeader
+        description="Estado inicial da jornada: direção, próxima microação e módulos limitados até existir hipótese de Chamado."
+        status="Dashboard inicial"
+        title="Sua direção agora"
+      />
+      <InitialJourneyDashboard />
+    </div>
   );
 }

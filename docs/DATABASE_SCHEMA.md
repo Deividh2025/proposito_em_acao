@@ -2,7 +2,11 @@
 
 ## Fonte
 
-Schema implementado em `supabase/migrations/202605310001_initial_schema.sql`.
+Schema implementado em:
+
+- `supabase/migrations/202605310001_initial_schema.sql`
+- `supabase/migrations/202605310004_onboarding_calling_metadata.sql`
+- `supabase/migrations/202605310005_execution_prompt8_alignment.sql`
 
 ## Principios
 
@@ -30,6 +34,33 @@ Schema implementado em `supabase/migrations/202605310001_initial_schema.sql`.
 ## Dados sensiveis
 
 Campos como `raw_thought`, `fact`, `interpretation`, `feeling`, `impulse`, `answers`, `ai_summary`, `ecological_analysis`, `content`, `completion_note`, `metadata_minimal` e `preview_payload` devem ser tratados com minimizacao e sem log bruto.
+
+## Prompt 6 - Chamado
+
+`202605310004_onboarding_calling_metadata.sql` adiciona metadados para hipotese de Chamado:
+
+- `schema_version`
+- `confidence_level`
+- `guardrail_status`
+- `pastoral_safety_note`
+- `accepted_at`
+- `reviewed_at`
+- `prompt_version`
+- `position`
+
+A migration esta versionada no repositorio, mas ainda precisa ser aplicada e testada em Supabase local/remoto.
+
+## Prompt 8 - Execucao
+
+`202605310005_execution_prompt8_alignment.sql` alinha o nucleo de execucao:
+
+- status de `goals`, `projects` e `tasks` com os contratos TypeScript;
+- `goals.ecological_analysis` como `jsonb`;
+- `tasks.priority` e `tasks.reason`;
+- `microtasks.estimated_minutes`;
+- trigger privada para impedir tarefa com `project_id` e `goal_id` desalinhados entre dono e alvo.
+
+A migration esta versionada, mas ainda precisa ser aplicada e testada em Supabase local/remoto antes de producao.
 
 ## Tipos TypeScript
 

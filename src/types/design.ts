@@ -24,14 +24,14 @@ export type NavigationItem = {
   label: string;
   href: string;
   description: string;
-  status: "em preparação" | "base visual";
+  status: "em preparação" | "base visual" | "Prompt 6" | "Prompt 8";
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
 };
 
 export type PlaceholderPageDefinition = {
   title: string;
   href: string;
-  status: "em preparação";
+  status: "em preparação" | "Prompt 6" | "Prompt 8";
   description: string;
   components: string[];
   nextStep: string;

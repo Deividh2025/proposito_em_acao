@@ -17,6 +17,8 @@ Ordem de aplicacao:
 1. `202605310001_initial_schema.sql`
 2. `202605310002_rls_policies.sql`
 3. `202605310003_private_storage.sql`
+4. `202605310004_onboarding_calling_metadata.sql`
+5. `202605310005_execution_prompt8_alignment.sql`
 
 ## Aplicacao manual
 

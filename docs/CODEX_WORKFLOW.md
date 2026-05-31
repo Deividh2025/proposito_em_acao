@@ -46,6 +46,13 @@ git remote -v
 git push -u origin main
 ```
 
+Se o trabalho estiver em branch de etapa, publicar o branch explicitamente e abrir PR para `main`:
+
+```powershell
+git branch --show-current
+git push -u origin <branch-atual>
+```
+
 Se GitHub CLI estiver instalado e autenticado:
 
 ```powershell

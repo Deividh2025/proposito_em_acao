@@ -2,7 +2,7 @@
 
 ## Rotas
 
-Rotas placeholder existentes na fundacao visual:
+Rotas existentes:
 
 - `/`
 - `/dashboard`
@@ -20,11 +20,17 @@ Rotas placeholder existentes na fundacao visual:
 
 Essas rotas validam shell, navegacao e componentes fundacionais. Elas nao implementam fluxos finais de produto.
 
+Excecao do Prompt 6:
+
+- `/onboarding` implementa o fluxo inicial de perfil, Mapa da Vida, Chamado em discernimento e resumo.
+- `/dashboard` implementa dashboard inicial de direcao e progressao assistida.
+- As demais rotas continuam placeholders de largura da V1.
+
 ## App Router
 
 - `src/app/layout.tsx`: layout raiz com `AppShell`.
 - `src/app/page.tsx`: home do design system inicial.
-- `src/app/*/page.tsx`: placeholders por area.
+- `src/app/*/page.tsx`: placeholders por area, exceto onboarding e dashboard inicial do Prompt 6.
 
 Preferir Server Components por padrao. Usar Client Components somente quando houver estado, evento, browser API ou controle interativo real.
 
@@ -64,6 +70,13 @@ Tailwind continua como base de tokens e utilitarios.
 - Zod para schemas compartilhados e validacao.
 - Acoes sensiveis devem validar no servidor.
 - Sugestoes de IA que virarem dados precisam ser revisaveis/editaveis antes de salvar.
+
+## Onboarding Prompt 6
+
+- `src/components/onboarding/OnboardingFlow.tsx` e o client island do wizard.
+- `src/app/onboarding/actions.ts` centraliza o salvamento server-side preparado para Supabase.
+- O shell permanece Server Component.
+- O fluxo nao usa `localStorage` para conteudo intimo.
 
 ## Responsividade
 

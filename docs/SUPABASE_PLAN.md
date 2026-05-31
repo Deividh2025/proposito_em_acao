@@ -14,7 +14,7 @@ Supabase e o backend principal planejado:
 
 - Projeto remoto informado: `https://bceumcfmjftoukzrfthe.supabase.co`.
 - Project ref: `bceumcfmjftoukzrfthe`.
-- Chave publicavel registrada localmente em `.env.local` como `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+- Chaves reais nao devem ser versionadas; `.env.local` pode ser preenchido localmente quando a etapa exigir teste autenticado.
 - Migrations criadas em `supabase/migrations/`.
 - RLS/policies preparadas em SQL.
 - Storage privado preparado.
@@ -76,6 +76,8 @@ Considerar para:
 - `202605310001_initial_schema.sql`
 - `202605310002_rls_policies.sql`
 - `202605310003_private_storage.sql`
+- `202605310004_onboarding_calling_metadata.sql`
+- `202605310005_execution_prompt8_alignment.sql`
 
 ## Tipos
 

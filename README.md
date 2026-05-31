@@ -2,7 +2,7 @@
 
 SaaS desktop-first de vida intencional, foco, execucao, habitos, autorregulacao e produtividade assistida por IA, com PWA/mobile complementar para acoes rapidas.
 
-Status atual: fontes de verdade, governanca tecnica, stack Next.js e fundacao Supabase/Auth/RLS em arquivos versionados. Nenhuma tela funcional completa do SaaS foi implementada ainda.
+Status atual: fontes de verdade, governanca tecnica, stack Next.js, fundacao Supabase/Auth/RLS em arquivos versionados, onboarding/direcao do Prompt 6, camada central de IA do Prompt 7 e nucleo inicial de execucao do Prompt 8. Supabase remoto, Auth visual, deploy e OpenAI real ainda nao foram ativados.
 
 ## Visao
 
@@ -55,6 +55,8 @@ Stack definida para a fundacao inicial:
 - `.agents/skills/`: skills locais do projeto.
 - `supabase/migrations/`: migrations versionadas de schema, RLS e storage.
 - `src/lib/supabase/`: clients Supabase separados por browser, server e admin server-only.
+- `src/components/onboarding/`: fluxo inicial de perfil, Mapa da Vida e Chamado em discernimento.
+- `src/app/goals/`, `src/app/projects/` e `src/app/tasks/`: nucleo inicial de execucao com fallback local/dev.
 
 ## Fontes de verdade principais
 
@@ -65,6 +67,10 @@ Stack definida para a fundacao inicial:
 - `docs/USER_FLOWS.md`
 - `docs/DOMAIN_MODEL.md`
 - `docs/AI_ARCHITECTURE.md`
+- `docs/AI_AGENTS.md`
+- `docs/AI_SCHEMAS.md`
+- `docs/AI_EVALS.md`
+- `docs/KNOWLEDGE_BASE.md`
 - `docs/METACOGNITION_MODULE.md`
 - `docs/SECURITY_PRIVACY.md`
 - `docs/DATA_SENSITIVITY_MATRIX.md`
@@ -72,6 +78,10 @@ Stack definida para a fundacao inicial:
 - `docs/TESTING_STRATEGY.md`
 - `docs/ACCEPTANCE_CRITERIA.md`
 - `docs/OPEN_QUESTIONS.md`
+- `docs/ONBOARDING_FLOW.md`
+- `docs/LIFE_MAP_MODULE.md`
+- `docs/CALLING_MODULE.md`
+- `docs/PROGRESSIVE_UNLOCK.md`
 
 ## Governanca e suporte
 

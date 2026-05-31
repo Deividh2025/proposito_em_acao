@@ -47,6 +47,14 @@ A etapa inicial de bootstrap nao deveria implementar frontend do SaaS, banco de 
 
 Nesta etapa e permitido criar migrations, policies, storage privado, clientes Supabase seguros, tipos preparatorios, testes/cenarios RLS, documentacao tecnica e skills locais relacionadas. Nao implementar UI completa, onboarding completo, Chamado funcional, Metacognicao funcional, chamadas reais a OpenAI, deploy, uso de service role no frontend ou acesso amplo de Atalaia.
 
+## Limites da etapa atual de Onboarding e Direcao
+
+Prompt 6 autoriza implementar o fluxo inicial de onboarding: perfil essencial, Mapa da Vida, Chamado Pessoal em discernimento, hipotese provisoria e dashboard inicial. A etapa continua proibindo alvos completos, projetos, tarefas, calendario funcional, Metacognicao funcional, Desbloqueador funcional, habitos, Placar completo, Atalaia funcional, deploy, OpenAI real sem autorizacao/configuracao e acesso amplo a dados sensiveis. Sem Auth/Supabase aplicado, qualquer persistencia deve ser apresentada como fallback local/dev e nao como dado produtivo confirmado.
+
+## Limites da etapa atual de Alvos, Projetos e Tarefas
+
+Prompt 8 autoriza implementar o nucleo de execucao: alvos SMART-E revisaveis, projetos, tarefas, microtarefas, proxima acao, mocks seguros e persistencia Supabase preparada por server actions. A etapa continua proibindo calendario funcional, inbox funcional, habitos funcionais, Placar completo, Metacognicao funcional, Desbloqueador funcional, Atalaia funcional, deploy, OpenAI real acionada por UI e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
+
 ## Skills locais obrigatorias por dominio
 
 - Produto/escopo: `prd-product-skill`.

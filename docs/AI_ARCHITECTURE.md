@@ -81,6 +81,39 @@ Base futura deve conter materiais proprios e revisados sobre:
 - Registrar metadados tecnicos: schema, versao, latencia, status, erro categorizado e guardrail aplicado.
 - Conteudo de Metacognicao e Chamado completo permanece privado por padrao.
 
+## Prompt 6 - Chamado
+
+O Prompt 6 materializa `calling_draft_v1` em `src/ai/schemas/calling.ts`.
+
+- A saida e hipotese provisoria e exige revisao humana.
+- O mock deterministico substitui IA real enquanto OpenAI nao estiver autorizada/configurada.
+- Guardrails bloqueiam vontade divina especifica, certeza absoluta, diagnostico e culpa espiritual.
+- Persistencia registra schema, confianca, status de guardrail e nota pastoral segura.
+
+## Prompt 7 - Camada central de IA
+
+O Prompt 7 cria a fundacao tecnica para agentes internos, structured outputs, prompts versionados, guardrails e providers real/mock.
+
+- Catalogo de agentes: `src/ai/agents/catalog.ts`.
+- Entrypoints por agente: `src/ai/agents/*/index.ts`.
+- Schemas Zod: `src/ai/schemas/*.ts`.
+- Prompts versionados: `src/ai/prompts/*.md`.
+- Guardrails deterministas iniciais: `src/ai/guardrails/*.ts`.
+- Providers e safe invoke: `src/lib/openai/`.
+- Evals iniciais: `src/ai/evals/` e `src/tests/unit/ai-central-layer.test.ts`.
+- Base de conhecimento placeholder: `knowledge/`.
+
+Fluxo previsto:
+
+1. UI ou server action chama uma camada server-side.
+2. A camada resolve agente, prompt, schema e contexto minimo.
+3. Provider mock ou OpenAI server-side gera saida.
+4. Saida e validada com Zod.
+5. Guardrails revisam risco clinico, pastoral, privacidade, Atalaia e crise.
+6. Persistencia futura salva apenas dado estruturado e metadados minimos.
+
+OpenAI real nao foi ativada em fluxo de produto nesta etapa.
+
 ## Evals futuros
 
 - Aderencia a schema.

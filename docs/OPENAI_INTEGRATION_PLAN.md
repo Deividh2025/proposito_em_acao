@@ -72,7 +72,26 @@ Casos minimos futuros:
 
 ## Limites desta etapa
 
-- Nenhuma chamada real a OpenAI API.
-- Nenhum prompt final.
-- Nenhum agente funcional.
-- Apenas estrutura de diretorios, catalogo conceitual e schema minimo de seguranca.
+- Nenhuma chamada real a OpenAI API e acionada por fluxo de produto.
+- Prompts internos foram versionados como contratos iniciais, nao como prompts finais de producao.
+- Agentes foram estruturados no catalogo e em entrypoints, mas fluxos completos ainda serao integrados em etapas proprias.
+- Provider mock permite testar outputs sem enviar dados sensiveis.
+
+## Prompt 7 - Integracao tecnica preparada
+
+OpenAI deve permanecer server-side. O client real esta em `src/lib/openai/client.ts` com barreira `server-only`, e o provider real fica isolado em `src/lib/openai/provider.ts`.
+
+Docs oficiais consultadas em 2026-05-31 indicam que novos projetos devem preferir a Responses API e que Structured Outputs exigem schemas estritos com campos requeridos:
+
+- https://developers.openai.com/api/docs/guides/migrate-to-responses
+- https://developers.openai.com/api/docs/guides/structured-outputs
+
+Arquivos:
+
+- `src/lib/openai/types.ts`
+- `src/lib/openai/errors.ts`
+- `src/lib/openai/mockProvider.ts`
+- `src/lib/openai/safeInvoke.ts`
+- `src/lib/openai/provider.ts`
+
+Logs de IA devem usar `ai_run_audit_v1`, sem prompt bruto e sem resposta bruta.

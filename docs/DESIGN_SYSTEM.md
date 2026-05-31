@@ -11,9 +11,9 @@ Esta etapa entrega fundacao visual e tecnica:
 - Navegacao e rotas placeholder em `src/lib/design/navigation.ts`.
 - Shell desktop-first em `src/components/layout`.
 - Componentes base em `src/components/ui` e componentes visuais iniciais por dominio.
-- Rotas placeholder para validar largura da V1 sem implementar fluxos finais.
+- Rotas placeholder para validar largura da V1 sem implementar fluxos finais, exceto `/onboarding` e `/dashboard`, que no Prompt 6 recebem fluxo inicial de direcao.
 
-Fora de escopo nesta etapa:
+Fora de escopo da fundacao visual original:
 
 - Onboarding funcional.
 - Auth visual completa.
@@ -24,6 +24,8 @@ Fora de escopo nesta etapa:
 - Atalaia funcional.
 - Chamadas reais a Supabase ou OpenAI.
 - Deploy.
+
+Atualizacao Prompt 6: onboarding funcional inicial e dashboard inicial foram implementados com mock seguro, sem Auth UI completa, sem OpenAI real e sem deploy.
 
 ## Principios visuais
 
@@ -119,6 +121,7 @@ Componentes iniciais:
 - `Progress`, `Stepper`, `Tabs`
 - `Modal`, `Drawer`, `Tooltip`, `Toast`
 - `EmptyState`, `LoadingState`, `ErrorState`, `SuccessState`
+- `SensitiveDataNotice`
 
 Regras:
 

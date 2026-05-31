@@ -1,21 +1,15 @@
-import { ReflectionCard } from "@/components/faith/FaithComponents";
-import { PlaceholderPage } from "@/components/layout/PlaceholderPage";
-import { Stepper } from "@/components/ui/Stepper";
-import { getPlaceholderPage } from "@/lib/design/navigation";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 
 export default function OnboardingPage() {
-  const page = getPlaceholderPage("/onboarding")!;
-
   return (
-    <PlaceholderPage page={page}>
-      <Stepper
-        steps={[
-          { label: "Perfil essencial", status: "upcoming" },
-          { label: "Mapa da Vida", status: "upcoming" },
-          { label: "Chamado em discernimento", status: "upcoming" }
-        ]}
+    <div className="space-y-6">
+      <PageHeader
+        description="Perfil essencial, Mapa da Vida e Chamado Pessoal em discernimento, com mock seguro e salvamento preparado para Supabase/Auth."
+        status="Prompt 6"
+        title="Onboarding e direção"
       />
-      <ReflectionCard />
-    </PlaceholderPage>
+      <OnboardingFlow />
+    </div>
   );
 }

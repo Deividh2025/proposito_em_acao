@@ -8,12 +8,12 @@ test("home renders the design system shell", async ({ page }) => {
   await expect(page.getByText("Design system inicial em preparação", { exact: true })).toBeVisible();
 });
 
-test("dashboard placeholder renders without final product flow", async ({ page }) => {
+test("dashboard initial journey renders without final product flow", async ({ page }) => {
   await page.goto("/dashboard");
 
-  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-  await expect(page.getByRole("main").getByText("Status: em preparação")).toBeVisible();
-  await expect(page.getByRole("main").getByText("NextActionCard")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sua direção agora" })).toBeVisible();
+  await expect(page.getByRole("main").getByText("Direção antes de agenda")).toBeVisible();
+  await expect(page.getByRole("main").getByText("Módulos limitados por enquanto")).toBeVisible();
 });
 
 test("metacognition placeholder keeps privacy and scope clear", async ({ page }) => {

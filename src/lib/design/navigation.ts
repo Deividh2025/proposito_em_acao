@@ -20,16 +20,37 @@ export const navigationItems: NavigationItem[] = [
   {
     label: "Dashboard",
     href: "/dashboard",
-    description: "Agora, hoje, semana, direção e progresso.",
-    status: "base visual",
+    description: "Direção inicial, próxima ação e progressão assistida.",
+    status: "Prompt 6",
     icon: Home
   },
   {
     label: "Onboarding",
     href: "/onboarding",
-    description: "Perfil, Mapa da Vida e Chamado em etapa futura.",
-    status: "em preparação",
+    description: "Perfil, Mapa da Vida e Chamado em discernimento.",
+    status: "Prompt 6",
     icon: Target
+  },
+  {
+    label: "Alvos",
+    href: "/goals",
+    description: "SMART-E, ecologia, Chamado e primeira ação.",
+    status: "Prompt 8",
+    icon: Target
+  },
+  {
+    label: "Projetos",
+    href: "/projects",
+    description: "Fases, marcos, riscos, recursos e tarefas iniciais.",
+    status: "Prompt 8",
+    icon: Sparkles
+  },
+  {
+    label: "Tarefas",
+    href: "/tasks",
+    description: "Microtarefas, energia, tempo e próxima ação.",
+    status: "Prompt 8",
+    icon: TimerReset
   },
   {
     label: "Calendário",
@@ -105,25 +126,25 @@ export const navigationItems: NavigationItem[] = [
 
 export const quickActionItems = [
   navigationItems[0],
-  navigationItems[3],
-  navigationItems[7],
-  navigationItems[8]
+  navigationItems[4],
+  navigationItems[10],
+  navigationItems[11]
 ];
 
 export const placeholderPages: PlaceholderPageDefinition[] = [
   {
     title: "Dashboard",
     href: "/dashboard",
-    status: "em preparação",
-    description: "Base visual para Agora, Hoje, Semana, Direção e Progresso.",
+    status: "Prompt 6",
+    description: "Direção inicial, próxima microação e progressão assistida.",
     components: ["NextActionCard", "ProgressNudge", "ScoreboardCard", "LifeGardenPreview"],
     nextStep: "Definir a próxima ação evidente sem construir dashboard final."
   },
   {
     title: "Onboarding",
     href: "/onboarding",
-    status: "em preparação",
-    description: "Área futura de perfil, Mapa da Vida e Chamado Pessoal.",
+    status: "Prompt 6",
+    description: "Fluxo funcional de perfil, Mapa da Vida e Chamado Pessoal.",
     components: ["Stepper", "EnergySelector", "ReflectionCard", "SensitiveDataNotice"],
     nextStep: "Implementar em prompt próprio com consentimentos e salvamento seguro."
   },

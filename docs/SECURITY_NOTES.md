@@ -64,6 +64,9 @@ Tratar como sensiveis desde o modelo de produto:
 - Prompts/respostas brutas nao devem ser armazenados por padrao.
 - Saidas que viram dados devem ser validadas por schema.
 - Usuario deve revisar mudancas que alterem agenda, alvos, tarefas ou mensagens a Atalaia.
+- Prompt 7 adiciona provider OpenAI server-only, provider mock, safe invoke e metadados `ai_run_audit_v1`.
+- Provider real existe como preparacao tecnica; fluxos de produto continuam sem chamada real por padrao.
+- Falhas reais de escrita no Supabase nao devem ser reportadas como persistencia local bem-sucedida; somente ausencia de configuracao pode cair em fallback local/dev positivo.
 
 ## Guardrails de IA
 
@@ -101,6 +104,6 @@ Antes da primeira coleta real de dados, documentar bases legais, consentimento p
 
 ## Status do produto
 
-- Nenhuma funcionalidade completa do SaaS implementada.
-- Nenhuma chamada real a OpenAI API criada.
+- Fluxo inicial de onboarding/direcao e camada central de IA estao preparados, mas modulos finais ainda seguem por etapas.
+- Nenhuma chamada real a OpenAI API e acionada por fluxo de produto.
 - Nenhum deploy realizado.

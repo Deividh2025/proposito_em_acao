@@ -1,0 +1,71 @@
+# Codex Workflow
+
+## Como trabalhar neste projeto
+
+1. Inspecionar o estado atual antes de alterar arquivos.
+2. Preservar tudo que ja existir.
+3. Criar plano antes de codigo em tarefas complexas.
+4. Trabalhar por branches e PRs pequenos.
+5. Atualizar documentacao junto com mudancas relevantes.
+6. Reportar limitacoes, comandos nao executados e riscos pendentes.
+
+## Quando usar subagentes
+
+Usar subagentes quando houver trabalho em paralelo, risco alto, multiplas areas ou necessidade de revisao especializada. Exemplos: arquitetura, Supabase/RLS, seguranca, IA/guardrails, UX, documentacao e GitHub/DevOps.
+
+## Quando usar skills
+
+Usar skills do projeto quando a tarefa envolver:
+
+- bootstrap de repositorio;
+- GitHub e PRs;
+- `AGENTS.md`;
+- documentacao;
+- plano de execucao;
+- seguranca e privacidade;
+- coerencia com PRD;
+- guardrails de IA.
+
+## Plano antes de codigo
+
+O plano deve seguir `PLANS.md`, registrar riscos, criterios de aceite, testes, rollback e docs afetadas. Nao iniciar implementacao se o escopo estiver ambiguo em area de alto risco.
+
+## PRs
+
+Cada PR deve ter escopo claro, checklist preenchido, documentacao sincronizada e revisao Codex/CodeRabbit quando aplicavel.
+
+## GitHub local-first
+
+Repositorio GitHub informado pelo fundador: `Deividh2025/proposito_em_acao`.
+
+Nesta etapa, o repositorio remoto no GitHub nao sera criado automaticamente. Quando autorizado e com ferramenta autenticada disponivel, conectar o remote local e publicar:
+
+```powershell
+git remote add origin https://github.com/Deividh2025/proposito_em_acao.git
+git remote -v
+git push -u origin main
+```
+
+Se GitHub CLI estiver instalado e autenticado:
+
+```powershell
+gh repo create Deividh2025/proposito_em_acao --private --source=. --remote=origin --push
+```
+
+## Fora de escopo no bootstrap
+
+Nao implementar funcionalidades do SaaS durante a etapa de governanca. Nao criar banco, Supabase, autenticacao, chamadas reais a OpenAI API, telas finais, prompt final de produto ou deploy sem etapa propria.
+
+## Como reportar bloqueios
+
+Informe:
+
+- o que foi tentado;
+- comando executado;
+- erro ou limitacao;
+- impacto;
+- alternativa recomendada.
+
+## Como declarar tarefa concluida
+
+Uma tarefa so deve ser declarada concluida quando escopo, arquivos alterados, verificacoes, pendencias e proximos passos forem apresentados claramente.

@@ -1,0 +1,11 @@
+-- Proposito em Acao seed placeholder.
+-- No real users, secrets, sensitive content, or auth records are seeded here.
+--
+-- Recommended manual seed flow for local RLS testing:
+-- 1. Create test users through Supabase Auth local tools or dashboard.
+-- 2. Insert profile-owned records with those users' UUIDs.
+-- 3. Exercise RLS as anon, user A, user B, Atalaia authorized, and Atalaia revoked.
+--
+-- Canonical V1 life area suggestions, to be inserted per user by app/server flow:
+-- espiritualidade, familia, saude, trabalho, financas, relacionamentos,
+-- desenvolvimento, descanso, servico, lazer.

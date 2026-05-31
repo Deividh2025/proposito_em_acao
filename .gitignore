@@ -1,0 +1,68 @@
+# Dependencies
+node_modules/
+.pnp.*
+.yarn/*
+!.yarn/releases/
+!.yarn/patches/
+!.yarn/plugins/
+!.yarn/sdks/
+
+# Next/React/build outputs
+.next/
+out/
+dist/
+build/
+coverage/
+.turbo/
+.vercel/
+.netlify/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Env/secrets
+.env
+.env.*
+!.env.example
+.envrc
+.npmrc
+.mcp.local.json
+.mcp.*.json
+*.pem
+*.key
+
+# Python/scripts
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Supabase local/future
+.supabase/
+supabase/.branches/
+supabase/.temp/
+supabase/.env
+
+# Tests/tools
+playwright-report/
+test-results/
+.cache/
+*.tsbuildinfo
+tmp/
+temp/
+
+# OS/IDE
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+.idea/
+*.swp

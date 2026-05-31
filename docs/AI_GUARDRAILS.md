@@ -41,6 +41,9 @@ A IA nao deve:
 - Validar ecologia: saude, familia, fe, descanso e financas.
 - Nao lotar agenda.
 - Exigir revisao do usuario antes de salvar alteracoes relevantes.
+- Reduzir alvo/projeto quando o escopo sacrificar areas sensiveis ou exceder energia atual.
+- Nao criar calendario funcional, habitos, Atalaia ou mensagens externas no Prompt 8.
+- Manter `user_review_required = true` em alvos, projetos e quebras de tarefa gerados por IA/mock.
 
 ### Desbloqueador
 

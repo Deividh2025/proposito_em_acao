@@ -82,6 +82,11 @@ Stack definida para a fundacao inicial:
 - `docs/LIFE_MAP_MODULE.md`
 - `docs/CALLING_MODULE.md`
 - `docs/PROGRESSIVE_UNLOCK.md`
+- `docs/EXECUTION_DOMAIN.md`
+- `docs/GOALS_MODULE.md`
+- `docs/PROJECTS_MODULE.md`
+- `docs/TASKS_MODULE.md`
+- `docs/MICROTASKS_MODULE.md`
 
 ## Governanca e suporte
 

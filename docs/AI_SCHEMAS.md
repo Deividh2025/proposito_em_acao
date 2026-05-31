@@ -28,3 +28,11 @@ Tudo que virar dado do produto deve usar structured output, validacao local com 
 - Campos sensiveis nao devem ir para logs.
 - Atalaia nunca recebe Metacognicao, Chamado completo, saude, familia, financas, emocoes ou revisoes privadas por padrao.
 - Para compatibilidade futura com Structured Outputs, evitar schema raiz com union e tratar opcionais com cuidado.
+
+## Prompt 8 - Execucao
+
+- `smart_goal_output_v1` exige `title`, `status`, `life_area`, campos SMART-E, `ecological_analysis`, `calling_alignment`, `first_action`, `suggested_projects`, `confidence_level`, `assumptions`, `overload_warning` e `user_review_required`.
+- `project_plan_output_v1` exige `goal_id`, lista de `projects`, cada projeto com tarefas e microtarefas sugeridas, `restart_plan`, `overload_warning` e `user_review_required`.
+- `task_breakdown_output_v1` exige `task_title`, `reason`, `estimated_minutes`, `energy_level`, microtarefas ordenadas, `first_micro_action`, `if_stuck_suggestion`, `fallback_minimum_version` e `user_review_required`.
+
+Esses schemas sao validados por Zod antes de qualquer persistencia e continuam mockados ate autorizacao/configuracao de OpenAI real.

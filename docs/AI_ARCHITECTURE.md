@@ -114,6 +114,16 @@ Fluxo previsto:
 
 OpenAI real nao foi ativada em fluxo de produto nesta etapa.
 
+## Prompt 8 - SMART-E e Planejador
+
+O Prompt 8 integra os contratos de IA ao nucleo de execucao:
+
+- `smart_goal_output_v1`: transforma desejo vago em alvo SMART-E com ecologia, alinhamento com Chamado, primeira acao e revisao humana.
+- `project_plan_output_v1`: sugere projetos vinculados a `goal_id`, fases, marcos, riscos, recursos, tarefas iniciais e plano de retomada.
+- `task_breakdown_output_v1`: quebra tarefa grande em microtarefas ordenadas, primeira microacao e sugestao caso trave.
+
+A UI usa mocks deterministos em `src/domain/goals`, `src/domain/projects` e `src/domain/tasks`. OpenAI real permanece server-side e nao e acionada por fluxo de produto. Nenhum prompt/resposta bruta deve ser salvo; apenas dados estruturados revisados e metadados minimos.
+
 ## Evals futuros
 
 - Aderencia a schema.

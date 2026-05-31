@@ -72,6 +72,10 @@ Prompt 8 autoriza implementar o nucleo de execucao: alvos SMART-E revisaveis, pr
 - Auth seguro: `auth-security-skill`.
 - Atalaia/permissoes: `accountability-permission-skill`.
 - Testes RLS: `rls-testing-skill`.
+- Alvos SMART-E: `smart-goals-skill`.
+- Planejamento de projetos: `project-planning-skill`.
+- Tarefas/microtarefas: `task-breakdown-skill`.
+- Dominio de execucao: `execution-domain-skill`.
 
 ## Git e GitHub
 

@@ -46,6 +46,10 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Logs de IA usam metadados minimos `ai_run_audit_v1`; prompt bruto e resposta bruta permanecem proibidos por padrao.
 - Base de conhecimento nasce como placeholder em `knowledge/`; material real, file search ou vector store exigem autorizacao futura.
 - Nome canonico operacional permanece `Metacognicao` em portugues; mudanca de marca/nome final segue pendente do fundador.
+- Prompt 8 libera o nucleo inicial de execucao depois da direcao: Alvos SMART-E, Projetos, Tarefas, Microtarefas e Proxima acao.
+- SMART-E, plano de projeto e quebra de tarefa usam mocks deterministos e schemas estruturados revisaveis; OpenAI real continua desativada na UI.
+- Persistencia de execucao deve ocorrer por server actions com Supabase/RLS owner-only; sem Auth/Supabase, o app deve declarar fallback local/dev.
+- Calendario funcional, inbox funcional, habitos, Placar completo, Desbloqueador funcional, Metacognicao funcional e Atalaia funcional permanecem fora do Prompt 8.
 
 ## Pendencias
 
@@ -65,6 +69,9 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Escolher modelo OpenAI padrao por custo, latencia, qualidade e acesso antes de ativar IA real.
 - Aprovar materiais reais para a base de conhecimento e sua politica de versionamento.
 - Definir politica de retencao de metadados `ai_run_audit_v1`.
+- Aplicar e testar a migration `202605310005_execution_prompt8_alignment.sql`.
+- Gerar tipos reais de Supabase apos aplicar migrations do Prompt 8.
+- Definir futuramente uma projecao sanitizada para Atalaia ver progresso de execucao sem abrir `goals/projects/tasks/microtasks` diretamente.
 
 ## Template de decisao
 

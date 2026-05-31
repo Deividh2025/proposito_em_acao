@@ -13,6 +13,7 @@ A IA do Proposito em Acao e uma rede de agentes internos especializados. Nenhum 
 | Mapa da Vida | `life_map_prompt_v1` | `life_map_analysis_output_v1` | Sim | Leitura sem culpa ou diagnostico. |
 | SMART-E | `smart_goal_prompt_v1` | `smart_goal_output_v1` | Sim | Alvos ecologicos e revisaveis. |
 | Planejador | `planner_prompt_v1` | `project_plan_output_v1` | Sim | Nao sobrecarregar agenda. |
+| Microtarefas | `planner_prompt_v1` | `task_breakdown_output_v1` | Sim | Quebrar tarefa grande em primeira microacao. |
 | Inbox | `inbox_classifier_prompt_v1` | `inbox_classification_output_v1` | Sim | Captura e sensivel e nao confiavel. |
 | Desbloqueador | `action_unblocker_prompt_v1` | `action_unblocker_output_v1` | Sim | Primeiro passo curto; crise sai do fluxo produtivo. |
 | Metacognicao | `metacognition_prompt_v1` | `metacognition_output_v1` | Sim | Privada por padrao, sem terapia/diagnostico. |

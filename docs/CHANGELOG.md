@@ -72,7 +72,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 ### Notes
 
-- Nenhuma funcionalidade do SaaS foi implementada nesta etapa.
+- As primeiras funcionalidades navegaveis sao restritas a onboarding/direcao e nucleo inicial de execucao, com fallback local/dev quando Supabase/Auth nao estiverem configurados.
 - A entrega do Prompt 6 usa mock seguro e server action preparada; Supabase remoto, Auth visual e OpenAI real continuam pendentes.
 - Projeto Supabase remoto nao foi modificado por falta de credenciais administrativas/CLI no workspace.
 - Nenhuma chamada real a OpenAI API foi criada.

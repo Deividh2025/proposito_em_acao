@@ -67,6 +67,9 @@ Tratar como sensiveis desde o modelo de produto:
 - Prompt 7 adiciona provider OpenAI server-only, provider mock, safe invoke e metadados `ai_run_audit_v1`.
 - Provider real existe como preparacao tecnica; fluxos de produto continuam sem chamada real por padrao.
 - Falhas reais de escrita no Supabase nao devem ser reportadas como persistencia local bem-sucedida; somente ausencia de configuracao pode cair em fallback local/dev positivo.
+- Prompt 8 adiciona alvos/projetos/tarefas/microtarefas com mock seguro; analise ecologica, Chamado e rotina nao devem ir para logs ou Atalaia.
+- Prompt 9 adiciona calendario/inbox com mock seguro; capturas, links, preocupacoes e agenda nao devem ir para logs, Atalaia ou terceiros nesta etapa.
+- Prompt 10 adiciona Desbloqueador/Metacognicao com mock seguro; pensamentos automaticos, fatos, interpretacoes, sentimentos, impulsos e obstaculos nao devem ir para logs, Atalaia ou terceiros por padrao.
 
 ## Guardrails de IA
 
@@ -104,6 +107,8 @@ Antes da primeira coleta real de dados, documentar bases legais, consentimento p
 
 ## Status do produto
 
-- Fluxo inicial de onboarding/direcao e camada central de IA estao preparados, mas modulos finais ainda seguem por etapas.
+- Fluxo inicial de onboarding/direcao, camada central de IA e nucleo inicial de execucao estao preparados, mas modulos finais ainda seguem por etapas.
+- Calendario e inbox/GTD basicos foram adicionados no Prompt 9 como centro operacional, mantendo privacidade por padrao.
+- Desbloqueador e Metacognicao funcionais foram adicionados no Prompt 10, mantendo Metacognicao privada por padrao.
 - Nenhuma chamada real a OpenAI API e acionada por fluxo de produto.
 - Nenhum deploy realizado.

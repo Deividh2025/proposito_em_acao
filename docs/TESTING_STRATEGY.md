@@ -92,6 +92,46 @@ Testes adicionados:
 
 `vitest.config.ts` inclui `src/ai/evals/**/*.test.ts`.
 
+## Prompt 8
+
+Testes adicionados/esperados:
+
+- `src/tests/unit/execution-domain.test.ts` valida SMART-E mock, plano de projeto, quebra de tarefa e overview de execucao.
+- `src/tests/unit/ai-central-layer.test.ts` valida os schemas atualizados de SMART-E, project plan, task breakdown e agente `taskBreakdown`.
+- E2E recomendado: criar alvo manual, gerar alvo mock, gerar projeto, criar tarefa, quebrar em microtarefas e marcar microtarefa.
+- RLS real permanece pendente enquanto Supabase CLI nao estiver instalado; usar checklist de `supabase/tests/README.md` e `docs/RLS_POLICIES.md`.
+
+## Prompt 9
+
+Testes adicionados/esperados:
+
+- `src/tests/unit/calendar-inbox-domain.test.ts` valida montagem de semana, proxima acao, sobrecarga, classificacao de inbox e processamento.
+- `src/tests/unit/ai-central-layer.test.ts` valida `inbox_classification_output_v1`, `schedule_overload_output_v1` e agente `scheduleReviewer`.
+- `src/tests/e2e/calendar-inbox.spec.ts` cobre abertura do calendario, criacao de bloco, agendamento de tarefa, reagendamento, captura na inbox, classificacao e conversao para bloco.
+- RLS real de `calendar_blocks` e `inbox_items` permanece pendente enquanto Supabase CLI nao estiver instalado; usar `supabase/tests/README.md` e `docs/RLS_POLICIES.md`.
+- Testes de logs sensiveis devem confirmar que capturas, links, preocupacoes e agenda nao aparecem em logs brutos quando observabilidade existir.
+
+## Prompt 10
+
+Testes adicionados/esperados:
+
+- `src/tests/unit/action-metacognition-domain.test.ts` valida Desbloqueador, sugestao de Metacognicao, crise, separacao fato/interpretacao/sentimento/impulso e privacidade.
+- `src/ai/evals/action-unblocker.cases.ts` registra casos do Desbloqueador.
+- `src/ai/evals/crisis-guardrail.cases.ts` registra casos de crise.
+- `src/ai/evals/metacognition.cases.ts` foi ampliado com privacidade, crise e linguagem pastoral segura.
+- `src/ai/evals/schema-validation.test.ts` valida guardrails, schemas e evals.
+- E2E recomendado: `/action-unblocker` gera plano, `/metacognition` gera reflexao, historico privado carrega e crise mostra rota de ajuda humana.
+- RLS real de `action_unblock_sessions` e `metacognition_sessions` permanece pendente enquanto Supabase CLI nao estiver instalado; usar `supabase/tests/README.md`.
+
+## Prompt 11
+
+Testes adicionados/esperados:
+
+- `src/tests/unit/focus-habits-scoreboard-domain.test.ts` valida duracoes de foco, captura de distracao, plano de habito, retomada e Placar.
+- `src/tests/e2e/focus-habits-scoreboard.spec.ts` cobre iniciar foco, capturar distracao, concluir foco, gerar habito mock, marcar retomada e marcar Placar.
+- `src/tests/unit/ai-central-layer.test.ts` valida `habit_plan_output_v1` ampliado e `scoreboard_plan_output_v1`.
+- RLS real de `focus_sessions`, `focus_distractions`, `habits`, `habit_logs`, `discipline_scoreboards`, `scoreboard_items` e `scoreboard_entries` permanece pendente enquanto Supabase CLI nao estiver instalado.
+
 ## Testes de UX critico
 
 - Proxima acao clara no dashboard.

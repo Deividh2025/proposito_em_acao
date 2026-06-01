@@ -13,6 +13,8 @@ import {
   lifeMapAnalysisOutputSchema,
   metacognitionOutputSchema,
   projectPlanOutputSchema,
+  scheduleOverloadOutputSchema,
+  scoreboardPlanOutputSchema,
   smartGoalOutputSchema,
   taskBreakdownOutputSchema,
   weeklyReviewOutputSchema
@@ -173,9 +175,16 @@ const schemaCases: SchemaCase[] = [
     fixture: {
       schema_version: "inbox_classification_output_v1",
       classification: "task",
-      reasoning: "A captura exige uma proxima acao clara.",
-      suggested_destination_label: "Tarefa simples",
-      confidence_level: "medium",
+      confidence: "medium",
+      suggested_title: "Tarefa simples",
+      summary: "A captura exige uma proxima acao clara.",
+      recommended_action: "create_task",
+      life_area: null,
+      estimated_minutes: 15,
+      energy_level: "medium",
+      due_date_suggestion: null,
+      clarifying_question: null,
+      safety_note: "Revisar antes de criar tarefa.",
       user_review_required: true
     },
     badVersion: { schema_version: "wrong" }
@@ -185,11 +194,33 @@ const schemaCases: SchemaCase[] = [
     schema: actionUnblockerOutputSchema,
     fixture: {
       schema_version: "action_unblocker_output_v1",
-      obstacle_type: "operational",
-      first_step: "Abrir o documento e escrever uma frase ruim.",
-      minimum_version: "Escrever apenas o titulo.",
-      suggested_focus_minutes: 10,
-      next_route: "focus",
+      state_summary: "A tarefa esta grande e a energia esta baixa.",
+      first_step: "Abrir o documento e escrever uma frase ruim por dois minutos.",
+      minimum_viable_action: "Escrever apenas o titulo provisório.",
+      microtasks: [
+        { title: "Abrir o documento certo", estimated_minutes: 2, order: 1 },
+        { title: "Escrever uma frase imperfeita", estimated_minutes: 3, order: 2 }
+      ],
+      recommended_focus_minutes: 5,
+      immediate_reward: "Marcar a retomada e beber agua.",
+      reorientation_phrase: "Nao preciso resolver tudo; preciso iniciar honestamente.",
+      restart_plan: "Se travar de novo, reduzir para dois minutos e registrar o obstaculo.",
+      suggest_metacognition: true,
+      reason_to_suggest_metacognition: "O obstaculo menciona medo de errar.",
+      safety_note: null,
+      user_review_required: true
+    },
+    badVersion: { schema_version: "wrong" }
+  },
+  {
+    name: "schedule_overload_output",
+    schema: scheduleOverloadOutputSchema,
+    fixture: {
+      schema_version: "schedule_overload_output_v1",
+      overload_level: "medium",
+      message: "Esta agenda parece pesada para sua energia atual.",
+      reasons: ["Há muitos blocos de execução sem buffer suficiente."],
+      recommended_adjustments: ["Proteger um bloco de descanso antes de adicionar outra entrega."],
       user_review_required: true
     },
     badVersion: { schema_version: "wrong" }
@@ -199,19 +230,24 @@ const schemaCases: SchemaCase[] = [
     schema: metacognitionOutputSchema,
     fixture: {
       schema_version: "metacognition_output_v1",
-      facts: ["A tarefa ficou parada hoje."],
-      interpretations: ["Estou concluindo que sempre falho."],
-      feelings: ["culpa"],
-      impulses: ["evitar a tarefa"],
+      state_name: "Culpa e paralisia diante da tarefa",
+      category: "guilt",
+      intensity_observed: "medium",
+      fact: "A tarefa ficou parada hoje.",
+      interpretation: "Estou concluindo que sempre falho.",
+      feeling: "culpa",
+      impulse: "evitar a tarefa",
       dominant_automatic_thought: "Eu sempre falho.",
-      likely_distortions: ["generalizacao excessiva"],
-      logic_check_questions: ["Qual evidencia mostra que sempre e exagero?"],
-      responsible_confrontation: "O pensamento apaga retomadas e reduz sua responsabilidade ao desespero.",
-      reframed_thought: "Falhei neste ponto, mas posso retomar com uma acao pequena.",
-      next_micro_action: "Abrir a tarefa por cinco minutos.",
-      routing: "micro_action",
-      crisis_detected: false,
-      human_help_recommended: false,
+      cognitive_patterns: ["generalizacao excessiva"],
+      logical_deconstruction: "O fato prova atraso hoje, nao incapacidade permanente.",
+      confrontation_question: "Qual pequeno passo ainda esta sob sua responsabilidade agora?",
+      reframe: "Falhei neste ponto, mas posso retomar com uma acao pequena.",
+      next_action: "Abrir a tarefa por cinco minutos.",
+      recommended_route: "action_unblocker",
+      christian_anchor: null,
+      safety_flags: [],
+      privacy_note: "Sessao privada por padrao e nao compartilhada com Atalaia.",
+      user_review_required: true,
       private_by_default: true,
       share_with_accountability_allowed: false
     },
@@ -223,13 +259,48 @@ const schemaCases: SchemaCase[] = [
     fixture: {
       schema_version: "habit_plan_output_v1",
       habit_title: "Leitura curta",
+      identity_statement: "Sou uma pessoa que retorna ao essencial em pequena escala.",
+      why_it_matters: "Ler de forma curta protege direcao sem depender de energia alta.",
+      life_area: "Espiritualidade",
       trigger: "Depois do cafe",
       minimum_version: "Ler uma pagina",
       ideal_version: "Ler dez paginas",
+      schedule_suggestion: "Depois do cafe da manha",
       reward: "Marcar progresso sem vergonha",
+      likely_obstacle: "pressa",
       if_then_plan: "Se perder o horario, ler uma pagina a noite.",
-      frequency: "3 vezes por semana",
+      environment_design: "Deixar o livro na mesa antes de dormir.",
+      frequency: "weekly",
+      metric: "paginas lidas sem pressao",
+      scoreboard_items: ["Leitura minima", "Retomada de leitura"],
       restart_plan: "Retomar pela versao minima.",
+      risk_of_overload: "low",
+      adjustments: ["reduzir para um paragrafo em dias ruins"],
+      user_review_required: true
+    },
+    badVersion: { schema_version: "wrong" }
+  },
+  {
+    name: "scoreboard_plan_output",
+    schema: scoreboardPlanOutputSchema,
+    fixture: {
+      schema_version: "scoreboard_plan_output_v1",
+      scoreboard_title: "Placar leve",
+      period: "weekly",
+      items: [
+        {
+          title: "Foco honesto",
+          type: "focus",
+          target_frequency: "3 vezes por semana",
+          minimum_success: "5 minutos",
+          linked_goal_id: null,
+          linked_habit_id: null,
+          linked_task_id: null
+        }
+      ],
+      restart_tracking: true,
+      visual_guidance: "Sem vergonha; retomada conta.",
+      risk_notes: ["nao transformar falha em identidade"],
       user_review_required: true
     },
     badVersion: { schema_version: "wrong" }
@@ -285,6 +356,8 @@ const schemaCases: SchemaCase[] = [
   }
 ];
 
+const guardrailReviewFixture = schemaCases.find((item) => item.name === "guardrail_review_output")?.fixture;
+
 describe("AI structured output schemas", () => {
   it.each(schemaCases)("validates $name fixtures and rejects wrong schema version", ({ schema, fixture, badVersion }) => {
     expect(schema.safeParse(fixture).success).toBe(true);
@@ -314,7 +387,7 @@ describe("AI structured output schemas", () => {
 
 describe("AI agent catalog", () => {
   it("keeps all Prompt 7 internal agents registered with prompt and schema contracts", () => {
-    expect(aiAgents).toHaveLength(13);
+    expect(aiAgents).toHaveLength(15);
     expect(getAiAgentDefinition("taskBreakdown")).toMatchObject({
       writesData: true,
       requiresStructuredOutput: true,
@@ -328,6 +401,14 @@ describe("AI agent catalog", () => {
     expect(getAiAgentDefinition("accountability")).toMatchObject({
       humanReviewRequired: true,
       outputSchemaName: "accountability_message_output_v1"
+    });
+    expect(getAiAgentDefinition("scheduleReviewer")).toMatchObject({
+      humanReviewRequired: true,
+      outputSchemaName: "schedule_overload_output_v1"
+    });
+    expect(getAiAgentDefinition("scoreboard")).toMatchObject({
+      humanReviewRequired: true,
+      outputSchemaName: "scoreboard_plan_output_v1"
     });
   });
 });
@@ -393,7 +474,7 @@ describe("AI deterministic guardrails", () => {
 describe("AI providers and safe invoke", () => {
   it("returns mock structured output through the same schema used by real providers", async () => {
     const provider = createMockAiProvider({
-      guardrailReviewer: schemaCases[11]?.fixture
+      guardrailReviewer: guardrailReviewFixture
     });
 
     const result = await safeInvokeAi({
@@ -403,7 +484,7 @@ describe("AI providers and safe invoke", () => {
       schemaName: "guardrail_review_output_v1",
       promptVersion: "guardrail_reviewer_prompt_v1",
       input: { text: "conteudo seguro" },
-      fallback: schemaCases[11]?.fixture
+      fallback: guardrailReviewFixture
     });
 
     expect(result.output).toMatchObject({ allowed: true });
@@ -426,7 +507,7 @@ describe("AI providers and safe invoke", () => {
       schemaName: "guardrail_review_output_v1",
       promptVersion: "guardrail_reviewer_prompt_v1",
       input: { text: "conteudo seguro" },
-      fallback: schemaCases[11]?.fixture
+      fallback: guardrailReviewFixture
     });
 
     expect(result.source).toBe("fallback");

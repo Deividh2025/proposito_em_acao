@@ -53,3 +53,56 @@ Buckets privados usam path `{auth.uid()}/...`. Nao ha policy publica nem policy 
 - Rodar migrations em Supabase local/remoto.
 - Executar matriz de testes de `supabase/tests/README.md`.
 - Rodar Supabase advisors/lints quando CLI estiver instalado.
+
+## Prompt 8 - Execucao
+
+`goals`, `projects`, `tasks` e `microtasks` permanecem owner-only por `user_id = auth.uid()` nas policies atuais. A migration do Prompt 8 nao cria policy de Atalaia nem view publica para execucao.
+
+Checklist adicional:
+
+- user A cria/le/atualiza/deleta seus alvos, projetos, tarefas e microtarefas.
+- user B nao acessa registros de user A.
+- user B nao cria filho apontando parent de user A.
+- `tasks.project_id` e `tasks.goal_id` precisam pertencer ao mesmo alvo quando ambos existem.
+- Atalaia nao le `goals`, `projects`, `tasks` ou `microtasks` diretamente nesta etapa.
+
+## Prompt 9 - Calendario e Inbox/GTD
+
+`calendar_blocks` e `inbox_items` permanecem privados por padrao e owner-only por `user_id = auth.uid()` nas policies ja preparadas. A migration do Prompt 9 apenas amplia campos, tipos e indices; nao cria policy publica, policy de Atalaia, view compartilhada ou acesso anonimo.
+
+Checklist adicional:
+
+- user A cria, le, atualiza, conclui, reagenda e deleta seus `calendar_blocks`.
+- user B nao seleciona, atualiza ou deleta blocos de user A.
+- user B nao agenda tarefa de user A em `calendar_blocks.task_id`.
+- user A cria, classifica, processa, arquiva e descarta seus `inbox_items`.
+- user B nao acessa captura, classificacao, observacao ou destino de user A.
+- `inbox_items.destination_type` e `destination_id` continuam exigindo validacao server-side, pois sao campos polimorficos.
+- Processamento autenticado de inbox deve buscar primeiro o item por `id + user_id`, validar status e usar conteudo persistido antes de criar qualquer destino.
+- Atalaia nao le `calendar_blocks` nem `inbox_items` nesta etapa, mesmo quando um alvo estiver autorizado.
+
+## Prompt 10 - Desbloqueador e Metacognicao
+
+`action_unblock_sessions` e `metacognition_sessions` permanecem privados por padrao e owner-only por `user_id = auth.uid()`. A migration do Prompt 10 amplia campos e indices, mas nao cria acesso anonimo, view publica, policy de Atalaia ou compartilhamento externo.
+
+Checklist adicional:
+
+- user A cria, le, salva historico e remove suas sessoes.
+- user B nao seleciona, atualiza ou remove sessoes de user A.
+- user B nao vincula sessao a tarefa, projeto, alvo ou bloco de calendario de user A.
+- Atalaia nao le `metacognition_sessions`, mesmo com grant ativo.
+- `action_unblock_sessions` tambem nao e exposta ao Atalaia nesta etapa.
+- Crise deve ser registrada apenas como flag/categoria minima, sem detalhe bruto em logs.
+
+## Prompt 11 - Foco, Habitos e Placar
+
+`focus_sessions`, `focus_distractions`, `habits`, `habit_logs`, `discipline_scoreboards`, `scoreboard_items` e `scoreboard_entries` permanecem owner-only por `user_id = auth.uid()`.
+
+Checklist adicional:
+
+- user A cria, le, atualiza, conclui e interrompe suas sessoes de foco.
+- user B nao acessa sessoes, distracoes, habitos, logs, placares, itens ou entradas de user A.
+- user B nao vincula `focus_session.task_id`, `calendar_block_id`, `habit.goal_id`, `habit_log.habit_id`, `scoreboard_item.scoreboard_id`, `linked_goal_id`, `linked_habit_id`, `linked_task_id`, `scoreboard_entry.scoreboard_id` ou `scoreboard_item_id` a registro de user A.
+- `focus_distractions.content` nao deve ser exposto em logs, Atalaia ou views publicas.
+- `scoreboard_entries` devem ser idempotentes por usuario, item e data.
+- Atalaia nao tem policy direta nessas tabelas nesta etapa, mesmo com grant ativo.

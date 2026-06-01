@@ -22,8 +22,8 @@
 | Project | id, user_id, goal_id, title, description, phase, status, risks, resources | N:1 Goal |
 | Task | id, user_id, project_id, goal_id, title, description, type, status, energy_level, estimated_minutes, due_date, scheduled_start, scheduled_end, next_action | N:1 Project/Goal |
 | Microtask | id, user_id, task_id, title, order, status | N:1 Task |
-| CalendarBlock | id, user_id, task_id, habit_id, type, start_time, end_time, status | N:1 User; opcional Task/Habit |
-| InboxItem | id, user_id, content, content_type, ai_classification, status, destination_type, destination_id | N:1 User |
+| CalendarBlock | id, user_id, task_id, habit_id, type, start_time, end_time, status, energy_level, recurrence_rule | N:1 User; opcional Task/Habit |
+| InboxItem | id, user_id, content, content_type, classification, recommended_action, confidence, status, destination_type, destination_id | N:1 User |
 | FocusSession | id, user_id, task_id, duration_minutes, started_at, ended_at, status, distractions_captured | N:1 User/Task |
 | Habit | id, user_id, goal_id, title, identity, trigger, minimum_version, ideal_version, reward, frequency, metric, status | N:1 User/Goal |
 | HabitLog | id, user_id, habit_id, date, status, notes | N:1 Habit |
@@ -109,7 +109,16 @@ erDiagram
 - paused
 - completed
 - abandoned
-- in_review
+- needs_review
+
+### Project
+
+- draft
+- active
+- paused
+- completed
+- archived
+- needs_review
 
 ### Task
 
@@ -117,9 +126,22 @@ erDiagram
 - scheduled
 - in_focus
 - completed
-- postponed
-- blocked
+- deferred
+- stuck
 - cancelled
+
+### CalendarBlock
+
+- scheduled
+- completed
+- cancelled
+
+### InboxItem
+
+- unprocessed
+- processed
+- archived
+- discarded
 
 ### AccountabilityGrant
 
@@ -171,3 +193,5 @@ Todas as entidades listadas sao candidatas futuras. Para simplificar RLS, tabela
 - JSON flexivel em `permissions`, `items`, `patterns` e `area_states` facilita V1, mas pode dificultar auditoria.
 - Atalaia por e-mail sem identidade autenticada exige link expiravel e auditavel.
 - Jardim deve continuar derivado para evitar inconsistencias.
+- Recorrencia de calendario permanece simples na V1; expansoes exigem decisao de timezone e serie recorrente.
+- Classificacao de inbox nao deve substituir decisao do usuario; sempre manter revisao/edicao antes do destino final quando houver impacto operacional.

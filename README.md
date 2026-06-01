@@ -2,7 +2,7 @@
 
 SaaS desktop-first de vida intencional, foco, execucao, habitos, autorregulacao e produtividade assistida por IA, com PWA/mobile complementar para acoes rapidas.
 
-Status atual: fontes de verdade, governanca tecnica, stack Next.js, fundacao Supabase/Auth/RLS em arquivos versionados, onboarding/direcao do Prompt 6, camada central de IA do Prompt 7 e nucleo inicial de execucao do Prompt 8. Supabase remoto, Auth visual, deploy e OpenAI real ainda nao foram ativados.
+Status atual: fontes de verdade, governanca tecnica, stack Next.js, fundacao Supabase/Auth/RLS em arquivos versionados, onboarding/direcao do Prompt 6, camada central de IA do Prompt 7, nucleo inicial de execucao do Prompt 8, calendario/inbox do Prompt 9, Desbloqueador/Metacognicao do Prompt 10 e Foco/Habitos/Placar do Prompt 11. Supabase remoto ainda nao foi aplicado/testado; Auth visual completo, deploy e OpenAI real ainda nao foram ativados.
 
 ## Visao
 
@@ -57,6 +57,9 @@ Stack definida para a fundacao inicial:
 - `src/lib/supabase/`: clients Supabase separados por browser, server e admin server-only.
 - `src/components/onboarding/`: fluxo inicial de perfil, Mapa da Vida e Chamado em discernimento.
 - `src/app/goals/`, `src/app/projects/` e `src/app/tasks/`: nucleo inicial de execucao com fallback local/dev.
+- `src/app/calendar/` e `src/app/inbox/`: centro operacional do Prompt 9 com fallback local/dev.
+- `src/app/action-unblocker/` e `src/app/metacognition/`: destravamento e autorregulacao do Prompt 10 com mocks seguros.
+- `src/app/focus/`, `src/app/habits/` e `src/app/scoreboard/`: camada diaria do Prompt 11 com fallback local/dev.
 
 ## Fontes de verdade principais
 
@@ -72,6 +75,10 @@ Stack definida para a fundacao inicial:
 - `docs/AI_EVALS.md`
 - `docs/KNOWLEDGE_BASE.md`
 - `docs/METACOGNITION_MODULE.md`
+- `docs/ACTION_UNBLOCKER_MODULE.md`
+- `docs/FOCUS_MODE_MODULE.md`
+- `docs/HABITS_MODULE.md`
+- `docs/SCOREBOARD_MODULE.md`
 - `docs/SECURITY_PRIVACY.md`
 - `docs/DATA_SENSITIVITY_MATRIX.md`
 - `docs/UX_UI_GUIDE.md`
@@ -87,6 +94,8 @@ Stack definida para a fundacao inicial:
 - `docs/PROJECTS_MODULE.md`
 - `docs/TASKS_MODULE.md`
 - `docs/MICROTASKS_MODULE.md`
+- `docs/CALENDAR_MODULE.md`
+- `docs/INBOX_GTD_MODULE.md`
 
 ## Governanca e suporte
 

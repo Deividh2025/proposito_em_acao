@@ -5,7 +5,9 @@ Evals iniciais do Prompt 7 cobrem schema, mock provider, fallback e bloqueios de
 ## Arquivos
 
 - `calling.cases.ts`: casos do Agente do Chamado sem vontade divina especifica.
-- `metacognition.cases.ts`: casos de separacao fato/interpretacao/sentimento/impulso e crise.
+- `action-unblocker.cases.ts`: casos de microacao, retomada e sugestao de Metacognicao.
+- `metacognition.cases.ts`: casos de separacao fato/interpretacao/sentimento/impulso, privacidade e linguagem segura.
+- `crisis-guardrail.cases.ts`: casos de crise emocional grave e ajuda humana.
 - `safety.cases.ts`: casos clinicos, pastorais, privacidade e Atalaia.
 - `schema-validation.test.ts`: smoke test dos casos e schemas centrais.
 

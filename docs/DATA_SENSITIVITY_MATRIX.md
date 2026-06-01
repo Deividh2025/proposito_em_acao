@@ -34,3 +34,23 @@
 | Logs tecnicos | Observabilidade | Media | Nao | Politica clara | Sem prompt bruto, pensamento ou dado intimo | Operacional minimo; retencao definida |
 | Anexos de usuario | Storage | Alta | Nao por padrao | Sim | Bucket privado e path por usuario | Dono; signed URL server-side se autorizado |
 | Documento anexado de compromisso | Storage/Compromisso | Alta | Sim, se usuario escolher | Sim, por alvo/escopo | Nunca publico; previa antes de compartilhar | Dono; Atalaia via signed URL curta e grant ativo |
+
+## Prompt 8
+
+Alvos SMART-E, analise ecologica, alinhamento com Chamado, projetos, tarefas e microtarefas entram como dados de execucao sensiveis. Mesmo quando um alvo puder ser compartilhado futuramente com Atalaia, a analise ecologica e o Chamado completo permanecem excluidos por padrao.
+
+## Prompt 9
+
+Calendario e inbox deixam de ser apenas entidades futuras e entram no centro operacional. Capturas brutas, links, preocupacoes, observacoes, rotina, descanso, familia e espiritualidade permanecem owner-only, sem Atalaia e sem logs de conteudo bruto. Audio/imagem sao somente placeholders de tipo nesta etapa.
+
+## Prompt 10
+
+Desbloqueador e Metacognicao entram como dados de autorregulacao sensiveis. `action_unblock_sessions` pode conter obstaculo, energia, evitacao e tarefas privadas. `metacognition_sessions` pode conter pensamento automatico, fato, interpretacao, sentimento e impulso. Ambos sao privados por padrao; Metacognicao fica excluida de Atalaia, e-mails, relatorios externos e logs brutos.
+
+## Prompt 11
+
+- `focus_sessions`: media sensibilidade; pode revelar rotina, energia e execucao.
+- `focus_distractions`: alta sensibilidade; conteudo bruto nao deve ser compartilhado nem logado.
+- `habits`: alta sensibilidade; pode revelar saude, fe, familia, sono, energia e rotina.
+- `habit_logs`: media/alta; devem evitar justificativas intimas longas.
+- `discipline_scoreboards`, `scoreboard_items`, `scoreboard_entries`: media/alta; privados por padrao e sem Atalaia bruto.

@@ -6,9 +6,11 @@ export type AiAgentKey =
   | "planner"
   | "taskBreakdown"
   | "inboxClassifier"
+  | "scheduleReviewer"
   | "actionUnblocker"
   | "metacognition"
   | "habits"
+  | "scoreboard"
   | "weeklyReview"
   | "accountability"
   | "guardrailReviewer";
@@ -120,6 +122,19 @@ export const aiAgents: AiAgentDefinition[] = [
     guardrails: ["privacy", "clinical"]
   },
   {
+    key: "scheduleReviewer",
+    name: "Agente Revisor de Agenda",
+    purpose: "Revisar sobrecarga, descanso protegido e ajustes de calendario sem alterar blocos automaticamente.",
+    writesData: false,
+    requiresStructuredOutput: true,
+    promptVersion: "schedule_reviewer_prompt_v1",
+    outputSchemaName: "schedule_overload_output_v1",
+    humanReviewRequired: true,
+    allowedContext: ["calendar_blocks", "energy_level", "protected_blocks", "available_minutes"],
+    forbiddenContext: ["raw_metacognition", "accountability_private_data", "unneeded_sensitive_history"],
+    guardrails: ["privacy", "clinical", "pastoral"]
+  },
+  {
     key: "actionUnblocker",
     name: "Agente Desbloqueador de Acao",
     purpose: "Gerar proximo passo imediato, foco recomendado e plano minimo.",
@@ -148,7 +163,7 @@ export const aiAgents: AiAgentDefinition[] = [
   {
     key: "habits",
     name: "Agente de Habitos",
-    purpose: "Criar planos de habito com gatilho, rotina minima e plano se/entao.",
+    purpose: "Criar planos de habito com gatilho, rotina minima, ambiente e retomada.",
     writesData: true,
     requiresStructuredOutput: true,
     promptVersion: "habits_prompt_v1",
@@ -156,6 +171,19 @@ export const aiAgents: AiAgentDefinition[] = [
     humanReviewRequired: true,
     allowedContext: ["goal_summary", "routine", "energy_pattern"],
     forbiddenContext: ["diagnosis", "shame_language"],
+    guardrails: ["clinical", "pastoral", "privacy"]
+  },
+  {
+    key: "scoreboard",
+    name: "Agente do Placar da Disciplina",
+    purpose: "Sugerir um placar leve, privado e revisavel para constancia sem vergonha.",
+    writesData: true,
+    requiresStructuredOutput: true,
+    promptVersion: "scoreboard_prompt_v1",
+    outputSchemaName: "scoreboard_plan_output_v1",
+    humanReviewRequired: true,
+    allowedContext: ["goal_summary", "habit_summary", "task_summary", "focus_summary"],
+    forbiddenContext: ["raw_metacognition", "raw_focus_distractions", "accountability_private_data"],
     guardrails: ["clinical", "pastoral", "privacy"]
   },
   {

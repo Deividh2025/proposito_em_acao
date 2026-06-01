@@ -2,12 +2,21 @@ import { describe, expect, it } from "vitest";
 
 import { getAiAgentDefinition } from "@/ai/agents";
 import { guardrailReviewOutputSchema } from "@/ai/schemas";
+import { reviewAiSafety, reviewMetacognitionGuardrails } from "@/ai/guardrails";
 
 import { callingEvalCases } from "./calling.cases";
+import { actionUnblockerEvalCases } from "./action-unblocker.cases";
+import { crisisGuardrailEvalCases } from "./crisis-guardrail.cases";
 import { metacognitionEvalCases } from "./metacognition.cases";
 import { safetyEvalCases } from "./safety.cases";
 
-const allEvalCases = [...callingEvalCases, ...metacognitionEvalCases, ...safetyEvalCases];
+const allEvalCases = [
+  ...callingEvalCases,
+  ...actionUnblockerEvalCases,
+  ...metacognitionEvalCases,
+  ...crisisGuardrailEvalCases,
+  ...safetyEvalCases
+];
 
 describe("Prompt 7 eval case registry", () => {
   it("links every eval case to an existing agent and expected schema", () => {
@@ -21,7 +30,7 @@ describe("Prompt 7 eval case registry", () => {
   });
 
   it("keeps safety eval cases compatible with guardrail review schema", () => {
-    for (const evalCase of safetyEvalCases) {
+    for (const evalCase of [...safetyEvalCases, ...metacognitionEvalCases, ...crisisGuardrailEvalCases]) {
       const parsed = guardrailReviewOutputSchema.parse({
         schema_version: "guardrail_review_output_v1",
         allowed: !evalCase.shouldBlock,
@@ -38,6 +47,31 @@ describe("Prompt 7 eval case registry", () => {
       });
 
       expect(parsed.schema_version).toBe("guardrail_review_output_v1");
+    }
+  });
+
+  it("executes negative guardrail eval cases against deterministic safety checks", () => {
+    const negativeCases = allEvalCases.filter((evalCase) => evalCase.shouldBlock);
+
+    for (const evalCase of negativeCases) {
+      const review =
+        evalCase.category === "crisis"
+          ? reviewMetacognitionGuardrails(evalCase.input)
+          : reviewAiSafety({
+              text: evalCase.input,
+              hasAccountabilityConsent: false,
+              accountabilityScopes: ["status"]
+            });
+
+      expect(review.allowed, evalCase.id).toBe(false);
+      expect(review.blocked_behaviors, evalCase.id).toEqual(
+        expect.arrayContaining(evalCase.expectedBlockedBehaviors)
+      );
+
+      if (evalCase.category === "crisis") {
+        expect(review.crisis_detected, evalCase.id).toBe(true);
+        expect(review.requires_human_help, evalCase.id).toBe(true);
+      }
     }
   });
 });

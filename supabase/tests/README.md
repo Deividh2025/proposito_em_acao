@@ -22,6 +22,54 @@ Estes cenarios devem ser executados quando houver Supabase CLI, projeto vinculad
 8. Storage permite apenas objetos em `{auth.uid()}/...`.
 9. Links/arquivos para Atalaia devem ser gerados por servidor e grant explicito, nao por policy publica.
 
+## Prompt 8 - Execucao
+
+10. `user_a` cria e atualiza `goals`, `projects`, `tasks` e `microtasks` proprios.
+11. `user_b` nao seleciona, atualiza ou deleta registros de execucao de `user_a`.
+12. `user_b` nao cria `project` com `goal_id` de `user_a`.
+13. `user_b` nao cria `task` com `project_id` ou `goal_id` de `user_a`.
+14. `user_b` nao cria `microtask` com `task_id` de `user_a`.
+15. `task.project_id` e `task.goal_id` divergentes sao bloqueados quando ambos existem.
+16. Atalaia nao acessa `goals`, `projects`, `tasks` ou `microtasks` diretamente nesta etapa.
+
+## Prompt 9 - Calendario e Inbox/GTD
+
+17. `user_a` cria, atualiza, conclui, reagenda e deleta seus `calendar_blocks`.
+18. `user_b` nao seleciona, atualiza ou deleta `calendar_blocks` de `user_a`.
+19. `user_b` nao cria `calendar_block` apontando `task_id` de `user_a`.
+20. `user_a` cria, classifica, processa, arquiva e descarta seus `inbox_items`.
+21. `user_b` nao seleciona, atualiza ou deleta `inbox_items` de `user_a`.
+22. Atalaia nao acessa `calendar_blocks` nem `inbox_items`, mesmo com grant ativo em alvo relacionado.
+23. Campos polimorficos de destino da inbox sao validados no servidor antes de criar tarefa, projeto ou bloco.
+
+## Prompt 10 - Desbloqueador e Metacognicao
+
+24. `user_a` cria, le e remove suas `action_unblock_sessions`.
+25. `user_b` nao seleciona, atualiza ou remove `action_unblock_sessions` de `user_a`.
+26. `user_b` nao cria sessao apontando tarefa, projeto, alvo ou bloco de calendario de `user_a`.
+27. `user_a` cria, le e remove suas `metacognition_sessions`.
+28. `user_b` nao seleciona, atualiza ou remove `metacognition_sessions` de `user_a`.
+29. Atalaia nao acessa `metacognition_sessions`, mesmo com grant ativo.
+30. Atalaia nao acessa `action_unblock_sessions` nesta etapa.
+31. Flags de crise sao registradas sem detalhe bruto em logs.
+
+## Prompt 11 - Foco, Habitos e Placar
+
+32. `user_a` cria, le, conclui e interrompe suas `focus_sessions`.
+33. `user_b` nao seleciona, atualiza ou remove `focus_sessions` de `user_a`.
+34. `user_b` nao cria `focus_session` apontando `task_id`, `calendar_block_id` ou `action_unblock_session_id` de `user_a`.
+35. `user_a` cria e roteia suas `focus_distractions`.
+36. `user_b` nao seleciona, atualiza ou remove `focus_distractions` de `user_a`.
+37. Atalaia nao acessa `focus_sessions` nem `focus_distractions` nesta etapa.
+38. `user_a` cria, atualiza e pausa seus `habits`; `user_b` nao acessa.
+39. `user_b` nao cria `habit` apontando `goal_id` de `user_a`.
+40. `user_a` cria/atualiza `habit_logs`; `user_b` nao acessa nem aponta `habit_id` de `user_a`.
+41. `user_a` cria `discipline_scoreboards`, `scoreboard_items` e `scoreboard_entries`.
+42. `user_b` nao acessa Placar, itens ou entradas de `user_a`.
+43. `user_b` nao cria item/entrada apontando Placar, habito, tarefa ou alvo de `user_a`.
+44. `scoreboard_entries` nao duplica item/data para o mesmo usuario.
+45. Atalaia nao acessa Placar bruto nesta etapa, mesmo com grant ativo.
+
 ## Comandos esperados quando CLI existir
 
 ```powershell

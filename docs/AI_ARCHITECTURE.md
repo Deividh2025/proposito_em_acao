@@ -16,6 +16,7 @@ Nao e chatbot solto e nao deve operar fora dos limites de privacidade, consentim
 | Agente SMART-E | Converter desejo vago em alvo ecologico | `SmartEGoal` |
 | Agente Planejador | Converter alvo em projeto, tarefas, microtarefas e blocos | `ProjectPlan`, `TaskBreakdown` |
 | Agente Classificador de Inbox | Classificar captura e sugerir destino | `InboxClassification` |
+| Agente Revisor de Agenda | Detectar sobrecarga e sugerir ajustes cuidadosos | `ScheduleOverload` |
 | Agente Desbloqueador | Gerar proximo passo imediato | `ActionUnblockPlan` |
 | Agente de Metacognicao | Examinar pensamento/sentimento e devolver acao responsavel | `MetacognitionSession` |
 | Agente de Habitos | Criar habito minimo/ideal com gatilho e recompensa | `HabitPlan` |
@@ -123,6 +124,41 @@ O Prompt 8 integra os contratos de IA ao nucleo de execucao:
 - `task_breakdown_output_v1`: quebra tarefa grande em microtarefas ordenadas, primeira microacao e sugestao caso trave.
 
 A UI usa mocks deterministos em `src/domain/goals`, `src/domain/projects` e `src/domain/tasks`. OpenAI real permanece server-side e nao e acionada por fluxo de produto. Nenhum prompt/resposta bruta deve ser salvo; apenas dados estruturados revisados e metadados minimos.
+
+## Prompt 9 - Inbox e Agenda
+
+O Prompt 9 adiciona dois fluxos operacionais:
+
+- `inbox_classification_output_v1`: classifica capturas em tarefa, projeto, evento, habito futuro, referencia, ideia futura, preocupacao, descarte ou necessidade de clareza.
+- `schedule_overload_output_v1`: revisa a semana/dia e emite alerta simples de sobrecarga sem culpa.
+
+Ambos usam mock/regra local segura nesta etapa. OpenAI real continua preparada apenas server-side e nao e chamada por rotas de produto. Capturas brutas, preocupacoes, calendario e links nao devem ir para logs; a persistencia salva dados estruturados e revisaveis.
+
+## Prompt 10 - Desbloqueador e Metacognicao
+
+O Prompt 10 ativa os dois agentes de destravamento com mocks seguros:
+
+- Agente Desbloqueador: transforma uma tarefa travada em primeiro passo, versao minima, microtarefas, foco recomendado e plano de retomada.
+- Agente de Metacognicao: separa fato, interpretacao, sentimento e impulso; identifica pensamento automatico; aponta padroes cognitivos provaveis; confronta sem humilhar; reformula e devolve rota responsavel.
+
+Fluxo tecnico:
+
+1. Client component coleta entrada minima.
+2. Server action valida entrada com Zod.
+3. Mock seguro gera structured output.
+4. Guardrails deterministas bloqueiam crise, diagnostico, culpa espiritual e vontade divina especifica.
+5. Server action tenta persistir dado estruturado em Supabase com `user_id = auth.uid()`.
+6. Sem Auth/Supabase, retorna fallback `local-draft` explicito.
+
+OpenAI real continua fora da UI nesta etapa. Quando ativada, deve ser chamada somente server-side, com contexto minimo e sem logs de prompts/respostas brutas.
+
+## Prompt 11 - Habitos e Placar
+
+- Agente de Habitos usa `habit_plan_output_v1` ampliado para plano realista, versao minima, ambiente e retomada.
+- Agente do Placar da Disciplina usa `scoreboard_plan_output_v1` para sugerir itens leves, privados e revisaveis.
+- Ambos usam mock deterministico nesta etapa; OpenAI real nao e acionada pela UI.
+- Guardrails bloqueiam diagnostico, culpa espiritual, vergonha, ranking punitivo, streak como identidade e qualquer compartilhamento bruto com Atalaia.
+- Logs devem manter apenas metadados tecnicos, nunca distracoes, notas intimas, prompt bruto ou resposta bruta.
 
 ## Evals futuros
 

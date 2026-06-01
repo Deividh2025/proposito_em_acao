@@ -18,8 +18,8 @@ Tarefas conectam projeto/alvo a execucao real. Toda tarefa deve ter status, ener
 
 ## Tarefa travada
 
-`stuck` nao e erro moral. A UI deve oferecer reducao para versao minima e preparar rotas futuras para Desbloqueador ou Metacognicao sem implementar esses fluxos no Prompt 8.
+`stuck` nao e erro moral. A UI deve oferecer reducao para versao minima e, a partir do Prompt 10, encaminhar para Desbloqueador ou Metacognicao quando a trava for operacional, cognitiva ou emocional.
 
 ## Fora de escopo
 
-Calendario funcional, foco real, Metacognicao funcional, Desbloqueador funcional, habitos, Placar e Atalaia permanecem para etapas futuras.
+Foco real, habitos, Placar e Atalaia permanecem para etapas futuras. Calendario, Desbloqueador e Metacognicao ja possuem fluxos iniciais em etapas posteriores ao Prompt 8.

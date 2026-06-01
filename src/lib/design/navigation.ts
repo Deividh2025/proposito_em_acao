@@ -6,6 +6,7 @@ import {
   Home,
   Inbox,
   Leaf,
+  ListRestart,
   RotateCcw,
   Settings,
   ShieldCheck,
@@ -55,43 +56,50 @@ export const navigationItems: NavigationItem[] = [
   {
     label: "Calendário",
     href: "/calendar",
-    description: "Semana/dia, blocos e descanso em etapa futura.",
-    status: "em preparação",
+    description: "Semana/dia, blocos, descanso e sobrecarga.",
+    status: "Prompt 9",
     icon: CalendarDays
   },
   {
     label: "Inbox",
     href: "/inbox",
-    description: "Captura rápida e destino claro.",
-    status: "em preparação",
+    description: "Captura rápida, classificação e destino claro.",
+    status: "Prompt 9",
     icon: Inbox
+  },
+  {
+    label: "Desbloqueador",
+    href: "/action-unblocker",
+    description: "Microação, versão mínima e rota segura.",
+    status: "Prompt 10",
+    icon: ListRestart
   },
   {
     label: "Foco",
     href: "/focus",
     description: "Sessões curtas e captura de distrações.",
-    status: "em preparação",
+    status: "Prompt 11",
     icon: TimerReset
   },
   {
     label: "Hábitos",
     href: "/habits",
     description: "Rotina mínima, ideal e retomada.",
-    status: "em preparação",
+    status: "Prompt 11",
     icon: Leaf
   },
   {
     label: "Placar",
     href: "/scoreboard",
     description: "Constância sem vergonha.",
-    status: "em preparação",
+    status: "Prompt 11",
     icon: Gauge
   },
   {
     label: "Metacognição",
     href: "/metacognition",
     description: "Sala de clareza interna, privada por padrão.",
-    status: "base visual",
+    status: "Prompt 10",
     icon: Sparkles
   },
   {
@@ -124,12 +132,9 @@ export const navigationItems: NavigationItem[] = [
   }
 ];
 
-export const quickActionItems = [
-  navigationItems[0],
-  navigationItems[4],
-  navigationItems[10],
-  navigationItems[11]
-];
+export const quickActionItems = ["/dashboard", "/inbox", "/action-unblocker", "/focus", "/metacognition"]
+  .map((href) => navigationItems.find((item) => item.href === href))
+  .filter((item): item is NavigationItem => Boolean(item));
 
 export const placeholderPages: PlaceholderPageDefinition[] = [
   {
@@ -151,55 +156,64 @@ export const placeholderPages: PlaceholderPageDefinition[] = [
   {
     title: "Calendário",
     href: "/calendar",
-    status: "em preparação",
-    description: "Lugar futuro de blocos de execução, descanso e família.",
-    components: ["EmptyState", "TimeAvailableSelector", "MicrotaskList", "LowEnergyPrompt"],
-    nextStep: "Avaliar semana/dia e acessibilidade antes de drag-and-drop."
+    status: "Prompt 9",
+    description: "Semana/dia, blocos de execução, descanso e família.",
+    components: ["CalendarShell", "WeekView", "DayView", "ScheduleOverloadAlert"],
+    nextStep: "Manter agendamento por formulário e evitar drag-and-drop prematuro."
   },
   {
     title: "Inbox",
     href: "/inbox",
-    status: "em preparação",
-    description: "Captura rápida com destino claro em etapa futura.",
-    components: ["Input", "Textarea", "Tag", "SuccessState"],
-    nextStep: "Preparar captura editável sem classificação real por IA nesta etapa."
+    status: "Prompt 9",
+    description: "Captura rápida com destino claro e classificação revisável.",
+    components: ["InboxCapture", "InboxList", "InboxItemCard", "InboxProcessPanel"],
+    nextStep: "Manter classificação mock segura até OpenAI real ser autorizada."
+  },
+  {
+    title: "Desbloqueador",
+    href: "/action-unblocker",
+    status: "Prompt 10",
+    description: "Microação, versão mínima, foco curto e rota segura.",
+    components: ["ActionUnblockerForm", "TinyStepCard", "MinimumViableActionCard", "SensitiveDataNotice"],
+    nextStep: "Manter IA mockada segura e preparar integração futura com Modo Foco.",
+    privacyNote: "Sem Atalaia, sem OpenAI real acionada pela UI e sem logs de conteúdo sensível."
   },
   {
     title: "Foco",
     href: "/focus",
-    status: "em preparação",
-    description: "Superfície futura para foco curto e registro simples.",
-    components: ["FocusStartButton", "TimeAvailableSelector", "TinyStepCard", "Progress"],
-    nextStep: "Criar timer funcional apenas na etapa própria."
+    status: "Prompt 11",
+    description: "Timer funcional, captura de distracoes e conclusao de sessao.",
+    components: ["FocusSessionShell", "FocusTimer", "DistractionCapture", "FocusCompleteSummary"],
+    nextStep: "Manter integracao sem Atalaia e validar RLS em ambiente Supabase."
   },
   {
     title: "Hábitos",
     href: "/habits",
-    status: "em preparação",
-    description: "Base futura de hábito mínimo, ideal, gatilho e retomada.",
-    components: ["Checkbox", "StreakSoftIndicator", "RestartPrompt", "WisdomNote"],
-    nextStep: "Evitar streak punitivo e priorizar rotina mínima."
+    status: "Prompt 11",
+    description: "Plano de habito minimo/ideal, gatilho, recompensa e retomada.",
+    components: ["HabitForm", "HabitPlanCard", "HabitList", "HabitRestartPrompt"],
+    nextStep: "Evoluir agendamento e historico apos validacao RLS."
   },
   {
     title: "Placar",
     href: "/scoreboard",
-    status: "em preparação",
-    description: "Constância, tarefas-chave e retomadas sem vergonha.",
+    status: "Prompt 11",
+    description: "Constancia, comportamentos-chave e retomadas sem vergonha.",
     components: ["ScoreboardCard", "ScoreboardItem", "ScoreboardMarker", "RestartCountBadge"],
-    nextStep: "Desenhar marcação rápida antes de persistência real."
+    nextStep: "Manter privado por padrao e preparar apenas resumo limitado futuro."
   },
   {
     title: "Metacognição",
     href: "/metacognition",
-    status: "em preparação",
-    description: "Estrutura visual para separar fato, interpretação, sentimento e impulso.",
+    status: "Prompt 10",
+    description: "Fluxo privado para separar fato, interpretação, sentimento e impulso.",
     components: [
-      "MetacognitionEntryCard",
-      "EmotionIntensityScale",
+      "MetacognitionForm",
+      "MetacognitionResult",
       "FactInterpretationFeelingImpulseGrid",
-      "NextActionAfterReflectionCard"
+      "MetacognitionHistoryList"
     ],
-    nextStep: "Implementar fluxo real só com guardrails e privacidade revisados.",
+    nextStep: "Manter histórico privado e evoluir somente com guardrails revisados.",
     privacyNote: "Privada por padrão. Nada é enviado ao Atalaia automaticamente."
   },
   {

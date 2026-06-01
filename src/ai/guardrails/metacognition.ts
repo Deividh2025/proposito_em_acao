@@ -4,7 +4,7 @@ const crisisChecks: GuardrailMatch[] = [
   {
     behavior: "crisis_as_productivity",
     reason: "Risco emocional grave deve sair do fluxo de produtividade e orientar ajuda humana.",
-    pattern: /\b(nao aguento mais viver|quero morrer|me machucar|autoagress[aã]o|tirar minha vida)\b/i
+    pattern: /\b(nao aguento mais viver|quero morrer|me machucar|me matar|me cortar|autoagress[aã]o|tirar minha vida|nao quero acordar|quero sumir|acabar com tudo|ficar seguro|machucar alguem|ferir alguem|perder o controle)\b/i
   }
 ];
 

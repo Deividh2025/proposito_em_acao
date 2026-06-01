@@ -1,21 +1,15 @@
-import {
-  LowEnergyPrompt,
-  MicrotaskList,
-  TimeAvailableSelector
-} from "@/components/execution/ExecutionComponents";
-import { PlaceholderPage } from "@/components/layout/PlaceholderPage";
-import { getPlaceholderPage } from "@/lib/design/navigation";
+import { CalendarShell } from "@/components/calendar/CalendarShell";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function CalendarPage() {
-  const page = getPlaceholderPage("/calendar")!;
-
   return (
-    <PlaceholderPage page={page}>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <TimeAvailableSelector />
-        <LowEnergyPrompt />
-        <MicrotaskList />
-      </div>
-    </PlaceholderPage>
+    <div className="space-y-6">
+      <PageHeader
+        description="Transforme próxima ação em tempo real, protegendo descanso, família, espiritualidade e energia."
+        status="Prompt 9"
+        title="Calendário de execução"
+      />
+      <CalendarShell />
+    </div>
   );
 }

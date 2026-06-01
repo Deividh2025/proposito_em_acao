@@ -24,14 +24,21 @@ export type NavigationItem = {
   label: string;
   href: string;
   description: string;
-  status: "em preparação" | "base visual" | "Prompt 6" | "Prompt 8";
+  status:
+    | "em preparação"
+    | "base visual"
+    | "Prompt 6"
+    | "Prompt 8"
+    | "Prompt 9"
+    | "Prompt 10"
+    | "Prompt 11";
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
 };
 
 export type PlaceholderPageDefinition = {
   title: string;
   href: string;
-  status: "em preparação" | "Prompt 6" | "Prompt 8";
+  status: "em preparação" | "Prompt 6" | "Prompt 8" | "Prompt 9" | "Prompt 10" | "Prompt 11";
   description: string;
   components: string[];
   nextStep: string;

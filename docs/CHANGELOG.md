@@ -36,6 +36,24 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Skills locais novas: `ai-agent-architecture-skill`, `prompt-versioning-skill`, `knowledge-base-skill`, `ai-evals-skill` e `pastoral-safety-skill`.
 - Nucleo inicial de execucao do Prompt 8 com rotas de alvos, projetos e tarefas, microtarefas, mocks seguros e fallback local/dev.
 - Migration `202605310005_execution_prompt8_alignment.sql` para alinhar status, `jsonb` de analise ecologica, prioridade/razao de tarefas e integridade projeto-alvo.
+- Calendario de execucao do Prompt 9 em `/calendar` com visao semanal/diaria, blocos, agendamento de tarefas, proxima acao e alerta simples de sobrecarga.
+- Caixa de Entrada/GTD do Prompt 9 em `/inbox` com captura rapida, classificacao mockada, processamento e destinos para tarefa, projeto, calendario, referencia, ideia futura ou descarte.
+- Migration `202605310006_calendar_inbox_prompt9_alignment.sql` para alinhar `calendar_blocks`, `inbox_items`, tipos de bloco, classificacoes e indices.
+- Schemas `inbox_classification_output_v1` atualizado e `schedule_overload_output_v1` criado.
+- Skills locais novas: `calendar-execution-skill`, `gtd-inbox-skill`, `recurring-work-skill`, `schedule-overload-skill` e `inbox-classifier-skill`.
+- Desbloqueador de Acao do Prompt 10 em `/action-unblocker`, com formulario rapido, mock seguro, resultado estruturado, persistencia Supabase/fallback e inicio futuro de foco.
+- Metacognicao funcional do Prompt 10 em `/metacognition`, com modo rapido/profundo, separacao fato/interpretacao/sentimento/impulso, reformulacao, historico privado e exclusao.
+- Historico privado em `/metacognition/history`.
+- Migration `202605310007_action_unblocker_metacognition_prompt10_alignment.sql` para alinhar `action_unblock_sessions` e `metacognition_sessions`.
+- Evals do Desbloqueador, crise e Metacognicao ampliados.
+- Skills locais novas: `action-unblocker-skill`, `cbt-reflection-skill`, `crisis-guardrail-skill` e `private-reflection-data-skill`.
+- Modo Foco do Prompt 11 em `/focus` com timer, pausa, conclusao e captura de distracoes.
+- Habitos do Prompt 11 em `/habits` com plano mock seguro, versao minima, ambiente, retomada e marcacao diaria.
+- Placar da Disciplina do Prompt 11 em `/scoreboard` com mock seguro, marcacao rapida e retomadas valorizadas.
+- Schema `scoreboard_plan_output_v1`, agente de Placar e prompt `scoreboard_prompt_v1`.
+- Migration `202605310008_focus_habits_scoreboard_prompt11_alignment.sql`.
+- Docs `FOCUS_MODE_MODULE.md`, `HABITS_MODULE.md`, `SCOREBOARD_MODULE.md` e `ACTION_UNBLOCKER_MODULE.md`.
+- Skills locais novas: `focus-mode-skill`, `habit-design-skill`, `scoreboard-skill`, `distraction-capture-skill` e `restart-tracking-skill`.
 
 ### Changed
 
@@ -51,6 +69,11 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - `docs/OPENAI_INTEGRATION_PLAN.md` atualizado de plano conceitual para plano tecnico preparado com Responses API, Structured Outputs e limites server-side.
 - `vitest.config.ts` agora inclui testes de evals em `src/ai/evals/**/*.test.ts`.
 - Prompts `smart-goal` e `planner` refinados com contexto permitido/proibido, limites de Prompt 8 e fallback seguro.
+- Rotas `/calendar` e `/inbox` deixaram de ser placeholders e passam a compor o centro operacional do Prompt 9.
+- Catalogo de IA inclui `scheduleReviewer` como agente preparado para revisao de agenda.
+- Rota `/metacognition` deixou de ser placeholder e passa a compor o nucleo de autorregulacao do Prompt 10.
+- Catalogo de navegacao inclui `/action-unblocker` como acao rapida.
+- Rotas `/focus`, `/habits` e `/scoreboard` deixam de ser placeholders e passam a compor a camada diaria do Prompt 11.
 
 ### Docs
 
@@ -69,6 +92,10 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - `.env.local` mantido fora do Git e com placeholders; nenhuma chave Supabase server-side deve ser versionada.
 - OpenAI client fortalecido com barreira server-only.
 - Logs de IA limitados a metadados `ai_run_audit_v1`, sem prompt bruto ou resposta bruta.
+- Inbox e calendario reforcados como dados owner-only, sem policy de Atalaia e sem logs de capturas/agenda.
+- Metacognicao reforcada como historico privado, sem Atalaia por padrao e sem logs de conteudo bruto.
+- Guardrails de crise reforcados para interromper produtividade comum e orientar ajuda humana.
+- Foco, distracoes, habitos e Placar reforcados como owner-only, sem Atalaia bruto e sem logs de conteudo sensivel.
 
 ### Notes
 
@@ -81,3 +108,6 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - No Prompt 7, OpenAI real foi preparada em provider server-side, mas nao acionada por fluxo de produto.
 - No Prompt 7, Metacognicao, Atalaia, Planejador e demais agentes ganharam contratos tecnicos, nao UI/fluxos finais.
 - No Prompt 8, calendario, inbox, habitos, Placar completo, Metacognicao funcional, Desbloqueador funcional e Atalaia funcional continuam fora de escopo.
+- No Prompt 9, Desbloqueador funcional, Metacognicao funcional, Modo Foco, habitos completos, Placar completo, Revisao Semanal, Jardim funcional, Atalaia funcional, deploy e OpenAI real acionada por UI continuam fora de escopo.
+- No Prompt 10, Modo Foco completo, habitos completos, Placar completo, Revisao Semanal, Jardim funcional, Atalaia funcional, deploy e OpenAI real acionada por UI continuam fora de escopo.
+- No Prompt 11, Revisao Semanal funcional, Jardim funcional, Atalaia funcional, deploy, integracoes externas e OpenAI real acionada por UI continuam fora de escopo.

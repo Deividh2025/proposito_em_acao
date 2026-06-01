@@ -24,9 +24,23 @@ export default function TasksPage() {
         <Card as="aside" className="border-warmth-100 bg-warmth-50">
           <h2 className="font-bold text-warmth-900">Tarefa travada</h2>
           <p className="mt-2 text-sm leading-6 text-warmth-900">
-            Estado travado vira rota de apoio: reduzir para versao minima, usar Desbloqueador futuro ou
-            encaminhar para Metacognicao futura. Nenhum desses fluxos completos foi implementado aqui.
+            Estado travado vira rota de apoio: reduzir para versao minima, usar Desbloqueador ou
+            encaminhar para Metacognicao quando a trava for pensamento.
           </p>
+          <div className="mt-4 flex flex-col gap-2">
+            <Link
+              className="inline-flex min-h-11 items-center justify-center rounded-control bg-warmth-700 px-4 text-sm font-semibold text-white transition duration-200 hover:bg-warmth-900"
+              href="/action-unblocker"
+            >
+              Destravar agora
+            </Link>
+            <Link
+              className="inline-flex min-h-11 items-center justify-center rounded-control border border-warmth-100 px-4 text-sm font-semibold text-warmth-900 transition duration-200 hover:bg-warmth-100"
+              href="/metacognition"
+            >
+              Clarear pensamento
+            </Link>
+          </div>
         </Card>
       </div>
     </div>

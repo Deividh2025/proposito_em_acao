@@ -55,6 +55,18 @@ Prompt 6 autoriza implementar o fluxo inicial de onboarding: perfil essencial, M
 
 Prompt 8 autoriza implementar o nucleo de execucao: alvos SMART-E revisaveis, projetos, tarefas, microtarefas, proxima acao, mocks seguros e persistencia Supabase preparada por server actions. A etapa continua proibindo calendario funcional, inbox funcional, habitos funcionais, Placar completo, Metacognicao funcional, Desbloqueador funcional, Atalaia funcional, deploy, OpenAI real acionada por UI e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
 
+## Limites da etapa atual de Calendario e Inbox/GTD
+
+Prompt 9 autoriza implementar calendario de execucao simples, visao semanal, visao diaria, blocos de tempo, agendamento/reagendamento, alerta basico de sobrecarga, caixa de entrada, captura rapida, classificacao mock/IA preparada e processamento revisavel. A etapa continua proibindo Desbloqueador funcional, Metacognicao funcional, Modo Foco funcional, habitos completos, Placar completo, Atalaia funcional, revisao semanal funcional, Jardim funcional, deploy, OpenAI real acionada por UI, integracoes externas de calendario, drag-and-drop obrigatorio, recorrencia avancada e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
+
+## Limites da etapa atual de Desbloqueador e Metacognicao
+
+Prompt 10 autoriza implementar Desbloqueador de Acao funcional, Metacognicao funcional, mocks seguros, schemas estruturados, historico privado, persistencia Supabase preparada por server actions, guardrails clinicos/pastorais/de crise e evals principais. A etapa continua proibindo Modo Foco completo, habitos completos, Placar completo, Atalaia funcional, revisao semanal funcional, Jardim funcional, deploy, OpenAI real acionada por UI, compartilhamento automatico de Metacognicao, diagnostico clinico, terapia profunda, afirmacao de vontade divina especifica e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
+
+## Limites da etapa atual de Foco, Habitos e Placar
+
+Prompt 11 autoriza implementar Modo Foco/Pomodoro, captura de distracoes, conclusao de foco, habitos com IA mockada/real preparada, marcacao diaria de habitos, Placar da Disciplina, retomadas, indicadores leves, migrations preparatorias, RLS owner-only, testes e documentacao. A etapa continua proibindo Atalaia funcional, compartilhamento de Placar com Atalaia, Revisao Semanal funcional, Jardim funcional, Modo Foco mobile/PWA completo, integracoes externas de calendario, deploy, OpenAI real acionada por UI sem autorizacao/configuracao e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
+
 ## Skills locais obrigatorias por dominio
 
 - Produto/escopo: `prd-product-skill`.
@@ -76,6 +88,20 @@ Prompt 8 autoriza implementar o nucleo de execucao: alvos SMART-E revisaveis, pr
 - Planejamento de projetos: `project-planning-skill`.
 - Tarefas/microtarefas: `task-breakdown-skill`.
 - Dominio de execucao: `execution-domain-skill`.
+- Calendario de execucao: `calendar-execution-skill`.
+- Inbox/GTD: `gtd-inbox-skill`.
+- Trabalho recorrente simples: `recurring-work-skill`.
+- Sobrecarga de agenda: `schedule-overload-skill`.
+- Classificador de inbox: `inbox-classifier-skill`.
+- Desbloqueador de Acao: `action-unblocker-skill`.
+- Reflexao TCC/metacognitiva: `cbt-reflection-skill`.
+- Crise emocional: `crisis-guardrail-skill`.
+- Dados reflexivos privados: `private-reflection-data-skill`.
+- Modo Foco: `focus-mode-skill`.
+- Design de habitos: `habit-design-skill`.
+- Placar: `scoreboard-skill`.
+- Captura de distracoes: `distraction-capture-skill`.
+- Medicao de retomadas: `restart-tracking-skill`.
 
 ## Git e GitHub
 

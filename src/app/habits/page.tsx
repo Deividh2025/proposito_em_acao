@@ -1,19 +1,21 @@
-import { RestartPrompt } from "@/components/execution/ExecutionComponents";
-import { WisdomNote } from "@/components/faith/FaithComponents";
-import { PlaceholderPage } from "@/components/layout/PlaceholderPage";
-import { StreakSoftIndicator } from "@/components/scoreboard/ScoreboardComponents";
-import { getPlaceholderPage } from "@/lib/design/navigation";
+import { HabitForm } from "@/components/habits/HabitForm";
+import { HabitList } from "@/components/habits/HabitList";
+import { HabitRestartPrompt } from "@/components/habits/HabitRestartPrompt";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function HabitsPage() {
-  const page = getPlaceholderPage("/habits")!;
-
   return (
-    <PlaceholderPage page={page}>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <RestartPrompt />
-        <StreakSoftIndicator />
-        <WisdomNote />
+    <div className="space-y-6">
+      <PageHeader
+        description="Crie habitos com versao minima, gatilho, recompensa, plano se/entao e retomada sem culpa."
+        status="Prompt 11"
+        title="Habitos"
+      />
+      <HabitForm />
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_24rem]">
+        <HabitList />
+        <HabitRestartPrompt />
       </div>
-    </PlaceholderPage>
+    </div>
   );
 }

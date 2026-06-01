@@ -7,6 +7,15 @@ Rotas existentes:
 - `/`
 - `/dashboard`
 - `/onboarding`
+- `/goals`
+- `/goals/new`
+- `/goals/[goalId]`
+- `/projects`
+- `/projects/new`
+- `/projects/[projectId]`
+- `/tasks`
+- `/tasks/new`
+- `/tasks/[taskId]`
 - `/calendar`
 - `/inbox`
 - `/focus`
@@ -24,6 +33,8 @@ Excecao do Prompt 6:
 
 - `/onboarding` implementa o fluxo inicial de perfil, Mapa da Vida, Chamado em discernimento e resumo.
 - `/dashboard` implementa dashboard inicial de direcao e progressao assistida.
+- `/goals`, `/projects` e `/tasks` implementam nucleo inicial do Prompt 8 com mock seguro, fallback local/dev e server actions preparadas para Supabase.
+- `/calendar` e `/inbox` implementam o centro operacional do Prompt 9 com calendario semana/dia, blocos, agendamento, captura, classificacao mockada e processamento.
 - As demais rotas continuam placeholders de largura da V1.
 
 ## App Router
@@ -92,6 +103,8 @@ Tailwind continua como base de tokens e utilitarios.
 ## Calendario e dashboard
 
 - Calendario deve priorizar semana/dia no desktop.
+- Prompt 9 usa componentes headless em `src/components/calendar` e `src/components/inbox`, sem biblioteca externa de calendario.
+- Criacao, edicao, conclusao e reagendamento usam formularios acessiveis e server actions preparadas para Supabase.
 - Drag-and-drop so deve entrar depois de avaliar acessibilidade, performance e complexidade.
 - Dashboard deve responder a pergunta: "qual e a proxima acao fiel agora?".
 
@@ -113,4 +126,4 @@ npm.cmd run build
 npm.cmd run test:e2e
 ```
 
-Playwright deve cobrir home, dashboard, Metacognicao, navegacao principal, desktop e largura mobile minima.
+Playwright deve cobrir home, dashboard, calendario, inbox, Metacognicao, navegacao principal, desktop e largura mobile minima.

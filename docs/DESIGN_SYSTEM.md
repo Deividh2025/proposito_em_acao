@@ -27,6 +27,12 @@ Fora de escopo da fundacao visual original:
 
 Atualizacao Prompt 6: onboarding funcional inicial e dashboard inicial foram implementados com mock seguro, sem Auth UI completa, sem OpenAI real e sem deploy.
 
+Atualizacao Prompt 8: alvos, projetos, tarefas e microtarefas ganharam rotas e componentes iniciais com proxima acao clara, mock seguro, fallback local/dev e sem calendario funcional, Atalaia funcional ou OpenAI real.
+
+Atualizacao Prompt 9: calendario e inbox deixam de ser placeholders e passam a usar componentes desktop-first, densos mas respiraveis, com captura rapida, agenda semana/dia, blocos revisaveis e linguagem sem culpa.
+
+Atualizacao Prompt 10: Desbloqueador e Metacognicao deixam de ser placeholders e passam a usar formularios rapidos, resultado estruturado, historico privado e avisos de dados sensiveis sem sobrecarga emocional.
+
 ## Principios visuais
 
 - Clareza antes de densidade.

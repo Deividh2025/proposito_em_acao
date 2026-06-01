@@ -1,22 +1,15 @@
-import { PlaceholderPage } from "@/components/layout/PlaceholderPage";
-import { Input } from "@/components/ui/Input";
-import { SuccessState } from "@/components/ui/SuccessState";
-import { Textarea } from "@/components/ui/Textarea";
-import { getPlaceholderPage } from "@/lib/design/navigation";
+import { InboxCapture } from "@/components/inbox/InboxCapture";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export default function InboxPage() {
-  const page = getPlaceholderPage("/inbox")!;
-
   return (
-    <PlaceholderPage page={page}>
-      <div className="grid gap-4">
-        <Input disabled placeholder="Captura rápida futura" />
-        <Textarea disabled placeholder="Nada será salvo nesta etapa." />
-        <SuccessState
-          description="Estado visual para confirmação breve e não invasiva."
-          title="Captura preparada"
-        />
-      </div>
-    </PlaceholderPage>
+    <div className="space-y-6">
+      <PageHeader
+        description="Capture pendências, ideias e preocupações sem sobrecarregar a mente. Classifique depois, com revisão."
+        status="Prompt 9"
+        title="Caixa de entrada"
+      />
+      <InboxCapture />
+    </div>
   );
 }

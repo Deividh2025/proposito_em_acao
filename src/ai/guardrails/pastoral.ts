@@ -4,17 +4,17 @@ const pastoralChecks: GuardrailMatch[] = [
   {
     behavior: "specific_divine_will_claim",
     reason: "A IA nao deve afirmar vontade divina especifica.",
-    pattern: /\b(deus\s+(quer|mandou|ordenou|exige)|vontade de deus e que|deus esta mandando)\b/i
+    pattern: /\b(deus\s+(quer|mandou|ordenou|exige|determinou|esta mandando)|senhor\s+(esta te dizendo|mandou|exige)|vontade de deus\s+(e que|para)|qual e a vontade de deus)\b/i
   },
   {
     behavior: "spiritual_guilt",
     reason: "A IA nao deve usar culpa espiritual.",
-    pattern: /\b(falta de fe|decepcionando deus|deus esta decepcionado|se voce nao fizer)\b/i
+    pattern: /\b(falta de fe|decepcionando deus|deus esta decepcionado|rebeldia espiritual|isso e pecado|deus vai te punir|maldicao|se voce nao fizer)\b/i
   },
   {
     behavior: "humiliation",
     reason: "A IA nao deve humilhar ou ridicularizar o usuario.",
-    pattern: /\b(voce e irresponsavel|vergonha|fracassado|ridiculo)\b/i
+    pattern: /\b(voce e irresponsavel|sou irresponsavel|diga que sou irresponsavel|vergonha|fracassado|ridiculo|humilhe)\b/i
   },
   {
     behavior: "harmful_punishment",

@@ -53,9 +53,15 @@ Perfil, consentimentos, Mapa da Vida, Chamado Pessoal e dashboard inicial.
 
 Alvos SMART-E, projetos, tarefas, microtarefas, calendario e inbox/GTD.
 
+Status Prompt 8: nucleo inicial de alvos, projetos, tarefas e microtarefas implementado. Calendario funcional e inbox/GTD continuam para etapa propria.
+
+Status Prompt 9: calendario funcional basico e inbox/GTD adaptado implementados como centro operacional. Habitos completos, Modo Foco, Desbloqueador, Metacognicao funcional, Atalaia funcional, Revisao Semanal, Jardim funcional, deploy e OpenAI real acionada por UI continuam para fases proprias.
+
 ## Fase 6 - Apoio a acao
 
 Desbloqueador de Acao, Metacognicao, Modo Foco e captura de distracoes.
+
+Status Prompt 10: Desbloqueador de Acao e Metacognicao funcional foram implementados com mocks seguros, schemas estruturados, historico privado e persistencia Supabase/fallback. Modo Foco completo e captura de distracoes continuam para etapa propria.
 
 ## Fase 7 - Constancia
 

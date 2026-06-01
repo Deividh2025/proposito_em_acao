@@ -50,6 +50,25 @@ Registro das decisoes de produto, arquitetura e governanca.
 - SMART-E, plano de projeto e quebra de tarefa usam mocks deterministos e schemas estruturados revisaveis; OpenAI real continua desativada na UI.
 - Persistencia de execucao deve ocorrer por server actions com Supabase/RLS owner-only; sem Auth/Supabase, o app deve declarar fallback local/dev.
 - Calendario funcional, inbox funcional, habitos, Placar completo, Desbloqueador funcional, Metacognicao funcional e Atalaia funcional permanecem fora do Prompt 8.
+- Prompt 9 libera o centro operacional: Calendario de Execucao e Caixa de Entrada/GTD adaptado.
+- Calendario deve proteger Chamado, descanso, familia e espiritualidade como compromissos reais, nao apenas otimizar produtividade.
+- Agenda usa semana/dia headless na V1, sem biblioteca pesada ou drag-and-drop obrigatorio.
+- Inbox usa captura rapida e classificacao mockada segura ate OpenAI real ser autorizada/configurada para este fluxo.
+- Preocupacoes da inbox podem ser marcadas para reflexao futura, mas Metacognicao funcional continua fora do Prompt 9.
+- `calendar_blocks` e `inbox_items` permanecem privados por padrao e sem Atalaia nesta etapa.
+- Processamento autenticado de inbox reclassifica a partir do conteudo persistido e exige destino existente para projeto/habito ate a etapa desses fluxos completos.
+- Prompt 10 libera Desbloqueador de Acao e Metacognicao funcional com mocks seguros, schemas estruturados e persistencia preparada por server actions.
+- Desbloqueador responde bloqueio operacional com microacao, versao minima e plano de retomada; se o bloqueio parecer cognitivo/emocional, sugere Metacognicao.
+- Metacognicao separa fato, interpretacao, sentimento e impulso, confronta sem humilhar e termina com rota responsavel.
+- Metacognicao permanece privada por padrao; Atalaia continua sem acesso automatico.
+- Crise emocional grave sai do fluxo de produtividade e usa rota de ajuda humana.
+- Modo Foco completo nao foi implementado; o botao de comecar agora registra apenas intencao/ponte futura.
+- Prompt 11 libera Modo Foco, Habitos e Placar em profundidade controlada, com mock seguro e fallback local/dev.
+- Timer de foco deve usar timestamp/tempo alvo no cliente, nao apenas decremento visual.
+- Distracoes de foco sao dados sensiveis owner-only e so vao para Inbox por acao explicita.
+- Habitos precisam de minimo, ideal, gatilho, recompensa, ambiente, metrica e retomada antes de salvar.
+- Placar mede constancia, nao valor pessoal; retomada conta como progresso real.
+- Placar bruto nao sera compartilhado com Atalaia nesta etapa.
 
 ## Pendencias
 
@@ -72,6 +91,20 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Aplicar e testar a migration `202605310005_execution_prompt8_alignment.sql`.
 - Gerar tipos reais de Supabase apos aplicar migrations do Prompt 8.
 - Definir futuramente uma projecao sanitizada para Atalaia ver progresso de execucao sem abrir `goals/projects/tasks/microtasks` diretamente.
+- Aplicar e testar a migration `202605310006_calendar_inbox_prompt9_alignment.sql`.
+- Gerar tipos reais de Supabase apos aplicar migrations do Prompt 9.
+- Definir se e quando havera recorrencia avancada, timezone por usuario e drag-and-drop acessivel no calendario.
+- Definir politica de retencao para capturas brutas da inbox.
+- Definir provider/modelo real para classificacao de inbox e revisao de agenda antes de ativar OpenAI neste fluxo.
+- Aplicar e testar a migration `202605310007_action_unblocker_metacognition_prompt10_alignment.sql`.
+- Gerar tipos reais de Supabase apos aplicar migrations do Prompt 10.
+- Definir provider/modelo real para Desbloqueador e Metacognicao antes de ativar OpenAI nestes fluxos.
+- Definir politica de retencao/exclusao para historico privado de Metacognicao antes de producao.
+- Definir, em etapa futura, se havera resumo manual compartilhavel de Metacognicao e qual consentimento granular sera exigido.
+- Aplicar e testar a migration `202605310008_focus_habits_scoreboard_prompt11_alignment.sql`.
+- Gerar tipos reais de Supabase apos aplicar migrations do Prompt 11.
+- Definir provider/modelo real para Habitos e Placar antes de ativar OpenAI nestes fluxos.
+- Definir schema futuro de resumo limitado de Placar para Atalaia, com consentimento e previa.
 
 ## Template de decisao
 

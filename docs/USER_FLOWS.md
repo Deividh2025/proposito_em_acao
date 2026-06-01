@@ -84,6 +84,8 @@ flowchart TD
 4. Sistema destaca proxima acao.
 5. Usuario agenda ou inicia foco.
 
+No Prompt 8, o fluxo para no passo 4: agenda e foco funcional ficam para etapas futuras.
+
 ## Agendamento no calendario
 
 1. Usuario escolhe tarefa, habito ou foco.
@@ -92,12 +94,16 @@ flowchart TD
 4. Calendario verifica sobrecarga.
 5. Bloco fica visivel na semana/dia.
 
+No Prompt 9, o fluxo implementado e manual/headless: o usuario cria blocos, agenda tarefas existentes, alterna semana/dia, conclui, reagenda e remove blocos. Sugestao automatica profunda e drag-and-drop ficam para decisao futura.
+
 ## Captura na inbox
 
 1. Usuario captura texto rapido.
 2. IA classifica.
 3. Usuario confirma destino.
 4. Item vira tarefa, projeto, habito, evento, referencia, Metacognicao ou descarte.
+
+No Prompt 9, a classificacao usa mock seguro ou futuro provider estruturado. A partir do Prompt 10, preocupacao/ruminacao pode encaminhar para o fluxo funcional de Metacognicao.
 
 ```mermaid
 flowchart TD
@@ -119,6 +125,8 @@ flowchart TD
 4. Se bloqueio for emocional/cognitivo, encaminha para Metacognicao.
 5. Usuario inicia foco ou salva microacao.
 
+No Prompt 10, o fluxo existe em `/action-unblocker` com mock seguro, resultado estruturado e fallback local/dev quando nao ha Auth/Supabase.
+
 ## Metacognicao
 
 1. Usuario registra estado, intensidade e pensamento.
@@ -127,6 +135,8 @@ flowchart TD
 4. IA confronta com responsabilidade sem humilhar.
 5. IA reformula e sugere microacao, descanso, oracao/reflexao ou ajuda humana.
 6. Sessao e privada por padrao.
+
+No Prompt 10, o fluxo existe em `/metacognition` e `/metacognition/history`, com historico privado e sem Atalaia por padrao.
 
 ```mermaid
 flowchart TD

@@ -1,20 +1,25 @@
-import { FocusStartButton, TimeAvailableSelector } from "@/components/execution/ExecutionComponents";
-import { PlaceholderPage } from "@/components/layout/PlaceholderPage";
-import { Progress } from "@/components/ui/Progress";
-import { getPlaceholderPage } from "@/lib/design/navigation";
+import { FocusSessionShell } from "@/components/focus/FocusSessionShell";
+import { PageHeader } from "@/components/layout/PageHeader";
 
-export default function FocusPage() {
-  const page = getPlaceholderPage("/focus")!;
+type FocusPageProps = {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function FocusPage({ searchParams }: FocusPageProps) {
+  const params = (await searchParams) ?? {};
+  const minutesParam = Array.isArray(params.minutes) ? params.minutes[0] : params.minutes;
+  const taskId = Array.isArray(params.taskId) ? params.taskId[0] : params.taskId;
+  const parsedMinutes = Number(minutesParam);
+  const initialDurationMinutes = Number.isFinite(parsedMinutes) && parsedMinutes > 0 ? parsedMinutes : 25;
 
   return (
-    <PlaceholderPage page={page}>
-      <div className="grid gap-4 lg:grid-cols-2">
-        <TimeAvailableSelector />
-        <Progress label="Preparação do modo foco" value={20} />
-        <div>
-          <FocusStartButton />
-        </div>
-      </div>
-    </PlaceholderPage>
+    <div className="space-y-6">
+      <PageHeader
+        description="Execute uma tarefa com timer simples, captura de distracoes e rota segura para destravar ou refletir."
+        status="Prompt 11"
+        title="Modo Foco"
+      />
+      <FocusSessionShell initialDurationMinutes={initialDurationMinutes} initialTaskId={taskId} />
+    </div>
   );
 }

@@ -192,4 +192,43 @@ Campos obrigatorios:
 - privado por padrao;
 - compartilhamento com Atalaia bloqueado por padrao.
 
-Isto ainda nao implementa a UI funcional de Metacognicao. E a base tecnica para etapa futura.
+Esse contrato foi usado como base para a implementacao funcional do Prompt 10.
+
+## Prompt 10 - Implementacao funcional
+
+O Prompt 10 torna `/metacognition` uma tela funcional com formulario rapido/profundo, resultado estruturado, historico privado e persistencia preparada por server actions.
+
+Campos canonicos atuais em `metacognition_output_v1`:
+
+- `state_name`
+- `category`
+- `intensity_observed`
+- `fact`
+- `interpretation`
+- `feeling`
+- `impulse`
+- `dominant_automatic_thought`
+- `cognitive_patterns`
+- `logical_deconstruction`
+- `confrontation_question`
+- `reframe`
+- `next_action`
+- `recommended_route`
+- `christian_anchor`
+- `safety_flags`
+- `privacy_note`
+
+O mock seguro separa fato, interpretacao, sentimento e impulso, identifica padroes cognitivos como possibilidades e termina com rota responsavel: Desbloqueador, Foco futuro, descanso, oracao/reflexao, ajuda humana ou suporte emergencial.
+
+## Privacidade Prompt 10
+
+- `metacognition_sessions` permanece owner-only por RLS.
+- Historico e privado por padrao.
+- Exclusao fica disponivel no historico.
+- Atalaia nao recebe conteudo automaticamente.
+- Logs nao devem conter pensamento bruto, entrada completa ou resposta bruta.
+- Compartilhamento futuro exigira selecao manual, resumo granular e consentimento explicito.
+
+## Crise
+
+Se a entrada indicar risco grave, perda de controle, ameaca a si ou terceiros, abuso ou violencia, a Metacognicao interrompe a analise comum. A resposta nao deve fazer desmonte profundo nem transformar crise em produtividade; deve orientar ajuda humana imediata, pessoa de confianca e servico local de emergencia em risco imediato.

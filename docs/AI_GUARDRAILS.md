@@ -65,6 +65,9 @@ A IA nao deve:
 - Valorizar retomada.
 - Nao gerar vergonha por falha.
 - Sugerir habito minimo.
+- Exigir revisao humana para plano de habito e Placar.
+- Nao usar ranking publico, vermelho agressivo ou streak quebrado como identidade.
+- Nao usar distracoes do foco como contexto bruto para Atalaia.
 
 ### Revisao semanal
 
@@ -131,3 +134,27 @@ O Prompt 7 adiciona guardrails deterministas iniciais em `src/ai/guardrails/`:
 - `composite.ts`: consolida revisao de seguranca.
 
 Estes guardrails nao substituem revisao humana. Eles sao a primeira barreira tecnica para schemas, providers e evals.
+
+## Prompt 10 - Guardrails especificos
+
+### Desbloqueador
+
+- Se a entrada indicar crise, nao gerar lista de produtividade.
+- Primeiro passo deve caber em 2 a 5 minutos.
+- Linguagem firme nao pode humilhar nem moralizar.
+- Obstaculos como medo, vergonha, culpa, perfeccionismo ou vitimizacao devem sugerir Metacognicao.
+- `safety_note` deve ser preenchido quando houver risco, baixa energia relevante ou necessidade de ajuda humana.
+
+### Metacognicao
+
+- Distorcoes cognitivas sao possibilidades, nunca diagnosticos.
+- Confrontacao mira a estrutura do pensamento, nao a dignidade do usuario.
+- Frases sobre Deus devem evitar vontade divina especifica, descarte espiritual, punicao ou culpa espiritual.
+- Ancora crista e opcional e depende da configuracao do usuario.
+- Crise aciona `recommended_route = emergency_support` e evita analise profunda.
+
+### Privacidade
+
+- Metacognicao nao e compartilhada com Atalaia por padrao.
+- Logs nao devem conter estado bruto, pensamento automatico bruto, prompt completo ou resposta bruta.
+- Persistencia deve salvar apenas dado estruturado necessario para historico privado.

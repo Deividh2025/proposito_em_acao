@@ -138,6 +138,56 @@ A camada central de IA registra somente metadados por `ai_run_audit_v1`:
 
 OpenAI real fica isolada em modulo server-only. `OPENAI_API_KEY` nao pode ser exposta em `NEXT_PUBLIC_*`, client components, browser, mobile ou logs.
 
+## Prompt 8 - Execucao e dados sensiveis
+
+Alvos, projetos, tarefas e microtarefas podem revelar Chamado, rotina, familia, saude, financas, emocoes, trabalho e responsabilidades. Regras especificas:
+
+- Analise ecologica e alinhamento com Chamado sao owner-only.
+- Mock de IA nao envia dados a OpenAI real.
+- Server actions devem validar entrada com Zod antes de persistir.
+- Sem sessao Auth/Supabase, o app deve declarar fallback local/dev.
+- Logs nao devem conter desejo bruto, analise ecologica completa, Chamado, tarefas intimas ou microtarefas sensiveis.
+- Atalaia nao acessa `goals`, `projects`, `tasks` ou `microtasks` diretamente nesta etapa.
+- Qualquer acesso futuro de Atalaia a progresso de execucao deve usar projecao sanitizada, permissao granular por alvo, previa e revogacao.
+
+## Prompt 9 - Calendario e Inbox/GTD
+
+Calendario e inbox sao dados de alta sensibilidade: podem revelar rotina, familia, saude, fe, preocupacoes, links privados, compromissos e disponibilidade. Regras especificas:
+
+- `calendar_blocks` e `inbox_items` sao privados por padrao e owner-only.
+- Capturas brutas da inbox nao devem ser enviadas ao Atalaia, a logs ou a terceiros nesta etapa.
+- Links capturados devem ser tratados como texto sensivel; previews automáticos, fetch remoto e scraping ficam fora da etapa.
+- Audio/imagem sao apenas placeholders de tipo, sem upload/processamento real.
+- Classificacao por IA usa mock seguro; OpenAI real nao e acionada por UI.
+- Logs nao devem conter conteudo de captura, preocupacao, agenda, notas ou observacao do usuario.
+- Processamento de inbox autenticado deve validar dono/status antes de criar tarefa ou bloco e nao confiar em `content` vindo do cliente.
+- Campos de titulo, notas, resumo e classificacao devem ter limite de tamanho no app e no banco.
+- Alertas de sobrecarga devem usar linguagem de cuidado, nunca falha, vergonha ou culpa espiritual.
+- Compartilhamento futuro de agenda com Atalaia exigira decisao propria, projecao minima, consentimento granular e previa.
+
+## Prompt 10 - Desbloqueador e Metacognicao
+
+Metacognicao e dado emocionalmente sensivel e permanece privada por padrao. O Desbloqueador pode receber tarefas, obstaculos, energia e evitacao; esses dados tambem devem ser tratados como sensiveis quando revelarem saude, familia, trabalho, fe ou emocoes.
+
+Regras especificas:
+
+- `metacognition_sessions` e `action_unblock_sessions` sao owner-only.
+- Metacognicao nao e enviada ao Atalaia, relatorios externos, e-mails ou mensagens por padrao.
+- Historico de Metacognicao so aparece para o dono autenticado; sem Auth/Supabase, o app mostra fallback local/dev.
+- Server actions validam entrada e vinculam tarefa/projeto/alvo/calendario somente quando o registro pertence ao mesmo `user_id`.
+- Logs nao devem conter texto bruto de estado interno, pensamento automatico, fato/interpretacao/sentimento/impulso ou resposta completa da IA.
+- Eventos de crise devem ser registrados de forma minima e nao invasiva, com categoria de seguranca, sem detalhe grafico.
+- Compartilhamento futuro so pode ocorrer por resumo manual, granular, com consentimento explicito e previa.
+
+## Prompt 11 - Foco, Habitos e Placar
+
+- `focus_sessions`, `focus_distractions`, `habits`, `habit_logs`, `discipline_scoreboards`, `scoreboard_items` e `scoreboard_entries` sao privados por padrao.
+- Distracoes capturadas durante foco podem conter pensamentos, preocupacoes, links ou tarefas paralelas sensiveis; nao devem ir para logs ou Atalaia.
+- Habitos podem revelar saude, fe, familia, energia, sono e rotina; usar minimizacao e revisao humana.
+- Placar mede constancia, nao valor pessoal; sem ranking publico, vergonha ou punitivismo.
+- Atalaia futuro so pode receber resumo limitado por alvo, consentimento granular, previa e revogacao efetiva.
+- Sem Auth/Supabase, a UI deve declarar fallback local/dev.
+
 ## Retencao
 
 A politica de retencao deve ser definida antes da primeira coleta real. A regra base e reter apenas pelo tempo necessario a finalidade declarada, com exportacao e exclusao disponiveis em fase apropriada.
@@ -164,3 +214,4 @@ A arquitetura futura deve prever:
 | Consentimento generico | Alta | Consentimento granular e versionado |
 | IA alterando dados sem revisao | Alta | Saidas estruturadas, revisao do usuario e validacao server-side |
 | Migration aplicada sem teste RLS | Alta | Aplicar em ambiente controlado e rodar matriz de acesso antes de producao |
+| Metacognicao exposta em historico compartilhado | Critica | Owner-only, sem Atalaia por padrao, exclusao seletiva e consentimento manual futuro |

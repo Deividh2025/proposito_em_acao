@@ -2,7 +2,7 @@
 
 SaaS desktop-first de vida intencional, foco, execucao, habitos, autorregulacao e produtividade assistida por IA, com PWA/mobile complementar para acoes rapidas.
 
-Status atual: fontes de verdade, governanca tecnica, stack Next.js, fundacao Supabase/Auth/RLS em arquivos versionados, onboarding/direcao do Prompt 6, camada central de IA do Prompt 7, nucleo inicial de execucao do Prompt 8, calendario/inbox do Prompt 9, Desbloqueador/Metacognicao do Prompt 10, Foco/Habitos/Placar do Prompt 11, Revisao Semanal/Jardim do Prompt 12, Atalaia/Compromissos do Prompt 13 e PWA/mobile complementar do Prompt 14. A migration remota do Prompt 14 foi aplicada no Supabase `proposito_em_acao`; migrations anteriores, testes RLS completos, Auth visual completo, deploy, e-mail real, push notifications e OpenAI real ainda nao foram ativados.
+Status atual: fontes de verdade, governanca tecnica, stack Next.js, fundacao Supabase/Auth/RLS em arquivos versionados, onboarding/direcao do Prompt 6, camada central de IA do Prompt 7, nucleo inicial de execucao do Prompt 8, calendario/inbox do Prompt 9, Desbloqueador/Metacognicao do Prompt 10, Foco/Habitos/Placar do Prompt 11, Revisao Semanal/Jardim do Prompt 12, Atalaia/Compromissos do Prompt 13, PWA/mobile complementar do Prompt 14, QA final local do Prompt 15, operacao/deploy readiness do Prompt 16 e beta fechado/observabilidade segura do Prompt 17. A decisao operacional atual e usar VPS Hostinger com Coolify, sob responsabilidade de Deividh de Sa, e planejar IA real com OpenAI API e DeepSeek API (`deepseek-v4-flash` e `deepseek-v4-pro`). Producao aberta e beta com usuarios reais continuam bloqueados: o Supabase remoto `proposito_em_acao` esta ativo, porem ainda lista apenas a migration remota do Prompt 14; migrations anteriores, matriz RLS dinamica, Auth real em ambiente publicado, deploy real, LGPD minima, e-mail real, push notifications e IA real ainda nao foram ativados.
 
 ## Visao
 
@@ -43,7 +43,7 @@ Stack definida para a fundacao inicial:
 - TypeScript strict.
 - Tailwind CSS.
 - Supabase para Auth, Postgres, RLS e Storage.
-- OpenAI server-side em etapa futura, com structured outputs.
+- OpenAI e DeepSeek server-side em etapa futura, com structured outputs.
 - Zod, React Hook Form, Vitest, Playwright, ESLint e Prettier.
 
 ## Organizacao do repositorio
@@ -120,6 +120,23 @@ Stack definida para a fundacao inicial:
 - `docs/CODEX_WORKFLOW.md`
 - `docs/DATABASE_SCHEMA_DRAFT.md`
 - `docs/AI_GUARDRAILS.md`
+- `docs/PRODUCTION_DEPLOYMENT.md`
+- `docs/PRODUCTION_ENVIRONMENT.md`
+- `docs/OPERATIONS_RUNBOOK.md`
+- `docs/ROLLBACK_PLAN.md`
+- `docs/SMOKE_TEST_REPORT.md`
+- `docs/BETA_CHECKLIST.md`
+- `docs/BETA_PLAN.md`
+- `docs/BETA_FEEDBACK_PLAN.md`
+- `docs/PRODUCT_METRICS.md`
+- `docs/ANALYTICS_EVENTS.md`
+- `docs/PRIVACY_SAFE_ANALYTICS.md`
+- `docs/BUG_TRIAGE.md`
+- `docs/FEEDBACK_TRIAGE.md`
+- `docs/SUPPORT_RUNBOOK.md`
+- `docs/INCIDENT_RESPONSE.md`
+- `docs/POST_DEPLOY_MONITORING.md`
+- `docs/V1_1_ROADMAP.md`
 
 ## Contribuicao
 

@@ -16,7 +16,9 @@
 - Biblioteca de drag-and-drop.
 - Biblioteca de componentes, se houver.
 - Provedor de deploy final.
-- Estrategia de observabilidade.
+- Estrategia final de observabilidade produtiva: provider first-party/externo, retencao, consentimento, acesso e agregacao.
+- Canal/formulario externo de feedback beta e politica de acesso/retencao.
+- Se analytics real fica desligado no primeiro beta ou coleta apenas eventos consentidos.
 - Aplicacao das migrations anteriores ao Prompt 14 no projeto Supabase remoto.
 - Estrategia final de testes automatizados de RLS com CLI/MCP.
 

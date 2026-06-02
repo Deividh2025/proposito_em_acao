@@ -110,12 +110,30 @@ Fluxo previsto:
 
 1. UI ou server action chama uma camada server-side.
 2. A camada resolve agente, prompt, schema e contexto minimo.
-3. Provider mock ou OpenAI server-side gera saida.
+3. Provider mock, OpenAI server-side ou DeepSeek server-side gera saida conforme roteamento aprovado.
 4. Saida e validada com Zod.
 5. Guardrails revisam risco clinico, pastoral, privacidade, Atalaia e crise.
 6. Persistencia futura salva apenas dado estruturado e metadados minimos.
 
 OpenAI real nao foi ativada em fluxo de produto nesta etapa.
+
+## Prompt 16 - Providers de producao planejados
+
+Decisao do fundador:
+
+- Usar OpenAI API.
+- Usar DeepSeek API.
+- Modelos DeepSeek planejados: `deepseek-v4-flash` e `deepseek-v4-pro`.
+
+Diretriz tecnica:
+
+- DeepSeek deve entrar como provider server-side, nunca client-side.
+- `deepseek-v4-flash` e candidato para fluxos de menor custo/latencia depois de evals.
+- `deepseek-v4-pro` e candidato para fluxos de maior complexidade depois de evals.
+- OpenAI permanece provider candidato para fluxos que exigirem melhor aderencia a schemas, guardrails e qualidade avaliada.
+- O roteamento por agente deve ser explicito e versionado antes de ativar IA real.
+- Todos os providers seguem as mesmas regras: schema estruturado, Zod/server validation, guardrails, minimizacao de contexto, sem prompt/resposta bruta em logs e fallback seguro.
+- Chamado, Metacognicao, Atalaia, Revisao Semanal e dados sensiveis nao podem ir a provider real sem aprovacao de privacidade, consentimento quando aplicavel e evals negativos.
 
 ## Prompt 8 - SMART-E e Planejador
 

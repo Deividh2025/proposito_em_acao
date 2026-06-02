@@ -1,5 +1,6 @@
 import { ShieldCheck } from "lucide-react";
 
+import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 import { designModes } from "@/lib/design/modes";
 
 export function RightPanel() {
@@ -30,6 +31,8 @@ export function RightPanel() {
           padrão. Atalaia só entra por alvo e consentimento.
         </p>
       </section>
+
+      <FeedbackButton defaultModule="dashboard" />
     </aside>
   );
 }

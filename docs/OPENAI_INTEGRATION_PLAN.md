@@ -1,4 +1,4 @@
-# OpenAI Integration Plan
+# AI Provider Integration Plan
 
 ## Principio
 
@@ -95,3 +95,31 @@ Arquivos:
 - `src/lib/openai/provider.ts`
 
 Logs de IA devem usar `ai_run_audit_v1`, sem prompt bruto e sem resposta bruta.
+
+## Prompt 16 - OpenAI + DeepSeek
+
+Decisao do fundador:
+
+- OpenAI API sera usada como provider real planejado.
+- DeepSeek API sera usada como provider real planejado.
+- Modelos DeepSeek planejados: `deepseek-v4-flash` e `deepseek-v4-pro`.
+
+DeepSeek deve seguir o mesmo padrao de seguranca do OpenAI provider:
+
+- somente server-side;
+- chave apenas em secret do provedor de deploy;
+- sem `NEXT_PUBLIC_`;
+- schema estruturado e validacao server-side;
+- guardrails antes de persistir, enviar ou compartilhar;
+- logs sem prompt bruto/resposta bruta;
+- fallback seguro quando provider falhar;
+- evals antes de ativar fluxo real.
+
+Antes de ativar IA real, ainda falta decidir:
+
+- modelo OpenAI padrao;
+- quais agentes usam OpenAI, DeepSeek Flash ou DeepSeek Pro;
+- limites de custo por usuario/ambiente;
+- rate limit e timeout;
+- politica de fallback entre providers;
+- se algum fluxo sensivel ficara apenas mock/manual no beta.

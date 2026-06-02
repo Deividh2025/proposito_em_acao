@@ -81,6 +81,12 @@ Captura rapida, habitos, Placar, foco curto, Desbloqueador, Metacognicao rapida 
 
 E2E, evals de IA, matriz RLS, hardening de logs, LGPD, acessibilidade, performance, deploy e monitoramento.
 
+Status Prompt 15/16: V1 localmente verde e documentacao operacional de deploy/preview preparada. Producao aberta segue bloqueada por Supabase remoto desalinhado, RLS dinamico, Auth real, LGPD minima, secrets e smoke publicado.
+
+## Fase 11 - Beta fechado e V1.1
+
+Preparar beta fechado, metricas, analytics seguro, feedback, suporte, incident response, monitoramento pos-deploy e roadmap V1.1. Nao liberar usuarios reais antes dos gates externos de preview, Supabase/Auth/RLS, LGPD, smoke publicado e rollback.
+
 ## Criterio de avanco
 
 So avancar de fase quando escopo, riscos, testes, privacidade, documentacao e aceite estiverem claros.

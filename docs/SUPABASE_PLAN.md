@@ -78,6 +78,22 @@ Considerar para:
 - `202605310003_private_storage.sql`
 - `202605310004_onboarding_calling_metadata.sql`
 - `202605310005_execution_prompt8_alignment.sql`
+- `202605310006_calendar_inbox_prompt9_alignment.sql`
+- `202605310007_action_unblocker_metacognition_prompt10_alignment.sql`
+- `202605310008_focus_habits_scoreboard_prompt11_alignment.sql`
+- `202605310009_weekly_review_garden_prompt12_alignment.sql`
+- `202606010010_accountability_commitment_prompt13_alignment.sql`
+- `202606010011_mobile_pwa_prompt14_alignment.sql`
+
+## Status remoto Prompt 16
+
+Consulta em 2026-06-02:
+
+- Projeto `bceumcfmjftoukzrfthe` (`proposito_em_acao`) ativo e saudavel em `sa-east-1`.
+- Migrations remotas listadas: apenas `20260602134002 mobile_pwa_prompt14_alignment`.
+- Tabelas publicas remotas visiveis: `energy_checkins`.
+
+Conclusao: o Supabase remoto ainda nao esta alinhado com todas as migrations locais da V1. Producao aberta fica bloqueada ate aplicar/alinha-las em branch/preview e rodar RLS dinamica.
 
 ## Tipos
 
@@ -95,9 +111,10 @@ Considerar para:
 
 ## Proximos passos
 
-1. Instalar/autenticar Supabase CLI ou MCP.
-2. Aplicar migrations em ambiente controlado.
+1. Instalar/autenticar Supabase CLI ou usar conector operacional aprovado.
+2. Aplicar migrations em branch/preview, com backup quando houver dados reais.
 3. Rodar advisors/lints e testes RLS por persona.
 4. Gerar tipos reais.
 5. Configurar redirects de Auth no dashboard.
 6. Revisar backups antes de producao.
+7. Registrar resultado em `docs/SMOKE_TEST_REPORT.md` e `docs/RLS_TEST_REPORT.md`.

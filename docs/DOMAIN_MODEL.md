@@ -72,7 +72,7 @@ erDiagram
 - `project.created`
 - `task.decomposed`
 - `task.scheduled`
-- `task.blocked`
+- `task.stuck`
 - `focus.started`
 - `focus.completed`
 - `habit.logged`

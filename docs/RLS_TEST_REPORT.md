@@ -38,3 +38,15 @@ Este teste garante que policies de Atalaia nao fiquem apenas em `user_id + goal_
 ## Status
 
 A regressao local passou. Deploy produtivo deve aguardar execucao dinamica em Supabase branch/preview.
+
+## Addendum Prompt 16
+
+Data: 2026-06-02.
+
+Consulta Supabase real confirmou:
+
+- Projeto `bceumcfmjftoukzrfthe` esta ativo.
+- Migrations remotas listadas: apenas `20260602134002 mobile_pwa_prompt14_alignment`.
+- Tabelas publicas visiveis nao cobrem a V1 completa.
+
+Conclusao: matriz RLS dinamica continua bloqueante antes de producao aberta ou beta com usuarios reais.

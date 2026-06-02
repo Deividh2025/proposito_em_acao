@@ -45,3 +45,12 @@ Seguranca local e estatica melhorou durante o Prompt 15, mas deploy produtivo ai
 - Consentimentos precisam ficar granulares, versionados e auditaveis em producao.
 - Definir politica de retencao/exportacao/exclusao para dados reflexivos, Chamado, revisoes e energia.
 - Revisar convites com expiracao real, reenvio, aceite autenticado e trilha de auditoria.
+
+## Addendum Prompt 16
+
+Data: 2026-06-02.
+
+- Headers minimos de seguranca foram adicionados em `next.config.ts`: CSP, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` e HSTS em producao.
+- Supabase remoto foi consultado e permanece desalinhado: apenas `20260602134002 mobile_pwa_prompt14_alignment` aparece como migration aplicada.
+- Producao aberta segue bloqueada ate aplicar migrations em preview, rodar RLS dinamica, validar Auth real, configurar secrets fora do Git e aprovar LGPD minima.
+- OpenAI real e e-mail real seguem desativados por padrao.

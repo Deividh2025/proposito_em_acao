@@ -163,6 +163,15 @@ Testes adicionados/esperados:
 - RLS real de `energy_checkins` permanece pendente enquanto Supabase CLI/projeto aplicado nao estiver disponivel.
 - Testes futuros devem cobrir double tap/idempotencia, matriz mobile de viewports e eventual fila offline segura se aprovada.
 
+## Prompt 17
+
+Testes adicionados/esperados:
+
+- `src/tests/unit/beta-operations-domain.test.ts` valida allowlist/sanitizacao de analytics e feedback beta local.
+- E2E futuro deve abrir feedback beta no desktop e mobile, preparar rascunho sem envio externo e confirmar aviso de dados sensiveis.
+- Smoke publicado deve validar que `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se configurada, nao contem token ou query sensivel.
+- Testes futuros de analytics real devem confirmar consentimento, bloqueio sem consentimento, rejeicao de chaves sensiveis e ausencia de texto de usuario.
+
 ## Testes de UX critico
 
 - Proxima acao clara no dashboard.

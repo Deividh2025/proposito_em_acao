@@ -77,6 +77,14 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Rota `/auth` com criacao de conta, login e logout via Supabase Auth server-side, mantendo fallback local/dev seguro quando Supabase nao estiver configurado.
 - Teste E2E `auth.spec.ts` para validar a superficie minima de Auth da V1.
 - Skills locais novas: `qa-final-v1-skill`, `release-readiness-skill`, `security-audit-skill` e `regression-testing-skill`.
+- Documentacao operacional do Prompt 16: `PRODUCTION_DEPLOYMENT.md`, `PRODUCTION_ENVIRONMENT.md`, `SMOKE_TEST_REPORT.md`, `ROLLBACK_PLAN.md`, `OPERATIONS_RUNBOOK.md` e `BETA_CHECKLIST.md`.
+- Skills locais novas: `production-deploy-skill`, `hostinger-deploy-skill`, `production-secrets-skill`, `smoke-test-skill` e `rollback-skill`.
+- Decisoes operacionais registradas: VPS Hostinger, Coolify, dono Deividh de Sa, e-mail operacional `deividhvianei@gmail.com`, OpenAI API e DeepSeek API com `deepseek-v4-flash` e `deepseek-v4-pro`.
+- Documentacao do Prompt 17 para beta fechado, metricas, analytics seguro, feedback, bug triage, feedback triage, suporte, incident response, monitoramento pos-deploy e roadmap V1.1.
+- Dominios `src/domain/analytics` e `src/domain/feedback` com allowlist/sanitizacao de eventos e rascunho local de feedback beta.
+- Componentes `src/components/feedback/FeedbackButton.tsx` e `src/components/feedback/FeedbackForm.tsx`, expostos no painel desktop e hub mobile.
+- Teste unitario `src/tests/unit/beta-operations-domain.test.ts`.
+- Skills locais novas: `beta-operations-skill`, `product-analytics-skill`, `feedback-triage-skill`, `bug-triage-skill` e `v1-1-roadmap-skill`.
 
 ### Changed
 
@@ -91,6 +99,9 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Navegacao mobile passa a apontar para a superficie complementar `/mobile/*`.
 - Prompt 14 teve limites pre-Prompt 15 aprovados: PWA responsivo segue, app nativo/push/fila offline sensivel ficam fora ate prompt proprio.
 - Navegacao principal passa a expor `/auth` como acesso basico da V1.
+- `README.md`, `DEPLOYMENT_PLAN.md`, `RELEASE_READINESS.md`, `ENVIRONMENT_VARIABLES.md`, `SUPABASE_PLAN.md`, `SUPABASE_AUTH.md` e `DECISIONS.md` sincronizados com o bloqueio de producao do Prompt 16.
+- Docs de IA e seguranca sincronizados com DeepSeek como provider planejado adicional, sem ativacao real em fluxo de produto.
+- `README.md`, `AGENTS.md`, `PLANS.md`, docs operacionais, seguranca, consentimento, ambiente e aceite sincronizados com Prompt 17.
 
 ### Fixed
 
@@ -98,6 +109,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Prompt 15 estreitou policies de Atalaia para grant/parceiro especifico e adicionou regressao estatica de RLS.
 - Prompt 15 adicionou guardrail de persistencia owner-only para Desbloqueador e Metacognicao antes de salvar structured output enviado pelo cliente.
 - Prompt 15 corrigiu warning de build do Next movendo `themeColor` para `viewport`.
+- Prompt 16 adicionou headers minimos de seguranca no `next.config.ts`.
 
 ### Security
 
@@ -105,6 +117,9 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - `energy_checkins` nasce privado por padrao, com RLS owner-only e sem Atalaia.
 - Migration remota `mobile_pwa_prompt14_alignment` aplicada em 2026-06-02 no Supabase `proposito_em_acao` (`bceumcfmjftoukzrfthe`), versao `20260602134002`.
 - Prompt 15 reforca Auth server-side sem service role no browser e registra que migrations remotas Supabase ainda precisam ser alinhadas antes de producao.
+- Prompt 16 confirmou via Supabase que o projeto remoto esta ativo, mas ainda lista somente `20260602134002 mobile_pwa_prompt14_alignment`; producao aberta segue bloqueada.
+- Prompt 17 limita analytics a eventos/metadados minimos, consentimento especifico, retencao definida e sem conteudo sensivel.
+- Feedback beta nasce como rascunho local; formulario externo depende de `NEXT_PUBLIC_BETA_FEEDBACK_URL` aprovado, sem tokens.
 - `/onboarding` mudou de placeholder para fluxo interativo do Prompt 6.
 - `docs/OPENAI_INTEGRATION_PLAN.md` atualizado de plano conceitual para plano tecnico preparado com Responses API, Structured Outputs e limites server-side.
 - `vitest.config.ts` agora inclui testes de evals em `src/ai/evals/**/*.test.ts`.
@@ -163,3 +178,5 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - No Prompt 12, Atalaia funcional, compartilhamento externo, gamificacao profunda, mobile/PWA completo, deploy, integracoes externas e OpenAI real acionada por UI continuam fora de escopo.
 - No Prompt 13, portal avancado do Atalaia, relatorios profundos, mobile/PWA completo, deploy, integracoes externas, e-mail real e OpenAI real acionada por UI continuam fora de escopo.
 - No Prompt 15, os gates locais passaram apos correcoes, mas deploy produtivo permanece condicionado a aplicar/validar migrations Supabase, RLS dinamico, Auth real, secrets, consentimentos LGPD e provider de e-mail.
+- No Prompt 16, os gates locais passaram novamente e os documentos operacionais foram criados, mas nenhum deploy real foi realizado porque Supabase remoto, RLS dinamico, Auth real, secrets e decisoes de LGPD/e-mail/IA continuam bloqueantes.
+- No Prompt 17, beta fechado com usuarios reais continua bloqueado; a etapa prepara operacao, metricas, feedback e V1.1 sem deploy, coleta real de analytics, migrations ou provider externo.

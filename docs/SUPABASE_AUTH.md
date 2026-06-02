@@ -35,9 +35,12 @@ O app usa `@supabase/ssr`:
 
 Configurar no Supabase:
 
-- `http://localhost:3000/auth/callback`
-- URL de preview quando existir.
-- URL de producao quando existir.
+- Local: `http://localhost:3000/**`.
+- Preview Vercel: `https://*-<team-or-account-slug>.vercel.app/**` ou URL exata do preview aprovado.
+- Hostinger/alternativa: URL exata do preview aprovado.
+- Producao: URL exata do dominio final aprovado, preferencialmente sem wildcard.
+
+O `NEXT_PUBLIC_APP_URL` do ambiente deve corresponder ao Site URL/redirect permitido. Confirmacao de e-mail, login, logout e expiracao de sessao devem ser validados por smoke test publicado antes de beta.
 
 ## Regras
 

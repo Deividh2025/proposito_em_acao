@@ -8,6 +8,7 @@
 
 - `NEXT_PUBLIC_APP_NAME`: nome publico do app.
 - `NEXT_PUBLIC_APP_URL`: URL publica do ambiente.
+- `NEXT_PUBLIC_BETA_FEEDBACK_URL`: link publico opcional para formulario externo aprovado do beta. Deve ficar vazio ate aprovacao e nunca conter tokens, segredos, dados de usuario ou querystring sensivel.
 
 ## Supabase
 
@@ -28,6 +29,16 @@ Chaves publicaveis devem usar `NEXT_PUBLIC_SUPABASE_ANON_KEY` para compatibilida
 ## OpenAI
 
 - `OPENAI_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
+- `OPENAI_MODEL`: modelo OpenAI aprovado por ambiente/fluxo; nao e secret, mas deve ser controlado por ambiente.
+
+## DeepSeek
+
+- `DEEPSEEK_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
+- `DEEPSEEK_BASE_URL`: base URL server-side. Valor planejado: `https://api.deepseek.com`.
+- `DEEPSEEK_MODEL_FLASH`: modelo DeepSeek rapido/custo menor. Valor planejado: `deepseek-v4-flash`.
+- `DEEPSEEK_MODEL_PRO`: modelo DeepSeek de maior capacidade. Valor planejado: `deepseek-v4-pro`.
+
+DeepSeek foi aprovado como provider planejado pelo fundador, junto com OpenAI. Ativacao real ainda exige guardrails, evals, custos, rate limit e roteamento por agente.
 
 ## Email
 
@@ -46,3 +57,27 @@ No Prompt 13, notificacoes do Atalaia sao preparadas no backend, mas nao enviam 
 - Nao registrar secrets em logs.
 - Rotacionar qualquer secret exposto.
 - Separar variaveis por ambiente.
+
+## Prompt 16 - producao/preview
+
+Configurar valores reais somente no cofre do provedor escolhido.
+
+Obrigatorias em preview/producao:
+
+- `NEXT_PUBLIC_APP_NAME`
+- `NEXT_PUBLIC_APP_URL`
+- `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se formulario externo do beta for aprovado.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_PROJECT_ID`
+- `NODE_ENV`
+
+Manter vazias/desativadas ate aprovacao explicita:
+
+- `SUPABASE_SERVICE_ROLE_KEY`, salvo necessidade server-side controlada.
+- `OPENAI_API_KEY`, ate aprovar modelo, custo, rate limit e evals ampliados.
+- `DEEPSEEK_API_KEY`, ate aprovar custo, rate limit, evals ampliados e roteamento por agente.
+- `EMAIL_PROVIDER` e `EMAIL_FROM`, ate aprovar provider, remetente e templates.
+
+Nunca usar `NEXT_PUBLIC_` para OpenAI, service role, provider secrets, webhook secrets ou tokens.
+Nunca usar `NEXT_PUBLIC_` para DeepSeek.

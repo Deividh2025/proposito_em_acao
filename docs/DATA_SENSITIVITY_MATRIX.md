@@ -32,6 +32,8 @@
 | Documento de compromisso | Compromisso | Alta | Sim, se usuario escolher | Sim | Revisar antes de compartilhar | Dono; Atalaia autorizado |
 | ConsentRecord | Consentimento | Critica | Nao | N/A | Registro auditavel e versionado | Dono; backend; auditoria |
 | Logs tecnicos | Observabilidade | Media | Nao | Politica clara | Sem prompt bruto, pensamento ou dado intimo | Operacional minimo; retencao definida |
+| Eventos de analytics | Beta/Observabilidade | Media/Alta | Nao | Sim | Apenas eventos/metadados minimos; sem conteudo sensivel | Consentimento especifico; retencao curta; agregacao |
+| Feedback beta | Beta/Feedback | Alta | Nao | Sim | Campo livre pode conter dado intimo; redigir antes de compartilhar | Rascunho local ate formulario/canal aprovado |
 | Anexos de usuario | Storage | Alta | Nao por padrao | Sim | Bucket privado e path por usuario | Dono; signed URL server-side se autorizado |
 | Documento anexado de compromisso | Storage/Compromisso | Alta | Sim, se usuario escolher | Sim, por alvo/escopo | Nunca publico; previa antes de compartilhar | Dono; Atalaia via signed URL curta e grant ativo |
 | Check-in de energia | Mobile/PWA | Alta/Critica | Nao por padrao | Sim | Pode revelar saude, sono, rotina e emocao | Dono por RLS; sem cache/offline sensivel |
@@ -79,3 +81,8 @@ Desbloqueador e Metacognicao entram como dados de autorregulacao sensiveis. `act
 - Captura mobile continua sendo `inbox_items`: alta; nao cachear ou logar conteudo bruto.
 - Metacognicao mobile continua sendo `metacognition_sessions`: critica; privada por padrao e sem compartilhamento automatico.
 - Service worker/CacheStorage nao deve armazenar dados sensiveis, tokens, notificacoes ou respostas de actions.
+
+## Prompt 17
+
+- Eventos de analytics futuros devem registrar somente evento, modulo, status, contagens, buckets e consentimento. Sem texto de usuario, titulos, notas, prompts ou respostas.
+- Feedback beta futuro deve ser minimizado, redigido quando sensivel e protegido por consentimento/retencao. Nao compartilhar com Atalaia ou terceiros por padrao.

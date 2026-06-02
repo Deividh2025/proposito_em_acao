@@ -75,6 +75,10 @@ Prompt 14 autoriza implementar PWA responsivo complementar, manifest, icones PWA
 
 Prompt 15 autoriza QA final, testes automatizados/manuais criticos, auditoria de seguranca, RLS, IA, UX TDAH-first, PWA/mobile, correcoes indispensaveis, Auth basico faltante, relatorios e checklist de release. A etapa continua proibindo funcionalidades novas fora da V1, relaxar seguranca para passar teste, desabilitar RLS, expor secrets, ativar OpenAI real sem decisao, aplicar migrations/deploy produtivo sem aprovacao e declarar pronto para producao sem validar Supabase/RLS/Auth reais.
 
+## Limites da etapa atual de Beta Fechado e Observabilidade
+
+Prompt 17 autoriza preparar beta fechado, observabilidade basica, metricas de produto, eventos seguros de analytics, feedback beta, triagem de bugs/feedback, suporte, incident response, monitoramento pos-deploy, skills operacionais e plano V1.1. A etapa continua proibindo grandes funcionalidades novas, analytics com conteudo sensivel, coleta real sem consentimento/LGPD/retencao, beta com usuarios reais antes de preview/Supabase/RLS/Auth/smoke publicados, OpenAI/DeepSeek/e-mail real sem aprovacao operacional, deploy produtivo aberto e mudancas de migrations sem plano proprio.
+
 ## Skills locais obrigatorias por dominio
 
 - Produto/escopo: `prd-product-skill`.
@@ -119,6 +123,11 @@ Prompt 15 autoriza QA final, testes automatizados/manuais criticos, auditoria de
 - Release readiness: `release-readiness-skill`.
 - Auditoria de seguranca: `security-audit-skill`.
 - Testes de regressao: `regression-testing-skill`.
+- Operacao beta: `beta-operations-skill`.
+- Analytics de produto: `product-analytics-skill`.
+- Triagem de feedback: `feedback-triage-skill`.
+- Triagem de bugs: `bug-triage-skill`.
+- Roadmap V1.1: `v1-1-roadmap-skill`.
 
 ## Git e GitHub
 

@@ -55,6 +55,8 @@ Preferir Server Components por padrao. Usar Client Components somente quando hou
 - `src/components/scoreboard`: Placar sem vergonha.
 - `src/components/garden`: Jardim nao punitivo.
 - `src/components/faith`: camada crista discreta e opcional.
+- `src/components/mobile`: acoes rapidas do PWA/mobile complementar.
+- `src/components/pwa`: registro client-side do service worker.
 
 ## Design system
 
@@ -92,13 +94,15 @@ Tailwind continua como base de tokens e utilitarios.
 ## Responsividade
 
 - Desktop e centro operacional.
-- Mobile e complementar para captura, habitos, foco curto, Desbloqueador e Metacognicao rapida.
+- Mobile e complementar para captura, habitos, Placar, foco curto, Desbloqueador, Metacognicao rapida e energia.
 - `MobileShell` existe para acoes rapidas, nao para copiar o desktop inteiro.
 
-## PWA futuro
+## PWA Prompt 14
 
-- Manifesto, icons e service worker serao avaliados em etapa propria.
-- Captura offline/sincronizacao exigira plano de dados e conflitos.
+- `public/manifest.json` define instalabilidade inicial e `start_url` em `/mobile`.
+- `public/sw.js` cacheia apenas assets estaticos e pagina offline.
+- `src/app/offline/page.tsx` explica que dados sensiveis nao entram em fila offline.
+- Captura offline/sincronizacao sensivel exige prompt proprio de dados, conflitos, privacidade e limpeza.
 
 ## Calendario e dashboard
 
@@ -126,4 +130,4 @@ npm.cmd run build
 npm.cmd run test:e2e
 ```
 
-Playwright deve cobrir home, dashboard, calendario, inbox, Metacognicao, navegacao principal, desktop e largura mobile minima.
+Playwright deve cobrir home, dashboard, calendario, inbox, Metacognicao, navegacao principal, desktop, largura mobile minima e rotas `/mobile/*`.

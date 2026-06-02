@@ -228,7 +228,18 @@ create policy accountability_grants_partner_select_active
   on public.accountability_grants for select
   to authenticated
   using (
-    app_private.has_active_accountability_grant(user_id, goal_id, null)
+    status = 'active'
+    and revoked_at is null
+    and (expires_at is null or expires_at > now())
+    and exists (
+      select 1
+      from public.accountability_partners partners
+      where partners.id = accountability_grants.accountability_partner_id
+        and partners.user_id = accountability_grants.user_id
+        and partners.partner_user_id = (select auth.uid())
+        and partners.status = 'active'
+        and partners.revoked_at is null
+    )
   );
 
 drop policy if exists accountability_events_partner_select_active on public.accountability_events;
@@ -237,7 +248,25 @@ create policy accountability_events_partner_select_active
   to authenticated
   using (
     goal_id is not null
-    and app_private.has_active_accountability_grant(user_id, goal_id, null)
+    and accountability_partner_id is not null
+    and accountability_grant_id is not null
+    and exists (
+      select 1
+      from public.accountability_grants grants
+      join public.accountability_partners partners
+        on partners.id = grants.accountability_partner_id
+       and partners.user_id = grants.user_id
+      where grants.id = accountability_events.accountability_grant_id
+        and partners.id = accountability_events.accountability_partner_id
+        and grants.user_id = accountability_events.user_id
+        and grants.goal_id = accountability_events.goal_id
+        and grants.status = 'active'
+        and grants.revoked_at is null
+        and (grants.expires_at is null or grants.expires_at > now())
+        and partners.partner_user_id = (select auth.uid())
+        and partners.status = 'active'
+        and partners.revoked_at is null
+    )
   );
 
 drop policy if exists accountability_notifications_partner_select_active on public.accountability_notifications;
@@ -246,7 +275,23 @@ create policy accountability_notifications_partner_select_active
   to authenticated
   using (
     status in ('approved', 'queued', 'sent')
-    and app_private.has_active_accountability_grant(user_id, goal_id, null)
+    and exists (
+      select 1
+      from public.accountability_grants grants
+      join public.accountability_partners partners
+        on partners.id = accountability_notifications.accountability_partner_id
+       and partners.id = grants.accountability_partner_id
+       and partners.user_id = grants.user_id
+      where grants.id = accountability_notifications.accountability_grant_id
+        and grants.user_id = accountability_notifications.user_id
+        and grants.goal_id = accountability_notifications.goal_id
+        and grants.status = 'active'
+        and grants.revoked_at is null
+        and (grants.expires_at is null or grants.expires_at > now())
+        and partners.partner_user_id = (select auth.uid())
+        and partners.status = 'active'
+        and partners.revoked_at is null
+    )
   );
 
 drop policy if exists commitment_documents_partner_select_explicit on public.commitment_documents;

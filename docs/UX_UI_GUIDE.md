@@ -143,6 +143,23 @@ Saida curta: primeiro passo, versao minima, tempo, frase de retomada, botao de f
 
 O Jardim deve ser simbolico, recompensador e nao punitivo. Areas crescem por progresso real; areas negligenciadas aparecem como convite de cuidado, nao como vergonha.
 
+## Design Mobile/PWA Prompt 14
+
+Mobile e complementar. A regra e abrir, tocar, registrar e fechar.
+
+Rotas mobile devem priorizar:
+
+- captura rapida;
+- marcacao de habito;
+- marcacao de Placar;
+- foco curto;
+- Desbloqueador rapido;
+- Metacognicao rapida;
+- energia;
+- atalhos de hoje.
+
+Nao colocar dashboard completo, calendario complexo, historico longo ou configuracao profunda na primeira dobra mobile. Em baixa energia, oferecer 5 minutos, versao minima, descanso legitimo ou rota para Desbloqueador.
+
 ## Acessibilidade
 
 - Contraste adequado.

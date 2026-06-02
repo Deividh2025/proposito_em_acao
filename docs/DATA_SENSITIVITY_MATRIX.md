@@ -34,6 +34,7 @@
 | Logs tecnicos | Observabilidade | Media | Nao | Politica clara | Sem prompt bruto, pensamento ou dado intimo | Operacional minimo; retencao definida |
 | Anexos de usuario | Storage | Alta | Nao por padrao | Sim | Bucket privado e path por usuario | Dono; signed URL server-side se autorizado |
 | Documento anexado de compromisso | Storage/Compromisso | Alta | Sim, se usuario escolher | Sim, por alvo/escopo | Nunca publico; previa antes de compartilhar | Dono; Atalaia via signed URL curta e grant ativo |
+| Check-in de energia | Mobile/PWA | Alta/Critica | Nao por padrao | Sim | Pode revelar saude, sono, rotina e emocao | Dono por RLS; sem cache/offline sensivel |
 
 ## Prompt 8
 
@@ -54,3 +55,27 @@ Desbloqueador e Metacognicao entram como dados de autorregulacao sensiveis. `act
 - `habits`: alta sensibilidade; pode revelar saude, fe, familia, sono, energia e rotina.
 - `habit_logs`: media/alta; devem evitar justificativas intimas longas.
 - `discipline_scoreboards`, `scoreboard_items`, `scoreboard_entries`: media/alta; privados por padrao e sem Atalaia bruto.
+
+## Prompt 12
+
+- `weekly_reviews`: critica; contem respostas, padroes, travamentos, retomadas, foco semanal e possiveis inferencias de vida privada. Owner-only e sem Atalaia por padrao.
+- `weekly_reviews.metacognition_insights`: critica se vier de Metacognicao; aceitar apenas resumo agregado/redigido, nunca pensamento bruto ou estrutura fato/interpretacao/sentimento/impulso.
+- `garden_states`: media/alta; snapshot derivado por area da vida, sem conteudo intimo bruto.
+- `garden_events`: media/alta; metadados devem ser minimos e sanitizados.
+- `neglected_life_areas`: alta; deve aparecer como cuidado necessario, nao como falha moral.
+
+## Prompt 13
+
+- `accountability_partners`: alta; contem relacao de confianca, nome/e-mail e estado do convite.
+- `accountability_grants`: critica; e a base operacional de autorizacao externa por alvo, permissao, status e revogacao.
+- `accountability_notifications`: alta/critica; deve guardar apenas preview estruturado, privacy check e metadados, nunca corpo intimo ou payload bruto.
+- `commitment_documents`: alta; pode conter direcao, alvo, prazo, Atalaia e compromissos. Nasce privado e so e compartilhavel com revisao, grant e consentimento.
+- `commitment_levers`: media/alta; recompensas e consequencias podem revelar vulnerabilidades ou gerar abuso se mal desenhadas.
+- E-mail de Atalaia: alta/critica; sem provider configurado, manter `pending_provider_config`. Quando houver provider, corpo deve ser minimo e dados sensiveis ficam atras de acesso autenticado/expiravel.
+
+## Prompt 14
+
+- `energy_checkins`: alta/critica; registra energia baixa, media ou alta e observacao opcional. Owner-only e sem Atalaia.
+- Captura mobile continua sendo `inbox_items`: alta; nao cachear ou logar conteudo bruto.
+- Metacognicao mobile continua sendo `metacognition_sessions`: critica; privada por padrao e sem compartilhamento automatico.
+- Service worker/CacheStorage nao deve armazenar dados sensiveis, tokens, notificacoes ou respostas de actions.

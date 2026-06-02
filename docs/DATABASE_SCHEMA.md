@@ -9,6 +9,9 @@ Schema implementado em:
 - `supabase/migrations/202605310005_execution_prompt8_alignment.sql`
 - `supabase/migrations/202605310006_calendar_inbox_prompt9_alignment.sql`
 - `supabase/migrations/202605310007_action_unblocker_metacognition_prompt10_alignment.sql`
+- `supabase/migrations/202605310008_focus_habits_scoreboard_prompt11_alignment.sql`
+- `supabase/migrations/202605310009_weekly_review_garden_prompt12_alignment.sql`
+- `supabase/migrations/202606010010_accountability_commitment_prompt13_alignment.sql`
 
 ## Principios
 
@@ -104,6 +107,42 @@ As policies owner-only ja existentes continuam sendo o modelo. A migration esta 
 - `scoreboard_entries` recebe status textual e unique por usuario, item e data.
 
 As tabelas continuam owner-only. Atalaia nao recebe acesso direto a foco, distracoes, habitos, logs ou Placar bruto.
+
+## Prompt 12 - Revisao Semanal e Jardim
+
+`202605310009_weekly_review_garden_prompt12_alignment.sql` alinha o ciclo semanal:
+
+- `weekly_reviews` recebe `schema_version`, `status`, listas estruturadas de vitorias/travamentos, ajustes, alerta de sobrecarga, revisao obrigatoria e timestamps de revisao/conclusao.
+- `garden_states` recebe `schema_version`, resumo semanal, origem opcional em `weekly_reviews`, derivacao, privacidade e constraint owner-only por FK composta.
+- `garden_events` recebe origem opcional da revisao semanal, tipo de fonte, fonte, impacto, `metadata_minimal` e FK composta para impedir evento de revisao de outro usuario.
+- RLS e `force row level security` sao reforcados em `weekly_reviews`, `garden_states` e `garden_events`.
+
+As tabelas continuam privadas por padrao. Atalaia nao recebe policy direta para Revisao Semanal nem Jardim nesta etapa.
+
+## Prompt 13 - Atalaia, compromisso e notificacoes
+
+`202606010010_accountability_commitment_prompt13_alignment.sql` alinha responsabilidade externa saudavel:
+
+- `accountability_partners` recebe hash de token de convite e expiracao.
+- `accountability_grants` recebe nivel de acompanhamento, frequencia de notificacao, versao de consentimento, data de consentimento e permissoes de compartilhamento.
+- `accountability_notifications` recebe status de provider, template, agendamento, motivo de bloqueio e `privacy_check`.
+- `commitment_documents` recebe `structured_content`, permissoes, `privacy_check`, revisao, compartilhamento e versao de consentimento.
+- `commitment_levers` recebe subtipo, status de seguranca e notas de revisao.
+- Constraints bloqueiam chaves sensiveis em JSONs de notificacao/documento.
+
+Atalaia continua sem policy direta em tabelas brutas de alvos, tarefas, habitos, Placar, Revisao Semanal, Jardim, Metacognicao, calendario, inbox ou distracoes. Compartilhamento ocorre somente por linhas de accountability/documento explicitamente revisadas.
+
+## Prompt 14 - PWA/Mobile
+
+`202606010011_mobile_pwa_prompt14_alignment.sql` cria `energy_checkins`:
+
+- `user_id`, `energy_level`, `note`, `source`, `captured_at`, `client_created_at` e `client_mutation_id`.
+- Constraints limitam energia a `low`, `medium`, `high`, origem a `mobile`, `focus`, `daily_checkin`, `manual` e nota a 500 caracteres.
+- Indice por usuario/data e indice unico opcional por `client_mutation_id` reduzem duplicidade de double tap.
+
+As demais acoes mobile reutilizam tabelas existentes: `inbox_items`, `habit_logs`, `scoreboard_entries`, `focus_sessions`, `focus_distractions`, `action_unblock_sessions` e `metacognition_sessions`.
+
+Status remoto: aplicada em 2026-06-02 no projeto Supabase `proposito_em_acao` (`bceumcfmjftoukzrfthe`) como migration `mobile_pwa_prompt14_alignment`, versao `20260602134002`.
 
 ## Tipos TypeScript
 

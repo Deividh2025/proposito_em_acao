@@ -74,6 +74,17 @@ A IA nao deve:
 - Transformar falha em aprendizado.
 - Detectar sobrecarga.
 - Ajustar rota sem culpa.
+- Usar Metacognicao apenas como padrao agregado/redigido.
+- Registrar retomadas como progresso real.
+- Nao enviar Revisao Semanal ao Atalaia por padrao.
+
+### Jardim da Vida
+
+- Mostrar crescimento e cuidado, nao punicao.
+- Area negligenciada nao morre; recebe convite de cuidado.
+- Evitar vermelho agressivo, ranking, XP profundo e comparacao.
+- Usar eventos reais e metadados minimos.
+- Nao copiar conteudo intimo para `garden_events`.
 
 ### Atalaia
 
@@ -97,6 +108,7 @@ Devem usar schema conceitual:
 - Placar.
 - Revisao semanal.
 - Previa de mensagem ao Atalaia.
+- Documento de compromisso.
 - Alerta de sobrecarga.
 - Revisao de guardrail.
 
@@ -158,3 +170,48 @@ Estes guardrails nao substituem revisao humana. Eles sao a primeira barreira tec
 - Metacognicao nao e compartilhada com Atalaia por padrao.
 - Logs nao devem conter estado bruto, pensamento automatico bruto, prompt completo ou resposta bruta.
 - Persistencia deve salvar apenas dado estruturado necessario para historico privado.
+
+## Prompt 12 - Guardrails especificos
+
+### Revisao Semanal
+
+- A sintese deve caber em leitura rapida e terminar com foco e primeira acao.
+- Padrões devem ter evidencia minima e ajuste pratico.
+- Sobrecarga deve sugerir reducao de escopo, descanso ou friccao menor.
+- Linguagem proibida: fracasso, voce falhou, falta disciplina, decepcao espiritual, perdeu tudo.
+- Camada crista e opcional e nao pode afirmar vontade divina especifica nem usar culpa espiritual.
+
+### Jardim da Vida
+
+- `needs_care` e estado de cuidado, nao derrota.
+- Crescimento pequeno, retomada e descanso protegido contam como progresso.
+- Jardim nao deve expor revisao, Metacognicao, Placar bruto, calendario bruto ou habitos sensiveis.
+
+## Prompt 13 - Guardrails especificos
+
+### Atalaia
+
+- Toda mensagem exige alvo especifico, permissoes granulares, previa e revisao do usuario.
+- `privacy_check` deve bloquear Chamado completo, Metacognicao, saude, familia, financas, emocoes, Revisao Semanal privada, inbox bruto, calendario completo e distracoes.
+- O Atalaia nao recebe conta inteira, Placar bruto, historico privado ou contexto sensivel indireto.
+- Revogacao deve cancelar notificacoes pendentes e impedir leitura futura.
+
+### Documento de Compromisso
+
+- Documento nasce como rascunho editavel e nao e compartilhado automaticamente.
+- Chamado pode aparecer apenas como resumo autorizado, nunca como texto completo.
+- Alavancas devem ser saudaveis: recompensa pequena, reparacao restaurativa e sem humilhacao, punicao, exposicao publica, culpa espiritual ou dano financeiro/fisico.
+
+### Notificacoes
+
+- E-mail real permanece desativado sem provider configurado.
+- Assunto e corpo devem ser neutros; conteudo sensivel fica fora da mensagem.
+- Qualquer envio futuro deve ser server-side, auditavel e bloqueado se consentimento, schema ou guardrail falhar.
+
+## Prompt 15 - Guardrail de persistencia owner-only
+
+Structured outputs que voltam do cliente para salvar historico privado tambem precisam ser revisados antes de persistir.
+
+- `owner-persistence` bloqueia diagnostico, substituicao de terapia/aconselhamento pastoral, vontade divina especifica, culpa espiritual, humilhacao, punicao nociva e crise tratada como produtividade.
+- Desbloqueador e Metacognicao rodam este guardrail antes de salvar output estruturado recebido do cliente.
+- Dados sensiveis owner-only podem ser mantidos como historico privado, mas nao podem virar compartilhamento externo nem log bruto.

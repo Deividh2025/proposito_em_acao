@@ -132,6 +132,37 @@ Testes adicionados/esperados:
 - `src/tests/unit/ai-central-layer.test.ts` valida `habit_plan_output_v1` ampliado e `scoreboard_plan_output_v1`.
 - RLS real de `focus_sessions`, `focus_distractions`, `habits`, `habit_logs`, `discipline_scoreboards`, `scoreboard_items` e `scoreboard_entries` permanece pendente enquanto Supabase CLI nao estiver instalado.
 
+## Prompt 12
+
+Testes adicionados/esperados:
+
+- `src/tests/unit/review-garden-domain.test.ts` valida perguntas da revisao, `weekly_review_output_v1`, retomadas sem vergonha, `garden_state_output_v1` e metadados minimos do Jardim.
+- `src/tests/unit/ai-central-layer.test.ts` valida `weekly_review_output_v1` ampliado e `garden_state_output_v1`.
+- `src/tests/e2e/review-garden.spec.ts` cobre abrir revisao, gerar sintese mock, visualizar foco da proxima semana, salvar revisao em fallback local/dev, abrir Jardim e validar cuidado sem punicao.
+- RLS real de `weekly_reviews`, `garden_states` e `garden_events` permanece pendente enquanto Supabase CLI nao estiver instalado.
+- Evals futuros devem cobrir culpa espiritual, vergonha, diagnostico, vazamento de Metacognicao e compartilhamento indevido com Atalaia.
+
+## Prompt 13
+
+Testes adicionados/esperados:
+
+- `src/tests/unit/accountability-commitments-domain.test.ts` valida permissoes por nivel, previa sem dados privados, Documento de Compromisso revisavel e bloqueio de alavancas abusivas.
+- `src/tests/unit/ai-central-layer.test.ts` valida `accountability_message_output_v1` atualizado e `commitment_document_output_v1`.
+- `src/tests/e2e/accountability-commitments.spec.ts` cobre abertura de Atalaia, geracao de previa, painel limitado do Atalaia, Documento de Compromisso e bloqueio de alavanca abusiva.
+- RLS real de `accountability_partners`, `accountability_grants`, `accountability_events`, `accountability_notifications`, `commitment_documents` e `commitment_levers` permanece pendente enquanto Supabase CLI nao estiver instalado/aplicado.
+- Testes RLS futuros devem confirmar Atalaia autorizado, Atalaia revogado, permissao ausente, outro alvo, documento nao compartilhado e notificacao cancelada.
+- Testes de e-mail futuro devem confirmar provider server-side, assunto/corpo neutros, sem dados sensiveis e `pending_provider_config` quando ambiente nao estiver configurado.
+
+## Prompt 14
+
+Testes adicionados/esperados:
+
+- `src/tests/unit/mobile-energy-domain.test.ts` valida schema de energia, sugestao de baixa energia e fallback local/dev.
+- `src/tests/e2e/mobile-pwa.spec.ts` cobre `/mobile`, captura, habito, Placar, foco curto, Desbloqueador rapido, Metacognicao rapida e energia em viewport 390x844.
+- PWA deve validar manifest, icones, pagina offline e service worker sem cache de dados sensiveis.
+- RLS real de `energy_checkins` permanece pendente enquanto Supabase CLI/projeto aplicado nao estiver disponivel.
+- Testes futuros devem cobrir double tap/idempotencia, matriz mobile de viewports e eventual fila offline segura se aprovada.
+
 ## Testes de UX critico
 
 - Proxima acao clara no dashboard.

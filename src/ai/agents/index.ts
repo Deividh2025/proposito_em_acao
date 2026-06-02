@@ -13,4 +13,5 @@ export * from "./habits";
 export * from "./scoreboard";
 export * from "./weekly-review";
 export * from "./accountability";
+export * from "./commitment-document";
 export * from "./guardrail-reviewer";

@@ -125,3 +125,48 @@
 - Foco, distracoes, habitos e Placar permanecem privados por padrao e sem Atalaia.
 - Server actions usam Supabase/RLS owner-only quando ha sessao e fallback local/dev explicito quando nao ha.
 - Revisao Semanal funcional, Jardim funcional, Atalaia funcional, deploy, integracoes externas e OpenAI real acionada por UI seguem fora de escopo.
+
+## Prompt 12 - Aceite de Revisao Semanal, Padroes e Jardim
+
+- Usuario acessa `/review` e `/review/weekly`.
+- Usuario responde perguntas guiadas da Revisao Semanal.
+- IA/mock seguro gera `weekly_review_output_v1`.
+- Sintese inclui vitorias, travamentos, padroes, sobrecarga, areas negligenciadas, retomadas, foco da proxima semana e primeira acao.
+- Metacognicao entra apenas como resumo agregado/redigido, sem conteudo bruto.
+- Linguagem evita vergonha, culpa espiritual, diagnostico e moralismo.
+- Usuario salva revisao; server action usa Supabase/RLS owner-only quando ha sessao e fallback local/dev explicito quando nao ha.
+- Usuario acessa `/garden`.
+- Jardim mostra areas do Mapa da Vida, crescimento, eventos recentes e cuidado necessario sem punicao.
+- `garden_state_output_v1` valida snapshot derivado.
+- `garden_events.metadata_minimal` bloqueia prompt, resposta bruta, pensamento, nota privada e texto bruto de Metacognicao.
+- Atalaia funcional, compartilhamento externo, gamificacao profunda, mobile/PWA completo, deploy e OpenAI real acionada por UI seguem fora de escopo.
+
+## Prompt 13 - Aceite de Atalaia, Compromisso e Alavancas
+
+- Usuario acessa `/accountability`, `/accountability/new` e detalhe de grant de Atalaia.
+- Convite de Atalaia e sempre vinculado a um alvo especifico.
+- Usuario escolhe nivel, frequencia e permissoes granulares antes de gerar previa.
+- Previa mostra exatamente quais campos podem ser compartilhados e bloqueia dados privados.
+- Server actions usam Supabase/RLS preparado quando ha sessao e fallback local/dev explicito quando nao ha.
+- Revogacao altera o grant e cancela notificacoes pendentes quando ha persistencia.
+- Usuario acessa `/commitments` e gera Documento de Compromisso revisavel.
+- Documento inclui objetivo, prazo, primeiro passo, projetos/habitos vinculados, Atalaia opcional e permissoes.
+- Alavancas bloqueiam humilhacao, punicao nociva, culpa espiritual, exposicao publica, dano fisico ou dano financeiro abusivo.
+- E-mail real nao e enviado sem provider configurado; status deve permanecer `pending_provider_config`.
+- Atalaia nao recebe Chamado completo, Metacognicao, Revisao Semanal privada, inbox bruto, calendario completo, saude, familia, financas ou emocoes.
+- Portal avancado do Atalaia, relatorios externos profundos, mobile/PWA completo, deploy, integracoes externas e OpenAI real acionada por UI seguem fora de escopo.
+
+## Prompt 14 - Aceite de PWA/Mobile Complementar
+
+- Manifest existe com nome `Propósito em Ação`, display standalone e start URL `/mobile`.
+- Service worker existe e limita cache a assets estaticos e pagina offline segura.
+- Usuario acessa `/mobile` e ve hub de acoes rapidas sem dashboard completo.
+- Usuario captura item rapido em `/mobile/capture` e envia para Inbox/fallback local-dev.
+- Usuario marca habito em `/mobile/habits`.
+- Usuario marca Placar em `/mobile/scoreboard`.
+- Usuario inicia foco curto e captura distracao em `/mobile/focus`.
+- Usuario usa Desbloqueador rapido em `/mobile/unblock` com mock seguro e primeiro passo.
+- Usuario usa Metacognicao rapida em `/mobile/metacognition` com fato x interpretacao e privacidade visivel.
+- Usuario registra energia em `/mobile/energy`.
+- `energy_checkins` tem migration e RLS owner-only.
+- Mobile permanece complementar; app nativo, push notifications, calendario complexo, Atalaia mobile funcional, fila offline sensivel, deploy e OpenAI real acionada pela UI seguem fora de escopo.

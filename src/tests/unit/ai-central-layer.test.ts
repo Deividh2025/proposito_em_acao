@@ -7,7 +7,9 @@ import {
   actionUnblockerOutputSchema,
   aiRunAuditSchema,
   callingOutputSchema,
+  commitmentDocumentOutputSchema,
   guardrailReviewOutputSchema,
+  gardenStateOutputSchema,
   habitPlanOutputSchema,
   inboxClassificationOutputSchema,
   lifeMapAnalysisOutputSchema,
@@ -310,13 +312,51 @@ const schemaCases: SchemaCase[] = [
     schema: weeklyReviewOutputSchema,
     fixture: {
       schema_version: "weekly_review_output_v1",
+      week_summary: "A semana teve retomadas reais, alguns travamentos por sono irregular e um foco claro para reduzir escopo.",
       wins: ["duas retomadas"],
       stuck_points: ["sono irregular"],
-      patterns: ["foco melhora com tarefas menores"],
+      patterns: [
+        {
+          pattern: "Foco melhora com tarefas menores",
+          evidence: ["duas retomadas", "sono irregular"],
+          impact: "medium",
+          suggested_adjustment: "Reduzir tarefas da manha para a versao minima."
+        }
+      ],
+      overload_alerts: ["agenda apertada sem descanso suficiente"],
+      neglected_life_areas: ["Descanso"],
+      restart_moments: ["duas retomadas"],
+      metacognition_insights: ["sem conteudo bruto; apenas padrao agregado"],
+      scoreboard_insights: ["retomada apareceu como progresso"],
       next_week_focus: "proteger o primeiro bloco de foco",
-      adjustments: ["reduzir escopo das tarefas matinais"],
-      overload_warning: false,
+      recommended_actions: ["reduzir escopo das tarefas matinais", "proteger descanso antes de adicionar entrega"],
+      first_action_next_week: "bloquear 25 minutos para uma tarefa essencial",
+      encouragement: "Retomada registrada e progresso real.",
+      christian_reflection: null,
+      safety_notes: ["privado por padrao"],
       user_review_required: true
+    },
+    badVersion: { schema_version: "wrong" }
+  },
+  {
+    name: "garden_state_output",
+    schema: gardenStateOutputSchema,
+    fixture: {
+      schema_version: "garden_state_output_v1",
+      garden_state: {
+        life_areas: [
+          {
+            area: "Descanso",
+            growth_level: 1,
+            recent_events: ["Revisao semanal concluida"],
+            care_needed: true,
+            care_message: "Descanso pede cuidado simples, sem culpa.",
+            visual_state: "needs_care"
+          }
+        ],
+        unlocked_items: ["Retomada visivel"],
+        weekly_growth_summary: "A semana mostrou progresso e cuidado necessario."
+      }
     },
     badVersion: { schema_version: "wrong" }
   },
@@ -325,13 +365,47 @@ const schemaCases: SchemaCase[] = [
     schema: accountabilityMessageOutputSchema,
     fixture: {
       schema_version: "accountability_message_output_v1",
-      goal_id: "goal-1",
-      permission_scope: ["status", "milestones"],
-      preview_message: "Avancei um marco do alvo autorizado e pedi ajuda para manter constancia.",
-      excluded_private_categories: ["metacognition", "calling_full", "health", "family"],
+      message_type: "invite",
+      subject: "Convite para acompanhar um alvo autorizado",
+      body: "Voce foi convidado para acompanhar um alvo especifico e limitado no Proposito em Acao.",
+      shared_fields: ["goal_name", "status", "completed_milestones"],
+      privacy_check: {
+        contains_private_metacognition: false,
+        contains_full_calling: false,
+        contains_sensitive_health_data: false,
+        contains_family_finance_emotion_data: false,
+        safe_to_send: true
+      },
+      tone: "supportive",
+      call_to_action: "Aceitar convite limitado",
       consent_required: true,
-      user_review_required: true,
-      send_allowed: false
+      user_review_required: true
+    },
+    badVersion: { schema_version: "wrong" }
+  },
+  {
+    name: "commitment_document_output",
+    schema: commitmentDocumentOutputSchema,
+    fixture: {
+      schema_version: "commitment_document_output_v1",
+      goal_id: "goal-1",
+      title: "Compromisso - alvo autorizado",
+      commitment_statement:
+        "Comprometo-me a caminhar neste alvo com passos pequenos, apoio consentido e responsabilidade sem humilhacao.",
+      calling_summary: null,
+      deadline: "2026-07-31",
+      linked_projects: ["Projeto piloto"],
+      supporting_habits: ["Revisao curta"],
+      scoreboard_items: ["Retomada"],
+      accountability_partner: {
+        name: "Atalaia",
+        email: "atalia@example.com"
+      },
+      reward: "Descanso planejado",
+      restorative_consequence: "Fazer revisao curta e reduzir escopo.",
+      first_action: "Abrir o plano por 15 minutos.",
+      sharing_permissions: ["goal_name", "deadline", "commitment_document"],
+      user_review_required: true
     },
     badVersion: { schema_version: "wrong" }
   },
@@ -387,7 +461,7 @@ describe("AI structured output schemas", () => {
 
 describe("AI agent catalog", () => {
   it("keeps all Prompt 7 internal agents registered with prompt and schema contracts", () => {
-    expect(aiAgents).toHaveLength(15);
+    expect(aiAgents).toHaveLength(16);
     expect(getAiAgentDefinition("taskBreakdown")).toMatchObject({
       writesData: true,
       requiresStructuredOutput: true,
@@ -401,6 +475,10 @@ describe("AI agent catalog", () => {
     expect(getAiAgentDefinition("accountability")).toMatchObject({
       humanReviewRequired: true,
       outputSchemaName: "accountability_message_output_v1"
+    });
+    expect(getAiAgentDefinition("commitmentDocument")).toMatchObject({
+      humanReviewRequired: true,
+      outputSchemaName: "commitment_document_output_v1"
     });
     expect(getAiAgentDefinition("scheduleReviewer")).toMatchObject({
       humanReviewRequired: true,

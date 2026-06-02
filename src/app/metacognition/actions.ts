@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 
+import { reviewOwnerPersistenceSafety } from "@/ai/guardrails";
 import { metacognitionOutputSchema } from "@/ai/schemas";
 import { buildMetacognitionMock } from "@/domain/metacognition";
 import {
@@ -49,6 +50,14 @@ export async function generateMetacognitionReflection(input: unknown): Promise<M
 
 export async function persistMetacognitionSession(input: unknown): Promise<MetacognitionActionResult> {
   const parsed = persistMetacognitionSessionInputSchema.parse(input);
+  const safetyReview = reviewOwnerPersistenceSafety({
+    reviewedSchemaVersion: parsed.output.schema_version,
+    value: parsed.output
+  });
+
+  if (!safetyReview.safe_to_persist) {
+    return errorDraft("A resposta de Metacognicao foi bloqueada pelos guardrails antes de salvar.");
+  }
 
   try {
     const supabase = await createSupabaseServerClient();

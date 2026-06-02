@@ -54,6 +54,29 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Migration `202605310008_focus_habits_scoreboard_prompt11_alignment.sql`.
 - Docs `FOCUS_MODE_MODULE.md`, `HABITS_MODULE.md`, `SCOREBOARD_MODULE.md` e `ACTION_UNBLOCKER_MODULE.md`.
 - Skills locais novas: `focus-mode-skill`, `habit-design-skill`, `scoreboard-skill`, `distraction-capture-skill` e `restart-tracking-skill`.
+- Revisao Semanal do Prompt 12 em `/review` e `/review/weekly`, com perguntas guiadas, mock estruturado, padroes, retomadas, foco da proxima semana e fallback local/dev.
+- Historico inicial de revisoes em `/review/history`.
+- Jardim da Vida inicial em `/garden`, com areas, crescimento, cuidado necessario e eventos recentes.
+- Schemas `weekly_review_output_v1` ampliado e `garden_state_output_v1`.
+- Migration `202605310009_weekly_review_garden_prompt12_alignment.sql`.
+- Docs `WEEKLY_REVIEW_MODULE.md`, `LIFE_GARDEN_MODULE.md` e `PATTERN_DETECTION.md`.
+- Skills locais novas: `weekly-review-skill`, `pattern-detection-skill`, `life-garden-skill` e `healthy-progress-visualization-skill`.
+- Atalaia do Prompt 13 em `/accountability`, `/accountability/new`, detalhe de grant e aceite de convite, com grants por alvo, previa, permissao granular e revogacao.
+- Documento de Compromisso do Prompt 13 em `/commitments`, com alavancas saudaveis, permissoes de compartilhamento e fallback local/dev.
+- Schemas `accountability_message_output_v1` atualizado e `commitment_document_output_v1` criado.
+- Migration `202606010010_accountability_commitment_prompt13_alignment.sql`.
+- Docs `ACCOUNTABILITY_MODULE.md`, `COMMITMENT_DOCUMENT_MODULE.md`, `COMMITMENT_LEVERS.md` e `EMAIL_NOTIFICATIONS.md`.
+- Skills locais novas: `accountability-skill`, `consent-permissions-skill`, `commitment-document-skill`, `commitment-levers-skill` e `email-notifications-skill`.
+- PWA/mobile complementar do Prompt 14 em `/mobile`, com hub de acoes rapidas, captura, habitos, Placar, foco curto, Desbloqueador rapido, Metacognicao rapida, energia e atalhos de hoje.
+- Manifest, icones PWA finais simples, pagina offline e service worker conservador que cacheia apenas assets estaticos seguros.
+- Dominio/action/migration `energy_checkins` para check-in de energia owner-only.
+- Testes `mobile-energy-domain.test.ts` e `mobile-pwa.spec.ts`.
+- Docs `PWA_MOBILE_MODULE.md`, `MOBILE_PRIVACY.md`, `MOBILE_UX_GUIDE.md` e plano `PROMPT_14_EXECUTION_PLAN.md`.
+- Skills locais novas: `pwa-mobile-skill`, `mobile-capture-skill`, `fast-interaction-skill`, `mobile-privacy-skill` e `mobile-low-energy-skill`.
+- QA final do Prompt 15 com relatorios `QA_FINAL_REPORT.md`, `SECURITY_AUDIT_REPORT.md`, `RLS_TEST_REPORT.md`, `AI_EVALS_REPORT.md`, `UX_AUDIT_REPORT.md`, `RELEASE_READINESS.md` e `BUG_FIX_LOG.md`.
+- Rota `/auth` com criacao de conta, login e logout via Supabase Auth server-side, mantendo fallback local/dev seguro quando Supabase nao estiver configurado.
+- Teste E2E `auth.spec.ts` para validar a superficie minima de Auth da V1.
+- Skills locais novas: `qa-final-v1-skill`, `release-readiness-skill`, `security-audit-skill` e `regression-testing-skill`.
 
 ### Changed
 
@@ -65,6 +88,23 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - `docs/FRONTEND_ARCHITECTURE.md` atualizado com rotas placeholder, estrutura de componentes e gates de frontend.
 - `docs/CODEX_WORKFLOW.md` atualizado com o remote GitHub informado.
 - `/dashboard` mudou de placeholder para dashboard inicial de direcao/progressao assistida.
+- Navegacao mobile passa a apontar para a superficie complementar `/mobile/*`.
+- Prompt 14 teve limites pre-Prompt 15 aprovados: PWA responsivo segue, app nativo/push/fila offline sensivel ficam fora ate prompt proprio.
+- Navegacao principal passa a expor `/auth` como acesso basico da V1.
+
+### Fixed
+
+- Prompt 15 corrigiu divergencia de schema na Revisao Semanal e normalizacao de areas do Jardim.
+- Prompt 15 estreitou policies de Atalaia para grant/parceiro especifico e adicionou regressao estatica de RLS.
+- Prompt 15 adicionou guardrail de persistencia owner-only para Desbloqueador e Metacognicao antes de salvar structured output enviado pelo cliente.
+- Prompt 15 corrigiu warning de build do Next movendo `themeColor` para `viewport`.
+
+### Security
+
+- Prompt 14 limita offline/cache a assets estaticos e pagina offline segura; Metacognicao, Inbox, calendario, Atalaia, tokens, notificacoes e respostas de actions nao devem ser cacheados.
+- `energy_checkins` nasce privado por padrao, com RLS owner-only e sem Atalaia.
+- Migration remota `mobile_pwa_prompt14_alignment` aplicada em 2026-06-02 no Supabase `proposito_em_acao` (`bceumcfmjftoukzrfthe`), versao `20260602134002`.
+- Prompt 15 reforca Auth server-side sem service role no browser e registra que migrations remotas Supabase ainda precisam ser alinhadas antes de producao.
 - `/onboarding` mudou de placeholder para fluxo interativo do Prompt 6.
 - `docs/OPENAI_INTEGRATION_PLAN.md` atualizado de plano conceitual para plano tecnico preparado com Responses API, Structured Outputs e limites server-side.
 - `vitest.config.ts` agora inclui testes de evals em `src/ai/evals/**/*.test.ts`.
@@ -74,6 +114,10 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Rota `/metacognition` deixou de ser placeholder e passa a compor o nucleo de autorregulacao do Prompt 10.
 - Catalogo de navegacao inclui `/action-unblocker` como acao rapida.
 - Rotas `/focus`, `/habits` e `/scoreboard` deixam de ser placeholders e passam a compor a camada diaria do Prompt 11.
+- Rotas `/review` e `/garden` deixam de ser placeholders e passam a compor o fechamento semanal e progresso visual do Prompt 12.
+- Catalogo de navegacao marca Revisao e Jardim como Prompt 12.
+- Rota `/accountability` deixa de ser placeholder e passa a compor o fluxo basico de Atalaia do Prompt 13.
+- Catalogo de navegacao inclui Compromissos e marca Atalaia como Prompt 13.
 
 ### Docs
 
@@ -96,6 +140,11 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Metacognicao reforcada como historico privado, sem Atalaia por padrao e sem logs de conteudo bruto.
 - Guardrails de crise reforcados para interromper produtividade comum e orientar ajuda humana.
 - Foco, distracoes, habitos e Placar reforcados como owner-only, sem Atalaia bruto e sem logs de conteudo sensivel.
+- Revisao Semanal reforcada como privada, sem Metacognicao bruta, sem Atalaia e sem logs de conteudo sensivel.
+- Jardim reforcado como snapshot derivado, com `metadata_minimal` e sem banco paralelo de dados intimos.
+- Atalaia reforcado como acesso por alvo, permissao granular, previa, revogacao e sem conta inteira.
+- Documento de Compromisso reforcado como revisavel, com compartilhamento manual e alavancas sem humilhacao, punicao nociva ou culpa espiritual.
+- Notificacoes de e-mail preparadas como fallback `pending_provider_config`, sem envio real sem provider server-side.
 
 ### Notes
 
@@ -111,3 +160,6 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - No Prompt 9, Desbloqueador funcional, Metacognicao funcional, Modo Foco, habitos completos, Placar completo, Revisao Semanal, Jardim funcional, Atalaia funcional, deploy e OpenAI real acionada por UI continuam fora de escopo.
 - No Prompt 10, Modo Foco completo, habitos completos, Placar completo, Revisao Semanal, Jardim funcional, Atalaia funcional, deploy e OpenAI real acionada por UI continuam fora de escopo.
 - No Prompt 11, Revisao Semanal funcional, Jardim funcional, Atalaia funcional, deploy, integracoes externas e OpenAI real acionada por UI continuam fora de escopo.
+- No Prompt 12, Atalaia funcional, compartilhamento externo, gamificacao profunda, mobile/PWA completo, deploy, integracoes externas e OpenAI real acionada por UI continuam fora de escopo.
+- No Prompt 13, portal avancado do Atalaia, relatorios profundos, mobile/PWA completo, deploy, integracoes externas, e-mail real e OpenAI real acionada por UI continuam fora de escopo.
+- No Prompt 15, os gates locais passaram apos correcoes, mas deploy produtivo permanece condicionado a aplicar/validar migrations Supabase, RLS dinamico, Auth real, secrets, consentimentos LGPD e provider de e-mail.

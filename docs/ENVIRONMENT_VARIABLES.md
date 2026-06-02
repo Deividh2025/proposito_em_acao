@@ -31,8 +31,10 @@ Chaves publicaveis devem usar `NEXT_PUBLIC_SUPABASE_ANON_KEY` para compatibilida
 
 ## Email
 
-- `EMAIL_PROVIDER`: provedor futuro.
-- `EMAIL_FROM`: remetente futuro.
+- `EMAIL_PROVIDER`: provedor futuro. Vazio significa nenhum envio real e status `pending_provider_config`.
+- `EMAIL_FROM`: remetente futuro. Deve ficar vazio ate haver dominio/remetente aprovado.
+
+No Prompt 13, notificacoes do Atalaia sao preparadas no backend, mas nao enviam e-mail real sem provider configurado e revisao de seguranca.
 
 ## Environment
 

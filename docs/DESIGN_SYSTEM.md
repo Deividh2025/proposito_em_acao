@@ -250,6 +250,14 @@ Regras:
 - Retomada sem culpa.
 - Mobile com fluxos curtos.
 
+## Prompt 14 - Mobile/PWA
+
+- `/mobile` e a superficie de acoes rapidas, nao um dashboard completo.
+- Componentes mobile usam cards simples, botoes grandes e uma acao primaria.
+- Navegacao mobile aponta para hub, captura, foco, energia e Metacognicao rapida.
+- Estados de baixa energia devem sugerir 5 minutos, versao minima, descanso legitimo ou Desbloqueador.
+- Offline visual deve ser calmo e honesto: sem fila sensivel, sem prometer salvamento produtivo.
+
 ## Acessibilidade
 
 Resumo operacional:

@@ -25,7 +25,7 @@ test("Prompt 8 execution flow renders goals, projects, tasks and microtasks", as
   await expect(page.getByText("Microtarefa atualizada nesta sessao.")).toBeVisible();
 });
 
-test("Prompt 10 keeps remaining later modules out of scope", async ({ page }) => {
+test("execution routes keep newer modules explicit about their prompt status", async ({ page }) => {
   await page.goto("/tasks");
 
   await expect(page.getByText("usar Desbloqueador")).toBeVisible();
@@ -37,5 +37,6 @@ test("Prompt 10 keeps remaining later modules out of scope", async ({ page }) =>
 
   await page.goto("/accountability");
   await expect(page.getByRole("heading", { name: "Atalaia" })).toBeVisible();
-  await expect(page.getByText("nenhum envio real existe")).toBeVisible();
+  await expect(page.getByText("Prompt 13")).toBeVisible();
+  await expect(page.getByText("Criar convite com previa")).toBeVisible();
 });

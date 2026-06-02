@@ -67,6 +67,14 @@ Prompt 10 autoriza implementar Desbloqueador de Acao funcional, Metacognicao fun
 
 Prompt 11 autoriza implementar Modo Foco/Pomodoro, captura de distracoes, conclusao de foco, habitos com IA mockada/real preparada, marcacao diaria de habitos, Placar da Disciplina, retomadas, indicadores leves, migrations preparatorias, RLS owner-only, testes e documentacao. A etapa continua proibindo Atalaia funcional, compartilhamento de Placar com Atalaia, Revisao Semanal funcional, Jardim funcional, Modo Foco mobile/PWA completo, integracoes externas de calendario, deploy, OpenAI real acionada por UI sem autorizacao/configuracao e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
 
+## Limites da etapa atual de PWA/Mobile Complementar
+
+Prompt 14 autoriza implementar PWA responsivo complementar, manifest, icones PWA simples, service worker seguro, shell `/mobile`, captura rapida, marcacao rapida de habitos e Placar, foco curto, Desbloqueador rapido, Metacognicao rapida, check-in de energia, migration `energy_checkins`, RLS owner-only, testes e documentacao. A etapa continua proibindo app nativo, push notifications, fila offline sensivel, cache de dados sensiveis, calendario mobile complexo, edicao profunda de projetos/tarefas, Atalaia mobile funcional, deploy, OpenAI real acionada pela UI e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
+
+## Limites da etapa atual de QA final V1
+
+Prompt 15 autoriza QA final, testes automatizados/manuais criticos, auditoria de seguranca, RLS, IA, UX TDAH-first, PWA/mobile, correcoes indispensaveis, Auth basico faltante, relatorios e checklist de release. A etapa continua proibindo funcionalidades novas fora da V1, relaxar seguranca para passar teste, desabilitar RLS, expor secrets, ativar OpenAI real sem decisao, aplicar migrations/deploy produtivo sem aprovacao e declarar pronto para producao sem validar Supabase/RLS/Auth reais.
+
 ## Skills locais obrigatorias por dominio
 
 - Produto/escopo: `prd-product-skill`.
@@ -102,6 +110,15 @@ Prompt 11 autoriza implementar Modo Foco/Pomodoro, captura de distracoes, conclu
 - Placar: `scoreboard-skill`.
 - Captura de distracoes: `distraction-capture-skill`.
 - Medicao de retomadas: `restart-tracking-skill`.
+- PWA/mobile: `pwa-mobile-skill`.
+- Captura mobile: `mobile-capture-skill`.
+- Interacao rapida: `fast-interaction-skill`.
+- Privacidade mobile: `mobile-privacy-skill`.
+- Baixa energia mobile: `mobile-low-energy-skill`.
+- QA final V1: `qa-final-v1-skill`.
+- Release readiness: `release-readiness-skill`.
+- Auditoria de seguranca: `security-audit-skill`.
+- Testes de regressao: `regression-testing-skill`.
 
 ## Git e GitHub
 

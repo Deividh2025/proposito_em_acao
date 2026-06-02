@@ -13,6 +13,7 @@ export type AiAgentKey =
   | "scoreboard"
   | "weeklyReview"
   | "accountability"
+  | "commitmentDocument"
   | "guardrailReviewer";
 
 export type AiAgentDefinition = {
@@ -209,7 +210,40 @@ export const aiAgents: AiAgentDefinition[] = [
     outputSchemaName: "accountability_message_output_v1",
     humanReviewRequired: true,
     allowedContext: ["goal_status", "authorized_milestones", "authorized_help_request"],
-    forbiddenContext: ["full_calling", "raw_metacognition", "health", "family", "finances", "emotions"],
+    forbiddenContext: [
+      "full_calling",
+      "raw_metacognition",
+      "health",
+      "family",
+      "finances",
+      "emotions",
+      "private_weekly_review",
+      "raw_inbox",
+      "full_calendar"
+    ],
+    guardrails: ["accountability", "privacy", "clinical", "pastoral"]
+  },
+  {
+    key: "commitmentDocument",
+    name: "Agente de Documento de Compromisso",
+    purpose: "Gerar Documento de Compromisso revisavel com alavancas saudaveis e compartilhamento opcional.",
+    writesData: true,
+    requiresStructuredOutput: true,
+    promptVersion: "commitment_document_prompt_v1",
+    outputSchemaName: "commitment_document_output_v1",
+    humanReviewRequired: true,
+    allowedContext: ["approved_goal", "first_action", "authorized_accountability_partner", "sharing_permissions"],
+    forbiddenContext: [
+      "full_calling",
+      "raw_metacognition",
+      "health",
+      "family",
+      "finances",
+      "emotions",
+      "private_weekly_review",
+      "raw_inbox",
+      "full_calendar"
+    ],
     guardrails: ["accountability", "privacy", "clinical", "pastoral"]
   },
   {

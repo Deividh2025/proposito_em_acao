@@ -6,3 +6,4 @@ export * from "./privacy";
 export * from "./accountability";
 export * from "./metacognition";
 export * from "./composite";
+export * from "./owner-persistence";

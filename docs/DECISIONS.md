@@ -69,17 +69,39 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Habitos precisam de minimo, ideal, gatilho, recompensa, ambiente, metrica e retomada antes de salvar.
 - Placar mede constancia, nao valor pessoal; retomada conta como progresso real.
 - Placar bruto nao sera compartilhado com Atalaia nesta etapa.
+- Prompt 12 libera Revisao Semanal, deteccao inicial de padroes, plano de retomada, planejamento da proxima semana e Jardim da Vida inicial.
+- Revisao Semanal e privada por padrao; Atalaia nao recebe revisao, Metacognicao, calendario bruto, Placar bruto ou Jardim automaticamente.
+- Metacognicao entra na Revisao Semanal apenas como padrao agregado/redigido, nunca conteudo bruto.
+- Jardim da Vida e snapshot derivado de eventos minimos e revisao semanal, nao fonte primaria de dados intimos.
+- Areas negligenciadas no Jardim usam cuidado necessario, nao morte, punicao, ranking ou vergonha.
+- OpenAI real continua desativada na UI do Prompt 12; mock estruturado e revisao humana seguem como contrato.
+- Prompt 13 libera Atalaia basico por alvo, Documento de Compromisso, Alavancas de Compromisso, previa, revogacao e notificacoes preparadas.
+- Atalaia continua proibido de acessar conta inteira, Chamado completo, Metacognicao, Revisao Semanal privada, inbox bruto, calendario completo, saude, familia, financas e emocoes.
+- Notificacoes externas usam fallback `pending_provider_config` ate existir provider server-side configurado e revisado.
+- Documento de Compromisso so pode ser compartilhado depois de revisao humana, consentimento versionado e grant ativo.
+- Alavancas de compromisso devem ser restaurativas; punicao nociva, humilhacao, exposicao publica e culpa espiritual sao bloqueadas.
+- Prompt 14 implementa PWA responsivo complementar, nao app nativo.
+- Service worker inicial cacheia apenas assets estaticos, manifest, icones e pagina offline; dados sensiveis e rotas autenticadas ficam fora do cache.
+- Sincronizacao offline sensivel e push notifications permanecem fora antes do Prompt 15; qualquer ativacao futura exige prompt proprio, modelagem de consentimento, seguranca, conteudo neutro e testes.
+- App nativo permanece fora antes do Prompt 15; a decisao aprovada e validar o PWA responsivo complementar antes de considerar Expo/React Native/Capacitor.
+- Energia mobile usa `energy_checkins` owner-only; sem Auth/Supabase, a UI declara fallback local/dev.
+- Migration remota `mobile_pwa_prompt14_alignment` aplicada em 2026-06-02 no Supabase `proposito_em_acao` (`bceumcfmjftoukzrfthe`), versao registrada `20260602134002`.
+- Icones PWA finais simples aprovados para a etapa pre-Prompt 15; futuras trocas visuais dependem de branding completo, nao de pendencia tecnica.
+- Prompt 15 confirma `/auth` como superficie basica da V1 para criar conta, entrar e sair, usando Supabase Auth por server actions e sem service role no frontend.
+- Prompt 15 define que Atalaia RLS deve ser grant-specific e partner-specific, nao apenas `user_id + goal_id + permission`.
+- Prompt 15 define que structured outputs enviados pelo cliente em fluxos privados precisam passar por guardrail de persistencia owner-only antes de salvar.
+- Prompt 15 deixa a V1 localmente verde, mas Prompt 16 deve iniciar por deploy/preview controlado e validacao Supabase real, nao por producao aberta.
 
 ## Pendencias
 
 - Nome final do modulo de Metacognicao.
 - Intensidade padrao da camada crista.
 - Publico inicial prioritario.
-- PWA ou app nativo no mobile.
+- Branding visual completo dos icones e assets de instalacao, se houver direcao de marca posterior.
 - Modelo comercial.
 - Materiais proprios para base de conhecimento da IA.
 - Push inicial e validacao de acesso ao repositorio GitHub remoto.
-- Aplicacao das migrations no projeto Supabase remoto e execucao dos testes RLS.
+- Aplicacao das migrations anteriores ao Prompt 14 no projeto Supabase remoto e execucao dos testes RLS completos.
 - Escopo avancado do Atalaia em V1.1/V2.
 - Validacao visual aprofundada com screenshots comparativos quando houver telas finais.
 - Consentimento versionado, retencao, exportacao e exclusao antes de coleta produtiva de dados de onboarding.
@@ -105,6 +127,23 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Gerar tipos reais de Supabase apos aplicar migrations do Prompt 11.
 - Definir provider/modelo real para Habitos e Placar antes de ativar OpenAI nestes fluxos.
 - Definir schema futuro de resumo limitado de Placar para Atalaia, com consentimento e previa.
+- Aplicar e testar a migration `202605310009_weekly_review_garden_prompt12_alignment.sql`.
+- Gerar tipos reais de Supabase apos aplicar migrations do Prompt 12.
+- Gerar tipos reais de Supabase apos aplicar migrations do Prompt 14.
+- Definir politica de retencao/exportacao/exclusao de `energy_checkins`.
+- Definir em prompt futuro, se necessario, push notifications e fila offline sensivel.
+- Definir provider/modelo real para Revisao Semanal antes de ativar OpenAI neste fluxo.
+- Definir politica de retencao/exclusao para revisoes semanais e eventos do Jardim antes de producao.
+- Definir se existira resumo manual compartilhavel de Revisao Semanal para Atalaia e qual consentimento granular sera exigido.
+- Aplicar e testar a migration `202606010010_accountability_commitment_prompt13_alignment.sql`.
+- Gerar tipos reais de Supabase apos aplicar migrations do Prompt 13.
+- Escolher provider real de e-mail, remetente, politica de unsubscribe e auditoria antes de envio externo.
+- Definir expiracao real de convite, politica de reenvio e fluxo autenticado completo do Atalaia.
+- Definir projecoes sanitizadas finais para o portal do Atalaia antes de qualquer relatorio externo avancado.
+- Alinhar todas as migrations locais no Supabase remoto; a consulta de Prompt 15 listou apenas `20260602134002_mobile_pwa_prompt14_alignment`.
+- Rodar matriz RLS dinamica em Supabase branch/preview com usuario A, usuario B, Atalaia autorizado e Atalaia revogado.
+- Validar signup, login, logout, confirmacao de e-mail e redirects de Auth em ambiente real.
+- Aprovar release checklist do Prompt 16 antes de deploy produtivo.
 
 ## Template de decisao
 

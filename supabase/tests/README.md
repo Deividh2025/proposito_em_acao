@@ -70,6 +70,14 @@ Estes cenarios devem ser executados quando houver Supabase CLI, projeto vinculad
 44. `scoreboard_entries` nao duplica item/data para o mesmo usuario.
 45. Atalaia nao acessa Placar bruto nesta etapa, mesmo com grant ativo.
 
+## Prompt 15 - regressao Atalaia/RLS
+
+46. Dois Atalaias diferentes no mesmo alvo nao leem grants, eventos ou notificacoes um do outro.
+47. `atalia_authorized` so le `accountability_events` quando `accountability_grant_id` e `accountability_partner_id` pertencem ao proprio grant ativo.
+48. `atalia_authorized` nao le notificacao se `accountability_grant_id` divergir, mesmo com permissao no mesmo alvo.
+49. Revogacao de grant corta leitura futura e cancela notificacoes pendentes.
+50. Metacognicao, Chamado e Revisao Semanal continuam sem policy de Atalaia mesmo depois das correcoes do Prompt 15.
+
 ## Comandos esperados quando CLI existir
 
 ```powershell

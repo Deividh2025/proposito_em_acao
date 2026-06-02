@@ -11,7 +11,7 @@ export function MobileShell() {
       </header>
       <nav
         aria-label="Navegação mobile"
-        className="grid grid-cols-4 border-b border-ink-100 bg-white/96 px-2 py-2 shadow-soft"
+        className="grid grid-cols-5 border-b border-ink-100 bg-white/96 px-2 py-2 shadow-soft"
       >
         {quickActionItems.map((item) => {
           const Icon = item.icon;

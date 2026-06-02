@@ -2,7 +2,7 @@
 
 SaaS desktop-first de vida intencional, foco, execucao, habitos, autorregulacao e produtividade assistida por IA, com PWA/mobile complementar para acoes rapidas.
 
-Status atual: fontes de verdade, governanca tecnica, stack Next.js, fundacao Supabase/Auth/RLS em arquivos versionados, onboarding/direcao do Prompt 6, camada central de IA do Prompt 7, nucleo inicial de execucao do Prompt 8, calendario/inbox do Prompt 9, Desbloqueador/Metacognicao do Prompt 10 e Foco/Habitos/Placar do Prompt 11. Supabase remoto ainda nao foi aplicado/testado; Auth visual completo, deploy e OpenAI real ainda nao foram ativados.
+Status atual: fontes de verdade, governanca tecnica, stack Next.js, fundacao Supabase/Auth/RLS em arquivos versionados, onboarding/direcao do Prompt 6, camada central de IA do Prompt 7, nucleo inicial de execucao do Prompt 8, calendario/inbox do Prompt 9, Desbloqueador/Metacognicao do Prompt 10, Foco/Habitos/Placar do Prompt 11, Revisao Semanal/Jardim do Prompt 12, Atalaia/Compromissos do Prompt 13 e PWA/mobile complementar do Prompt 14. A migration remota do Prompt 14 foi aplicada no Supabase `proposito_em_acao`; migrations anteriores, testes RLS completos, Auth visual completo, deploy, e-mail real, push notifications e OpenAI real ainda nao foram ativados.
 
 ## Visao
 
@@ -60,6 +60,9 @@ Stack definida para a fundacao inicial:
 - `src/app/calendar/` e `src/app/inbox/`: centro operacional do Prompt 9 com fallback local/dev.
 - `src/app/action-unblocker/` e `src/app/metacognition/`: destravamento e autorregulacao do Prompt 10 com mocks seguros.
 - `src/app/focus/`, `src/app/habits/` e `src/app/scoreboard/`: camada diaria do Prompt 11 com fallback local/dev.
+- `src/app/review/` e `src/app/garden/`: fechamento semanal, padroes, retomada e Jardim da Vida do Prompt 12 com fallback local/dev.
+- `src/app/accountability/` e `src/app/commitments/`: Atalaia, grants por alvo, Documento de Compromisso, alavancas e fallback de e-mail do Prompt 13.
+- `src/app/mobile/`, `src/components/mobile/` e `src/domain/energy/`: PWA/mobile complementar, acoes rapidas, check-in de energia e fallback local/dev do Prompt 14.
 
 ## Fontes de verdade principais
 
@@ -79,6 +82,16 @@ Stack definida para a fundacao inicial:
 - `docs/FOCUS_MODE_MODULE.md`
 - `docs/HABITS_MODULE.md`
 - `docs/SCOREBOARD_MODULE.md`
+- `docs/WEEKLY_REVIEW_MODULE.md`
+- `docs/LIFE_GARDEN_MODULE.md`
+- `docs/PATTERN_DETECTION.md`
+- `docs/ACCOUNTABILITY_MODULE.md`
+- `docs/COMMITMENT_DOCUMENT_MODULE.md`
+- `docs/COMMITMENT_LEVERS.md`
+- `docs/EMAIL_NOTIFICATIONS.md`
+- `docs/PWA_MOBILE_MODULE.md`
+- `docs/MOBILE_PRIVACY.md`
+- `docs/MOBILE_UX_GUIDE.md`
 - `docs/SECURITY_PRIVACY.md`
 - `docs/DATA_SENSITIVITY_MATRIX.md`
 - `docs/UX_UI_GUIDE.md`

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 
+import { reviewOwnerPersistenceSafety } from "@/ai/guardrails";
 import { actionUnblockerOutputSchema, metacognitionOutputSchema } from "@/ai/schemas";
 import { buildActionUnblockerMock } from "@/domain/action-unblocker";
 import { buildMetacognitionMock } from "@/domain/metacognition";
@@ -90,5 +91,32 @@ describe("Prompt 10 metacognition domain", () => {
     expect(output.safety_flags).toContain("risco_emocional_grave");
     expect(output.next_action).toContain("ajuda humana");
     expect(output.christian_anchor).toBeNull();
+  });
+});
+
+describe("owner-only persistence safety", () => {
+  test("blocks client-supplied structured output with pastoral coercion before persistence", () => {
+    const output = actionUnblockerOutputSchema.parse(
+      buildActionUnblockerMock({
+        taskTitle: "Enviar proposta",
+        energyLevel: "medium",
+        availableMinutes: 15,
+        obstacle: "medo de errar",
+        tone: "firme"
+      })
+    );
+
+    const review = reviewOwnerPersistenceSafety({
+      reviewedSchemaVersion: output.schema_version,
+      value: {
+        ...output,
+        first_step: "Deus mandou voce enviar agora, se voce nao fizer isso e pecado."
+      }
+    });
+
+    expect(review.safe_to_persist).toBe(false);
+    expect(review.blocked_behaviors).toEqual(
+      expect.arrayContaining(["specific_divine_will_claim", "spiritual_guilt"])
+    );
   });
 });

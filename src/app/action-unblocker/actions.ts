@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 
+import { reviewOwnerPersistenceSafety } from "@/ai/guardrails";
 import { actionUnblockerOutputSchema } from "@/ai/schemas";
 import { buildActionUnblockerMock } from "@/domain/action-unblocker";
 import {
@@ -49,6 +50,14 @@ export async function generateActionUnblockerPlan(input: unknown): Promise<Actio
 
 export async function persistActionUnblockerSession(input: unknown): Promise<ActionUnblockerActionResult> {
   const parsed = persistActionUnblockerSessionInputSchema.parse(input);
+  const safetyReview = reviewOwnerPersistenceSafety({
+    reviewedSchemaVersion: parsed.output.schema_version,
+    value: parsed.output
+  });
+
+  if (!safetyReview.safe_to_persist) {
+    return errorDraft("A resposta do Desbloqueador foi bloqueada pelos guardrails antes de salvar.");
+  }
 
   try {
     const supabase = await createSupabaseServerClient();

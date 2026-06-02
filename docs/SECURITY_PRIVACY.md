@@ -188,6 +188,36 @@ Regras especificas:
 - Atalaia futuro so pode receber resumo limitado por alvo, consentimento granular, previa e revogacao efetiva.
 - Sem Auth/Supabase, a UI deve declarar fallback local/dev.
 
+## Prompt 12 - Revisao Semanal e Jardim
+
+Revisao Semanal e dado critico. Ela pode combinar travamentos, emocoes, rotina, fe, familia, saude, financas, habitos, Placar e padroes de Metacognicao.
+
+Regras especificas:
+
+- `weekly_reviews` e privado por padrao e owner-only.
+- Metacognicao bruta nao deve ser copiada para revisao; usar apenas resumo manual/agregado.
+- Calendario, Placar, habitos e foco entram como contagens, tendencias e retomadas, nao como conteudo bruto sensivel.
+- Jardim da Vida e snapshot derivado; `garden_events.metadata_minimal` nao pode conter prompts, respostas brutas, pensamentos, notas privadas ou sessoes.
+- Atalaia nao recebe Revisao Semanal, Jardim, Metacognicao, calendario bruto ou Placar bruto automaticamente.
+- Logs nao devem conter respostas da revisao, sintese completa, eventos intimos do Jardim, prompt ou resposta bruta de IA.
+- Sem Auth/Supabase, a UI deve declarar fallback local/dev.
+
+## Prompt 13 - Atalaia, Compromisso e E-mail
+
+Atalaia envolve compartilhamento com terceiro e permanece dado sensivel.
+
+Regras especificas:
+
+- Atalaia e sempre vinculado a um alvo especifico, nunca a conta inteira.
+- Usuario escolhe permissoes granulares e revisa a previa antes de criar convite ou notificacao.
+- `accountability_partners` nao concede acesso sozinho; acesso real depende de `accountability_grants` ativo.
+- Revogacao cancela notificacoes pendentes e bloqueia acesso futuro.
+- `accountability_notifications.preview_payload` guarda metadados estruturados, nao corpo intimo da mensagem.
+- Documento de Compromisso nasce privado e so pode ser compartilhado com permissao `commitment_document`, revisao e consentimento.
+- Alavancas de Compromisso bloqueiam humilhacao, exposicao publica, castigo fisico, castigo espiritual, jejum como punicao, vergonha publica e consequencia financeira desproporcional.
+- Sem provider de e-mail configurado, notificacoes ficam em `pending_provider_config` e nenhum e-mail real e enviado.
+- OpenAI real nao e acionada pela UI do Prompt 13; mensagens e documentos usam mock/contrato estruturado.
+
 ## Retencao
 
 A politica de retencao deve ser definida antes da primeira coleta real. A regra base e reter apenas pelo tempo necessario a finalidade declarada, com exportacao e exclusao disponiveis em fase apropriada.
@@ -215,3 +245,18 @@ A arquitetura futura deve prever:
 | IA alterando dados sem revisao | Alta | Saidas estruturadas, revisao do usuario e validacao server-side |
 | Migration aplicada sem teste RLS | Alta | Aplicar em ambiente controlado e rodar matriz de acesso antes de producao |
 | Metacognicao exposta em historico compartilhado | Critica | Owner-only, sem Atalaia por padrao, exclusao seletiva e consentimento manual futuro |
+| Revisao Semanal duplicando Metacognicao bruta | Critica | Apenas resumo agregado/redigido, sanitizacao server-side e sem Atalaia |
+| Jardim virando banco paralelo de dados intimos | Alta | Snapshot derivado, eventos minimos e bloqueio de metadados sensiveis |
+
+## Prompt 14 - PWA/Mobile
+
+PWA/mobile e superficie complementar para acoes rapidas. Regras especificas:
+
+- `public/sw.js` cacheia apenas assets estaticos declarados e pagina offline segura.
+- Metacognicao, Inbox bruta, calendario, Atalaia, notificacoes, tokens, respostas de server actions e conteudo sensivel nao devem ser cacheados.
+- Nao usar `localStorage`, `sessionStorage`, IndexedDB ou CacheStorage para dados sensiveis nesta etapa.
+- `energy_checkins` e dado sensivel e permanece owner-only.
+- Migration remota de `energy_checkins` aplicada em 2026-06-02 no Supabase `proposito_em_acao`; testes RLS por persona ainda dependem de validacao automatizada completa.
+- Sem fila offline sensivel, push notifications ou app nativo antes do Prompt 15.
+- Sem Auth/Supabase, a UI deve declarar fallback local/dev, sem prometer persistencia produtiva.
+- Nada do mobile e compartilhado automaticamente com Atalaia.

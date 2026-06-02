@@ -57,3 +57,29 @@ Hostinger pode ser considerado se o plano suportar runtime Node/Next adequado, v
 - Politica de privacidade e consentimentos prontos.
 - Plano de rollback documentado.
 - Backups e monitoramento definidos.
+
+## Prompt 15 - release readiness
+
+Status local: gates de lint, typecheck, testes, build e E2E passaram apos correcoes.
+
+Status externo: nao liberar producao ate concluir:
+
+- aplicar todas as migrations locais em branch/preview Supabase;
+- confirmar que o remoto nao esta parcialmente aplicado;
+- rodar matriz RLS dinamica usuario A x usuario B x Atalaia autorizado x Atalaia revogado;
+- validar `/auth` com Supabase Auth real, confirmacao de e-mail, redirects e logout;
+- configurar secrets no provedor de deploy;
+- aprovar LGPD, consentimentos, retencao, exportacao e exclusao;
+- definir provider de e-mail ou manter notificacoes externas desativadas;
+- manter OpenAI real desativada ate modelo, custo, guardrails e base de conhecimento serem aprovados.
+
+## Checklist PWA futuro
+
+- HTTPS ativo em producao.
+- `public/manifest.json` valido, com `start_url` em `/mobile`.
+- Service worker servido com `Cache-Control: no-store` para o arquivo `sw.js`.
+- Cache versionado e rollback do service worker documentado.
+- Cache restrito a assets estaticos e pagina offline; sem dados sensiveis.
+- Icones finais substituem placeholders antes de producao.
+- Teste de instalabilidade e offline seguro em mobile real.
+- Sem push notifications ate prompt proprio.

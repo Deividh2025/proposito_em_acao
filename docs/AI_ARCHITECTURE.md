@@ -56,7 +56,9 @@ Exigem schema quando a resposta for salva, enviada, comparada, auditada, usada p
 - `HabitPlan`
 - `ScoreboardPlan`
 - `WeeklyReviewSummary`
+- `GardenState`
 - `AtalaiaMessagePreview`
+- `CommitmentDocument`
 - `OverloadAlert`
 - `GuardrailReview`
 - `AiRunAudit`
@@ -159,6 +161,24 @@ OpenAI real continua fora da UI nesta etapa. Quando ativada, deve ser chamada so
 - Ambos usam mock deterministico nesta etapa; OpenAI real nao e acionada pela UI.
 - Guardrails bloqueiam diagnostico, culpa espiritual, vergonha, ranking punitivo, streak como identidade e qualquer compartilhamento bruto com Atalaia.
 - Logs devem manter apenas metadados tecnicos, nunca distracoes, notas intimas, prompt bruto ou resposta bruta.
+
+## Prompt 12 - Revisao Semanal e Jardim da Vida
+
+- Agente Revisor Semanal usa `weekly_review_output_v1` para sintetizar semana, vitorias, travamentos, padroes, sobrecarga, areas negligenciadas, retomadas, foco da proxima semana e primeira acao.
+- O fluxo usa mock deterministico seguro na UI; OpenAI real permanece server-side e desativada para produto.
+- Contexto permitido deve ser minimizado: respostas da revisao, progresso agregado de alvos/projetos/tarefas, resumo de habitos/foco/Placar, sobrecarga e retomadas.
+- Contexto proibido: Metacognicao bruta, distracoes completas, calendario sensivel, prompt/resposta bruta, dados de Atalaia e Chamado completo.
+- Jardim da Vida usa `garden_state_output_v1` como snapshot derivado da revisao/eventos, sem agente OpenAI separado nesta etapa.
+- Persistencia deve salvar dados estruturados e metadados minimos; logs continuam proibidos de conter conteudo sensivel.
+
+## Prompt 13 - Atalaia e Compromisso
+
+- Agente Atalaia usa `accountability_message_output_v1` com `message_type`, `shared_fields`, `privacy_check`, tom e chamada para acao.
+- Documento de Compromisso usa `commitment_document_output_v1` como contrato estruturado revisavel.
+- UI usa mock/contrato local; OpenAI real permanece server-side e desativada para produto.
+- Contexto permitido: alvo autorizado, prazo, status, progresso, marcos, pedido de ajuda, mensagem personalizada revisada, resumo limitado do Placar e Documento de Compromisso.
+- Contexto proibido: Chamado completo, Metacognicao, saude, familia, financas, emocoes, Revisao Semanal privada, inbox bruto, calendario completo, distracoes e logs brutos.
+- Fallback de e-mail nao envia nada sem provider configurado.
 
 ## Evals futuros
 

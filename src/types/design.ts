@@ -31,14 +31,28 @@ export type NavigationItem = {
     | "Prompt 8"
     | "Prompt 9"
     | "Prompt 10"
-    | "Prompt 11";
+    | "Prompt 11"
+    | "Prompt 12"
+    | "Prompt 13"
+    | "Prompt 14"
+    | "Prompt 15";
   icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
 };
 
 export type PlaceholderPageDefinition = {
   title: string;
   href: string;
-  status: "em preparação" | "Prompt 6" | "Prompt 8" | "Prompt 9" | "Prompt 10" | "Prompt 11";
+  status:
+    | "em preparação"
+    | "Prompt 6"
+    | "Prompt 8"
+    | "Prompt 9"
+    | "Prompt 10"
+    | "Prompt 11"
+    | "Prompt 12"
+    | "Prompt 13"
+    | "Prompt 14"
+    | "Prompt 15";
   description: string;
   components: string[];
   nextStep: string;

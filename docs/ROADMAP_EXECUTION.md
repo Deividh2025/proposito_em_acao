@@ -71,6 +71,8 @@ Habitos, Placar da Disciplina, Revisao Semanal e Jardim da Vida simples.
 
 Atalaia basico por alvo, Documento de Compromisso, Alavancas de Compromisso, previa de mensagens, e-mails e revogacao.
 
+Status Prompt 13: Atalaia basico, Documento de Compromisso e Alavancas de Compromisso foram preparados em profundidade controlada. E-mail real, portal avancado do Atalaia, relatorios externos, deploy, integracoes externas e OpenAI real acionada por UI continuam para etapa propria.
+
 ## Fase 9 - PWA/mobile complementar
 
 Captura rapida, habitos, Placar, foco curto, Desbloqueador, Metacognicao rapida e energia.

@@ -26,6 +26,8 @@ Policies implementadas em `supabase/migrations/202605310002_rls_policies.sql` e 
 
 Funcao auxiliar: `app_private.has_active_accountability_grant(user_id, goal_id, permission)`.
 
+No Prompt 15, a revisao final reforcou que a funcao auxiliar so pode ser usada junto de filtros row-specific quando o dado pertence a um parceiro/grant concreto. Policies de Atalaia devem restringir tambem por `accountability_partner_id`, `partner_user_id` e/ou `accountability_grant_id` conforme a tabela.
+
 Atalaia pode ler:
 
 - `accountability_grants` ativos.
@@ -106,3 +108,49 @@ Checklist adicional:
 - `focus_distractions.content` nao deve ser exposto em logs, Atalaia ou views publicas.
 - `scoreboard_entries` devem ser idempotentes por usuario, item e data.
 - Atalaia nao tem policy direta nessas tabelas nesta etapa, mesmo com grant ativo.
+
+## Prompt 12 - Revisao Semanal e Jardim
+
+`weekly_reviews`, `garden_states` e `garden_events` permanecem owner-only por `user_id = auth.uid()`. A migration do Prompt 12 reforca RLS e FKs compostas para manter revisao, snapshot e evento dentro do mesmo usuario.
+
+Checklist adicional:
+
+- user A cria, le, atualiza e remove suas revisoes semanais.
+- user B nao acessa revisoes, estados de Jardim ou eventos de user A.
+- anonimo nao acessa revisoes nem Jardim.
+- user B nao cria `garden_state` ou `garden_event` apontando para `weekly_review` de user A.
+- `garden_events.metadata_minimal` nao contem prompt, resposta bruta, Metacognicao bruta ou nota privada.
+- Atalaia nao tem policy direta em `weekly_reviews`, `garden_states` ou `garden_events` nesta etapa.
+- Qualquer resumo futuro para Atalaia exigira alvo, consentimento granular, previa e projecao sanitizada.
+
+## Prompt 13 - Atalaia e Compromisso
+
+Atalaia passa de placeholder para fluxo funcional local/dev com persistencia preparada. O modelo RLS permanece:
+
+- Dono gerencia `accountability_partners`, `accountability_grants`, `accountability_events`, `accountability_notifications`, `commitment_documents` e `commitment_levers`.
+- Atalaia autenticado so le grants/eventos/notificacoes/documentos que passem por grant ativo e pelo parceiro/grant especifico da propria linha.
+- Revogacao exige `status = 'revoked'`, `revoked_at` preenchido e cancelamento de notificacoes pendentes.
+- `accountability_notifications.preview_payload` nao deve conter corpo bruto; a migration Prompt 13 adiciona constraint contra chaves sensiveis.
+- `commitment_documents` compartilhado exige `status = 'active'`, `reviewed_at`, `shared_at`, `consent_version` e permissao `commitment_document`.
+
+Sem Supabase CLI/MCP disponivel, as policies permanecem versionadas mas nao foram aplicadas/testadas localmente nesta sessao.
+
+## Prompt 14 - PWA/Mobile
+
+`energy_checkins` deve permanecer owner-only:
+
+- user A cria, le, atualiza e remove seus check-ins de energia.
+- user B nao acessa check-ins de user A.
+- anonimo nao acessa `energy_checkins`.
+- Atalaia nao tem policy direta em `energy_checkins`, mesmo com grant ativo.
+
+As acoes mobile que reutilizam Inbox, Habitos, Placar, Foco, Desbloqueador e Metacognicao herdam as policies owner-only desses modulos. Service worker e cache nao substituem RLS nem armazenam dados sensiveis.
+
+Status remoto: a migration `mobile_pwa_prompt14_alignment` foi aplicada em 2026-06-02 no Supabase `proposito_em_acao`. A validacao automatizada completa de RLS por usuario ainda depende de CLI/testes com usuarios de prova.
+
+## Prompt 15 - QA final RLS
+
+- Regressao estatica adicionada em `src/tests/unit/rls-policy-safety.test.ts`.
+- Policies locais de `accountability_grants` e `accountability_events` foram corrigidas para exigir grant/parceiro especifico.
+- Projeto Supabase remoto `bceumcfmjftoukzrfthe` foi encontrado ativo e advisors de seguranca nao retornaram lints.
+- Migrations remotas listadas nao cobrem todo o conjunto local da V1; validacao RLS dinamica segue pendente antes de producao.

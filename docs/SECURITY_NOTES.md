@@ -70,6 +70,9 @@ Tratar como sensiveis desde o modelo de produto:
 - Prompt 8 adiciona alvos/projetos/tarefas/microtarefas com mock seguro; analise ecologica, Chamado e rotina nao devem ir para logs ou Atalaia.
 - Prompt 9 adiciona calendario/inbox com mock seguro; capturas, links, preocupacoes e agenda nao devem ir para logs, Atalaia ou terceiros nesta etapa.
 - Prompt 10 adiciona Desbloqueador/Metacognicao com mock seguro; pensamentos automaticos, fatos, interpretacoes, sentimentos, impulsos e obstaculos nao devem ir para logs, Atalaia ou terceiros por padrao.
+- Prompt 13 adiciona Atalaia e Documento de Compromisso em profundidade controlada; compartilhamento exige alvo, permissao granular, previa, consentimento e revogacao efetiva.
+- E-mail real do Atalaia permanece desativado sem provider server-side configurado; assuntos e corpos devem ser neutros e sem dados sensiveis.
+- Prompt 14 adiciona PWA/mobile complementar; service worker so pode cachear assets estaticos seguros e pagina offline, nunca Metacognicao, Inbox, calendario, Atalaia, tokens, notificacoes ou respostas de server actions.
 
 ## Guardrails de IA
 
@@ -93,6 +96,8 @@ A IA nao deve:
 - Mensagens devem ter previa antes de envio.
 - E-mails ao Atalaia devem ter corpo e assunto neutros; conteudo sensivel so pode aparecer atras de link autenticado, expiravel e auditavel.
 - Registrar auditoria de autorizacao, escopo, versao de consentimento e revogacao.
+- Cancelar notificacoes pendentes quando o grant for revogado.
+- Documento de Compromisso compartilhado exige revisao humana, consentimento versionado e grant ativo.
 
 ## Status Prompt 4
 
@@ -112,3 +117,4 @@ Antes da primeira coleta real de dados, documentar bases legais, consentimento p
 - Desbloqueador e Metacognicao funcionais foram adicionados no Prompt 10, mantendo Metacognicao privada por padrao.
 - Nenhuma chamada real a OpenAI API e acionada por fluxo de produto.
 - Nenhum deploy realizado.
+- PWA/mobile complementar existe para acoes rapidas; a migration remota `mobile_pwa_prompt14_alignment` foi aplicada em 2026-06-02, enquanto app nativo, push notifications e fila offline sensivel seguem fora de escopo antes do Prompt 15.

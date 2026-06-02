@@ -1,10 +1,12 @@
 import {
   CalendarDays,
+  FileText,
   Flower2,
   Gauge,
   Handshake,
   Home,
   Inbox,
+  LogIn,
   Leaf,
   ListRestart,
   RotateCcw,
@@ -12,7 +14,8 @@ import {
   ShieldCheck,
   Sparkles,
   Target,
-  TimerReset
+  TimerReset,
+  Zap
 } from "lucide-react";
 
 import type { NavigationItem, PlaceholderPageDefinition } from "@/types/design";
@@ -24,6 +27,20 @@ export const navigationItems: NavigationItem[] = [
     description: "Direção inicial, próxima ação e progressão assistida.",
     status: "Prompt 6",
     icon: Home
+  },
+  {
+    label: "Acesso",
+    href: "/auth",
+    description: "Criar conta, entrar e sair com Supabase Auth.",
+    status: "Prompt 15",
+    icon: LogIn
+  },
+  {
+    label: "Mobile",
+    href: "/mobile",
+    description: "PWA complementar para ações rápidas.",
+    status: "Prompt 14",
+    icon: Zap
   },
   {
     label: "Onboarding",
@@ -106,22 +123,29 @@ export const navigationItems: NavigationItem[] = [
     label: "Revisão",
     href: "/review",
     description: "Aprendizado semanal e ajuste de rota.",
-    status: "em preparação",
+    status: "Prompt 12",
     icon: RotateCcw
   },
   {
     label: "Jardim",
     href: "/garden",
     description: "Progresso visual simbólico e não punitivo.",
-    status: "base visual",
+    status: "Prompt 12",
     icon: Flower2
   },
   {
     label: "Atalaia",
     href: "/accountability",
     description: "Acompanhamento por alvo e consentimento.",
-    status: "em preparação",
+    status: "Prompt 13",
     icon: Handshake
+  },
+  {
+    label: "Compromissos",
+    href: "/commitments",
+    description: "Documento e alavancas revisaveis.",
+    status: "Prompt 13",
+    icon: FileText
   },
   {
     label: "Configurações",
@@ -132,9 +156,43 @@ export const navigationItems: NavigationItem[] = [
   }
 ];
 
-export const quickActionItems = ["/dashboard", "/inbox", "/action-unblocker", "/focus", "/metacognition"]
-  .map((href) => navigationItems.find((item) => item.href === href))
-  .filter((item): item is NavigationItem => Boolean(item));
+export const quickActionItems: NavigationItem[] = [
+  {
+    label: "Mobile",
+    href: "/mobile",
+    description: "Hub de ações rápidas.",
+    status: "Prompt 14",
+    icon: Zap
+  },
+  {
+    label: "Capturar",
+    href: "/mobile/capture",
+    description: "Enviar para Inbox.",
+    status: "Prompt 14",
+    icon: Inbox
+  },
+  {
+    label: "Foco",
+    href: "/mobile/focus",
+    description: "Foco curto.",
+    status: "Prompt 14",
+    icon: TimerReset
+  },
+  {
+    label: "Energia",
+    href: "/mobile/energy",
+    description: "Check-in simples.",
+    status: "Prompt 14",
+    icon: Zap
+  },
+  {
+    label: "Clarear",
+    href: "/mobile/metacognition",
+    description: "Metacognição rápida.",
+    status: "Prompt 14",
+    icon: Sparkles
+  }
+];
 
 export const placeholderPages: PlaceholderPageDefinition[] = [
   {
@@ -235,11 +293,20 @@ export const placeholderPages: PlaceholderPageDefinition[] = [
   {
     title: "Atalaia",
     href: "/accountability",
-    status: "em preparação",
-    description: "Acompanhamento externo por alvo, consentimento e prévia.",
-    components: ["Panel", "Badge", "Modal", "SensitiveDataNotice"],
-    nextStep: "Implementar grants, prévia e revogação em etapa própria.",
+    status: "Prompt 13",
+    description: "Acompanhamento externo por alvo, consentimento, previa e revogacao.",
+    components: ["AccountabilityPartnerForm", "PermissionSelector", "AccountabilityInvitePreview", "PartnerLimitedPanel"],
+    nextStep: "Manter acesso limitado por grant ativo e cancelar notificacoes pendentes na revogacao.",
     privacyNote: "Acesso nunca é à conta inteira."
+  },
+  {
+    title: "Compromissos",
+    href: "/commitments",
+    status: "Prompt 13",
+    description: "Documento de compromisso, recompensas saudaveis e consequencias restaurativas.",
+    components: ["CommitmentDocumentBuilder", "CommitmentDocumentPreview", "CommitmentLeverForm"],
+    nextStep: "Compartilhar somente apos revisao, grant ativo e permissao explicita.",
+    privacyNote: "Documento nasce privado e nao envia dados automaticamente."
   },
   {
     title: "Configurações",
@@ -247,7 +314,7 @@ export const placeholderPages: PlaceholderPageDefinition[] = [
     status: "em preparação",
     description: "Preferências futuras de conta, privacidade, IA e camada cristã.",
     components: ["Switch", "RadioGroup", "Select", "SuccessState"],
-    nextStep: "Não ativar Auth, Supabase ou OpenAI nesta etapa."
+    nextStep: "Centralizar preferencias de conta, privacidade e IA sem expor secrets."
   }
 ];
 

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192" role="img" aria-label="Propósito em Ação">
+  <rect width="192" height="192" rx="36" fill="#123f2b"/>
+  <path d="M35 118c18 22 41 34 67 34 22 0 39-8 56-24" fill="none" stroke="#f8e7bd" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="96" cy="86" r="49" fill="#f7f8f5"/>
+  <path d="M96 39c17 23 27 41 27 58 0 18-12 32-27 32s-27-14-27-32c0-17 10-35 27-58Z" fill="#17633f"/>
+  <path d="M96 56v54" stroke="#f7f8f5" stroke-width="8" stroke-linecap="round"/>
+  <path d="M96 110l20-20" stroke="#f8e7bd" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="96" cy="110" r="7" fill="#256f8f"/>
+  <path d="M143 122l15 3-4-14" fill="none" stroke="#f8e7bd" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

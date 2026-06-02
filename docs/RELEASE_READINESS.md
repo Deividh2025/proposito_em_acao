@@ -104,9 +104,9 @@ Resultado:
 - Migrations locais foram alinhadas e aplicadas no preview ate `20260602214345`.
 - Matriz RLS dinamica passou para dono, outro usuario, anonimo, Atalaia ativo e Atalaia revogado.
 - Fixtures temporarios de teste foram removidos do preview.
-- Advisors de seguranca retornaram aviso de Auth: protecao contra senhas vazadas desativada.
+- Auth do preview teve `password_hibp_enabled` ativado e advisors de seguranca retornaram sem issues.
 
 Recomendacao:
 
 - Gate de migrations/RLS em preview: aprovado.
-- Beta/smoke externo continuam bloqueados ate validar Auth real, configurar secrets no deploy, publicar preview acessivel, aprovar LGPD minima e executar smoke test no URL publicado.
+- Beta/smoke externo continuam bloqueados ate validar fluxos reais de Auth, configurar secrets no deploy, publicar preview acessivel, aprovar LGPD minima e executar smoke test no URL publicado.

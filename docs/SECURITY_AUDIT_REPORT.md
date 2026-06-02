@@ -36,13 +36,13 @@ Seguranca local e estatica melhorou durante o Prompt 15. No preview Supabase, mi
 
 - Projeto base: `bceumcfmjftoukzrfthe` (`proposito_em_acao`), status ativo.
 - Branch preview: `preview-release-readiness`, com migrations locais alinhadas ate `20260602214345`.
-- Advisors de seguranca no preview: aviso `auth_leaked_password_protection` porque protecao contra senhas vazadas esta desativada no Auth.
+- Advisors de seguranca no preview: sem issues apos ativar `password_hibp_enabled` no Auth do preview.
 - Advisors de performance: `unused_index` em `idx_energy_checkins_user_captured` e aviso informativo de estrategia de conexoes Auth.
 - Matriz RLS dinamica passou no preview para dono, outro usuario, anonimo, Atalaia ativo e Atalaia revogado.
 
 ## Riscos pendentes
 
-- Validar Supabase Auth real: signup, login, confirmacao de e-mail, logout, redirect, expiracao de sessao e protecao contra senhas vazadas.
+- Validar Supabase Auth real: signup, login, confirmacao de e-mail, logout, redirect e expiracao de sessao.
 - Consentimentos precisam ficar granulares, versionados e auditaveis em producao.
 - Definir politica de retencao/exportacao/exclusao para dados reflexivos, Chamado, revisoes e energia.
 - Revisar convites com expiracao real, reenvio, aceite autenticado e trilha de auditoria.

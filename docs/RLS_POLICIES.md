@@ -2,7 +2,7 @@
 
 ## Fonte
 
-Policies implementadas em `supabase/migrations/202605310002_rls_policies.sql` e storage em `supabase/migrations/202605310003_private_storage.sql`.
+Policies implementadas em `supabase/migrations/202605310002_rls_policies.sql`, ajuste de leitura ativa de Atalaia em `supabase/migrations/20260602214345_accountability_partner_active_select_policy.sql` e storage em `supabase/migrations/202605310003_private_storage.sql`.
 
 ## Modelo por persona
 
@@ -30,6 +30,7 @@ No Prompt 15, a revisao final reforcou que a funcao auxiliar so pode ser usada j
 
 Atalaia pode ler:
 
+- A propria relacao ativa aceita em `accountability_partners`, apenas para comprovar vinculo de grant.
 - `accountability_grants` ativos.
 - `accountability_events` minimos ligados ao grant ativo.
 - `accountability_notifications` aprovadas, enfileiradas ou enviadas.
@@ -128,12 +129,12 @@ Checklist adicional:
 Atalaia passa de placeholder para fluxo funcional local/dev com persistencia preparada. O modelo RLS permanece:
 
 - Dono gerencia `accountability_partners`, `accountability_grants`, `accountability_events`, `accountability_notifications`, `commitment_documents` e `commitment_levers`.
-- Atalaia autenticado so le grants/eventos/notificacoes/documentos que passem por grant ativo e pelo parceiro/grant especifico da propria linha.
+- Atalaia autenticado le apenas sua propria relacao ativa aceita e grants/eventos/notificacoes/documentos que passem por grant ativo e pelo parceiro/grant especifico da propria linha.
 - Revogacao exige `status = 'revoked'`, `revoked_at` preenchido e cancelamento de notificacoes pendentes.
 - `accountability_notifications.preview_payload` nao deve conter corpo bruto; a migration Prompt 13 adiciona constraint contra chaves sensiveis.
 - `commitment_documents` compartilhado exige `status = 'active'`, `reviewed_at`, `shared_at`, `consent_version` e permissao `commitment_document`.
 
-Sem Supabase CLI/MCP disponivel, as policies permanecem versionadas mas nao foram aplicadas/testadas localmente nesta sessao.
+As policies desta etapa foram versionadas para aplicacao em preview antes de qualquer uso produtivo.
 
 ## Prompt 14 - PWA/Mobile
 

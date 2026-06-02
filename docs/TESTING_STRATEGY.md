@@ -2,7 +2,9 @@
 
 ## Estado atual
 
-A stack Next.js, Vitest e Playwright existe. Migrations Supabase/RLS foram preparadas, mas ainda nao foram aplicadas em ambiente local/remoto porque o CLI Supabase nao esta instalado neste workspace. Nao ha chamadas reais de IA.
+A stack Next.js, Vitest e Playwright existe. O Supabase CLI foi executado via `npx`, um branch preview foi criado, as migrations locais foram aplicadas nesse preview e a matriz RLS dinamica minima passou em 2026-06-02. Nao ha chamadas reais de IA.
+
+Observacao historica: secoes antigas por prompt podem registrar RLS como pendente no momento da implementacao daquele prompt. O status atual consolidado e o do preview Supabase documentado em `docs/RLS_TEST_REPORT.md` e `docs/RELEASE_READINESS.md`.
 
 ## Testes unitarios
 
@@ -66,6 +68,8 @@ Para cada tabela exposta:
 - `service_role` nao aparece no cliente.
 - Filho nao pode apontar para parent de outro usuario.
 - Metacognicao, Chamado completo e revisoes privadas nao aparecem em acesso de Atalaia.
+
+Status atual: a matriz dinamica em preview cobriu dono, outro usuario, anonimo, Atalaia ativo e Atalaia revogado para alvo, Metacognicao e tabelas principais de accountability. Ainda faltam smoke publicado, Auth real e expansao da matriz para todas as tabelas antes de beta com usuarios reais.
 
 ## Testes de IA/evals
 

@@ -93,3 +93,20 @@ Recomendacao:
 
 - Aprovado para ensaio interno e preparacao de preview controlado.
 - Beta com usuarios reais segue bloqueado ate migrations Supabase, RLS dinamica, Auth real, secrets, LGPD minima, rollback, smoke publicado e decisao de canal/formulario de feedback.
+
+## Addendum Supabase Preview
+
+Data: 2026-06-02.
+
+Resultado:
+
+- Branch preview Supabase `preview-release-readiness` foi criado sem dados de producao.
+- Migrations locais foram alinhadas e aplicadas no preview ate `20260602214345`.
+- Matriz RLS dinamica passou para dono, outro usuario, anonimo, Atalaia ativo e Atalaia revogado.
+- Fixtures temporarios de teste foram removidos do preview.
+- Advisors de seguranca retornaram aviso de Auth: protecao contra senhas vazadas desativada.
+
+Recomendacao:
+
+- Gate de migrations/RLS em preview: aprovado.
+- Beta/smoke externo continuam bloqueados ate validar Auth real, configurar secrets no deploy, publicar preview acessivel, aprovar LGPD minima e executar smoke test no URL publicado.

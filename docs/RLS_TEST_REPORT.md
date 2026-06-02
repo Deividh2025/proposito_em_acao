@@ -50,3 +50,26 @@ Consulta Supabase real confirmou:
 - Tabelas publicas visiveis nao cobrem a V1 completa.
 
 Conclusao: matriz RLS dinamica continua bloqueante antes de producao aberta ou beta com usuarios reais.
+
+## Addendum Preview Branch
+
+Data: 2026-06-02.
+
+Preview Supabase criado para validacao antes de producao:
+
+- Branch preview: `preview-release-readiness`.
+- Migrations locais foram aplicadas no preview depois de reconciliar historico equivalente da migration mobile/PWA.
+- Matriz dinamica inicial confirmou isolamento owner-only e privacidade de Metacognicao.
+- Falha encontrada: Atalaia ativo nao conseguia ler grant/evento autorizado porque as policies dependiam de `accountability_partners`, mas o parceiro ativo nao tinha leitura da propria relacao.
+- Correcao versionada: `20260602214345_accountability_partner_active_select_policy.sql` permite ao Atalaia ler somente sua propria relacao ativa, aceita e nao revogada.
+
+Validacao final executada no preview:
+
+- Atalaia ativo le propria relacao, grant ativo e evento minimo autorizado.
+- Atalaia ativo nao le `goals` nem `metacognition_sessions`.
+- Atalaia revogado nao le a propria relacao revogada nem grant revogado.
+- Outro usuario continua sem acesso ao alvo e a Metacognicao do dono.
+- Anonimo nao le alvo privado.
+- Fixtures temporarios foram removidos apos a matriz; contagem remanescente retornou `0`.
+
+Status: matriz RLS dinamica passou no branch preview. Producao aberta ainda depende de Auth real, secrets/deploy, LGPD minima e smoke test publicado.

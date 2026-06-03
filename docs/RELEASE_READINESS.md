@@ -32,6 +32,22 @@ Evidencia complementar de subagentes nesta mesma auditoria:
 
 Limitacao: gates com Supabase real, smoke externo, Docker image e Auth publicado nao foram executados nesta auditoria documental.
 
+## Evidencia da Etapa 1 - runtime/error contracts
+
+Executado localmente em 2026-06-03 na branch `codex/runtime-error-contracts`:
+
+- `gh pr view 2`: PR documental da Etapa 0 confirmado como mergeado em `2026-06-03T18:48:25Z`.
+- `git pull --ff-only origin main`: `main` atualizada por fast-forward antes da branch da Etapa 1.
+- Branch criada de `main`: `codex/runtime-error-contracts`.
+- `npm.cmd run test -- src/tests/unit/runtime-action-results.test.ts src/tests/integration/runtime-error-contracts.test.ts src/tests/unit/inbox-capture-ui.test.ts`: passou, 3 arquivos e 13 testes.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 17 arquivos e 94 testes.
+- `npm.cmd run build`: passou, 39 paginas.
+- `npm.cmd run test:e2e`: passou, 30 testes.
+
+Limitacao: estes gates sao locais. Eles nao substituem Supabase/Auth/RLS remoto, smoke externo, secrets, LGPD, Docker/Coolify ou rollback.
+
 ## Evidencia historica que nao libera beta sozinha
 
 - Em 2026-06-02, docs registram branch preview Supabase `preview-release-readiness`, migrations locais alinhadas e matriz RLS dinamica minima aprovada.
@@ -51,7 +67,7 @@ Limitacao: gates com Supabase real, smoke externo, Docker image e Auth publicado
 
 ## Bloqueadores antes do beta real
 
-- Corrigir/validar S0/S1 do `docs/BUG_TRIAGE.md`, especialmente Atalaia, Auth SSR, escrita real, tipos Supabase, health/CSP, CI/release e guardrails de IA.
+- Corrigir/validar S0/S1 do `docs/BUG_TRIAGE.md`, especialmente Atalaia, Auth SSR, tipos Supabase, health/readiness, CI/release, guardrails de IA, consentimento, dados demonstrativos e integracoes reais.
 - Publicar URL HTTPS de preview.
 - Configurar secrets no provedor, sem commitar `.env` real.
 - Validar Auth real publicado: signup, login, confirmacao, callback, recuperacao, logout, redirects e refresh centralizado.

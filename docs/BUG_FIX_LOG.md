@@ -22,3 +22,25 @@ Data: 2026-06-02.
 - `src/tests/e2e/auth.spec.ts`
 - Suite completa `npm.cmd run test`
 - Suite completa `npm.cmd run test:e2e`
+
+## Etapa 1 - contratos de runtime e erro
+
+Data: 2026-06-03.
+
+| Bug | Correcao | Evidencia |
+|---|---|---|
+| `DATA-WRITE-001` | Criado helper central de resultados para distinguir `local-demo`, ausencia de sessao/configuracao e erro real; `catch` de actions no escopo deixa de transformar falha configurada em `local-draft ok:true`. | `src/domain/execution/action-results.ts`, `src/tests/unit/runtime-action-results.test.ts`, `src/tests/integration/runtime-error-contracts.test.ts`. |
+| `DATA-WRITE-002` | Updates/deletes priorizados passam a usar `.select("id").maybeSingle()` ou equivalente e retornam `ok:false` quando nenhuma linha e afetada. | `goals`, `projects`, `tasks`, `habits`, `focus` e `accountability` actions; teste de update sem linha em `runtime-error-contracts.test.ts`. |
+| `UX-INBOX-001` | Inbox so altera estado local quando `result.ok` e verdadeiro; falhas aparecem como `ErrorState`. | `src/components/inbox/InboxCapture.tsx`, `src/tests/unit/inbox-capture-ui.test.ts`. |
+| `CAL-VAL-001` | Actions do calendario usam `safeParse` e retornam erro controlado para input invalido. | `src/app/calendar/actions.ts`, teste de validacao em `runtime-error-contracts.test.ts`. |
+| `A11Y-MAIN-001` | `MobileShell` deixa de renderizar `<main>` interno. | `src/components/mobile/MobileShell.tsx`, E2E de landmark unico em `src/tests/e2e/mobile-pwa.spec.ts`. |
+| `SEC-CSP-001` | `unsafe-eval` removido do `script-src` em producao; `unsafe-inline` permanece como risco residual ate etapa de nonce/hash. | `next.config.ts`; build/E2E locais devem validar compatibilidade. |
+
+Testes focados executados nesta etapa:
+
+- `npm.cmd run test -- src/tests/unit/runtime-action-results.test.ts src/tests/integration/runtime-error-contracts.test.ts src/tests/unit/inbox-capture-ui.test.ts`: passou, 13 testes.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 17 arquivos e 94 testes.
+- `npm.cmd run build`: passou, 39 paginas.
+- `npm.cmd run test:e2e`: passou, 30 testes.

@@ -9,14 +9,17 @@ import {
   type CommitmentDocumentActionResult
 } from "@/domain/commitments";
 import { executionActionResultSchema } from "@/domain/execution/persistence";
+import {
+  missingSessionResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-function localDraft(message: string, id?: string): BasicCommitmentDocumentActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: true, message, id });
-}
-
 function errorDraft(message: string): BasicCommitmentDocumentActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: false, message });
+  return realServiceErrorResult(executionActionResultSchema, message);
 }
 
 export async function generateCommitmentDocumentDraft(input: unknown): Promise<CommitmentDocumentActionResult> {
@@ -32,7 +35,13 @@ export async function generateCommitmentDocumentDraft(input: unknown): Promise<C
 }
 
 export async function persistCommitmentDocument(input: unknown): Promise<BasicCommitmentDocumentActionResult> {
-  const parsed = persistCommitmentDocumentInputSchema.parse(input);
+  const inputResult = safeParseActionInput(persistCommitmentDocumentInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const draft = buildCommitmentDocumentDraft(parsed);
   const blockedLever = draft.levers.find((lever) => lever.safety === "blocked");
 
@@ -47,7 +56,10 @@ export async function persistCommitmentDocument(input: unknown): Promise<BasicCo
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Documento mantido como rascunho local/dev. Entre para persistir com RLS.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Documento mantido como rascunho local/dev. Entre para persistir com RLS."
+      );
     }
 
     const { data: goal, error: goalError } = await supabase
@@ -99,16 +111,28 @@ export async function persistCommitmentDocument(input: unknown): Promise<BasicCo
     }));
 
     if (leverRows.length > 0) {
-      await supabase.from("commitment_levers").insert(leverRows);
+      const { error: leverError } = await supabase.from("commitment_levers").insert(leverRows);
+
+      if (leverError) {
+        return realServiceErrorResult(
+          executionActionResultSchema,
+          "Documento salvo, mas as alavancas nao foram persistidas agora."
+        );
+      }
     }
 
-    return executionActionResultSchema.parse({
-      id: data.id,
-      message: "Documento salvo como rascunho privado. Compartilhamento ainda exige revisao e grant ativo.",
-      mode: "supabase",
-      ok: true
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Documento salvo como rascunho privado. Compartilhamento ainda exige revisao e grant ativo.",
+      data.id
+    );
   } catch {
-    return localDraft("Modo local seguro: Documento de Compromisso validado sem persistencia remota.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: Documento de Compromisso validado sem persistencia remota.",
+      undefined,
+      {},
+      "Nao foi possivel salvar o Documento de Compromisso agora."
+    );
   }
 }

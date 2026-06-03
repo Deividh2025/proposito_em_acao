@@ -12,14 +12,18 @@ import {
   type HabitActionResult
 } from "@/domain/habits";
 import { executionActionResultSchema } from "@/domain/execution/persistence";
+import {
+  missingSessionResult,
+  noAffectedRowResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-function localDraft(message: string, id?: string): BasicHabitActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: true, message, id });
-}
-
 function errorDraft(message: string): BasicHabitActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: false, message });
+  return realServiceErrorResult(executionActionResultSchema, message);
 }
 
 export async function generateHabitPlanDraft(input: unknown): Promise<HabitActionResult> {
@@ -35,7 +39,13 @@ export async function generateHabitPlanDraft(input: unknown): Promise<HabitActio
 }
 
 export async function persistHabitPlan(input: unknown): Promise<BasicHabitActionResult> {
-  const parsed = persistHabitPlanInputSchema.parse(input);
+  const inputResult = safeParseActionInput(persistHabitPlanInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const habit = parsed.output;
 
   try {
@@ -45,7 +55,10 @@ export async function persistHabitPlan(input: unknown): Promise<BasicHabitAction
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Habito mantido como rascunho local/dev. Entre para persistir com RLS.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Habito mantido como rascunho local/dev. Entre para persistir com RLS."
+      );
     }
 
     if (parsed.linkedGoalId) {
@@ -96,19 +109,30 @@ export async function persistHabitPlan(input: unknown): Promise<BasicHabitAction
       return errorDraft("Nao foi possivel salvar o habito no Supabase agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Habito salvo no Supabase apos revisao do usuario.",
-      id: data.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Habito salvo no Supabase apos revisao do usuario.",
+      data.id
+    );
   } catch {
-    return localDraft("Modo local seguro: plano de habito validado sem envio externo.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: plano de habito validado sem envio externo.",
+      undefined,
+      {},
+      "Nao foi possivel salvar o habito no Supabase agora."
+    );
   }
 }
 
 export async function logHabit(input: unknown): Promise<BasicHabitActionResult> {
-  const parsed = logHabitInputSchema.parse(input);
+  const inputResult = safeParseActionInput(logHabitInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const logDate = parsed.logDate ?? new Date().toISOString().slice(0, 10);
 
   try {
@@ -118,7 +142,11 @@ export async function logHabit(input: unknown): Promise<BasicHabitActionResult> 
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Marcacao de habito registrada apenas nesta sessao local/dev.", parsed.habitId);
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Marcacao de habito registrada apenas nesta sessao local/dev.",
+        parsed.habitId
+      );
     }
 
     const { data: habit, error: habitError } = await supabase
@@ -151,19 +179,30 @@ export async function logHabit(input: unknown): Promise<BasicHabitActionResult> 
       return errorDraft("Nao foi possivel marcar o habito agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Habito marcado com RLS owner-only. Retomada conta como progresso.",
-      id: data.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Habito marcado com RLS owner-only. Retomada conta como progresso.",
+      data.id
+    );
   } catch {
-    return localDraft("Modo local seguro: marcacao de habito validada sem persistencia remota.", parsed.habitId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: marcacao de habito validada sem persistencia remota.",
+      parsed.habitId,
+      {},
+      "Nao foi possivel marcar o habito agora."
+    );
   }
 }
 
 export async function updateHabitStatus(input: unknown): Promise<BasicHabitActionResult> {
-  const parsed = updateHabitStatusInputSchema.parse(input);
+  const inputResult = safeParseActionInput(updateHabitStatusInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -172,26 +211,41 @@ export async function updateHabitStatus(input: unknown): Promise<BasicHabitActio
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Status do habito atualizado apenas nesta sessao local/dev.", parsed.habitId);
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Status do habito atualizado apenas nesta sessao local/dev.",
+        parsed.habitId
+      );
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("habits")
       .update({ status: parsed.status })
       .eq("id", parsed.habitId)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
-      return errorDraft("Nao foi possivel atualizar o habito agora.");
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel atualizar o habito agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Status do habito atualizado com filtro de dono.",
-      id: parsed.habitId
-    });
+    if (!data?.id) {
+      return noAffectedRowResult(executionActionResultSchema, "Habito nao encontrado para este usuario.");
+    }
+
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Status do habito atualizado com filtro de dono.",
+      parsed.habitId
+    );
   } catch {
-    return localDraft("Modo local seguro: pausa/retomada de habito validada localmente.", parsed.habitId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: pausa/retomada de habito validada localmente.",
+      parsed.habitId,
+      {},
+      "Nao foi possivel atualizar o habito agora."
+    );
   }
 }

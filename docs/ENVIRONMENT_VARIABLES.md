@@ -26,6 +26,16 @@ Projeto Supabase informado para desenvolvimento:
 
 Chaves publicaveis devem usar `NEXT_PUBLIC_SUPABASE_ANON_KEY` para compatibilidade com os helpers atuais. `SUPABASE_SERVICE_ROLE_KEY` deve permanecer server-side e vazio ate haver necessidade administrativa controlada.
 
+## Runtime e kill switches
+
+- `APP_RUNTIME_MODE`: modo server-side do runtime. Valores aceitos: `local-demo`, `preview`, `beta` e `production`. O default local seguro e `local-demo`.
+- `AI_REAL_ENABLED`: habilita chamadas reais de IA somente quando `true`; default efetivo `false`.
+- `EMAIL_REAL_ENABLED`: habilita envio real de e-mail somente quando `true`; default efetivo `false`.
+- `ANALYTICS_REAL_ENABLED`: habilita coleta/persistencia real de analytics somente quando `true`; default efetivo `false`.
+- `FEEDBACK_REAL_ENABLED`: habilita feedback real externo/persistido somente quando `true`; default efetivo `false`.
+
+Semantica obrigatoria: `local-draft ok:true` so pode representar modo `local-demo` sem configuracao/sessao ou fluxo local/mock sem persistencia real aplicavel. Em `preview`, `beta` e `production`, ausencia de configuracao obrigatoria, ausencia de sessao para escrita real ou falha real de Supabase/Auth/provider/e-mail/analytics/feedback deve retornar `ok:false` ou bloquear o fluxo. As flags acima nao ativam integracoes reais nesta etapa; elas apenas definem o contrato server-side.
+
 ## OpenAI
 
 - `OPENAI_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
@@ -75,11 +85,13 @@ Obrigatorias em preview/producao:
 - `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se formulario externo do beta for aprovado.
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `APP_RUNTIME_MODE=preview`, `beta` ou `production`, conforme o ambiente.
 - `SUPABASE_PROJECT_ID`
 - `NODE_ENV`
 
 Manter vazias/desativadas ate aprovacao explicita:
 
+- `AI_REAL_ENABLED`, `EMAIL_REAL_ENABLED`, `ANALYTICS_REAL_ENABLED` e `FEEDBACK_REAL_ENABLED`, salvo etapa propria aprovada.
 - `SUPABASE_SERVICE_ROLE_KEY`, salvo necessidade server-side controlada.
 - `OPENAI_API_KEY`, ate aprovar modelo, custo, rate limit e evals ampliados.
 - `DEEPSEEK_API_KEY`, ate aprovar custo, rate limit, evals ampliados e roteamento por agente.

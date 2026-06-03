@@ -8,9 +8,9 @@ Gates atuais desta auditoria:
 
 - `npm.cmd run lint`: passou.
 - `npm.cmd run typecheck`: passou.
-- `npm.cmd run test`: passou, 14 arquivos e 81 testes.
+- `npm.cmd run test`: passou, 17 arquivos e 94 testes.
 - `npm.cmd run build`: passou, 39 paginas.
-- `npm.cmd run test:e2e`: passou, 29 testes.
+- `npm.cmd run test:e2e`: passou, 30 testes.
 
 Observacao historica: secoes antigas por prompt podem registrar RLS como pendente no momento da implementacao daquele prompt. O status atual consolidado e o do preview Supabase documentado em `docs/RLS_TEST_REPORT.md` e `docs/RELEASE_READINESS.md`.
 
@@ -30,7 +30,7 @@ Quando a stack existir, cobrir regras puras:
 
 ## Testes de integracao
 
-Estado atual: `src/tests/integration/README.md` existe, mas nao ha suite executavel suficiente para declarar integracao real.
+Estado atual: a Etapa 1 adicionou `src/tests/integration/runtime-error-contracts.test.ts` para contratos de runtime/fallback/erro com Supabase mockado. Isso reduz `QA-INT-001`, mas ainda nao substitui suites reais de Auth/RLS/preview antes do beta.
 
 - Auth e perfil.
 - Persistencia de Chamado, alvos, projetos, tarefas e calendario.
@@ -40,6 +40,17 @@ Estado atual: `src/tests/integration/README.md` existe, mas nao ha suite executa
 - IA mockada com structured outputs.
 - E-mail/convite de Atalaia com previa.
 - Logs sem dados sensiveis.
+
+## Etapa 1 - runtime/error contracts
+
+Testes adicionados:
+
+- `src/tests/unit/runtime-action-results.test.ts`: cobre `APP_RUNTIME_MODE`, kill switches default `false`, `local-demo`, fail-closed fora de local-demo e erro real sanitizado.
+- `src/tests/integration/runtime-error-contracts.test.ts`: cobre erro real de Supabase retornando `ok:false`, sessao ausente em `local-demo`, fail-closed em `preview`, update sem linha afetada e validacao invalida no calendario.
+- `src/tests/unit/inbox-capture-ui.test.ts`: cobre Inbox exibindo falha como `ErrorState`, sem sucesso visual.
+- `src/tests/e2e/mobile-pwa.spec.ts`: cobre rota mobile com um unico `<main>`.
+
+Esses testes nao validam Supabase remoto, Auth publicado, RLS dinamico, Resend, IA real, analytics real ou smoke externo.
 
 ## Testes E2E
 

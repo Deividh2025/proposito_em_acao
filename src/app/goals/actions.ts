@@ -8,24 +8,15 @@ import {
   persistSmartGoalInputSchema,
   type ExecutionActionResult
 } from "@/domain/execution/persistence";
+import {
+  missingSessionResult,
+  noAffectedRowResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-function localDraft(message: string, id?: string): ExecutionActionResult {
-  return executionActionResultSchema.parse({
-    mode: "local-draft",
-    ok: true,
-    message,
-    id
-  });
-}
-
-function errorDraft(message: string): ExecutionActionResult {
-  return executionActionResultSchema.parse({
-    mode: "local-draft",
-    ok: false,
-    message
-  });
-}
 
 export async function generateSmartGoalDraft(input: unknown) {
   const parsed = createSmartGoalDraftInputSchema.parse(input);
@@ -33,7 +24,13 @@ export async function generateSmartGoalDraft(input: unknown) {
 }
 
 export async function createManualGoal(input: unknown): Promise<ExecutionActionResult> {
-  const parsed = createManualGoalInputSchema.parse(input);
+  const inputResult = safeParseActionInput(createManualGoalInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -42,7 +39,10 @@ export async function createManualGoal(input: unknown): Promise<ExecutionActionR
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Alvo mantido como rascunho local/dev. Entre para persistir com RLS owner-only.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Alvo mantido como rascunho local/dev. Entre para persistir com RLS owner-only."
+      );
     }
 
     const { data, error } = await supabase
@@ -68,22 +68,33 @@ export async function createManualGoal(input: unknown): Promise<ExecutionActionR
       .single();
 
     if (error) {
-      return errorDraft(`Nao foi possivel salvar o alvo no Supabase: ${error.message}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel salvar o alvo agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Alvo salvo no Supabase com policy owner-only.",
-      id: data?.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Alvo salvo no Supabase com policy owner-only.",
+      data?.id
+    );
   } catch {
-    return localDraft("Modo local seguro: Supabase/Auth nao esta configurado. Nenhum dado saiu desta sessao.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: Supabase/Auth nao esta configurado. Nenhum dado saiu desta sessao.",
+      undefined,
+      {},
+      "Nao foi possivel salvar o alvo agora."
+    );
   }
 }
 
 export async function persistSmartGoalDraft(input: unknown): Promise<ExecutionActionResult> {
-  const parsed = persistSmartGoalInputSchema.parse(input);
+  const inputResult = safeParseActionInput(persistSmartGoalInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const goal = parsed.output;
 
   try {
@@ -93,7 +104,10 @@ export async function persistSmartGoalDraft(input: unknown): Promise<ExecutionAc
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Alvo SMART-E gerado por mock mantido como rascunho local/dev.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Alvo SMART-E gerado por mock mantido como rascunho local/dev."
+      );
     }
 
     const { data, error } = await supabase
@@ -114,17 +128,22 @@ export async function persistSmartGoalDraft(input: unknown): Promise<ExecutionAc
       .single();
 
     if (error) {
-      return errorDraft(`Nao foi possivel salvar o alvo SMART-E: ${error.message}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel salvar o alvo SMART-E agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Alvo SMART-E salvo no Supabase apos revisao do usuario.",
-      id: data?.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Alvo SMART-E salvo no Supabase apos revisao do usuario.",
+      data?.id
+    );
   } catch {
-    return localDraft("Modo local seguro: mock SMART-E validado, sem chamada OpenAI e sem envio externo.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: mock SMART-E validado, sem chamada OpenAI e sem envio externo.",
+      undefined,
+      {},
+      "Nao foi possivel salvar o alvo SMART-E agora."
+    );
   }
 }
 
@@ -136,27 +155,34 @@ export async function updateGoalStatus(goalId: string, status: string): Promise<
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Status do alvo atualizado apenas no rascunho local/dev.");
+      return missingSessionResult(executionActionResultSchema, "Status do alvo atualizado apenas no rascunho local/dev.");
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("goals")
       .update({ status })
       .eq("id", goalId)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
-      return errorDraft(`Nao foi possivel atualizar o alvo: ${error.message}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel atualizar o alvo agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Status do alvo atualizado com filtro de dono.",
-      id: goalId
-    });
+    if (!data?.id) {
+      return noAffectedRowResult(executionActionResultSchema, "Alvo nao encontrado para este usuario.");
+    }
+
+    return supabaseSuccessResult(executionActionResultSchema, "Status do alvo atualizado com filtro de dono.", goalId);
   } catch {
-    return localDraft("Modo local seguro: status do alvo validado sem envio externo.", goalId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: status do alvo validado sem envio externo.",
+      goalId,
+      {},
+      "Nao foi possivel atualizar o alvo agora."
+    );
   }
 }
 
@@ -168,22 +194,37 @@ export async function deleteGoal(goalId: string): Promise<ExecutionActionResult>
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Exclusao simulada no rascunho local/dev. Nada foi removido remotamente.", goalId);
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Exclusao simulada no rascunho local/dev. Nada foi removido remotamente.",
+        goalId
+      );
     }
 
-    const { error } = await supabase.from("goals").delete().eq("id", goalId).eq("user_id", user.id);
+    const { data, error } = await supabase
+      .from("goals")
+      .delete()
+      .eq("id", goalId)
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
-      return errorDraft(`Nao foi possivel excluir o alvo: ${error.message}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel excluir o alvo agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Alvo excluido no Supabase com policy owner-only.",
-      id: goalId
-    });
+    if (!data?.id) {
+      return noAffectedRowResult(executionActionResultSchema, "Alvo nao encontrado para este usuario.");
+    }
+
+    return supabaseSuccessResult(executionActionResultSchema, "Alvo excluido no Supabase com policy owner-only.", goalId);
   } catch {
-    return localDraft("Modo local seguro: exclusao de alvo nao foi enviada a servico externo.", goalId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: exclusao de alvo nao foi enviada a servico externo.",
+      goalId,
+      {},
+      "Nao foi possivel excluir o alvo agora."
+    );
   }
 }

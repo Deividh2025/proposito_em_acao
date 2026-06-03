@@ -8,15 +8,16 @@ import {
   updateMicrotaskStatusInputSchema,
   type ExecutionActionResult
 } from "@/domain/execution/persistence";
+import {
+  localOnlyDraftResult,
+  missingSessionResult,
+  noAffectedRowResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-function localDraft(message: string, id?: string): ExecutionActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: true, message, id });
-}
-
-function errorDraft(message: string): ExecutionActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: false, message });
-}
 
 function mapTaskType(type: string) {
   const map: Record<string, string> = {
@@ -42,7 +43,13 @@ export async function generateTaskBreakdownDraft(input: unknown) {
 }
 
 export async function createTask(input: unknown): Promise<ExecutionActionResult> {
-  const parsed = createTaskInputSchema.parse(input);
+  const inputResult = safeParseActionInput(createTaskInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -51,7 +58,10 @@ export async function createTask(input: unknown): Promise<ExecutionActionResult>
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Tarefa mantida como rascunho local/dev. Entre para persistir com RLS.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Tarefa mantida como rascunho local/dev. Entre para persistir com RLS."
+      );
     }
 
     const { data, error } = await supabase
@@ -75,25 +85,42 @@ export async function createTask(input: unknown): Promise<ExecutionActionResult>
       .single();
 
     if (error) {
-      return errorDraft(`Nao foi possivel salvar a tarefa: ${error.message}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel salvar a tarefa agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Tarefa salva no Supabase com policy owner-only.",
-      id: data?.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Tarefa salva no Supabase com policy owner-only.",
+      data?.id
+    );
   } catch {
-    return localDraft("Modo local seguro: tarefa validada sem persistencia remota.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: tarefa validada sem persistencia remota.",
+      undefined,
+      {},
+      "Nao foi possivel salvar a tarefa agora."
+    );
   }
 }
 
 export async function persistTaskBreakdown(input: unknown): Promise<ExecutionActionResult> {
-  const parsed = persistTaskBreakdownInputSchema.parse(input);
+  const inputResult = safeParseActionInput(persistTaskBreakdownInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   if (!parsed.taskId) {
-    return localDraft("Microtarefas geradas por mock mantidas localmente ate a tarefa existir no Supabase.");
+    return localOnlyDraftResult(
+      executionActionResultSchema,
+      "Microtarefas geradas por mock mantidas localmente ate a tarefa existir no Supabase.",
+      undefined,
+      {},
+      "Salve a tarefa antes de persistir microtarefas."
+    );
   }
 
   try {
@@ -103,7 +130,10 @@ export async function persistTaskBreakdown(input: unknown): Promise<ExecutionAct
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Microtarefas mantidas como rascunho local/dev. Entre para persistir com RLS.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Microtarefas mantidas como rascunho local/dev. Entre para persistir com RLS."
+      );
     }
 
     const rows = parsed.output.microtasks.map((microtask) => ({
@@ -118,22 +148,33 @@ export async function persistTaskBreakdown(input: unknown): Promise<ExecutionAct
     const { error } = await supabase.from("microtasks").insert(rows);
 
     if (error) {
-      return errorDraft(`Nao foi possivel salvar as microtarefas: ${error.message}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel salvar as microtarefas agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Microtarefas salvas no Supabase com FK composta e RLS owner-only.",
-      id: parsed.taskId
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Microtarefas salvas no Supabase com FK composta e RLS owner-only.",
+      parsed.taskId
+    );
   } catch {
-    return localDraft("Modo local seguro: microtarefas validadas sem persistencia remota.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: microtarefas validadas sem persistencia remota.",
+      undefined,
+      {},
+      "Nao foi possivel salvar as microtarefas agora."
+    );
   }
 }
 
 export async function updateMicrotaskStatus(input: unknown): Promise<ExecutionActionResult> {
-  const parsed = updateMicrotaskStatusInputSchema.parse(input);
+  const inputResult = safeParseActionInput(updateMicrotaskStatusInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -142,30 +183,44 @@ export async function updateMicrotaskStatus(input: unknown): Promise<ExecutionAc
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Status de microtarefa atualizado somente nesta sessao local/dev.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Status de microtarefa atualizado somente nesta sessao local/dev."
+      );
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("microtasks")
       .update({
         status: parsed.status,
         completed_at: parsed.status === "completed" ? new Date().toISOString() : null
       })
       .eq("id", parsed.microtaskId)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
-      return errorDraft(`Nao foi possivel atualizar a microtarefa: ${error.message}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel atualizar a microtarefa agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Microtarefa atualizada no Supabase com filtro de dono.",
-      id: parsed.microtaskId
-    });
+    if (!data?.id) {
+      return noAffectedRowResult(executionActionResultSchema, "Microtarefa nao encontrada para este usuario.");
+    }
+
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Microtarefa atualizada no Supabase com filtro de dono.",
+      parsed.microtaskId
+    );
   } catch {
-    return localDraft("Modo local seguro: status de microtarefa validado sem envio externo.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: status de microtarefa validado sem envio externo.",
+      parsed.microtaskId,
+      {},
+      "Nao foi possivel atualizar a microtarefa agora."
+    );
   }
 }
 
@@ -177,30 +232,41 @@ export async function updateTaskStatus(taskId: string, status: string): Promise<
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Status da tarefa atualizado apenas no rascunho local/dev.", taskId);
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Status da tarefa atualizado apenas no rascunho local/dev.",
+        taskId
+      );
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("tasks")
       .update({
         status,
         completed_at: status === "completed" ? new Date().toISOString() : null
       })
       .eq("id", taskId)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
-      return errorDraft(`Nao foi possivel atualizar a tarefa: ${error.message}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel atualizar a tarefa agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Status da tarefa atualizado com filtro de dono.",
-      id: taskId
-    });
+    if (!data?.id) {
+      return noAffectedRowResult(executionActionResultSchema, "Tarefa nao encontrada para este usuario.");
+    }
+
+    return supabaseSuccessResult(executionActionResultSchema, "Status da tarefa atualizado com filtro de dono.", taskId);
   } catch {
-    return localDraft("Modo local seguro: status da tarefa validado sem envio externo.", taskId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: status da tarefa validado sem envio externo.",
+      taskId,
+      {},
+      "Nao foi possivel atualizar a tarefa agora."
+    );
   }
 }
 
@@ -212,22 +278,37 @@ export async function deleteTask(taskId: string): Promise<ExecutionActionResult>
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Exclusao simulada no rascunho local/dev. Nada foi removido remotamente.", taskId);
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Exclusao simulada no rascunho local/dev. Nada foi removido remotamente.",
+        taskId
+      );
     }
 
-    const { error } = await supabase.from("tasks").delete().eq("id", taskId).eq("user_id", user.id);
+    const { data, error } = await supabase
+      .from("tasks")
+      .delete()
+      .eq("id", taskId)
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
-      return errorDraft(`Nao foi possivel excluir a tarefa: ${error.message}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel excluir a tarefa agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Tarefa excluida no Supabase com policy owner-only.",
-      id: taskId
-    });
+    if (!data?.id) {
+      return noAffectedRowResult(executionActionResultSchema, "Tarefa nao encontrada para este usuario.");
+    }
+
+    return supabaseSuccessResult(executionActionResultSchema, "Tarefa excluida no Supabase com policy owner-only.", taskId);
   } catch {
-    return localDraft("Modo local seguro: exclusao de tarefa nao foi enviada a servico externo.", taskId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: exclusao de tarefa nao foi enviada a servico externo.",
+      taskId,
+      {},
+      "Nao foi possivel excluir a tarefa agora."
+    );
   }
 }

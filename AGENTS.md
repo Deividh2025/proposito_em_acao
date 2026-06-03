@@ -92,6 +92,7 @@ SQL versionado, scripts preparados ou migrations locais nao sao prova de validac
 10. Fallback positivo `local-draft` so pode representar ausencia de configuracao/sessao ou modo local/dev. Falha real de Supabase, Auth, RLS, provider, e-mail, consentimento ou escrita sensivel deve retornar `ok: false` ou bloquear o fluxo.
 11. Updates/deletes e escritas sensiveis devem confirmar erro e linha afetada quando o resultado altera estado real.
 12. Aceite do Atalaia nunca pode ampliar escopo definido pelo dono; permissoes, alvo, consentimento e grant revisados devem permanecer imutaveis durante o aceite.
+13. `APP_RUNTIME_MODE` define o contrato de runtime: `local-demo` permite fallback local/dev controlado; `preview`, `beta` e `production` devem falhar fechado quando persistencia/configuracao/sessao real exigida estiver ausente ou falhar.
 
 ## Nunca fazer sem aprovacao explicita
 

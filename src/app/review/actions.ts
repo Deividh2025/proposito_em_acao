@@ -11,15 +11,18 @@ import {
   type WeeklyReviewActionResult
 } from "@/domain/review";
 import { executionActionResultSchema } from "@/domain/execution/persistence";
+import {
+  missingSessionResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { gardenEventInputSchema } from "@/domain/garden";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-function localDraft(message: string, id?: string): BasicWeeklyReviewActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: true, message, id });
-}
-
 function errorDraft(message: string): BasicWeeklyReviewActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: false, message });
+  return realServiceErrorResult(executionActionResultSchema, message);
 }
 
 export async function generateWeeklyReviewDraft(input: unknown): Promise<WeeklyReviewActionResult> {
@@ -37,7 +40,13 @@ export async function generateWeeklyReviewDraft(input: unknown): Promise<WeeklyR
 }
 
 export async function persistWeeklyReview(input: unknown): Promise<BasicWeeklyReviewActionResult> {
-  const parsed = persistWeeklyReviewInputSchema.parse(input);
+  const inputResult = safeParseActionInput(persistWeeklyReviewInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const safeAnswers = sanitizeWeeklyReviewAnswersForPersistence(parsed.answers);
 
   try {
@@ -47,7 +56,10 @@ export async function persistWeeklyReview(input: unknown): Promise<BasicWeeklyRe
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Revisao mantida local/dev. Entre para persistir com RLS.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Revisao mantida local/dev. Entre para persistir com RLS."
+      );
     }
 
     const { data: review, error: reviewError } = await supabase
@@ -113,7 +125,7 @@ export async function persistWeeklyReview(input: unknown): Promise<BasicWeeklyRe
       sourceType: "weekly_review"
     });
 
-    await supabase.from("garden_events").insert({
+    const { error: gardenEventError } = await supabase.from("garden_events").insert({
       user_id: user.id,
       garden_state_id: garden.id,
       weekly_review_id: review.id,
@@ -124,13 +136,25 @@ export async function persistWeeklyReview(input: unknown): Promise<BasicWeeklyRe
       metadata_minimal: gardenEvent.metadataMinimal
     });
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Revisao e Jardim salvos como privados por padrao.",
-      id: review.id
-    });
+    if (gardenEventError) {
+      return realServiceErrorResult(
+        executionActionResultSchema,
+        "Revisao e Jardim salvos, mas o evento de progresso nao foi registrado."
+      );
+    }
+
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Revisao e Jardim salvos como privados por padrao.",
+      review.id
+    );
   } catch {
-    return localDraft("Modo local seguro: revisao validada sem persistencia remota.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: revisao validada sem persistencia remota.",
+      undefined,
+      {},
+      "Nao foi possivel salvar a Revisao Semanal agora."
+    );
   }
 }

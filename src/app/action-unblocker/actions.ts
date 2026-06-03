@@ -12,17 +12,25 @@ import {
   type ActionUnblockerActionResult
 } from "@/domain/action-unblocker/persistence";
 import { executionActionResultSchema } from "@/domain/execution/persistence";
+import {
+  localDraftResult,
+  missingSessionResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const GENERIC_ACTION_UNBLOCKER_ERROR =
   "Nao foi possivel salvar a sessao do Desbloqueador agora. Tente novamente.";
 
 function localDraft(message: string, output?: unknown, id?: string): ActionUnblockerActionResult {
-  return actionUnblockerActionResultSchema.parse({ mode: "local-draft", ok: true, message, id, output });
+  return localDraftResult(actionUnblockerActionResultSchema, message, id, { output });
 }
 
 function errorDraft(message: string): ActionUnblockerActionResult {
-  return actionUnblockerActionResultSchema.parse({ mode: "local-draft", ok: false, message });
+  return realServiceErrorResult(actionUnblockerActionResultSchema, message);
 }
 
 async function belongsToUser(
@@ -49,7 +57,17 @@ export async function generateActionUnblockerPlan(input: unknown): Promise<Actio
 }
 
 export async function persistActionUnblockerSession(input: unknown): Promise<ActionUnblockerActionResult> {
-  const parsed = persistActionUnblockerSessionInputSchema.parse(input);
+  const inputResult = safeParseActionInput(
+    persistActionUnblockerSessionInputSchema,
+    input,
+    actionUnblockerActionResultSchema
+  );
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const safetyReview = reviewOwnerPersistenceSafety({
     reviewedSchemaVersion: parsed.output.schema_version,
     value: parsed.output
@@ -66,9 +84,11 @@ export async function persistActionUnblockerSession(input: unknown): Promise<Act
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft(
+      return missingSessionResult(
+        actionUnblockerActionResultSchema,
         "Sessao do Desbloqueador mantida como rascunho local/dev. Entre para persistir com RLS owner-only.",
-        parsed.output
+        undefined,
+        { output: parsed.output }
       );
     }
 
@@ -125,23 +145,31 @@ export async function persistActionUnblockerSession(input: unknown): Promise<Act
       return errorDraft(GENERIC_ACTION_UNBLOCKER_ERROR);
     }
 
-    return actionUnblockerActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Sessao do Desbloqueador salva no Supabase com policy owner-only.",
-      id: data.id,
-      output: parsed.output
-    });
+    return supabaseSuccessResult(
+      actionUnblockerActionResultSchema,
+      "Sessao do Desbloqueador salva no Supabase com policy owner-only.",
+      data.id,
+      { output: parsed.output }
+    );
   } catch {
-    return localDraft(
+    return persistenceCatchResult(
+      actionUnblockerActionResultSchema,
       "Sessao do Desbloqueador mantida como rascunho local/dev. Nenhum dado foi enviado para OpenAI.",
-      parsed.output
+      undefined,
+      { output: parsed.output },
+      GENERIC_ACTION_UNBLOCKER_ERROR
     );
   }
 }
 
 export async function markActionUnblockerFocusStarted(input: unknown) {
-  const parsed = zActionFocusStartedInput.parse(input);
+  const inputResult = safeParseActionInput(zActionFocusStartedInput, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -150,12 +178,11 @@ export async function markActionUnblockerFocusStarted(input: unknown) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return executionActionResultSchema.parse({
-        mode: "local-draft",
-        ok: true,
-        message: "Inicio de foco marcado apenas nesta sessao local/dev.",
-        id: parsed.sessionId
-      });
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Inicio de foco marcado apenas nesta sessao local/dev.",
+        parsed.sessionId
+      );
     }
 
     const { data, error } = await supabase
@@ -167,26 +194,22 @@ export async function markActionUnblockerFocusStarted(input: unknown) {
       .maybeSingle();
 
     if (error || !data?.id) {
-      return executionActionResultSchema.parse({
-        mode: "local-draft",
-        ok: false,
-        message: GENERIC_ACTION_UNBLOCKER_ERROR
-      });
+      return realServiceErrorResult(executionActionResultSchema, GENERIC_ACTION_UNBLOCKER_ERROR);
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Inicio de foco registrado com filtro de dono.",
-      id: parsed.sessionId
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Inicio de foco registrado com filtro de dono.",
+      parsed.sessionId
+    );
   } catch {
-    return executionActionResultSchema.parse({
-      mode: "local-draft",
-      ok: true,
-      message: "Inicio de foco marcado apenas nesta sessao local/dev.",
-      id: parsed.sessionId
-    });
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Inicio de foco marcado apenas nesta sessao local/dev.",
+      parsed.sessionId,
+      {},
+      GENERIC_ACTION_UNBLOCKER_ERROR
+    );
   }
 }
 

@@ -12,8 +12,7 @@ Achados bloqueantes:
 - S0 `SEC-ATL-002`: tela de aceite usa grant demonstrativo em vez de convite real.
 - S1 `SEC-CONSENT-001`: consentimento/auditoria/revogacao nao sao confiaveis; `consent_records` nao e escrito e inserts de eventos/notificacoes ignoram erro.
 - S1 `AUTH-SSR-001`: Auth SSR incompleto; faltam refresh centralizado, callback, confirmacao e recuperacao validados.
-- S1 `DATA-WRITE-001` e `DATA-WRITE-002`: falhas reais podem virar fallback positivo e updates/deletes podem retornar sucesso sem linha afetada.
-- S1 `SEC-CSP-001`: CSP ainda permite `unsafe-inline`/`unsafe-eval`.
+- S2 residual `SEC-CSP-001`: CSP de producao nao usa mais `unsafe-eval`, mas ainda permite `unsafe-inline` ate etapa de nonce/hash.
 - S1 `AI-GUARD-001`: path de provider de IA registra guardrails como `not_run`.
 
 Ver `docs/BUG_TRIAGE.md` para IDs, evidencias e criterios de fechamento.
@@ -43,6 +42,10 @@ Seguranca local e estatica melhorou durante o Prompt 15. No preview Supabase, mi
 
 ## Achados corrigidos
 
+- Etapa 1 adicionou `APP_RUNTIME_MODE` e helpers de resultado para impedir que erro real de Supabase/Auth vire `local-draft ok:true`.
+- Etapa 1 confirmou linha afetada em updates/deletes priorizados e retornou `ok:false` quando RLS/owner/filter resulta em zero linha.
+- Etapa 1 passou a checar escritas secundarias ja existentes em Atalaia, Revisao, Compromissos e Foco, sem alterar RLS/migrations ou fluxo transacional.
+- Etapa 1 removeu `unsafe-eval` do CSP de producao; `unsafe-inline` permanece como risco residual documentado.
 - RLS de Atalaia foi estreitada para exigir `accountability_partner_id`, `partner_user_id` e `accountability_grant_id` especificos.
 - Actions de Atalaia passaram a validar erro de update do grant no aceite.
 - Persistencia owner-only de Desbloqueador e Metacognicao passou a rodar guardrails antes de salvar structured output enviado pelo cliente.

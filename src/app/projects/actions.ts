@@ -7,15 +7,16 @@ import {
   persistProjectPlanInputSchema,
   type ExecutionActionResult
 } from "@/domain/execution/persistence";
+import {
+  missingSessionResult,
+  noAffectedRowResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult,
+  validationErrorResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-function localDraft(message: string, id?: string): ExecutionActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: true, message, id });
-}
-
-function errorDraft(message: string): ExecutionActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: false, message });
-}
 
 export async function generateProjectPlanDraft(input: unknown) {
   const parsed = createProjectFromGoalInputSchema.parse(input);
@@ -23,11 +24,17 @@ export async function generateProjectPlanDraft(input: unknown) {
 }
 
 export async function persistProjectPlan(input: unknown): Promise<ExecutionActionResult> {
-  const parsed = persistProjectPlanInputSchema.parse(input);
+  const inputResult = safeParseActionInput(persistProjectPlanInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const project = parsed.output.projects[0];
 
   if (!project) {
-    return errorDraft("O plano de projeto nao trouxe nenhum projeto revisavel.");
+    return validationErrorResult(executionActionResultSchema, "O plano de projeto nao trouxe nenhum projeto revisavel.");
   }
 
   try {
@@ -37,7 +44,10 @@ export async function persistProjectPlan(input: unknown): Promise<ExecutionActio
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Plano de projeto mantido como rascunho local/dev. Entre para persistir com RLS.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Plano de projeto mantido como rascunho local/dev. Entre para persistir com RLS."
+      );
     }
 
     const { data: projectRow, error: projectError } = await supabase
@@ -57,7 +67,7 @@ export async function persistProjectPlan(input: unknown): Promise<ExecutionActio
       .single();
 
     if (projectError || !projectRow?.id) {
-      return errorDraft(`Nao foi possivel salvar o projeto: ${projectError?.message ?? "id ausente"}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel salvar o projeto agora.");
     }
 
     const taskRows = project.tasks.map((task) => ({
@@ -79,18 +89,26 @@ export async function persistProjectPlan(input: unknown): Promise<ExecutionActio
       const { error: taskError } = await supabase.from("tasks").insert(taskRows);
 
       if (taskError) {
-        return errorDraft(`Projeto salvo, mas tarefas iniciais falharam: ${taskError.message}`);
+        return realServiceErrorResult(
+          executionActionResultSchema,
+          "Projeto salvo, mas as tarefas iniciais nao foram persistidas agora."
+        );
       }
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Projeto e tarefas iniciais salvos no Supabase com RLS owner-only.",
-      id: projectRow.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Projeto e tarefas iniciais salvos no Supabase com RLS owner-only.",
+      projectRow.id
+    );
   } catch {
-    return localDraft("Modo local seguro: plano de projeto validado sem persistencia remota.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: plano de projeto validado sem persistencia remota.",
+      undefined,
+      {},
+      "Nao foi possivel salvar o projeto agora."
+    );
   }
 }
 
@@ -102,27 +120,42 @@ export async function updateProjectStatus(projectId: string, status: string): Pr
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Status do projeto atualizado apenas no rascunho local/dev.", projectId);
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Status do projeto atualizado apenas no rascunho local/dev.",
+        projectId
+      );
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("projects")
       .update({ status })
       .eq("id", projectId)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
-      return errorDraft(`Nao foi possivel atualizar o projeto: ${error.message}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel atualizar o projeto agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Status do projeto atualizado com filtro de dono.",
-      id: projectId
-    });
+    if (!data?.id) {
+      return noAffectedRowResult(executionActionResultSchema, "Projeto nao encontrado para este usuario.");
+    }
+
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Status do projeto atualizado com filtro de dono.",
+      projectId
+    );
   } catch {
-    return localDraft("Modo local seguro: status do projeto validado sem envio externo.", projectId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: status do projeto validado sem envio externo.",
+      projectId,
+      {},
+      "Nao foi possivel atualizar o projeto agora."
+    );
   }
 }
 
@@ -134,22 +167,41 @@ export async function deleteProject(projectId: string): Promise<ExecutionActionR
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Exclusao simulada no rascunho local/dev. Nada foi removido remotamente.", projectId);
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Exclusao simulada no rascunho local/dev. Nada foi removido remotamente.",
+        projectId
+      );
     }
 
-    const { error } = await supabase.from("projects").delete().eq("id", projectId).eq("user_id", user.id);
+    const { data, error } = await supabase
+      .from("projects")
+      .delete()
+      .eq("id", projectId)
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
-      return errorDraft(`Nao foi possivel excluir o projeto: ${error.message}`);
+      return realServiceErrorResult(executionActionResultSchema, "Nao foi possivel excluir o projeto agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Projeto excluido no Supabase com policy owner-only.",
-      id: projectId
-    });
+    if (!data?.id) {
+      return noAffectedRowResult(executionActionResultSchema, "Projeto nao encontrado para este usuario.");
+    }
+
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Projeto excluido no Supabase com policy owner-only.",
+      projectId
+    );
   } catch {
-    return localDraft("Modo local seguro: exclusao de projeto nao foi enviada a servico externo.", projectId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: exclusao de projeto nao foi enviada a servico externo.",
+      projectId,
+      {},
+      "Nao foi possivel excluir o projeto agora."
+    );
   }
 }

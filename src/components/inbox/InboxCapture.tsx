@@ -7,6 +7,7 @@ import { captureInboxItem, classifyInboxItem, processInboxItem } from "@/app/inb
 import type { InboxClassificationOutput } from "@/ai/schemas";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { Select } from "@/components/ui/Select";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
 import { SuccessState } from "@/components/ui/SuccessState";
@@ -23,7 +24,7 @@ export function InboxCapture() {
   const [items, setItems] = useState<InboxItem[]>(sampleInboxItems);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [classification, setClassification] = useState<InboxClassificationOutput | null>(null);
-  const [message, setMessage] = useState("");
+  const [feedback, setFeedback] = useState<{ message: string; tone: "error" | "success" } | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const activeItem = items.find((item) => item.id === activeItemId) ?? null;
@@ -40,10 +41,15 @@ export function InboxCapture() {
 
     startTransition(async () => {
       const result = await captureInboxItem({ content, contentType });
+      if (!result.ok) {
+        setFeedback({ message: result.message, tone: "error" });
+        return;
+      }
+
       setItems((current) => [{ ...item, id: result.id ?? id }, ...current]);
       setActiveItemId(result.id ?? id);
       setClassification(null);
-      setMessage(result.message);
+      setFeedback({ message: result.message, tone: "success" });
     });
   }
 
@@ -56,18 +62,25 @@ export function InboxCapture() {
 
     startTransition(async () => {
       const result = await classifyInboxItem({ itemId: target.id, content: target.content });
-      if (result.classification) {
-        setClassification(result.classification);
-        setItems((current) =>
-          current.map((item) =>
-            item.id === target.id
-              ? { ...item, classification: result.classification, status: "triaged" }
-              : item
-          )
-        );
+
+      if (!result.ok || !result.classification) {
+        setFeedback({
+          message: result.ok ? "Nao foi possivel classificar esta captura agora." : result.message,
+          tone: "error"
+        });
+        return;
       }
+
+      setClassification(result.classification);
+      setItems((current) =>
+        current.map((item) =>
+          item.id === target.id
+            ? { ...item, classification: result.classification, status: "triaged" }
+            : item
+        )
+      );
       setActiveItemId(target.id);
-      setMessage(result.message);
+      setFeedback({ message: result.message, tone: "success" });
     });
   }
 
@@ -86,6 +99,12 @@ export function InboxCapture() {
         destinationType,
         note: "Processado em lote curto pelo Prompt 9."
       });
+
+      if (!result.ok) {
+        setFeedback({ message: result.message, tone: "error" });
+        return;
+      }
+
       setItems((current) =>
         current.map((item) =>
           item.id === target.id
@@ -103,7 +122,7 @@ export function InboxCapture() {
             : item
         )
       );
-      setMessage(result.message);
+      setFeedback({ message: result.message, tone: "success" });
     });
   }
 
@@ -144,7 +163,12 @@ export function InboxCapture() {
           </div>
         </Card>
 
-        {message ? <SuccessState description={message} title="Atualização local/dev" /> : null}
+        {feedback?.tone === "success" ? (
+          <SuccessState description={feedback.message} title="Atualizacao concluida" />
+        ) : null}
+        {feedback?.tone === "error" ? (
+          <ErrorState description={feedback.message} title="Acao nao concluida" />
+        ) : null}
 
         <InboxList items={items} onSelect={(item) => setActiveItemId(item.id)} selectedItemId={activeItemId} />
       </div>

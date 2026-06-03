@@ -12,6 +12,14 @@ test("Prompt 14 mobile shell opens quick actions without becoming desktop", asyn
   await expect(page.getByText("sem calendário complexo")).toBeVisible();
 });
 
+test("Prompt 14 mobile exposes a single main landmark", async ({ page }) => {
+  await page.goto("/mobile");
+
+  await expect(page.locator("main")).toHaveCount(1);
+  await expect(page.locator("main main")).toHaveCount(0);
+  await expect(page.getByRole("main").getByRole("heading", { name: "Ações rápidas" })).toBeVisible();
+});
+
 test("Prompt 14 mobile captures an inbox item in a few taps", async ({ page }) => {
   await page.goto("/mobile/capture");
 

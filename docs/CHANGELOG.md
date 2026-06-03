@@ -13,6 +13,19 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Formaliza bloqueadores de beta real: Auth SSR incompleto, tipos Supabase genericos, Atalaia/consentimento/auditoria, escrita sem confirmacao, health check liveness-only, CSP permissiva, ausencia de CI/branch protection/releases, Docker/rollback nao ensaiados e dados demonstrativos em rotas principais.
 - Separa evidencia historica de Supabase preview de evidencia fresca exigida antes de beta com usuarios reais.
 
+### Fixed
+
+- Etapa 1 adiciona contratos de runtime/fallback para impedir que erro real de Supabase configurado vire `local-draft ok:true`.
+- Etapa 1 confirma linha afetada em updates/deletes priorizados de alvos, projetos, tarefas, habitos, foco e Atalaia.
+- Etapa 1 corrige Inbox para nao alterar estado local quando a action retorna `ok:false`.
+- Etapa 1 corrige validacao do calendario para retornar erro controlado em input invalido.
+- Etapa 1 remove `<main>` aninhado no shell mobile.
+
+### Security
+
+- Etapa 1 adiciona `APP_RUNTIME_MODE` e kill switches server-side default `false` para IA, e-mail, analytics e feedback reais.
+- Etapa 1 remove `unsafe-eval` do CSP de producao; `unsafe-inline` permanece como risco residual documentado.
+
 ### Added
 
 - Estrutura inicial de governanca do repositorio.

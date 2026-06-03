@@ -10,6 +10,16 @@ Supabase e o backend principal planejado:
 - Storage privado para anexos, se a V1 realmente precisar.
 - Edge Functions ou rotas server-side para integracoes sensiveis.
 
+## Estado atual verificado em 2026-06-03
+
+- Supabase CLI local disponivel: `2.98.2`.
+- Projeto `proposito_em_acao` (`bceumcfmjftoukzrfthe`) listado em modo read-only.
+- Branches lidas: `main` e `preview-release-readiness`.
+- Checkout nao esta linkado ao projeto; comandos mutaveis remotos exigem etapa propria e aprovacao.
+- Evidencia de preview/RLS de 2026-06-02 e historica; repetir cutover/harness antes de beta real.
+- Projeto Supabase principal so deve ser usado pelo beta apos cutover validado e aprovado.
+- Tipos reais ainda pendentes; `src/types/database.ts` permanece generico.
+
 ## Estado Prompt 4
 
 - Projeto remoto informado: `https://bceumcfmjftoukzrfthe.supabase.co`.
@@ -118,10 +128,10 @@ Essa evidencia nao libera beta real automaticamente. Antes de beta com usuarios 
 
 ## Proximos passos
 
-1. Instalar/autenticar Supabase CLI ou usar conector operacional aprovado.
+1. Autenticar/confirmar Supabase CLI em etapa aprovada.
 2. Seguir `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 3. Aplicar migrations em branch/preview isolada, com backup quando houver dados reais.
-4. Rodar advisors/lints e testes RLS por persona.
+4. Rodar advisors/lints e testes RLS por persona, incluindo `atalia_invited`.
 5. Gerar tipos reais via `npm.cmd run supabase:types:preview`.
 6. Rodar harness dinamico via `npm.cmd run supabase:validate:preview`.
 7. Configurar redirects de Auth no dashboard.

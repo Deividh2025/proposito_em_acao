@@ -68,7 +68,7 @@ Fontes consultadas: `AGENTS.md`, `PLANS.md`, `README.md`, `docs/PRD.md`, `docs/M
 - `npm.cmd run build`
 - `npm.cmd run test:e2e`
 
-RLS real permanece pendente enquanto Supabase CLI/projeto aplicado nao estiver disponivel.
+Observacao historica: na execucao deste prompt, RLS real permanecia pendente. Em 2026-06-03, Supabase CLI esta disponivel e o projeto remoto foi listado em modo read-only, mas a validacao fresca de RLS/Auth em ambiente aprovado continua pendente antes de beta real.
 
 ## Rollback
 

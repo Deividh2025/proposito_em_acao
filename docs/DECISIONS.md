@@ -91,8 +91,8 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Prompt 15 confirma `/auth` como superficie basica da V1 para criar conta, entrar e sair, usando Supabase Auth por server actions e sem service role no frontend.
 - Prompt 15 define que Atalaia RLS deve ser grant-specific e partner-specific, nao apenas `user_id + goal_id + permission`.
 - Prompt 15 define que structured outputs enviados pelo cliente em fluxos privados precisam passar por guardrail de persistencia owner-only antes de salvar.
-- Prompt 15 deixa a V1 localmente verde, mas Prompt 16 deve iniciar por deploy/preview controlado e validacao Supabase real, nao por producao aberta.
-- Prompt 16 recomendou Vercel como primeira plataforma de preview controlado para Next.js antes da decisao final do fundador.
+- Prompt 15 deixou a V1 local ampla em fallback/local-dev, mas Prompt 16 deve iniciar por deploy/preview controlado e validacao Supabase real, nao por producao aberta.
+- Prompt 16 recomendou Vercel como primeira plataforma de preview controlado para Next.js antes da decisao final do fundador; essa recomendacao foi substituida pela decisao de Hostinger VPS com Coolify.
 - Decisao final do fundador apos a avaliacao do Prompt 16: usar VPS Hostinger com Coolify como plataforma principal de deploy; Vercel fica como alternativa de contingencia.
 - Dono da plataforma: Deividh de Sa; e-mail operacional informado: `deividhvianei@gmail.com`.
 - Providers de IA planejados para producao: OpenAI API e DeepSeek API.
@@ -107,6 +107,27 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Suporte inicial do beta usa `deividhvianei@gmail.com` ate canal dedicado ser aprovado.
 - V1.1 deve estabilizar e simplificar a V1; hardening de Supabase/RLS/Auth/LGPD/smoke vem antes de features novas.
 
+## Decisoes atuais consolidadas em 2026-06-03
+
+Estas decisoes substituem perguntas antigas quando houver conflito. O fato de estarem decididas nao significa que estejam implementadas ou validadas.
+
+- Estado do produto: V1 local ampla / pre-beta real. O proximo objetivo e beta real fechado, nao producao aberta.
+- Dominio e VPS serao adquiridos na Hostinger.
+- A VPS inicial escolhida e Hostinger KVM 1, com gate obrigatorio para upgrade se nao suportar a aplicacao com estabilidade, build, runtime, HTTPS, logs e rollback.
+- O dominio exato ainda nao foi definido e permanece gate manual antes de deploy publicado.
+- O backend do beta usara o projeto Supabase principal somente depois de cutover validado, evidencia fresca de Auth/RLS e aprovacao explicita.
+- GitHub remoto atual: `origin` em `https://github.com/Deividh2025/proposito_em_acao.git`, branch principal `main`. Em 2026-06-03, a API retornou repositorio privado, `main` sem protecao efetiva, zero workflows e sem releases publicadas.
+- Selecionador de IA planejado em configuracoes: `automatic`, `openai` ou `deepseek`; padrao `automatic`.
+- OpenAI e DeepSeek permanecem configuraveis por variaveis de ambiente e server-side.
+- Consentimento de IA sera separado, versionado e revogavel por provider.
+- Nao havera fallback automatico entre providers de IA. Em falha de provider, usar fallback local seguro ou fluxo manual.
+- Resend foi escolhido para e-mail transacional com dominio verificado.
+- Resend tambem sera usado como SMTP customizado do Supabase Auth.
+- Analytics sera first-party no Supabase, com opt-in desligado por padrao.
+- Analytics, feedback beta e metadados de auditoria de IA terao retencao operacional de 90 dias.
+- DeepSeek segue planejado, mas ainda nao implementado como adapter/provider no codigo.
+- E-mail real, IA real, analytics real e feedback externo continuam desativados ate secrets, consentimentos, guardrails, custos, rate limits, logs e smoke publicados serem aprovados.
+
 ## Pendencias
 
 - Nome final do modulo de Metacognicao.
@@ -115,7 +136,7 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Branding visual completo dos icones e assets de instalacao, se houver direcao de marca posterior.
 - Modelo comercial.
 - Materiais proprios para base de conhecimento da IA.
-- Push inicial e validacao de acesso ao repositorio GitHub remoto.
+- Definir dominio exato de preview/producao na Hostinger antes de deploy publicado.
 - Aplicacao das migrations anteriores ao Prompt 14 no projeto Supabase remoto e execucao dos testes RLS completos.
 - Escopo avancado do Atalaia em V1.1/V2.
 - Validacao visual aprofundada com screenshots comparativos quando houver telas finais.
@@ -124,7 +145,7 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Aplicar e testar a migration `202605310005_execution_prompt8_alignment.sql`.
 - Escolher modelo OpenAI padrao por custo, latencia, qualidade e acesso antes de ativar IA real.
 - Aprovar materiais reais para a base de conhecimento e sua politica de versionamento.
-- Definir politica de retencao de metadados `ai_run_audit_v1`.
+- Implementar retencao de 90 dias para metadados `ai_run_audit_v1` antes de ativar IA real.
 - Aplicar e testar a migration `202605310005_execution_prompt8_alignment.sql`.
 - Gerar tipos reais de Supabase apos aplicar migrations do Prompt 8.
 - Definir futuramente uma projecao sanitizada para Atalaia ver progresso de execucao sem abrir `goals/projects/tasks/microtasks` diretamente.
@@ -152,21 +173,20 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Definir se existira resumo manual compartilhavel de Revisao Semanal para Atalaia e qual consentimento granular sera exigido.
 - Aplicar e testar a migration `202606010010_accountability_commitment_prompt13_alignment.sql`.
 - Gerar tipos reais de Supabase apos aplicar migrations do Prompt 13.
-- Escolher provider real de e-mail, remetente, politica de unsubscribe e auditoria antes de envio externo.
+- Implementar Resend server-side, dominio verificado, remetente, politica de unsubscribe e auditoria antes de envio externo.
 - Definir expiracao real de convite, politica de reenvio e fluxo autenticado completo do Atalaia.
 - Definir projecoes sanitizadas finais para o portal do Atalaia antes de qualquer relatorio externo avancado.
 - Alinhar todas as migrations locais no Supabase remoto; a consulta de Prompt 15 listou apenas `20260602134002_mobile_pwa_prompt14_alignment`.
 - Rodar matriz RLS dinamica em Supabase branch/preview com usuario A, usuario B, Atalaia autorizado e Atalaia revogado.
 - Validar signup, login, logout, confirmacao de e-mail e redirects de Auth em ambiente real.
 - Aprovar release checklist do Prompt 16 antes de deploy produtivo.
-- Aprovar especificacao da VPS Hostinger, acesso SSH, dominio/URL de preview e dominio final.
+- Validar Hostinger KVM 1, acesso SSH, Coolify, dominio/URL de preview e criterio de upgrade.
 - Instalar/configurar Coolify, HTTPS, firewall, logs, backups e rollback antes de qualquer publicacao.
 - Aprovar rollback antes de beta fechado.
 - Executar smoke tests em URL publicada antes de convidar usuarios reais.
-- Definir provider de e-mail transacional e se `deividhvianei@gmail.com` sera apenas contato operacional ou remetente.
-- Definir modelo OpenAI padrao e roteamento por agente entre OpenAI, DeepSeek Flash e DeepSeek Pro.
+- Definir modelo OpenAI padrao e regras de roteamento do modo `automatic` entre OpenAI, DeepSeek Flash e DeepSeek Pro.
 - Aprovar canal/formulario externo de feedback beta e politica de acesso/retencao.
-- Aprovar consentimento de analytics/feedback, prazo de retencao e se analytics real fica desligado no primeiro beta.
+- Implementar consentimento de analytics/feedback, opt-in desligado por padrao, enforcement de retencao de 90 dias e bloqueio de coleta sem consentimento.
 - Corrigir ou aceitar explicitamente mensagens tecnicas de erro Supabase expostas em algumas server actions antes de beta real.
 
 ## Template de decisao

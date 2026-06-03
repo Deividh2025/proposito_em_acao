@@ -2,6 +2,10 @@
 
 Data: 2026-06-02.
 
+## Estado atual verificado em 2026-06-03
+
+Este relatorio historico nao libera beta real por si so. A auditoria documental atual classificou o projeto como V1 local ampla / pre-beta real. Existem bloqueadores S0/S1 em `docs/BUG_TRIAGE.md`, dados demonstrativos em rotas principais, Auth SSR incompleto, tipos Supabase genericos, CI/release ausentes e gates externos pendentes.
+
 ## Escopo
 
 Auditoria final da V1 em largura para o Proposito em Acao, cobrindo funcionalidades, testes, seguranca, RLS, IA, UX TDAH-first, PWA/mobile e readiness. Esta etapa nao adicionou modulos novos fora do escopo; a excecao foi a correcao indispensavel de Auth visual basico em `/auth`, pois criar conta/login e criterio funcional da V1.

@@ -12,6 +12,18 @@ Schema implementado em:
 - `supabase/migrations/202605310008_focus_habits_scoreboard_prompt11_alignment.sql`
 - `supabase/migrations/202605310009_weekly_review_garden_prompt12_alignment.sql`
 - `supabase/migrations/202606010010_accountability_commitment_prompt13_alignment.sql`
+- `supabase/migrations/202606010011_mobile_pwa_prompt14_alignment.sql`
+- `supabase/migrations/20260602214345_accountability_partner_active_select_policy.sql`
+
+## Estado atual verificado em 2026-06-03
+
+- As migrations locais representam o contrato versionado da V1, mas SQL versionado nao equivale a ambiente remoto validado.
+- O Supabase CLI esta disponivel localmente (`2.98.2`) e listou o projeto `proposito_em_acao` (`bceumcfmjftoukzrfthe`) em modo read-only.
+- O checkout nao esta linkado ao projeto; `supabase migration list --linked` nao foi usado nesta auditoria.
+- Branches Supabase lidas em 2026-06-03: `main` e `preview-release-readiness`.
+- A evidencia de branch preview com migrations/RLS aprovadas e historica de 2026-06-02 e deve ser repetida antes de beta real.
+- O projeto/base principal so deve ser usado pelo beta apos cutover validado e aprovado.
+- `src/types/database.ts` continua generico; gerar tipos reais e revisar diffs antes de declarar schema remoto alinhado.
 
 ## Principios
 
@@ -143,6 +155,10 @@ Atalaia continua sem policy direta em tabelas brutas de alvos, tarefas, habitos,
 As demais acoes mobile reutilizam tabelas existentes: `inbox_items`, `habit_logs`, `scoreboard_entries`, `focus_sessions`, `focus_distractions`, `action_unblock_sessions` e `metacognition_sessions`.
 
 Status remoto: aplicada em 2026-06-02 no projeto Supabase `proposito_em_acao` (`bceumcfmjftoukzrfthe`) como migration `mobile_pwa_prompt14_alignment`, versao `20260602134002`.
+
+## Prompt 15 - RLS Atalaia
+
+`20260602214345_accountability_partner_active_select_policy.sql` ajusta leitura de Atalaia ativo para grants aceitos. A auditoria estatica de 2026-06-03 ainda aponta risco no aceite: a transicao `invited -> active` precisa impedir alteracao de `permissions`, `goal_id`, `accountability_partner_id`, `user_id` e demais campos definidos pelo dono.
 
 ## Tipos TypeScript
 

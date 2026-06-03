@@ -2,9 +2,25 @@
 
 Data: 2026-06-02.
 
+## Estado atual verificado em 2026-06-03
+
+Veredito: seguranca ainda bloqueia beta real. A evidencia local e historica nao deve ser usada para declarar producao pronta.
+
+Achados bloqueantes:
+
+- S0 `SEC-ATL-001`: aceite do Atalaia pode permitir expansao de escopo se `permissions`/`goal_id`/campos de grant forem alteraveis durante `invited -> active`.
+- S0 `SEC-ATL-002`: tela de aceite usa grant demonstrativo em vez de convite real.
+- S1 `SEC-CONSENT-001`: consentimento/auditoria/revogacao nao sao confiaveis; `consent_records` nao e escrito e inserts de eventos/notificacoes ignoram erro.
+- S1 `AUTH-SSR-001`: Auth SSR incompleto; faltam refresh centralizado, callback, confirmacao e recuperacao validados.
+- S1 `DATA-WRITE-001` e `DATA-WRITE-002`: falhas reais podem virar fallback positivo e updates/deletes podem retornar sucesso sem linha afetada.
+- S1 `SEC-CSP-001`: CSP ainda permite `unsafe-inline`/`unsafe-eval`.
+- S1 `AI-GUARD-001`: path de provider de IA registra guardrails como `not_run`.
+
+Ver `docs/BUG_TRIAGE.md` para IDs, evidencias e criterios de fechamento.
+
 ## Resultado geral
 
-Seguranca local e estatica melhorou durante o Prompt 15. No preview Supabase, migrations e matriz RLS dinamica foram validadas; deploy produtivo ainda deve aguardar Auth real, secrets/deploy, smoke externo e revisao de LGPD/retencao.
+Seguranca local e estatica melhorou durante o Prompt 15. No preview Supabase, migrations e matriz RLS dinamica foram validadas historicamente em 2026-06-02; deploy produtivo e beta real ainda devem aguardar rerun fresco, Auth real, secrets/deploy, smoke externo, revisao de LGPD/retencao e correcao dos S0/S1 acima.
 
 ## Checklist de seguranca
 
@@ -43,8 +59,9 @@ Seguranca local e estatica melhorou durante o Prompt 15. No preview Supabase, mi
 ## Riscos pendentes
 
 - Validar Supabase Auth real: signup, login, confirmacao de e-mail, logout, redirect e expiracao de sessao.
-- Consentimentos precisam ficar granulares, versionados e auditaveis em producao.
-- Definir politica de retencao/exportacao/exclusao para dados reflexivos, Chamado, revisoes e energia.
+- Consentimentos precisam ficar granulares, versionados, revogaveis e auditaveis antes do beta real.
+- Implementar retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA quando houver persistencia real.
+- Definir/exportar/excluir dados reflexivos, Chamado, revisoes e energia antes da primeira coleta real.
 - Revisar convites com expiracao real, reenvio, aceite autenticado e trilha de auditoria.
 
 ## Addendum Prompt 16
@@ -54,4 +71,4 @@ Data: 2026-06-02.
 - Headers minimos de seguranca foram adicionados em `next.config.ts`: CSP, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` e HSTS em producao.
 - Supabase preview foi criado, migrations locais foram aplicadas e matriz RLS dinamica passou.
 - Producao aberta segue bloqueada ate validar Auth real, configurar secrets fora do Git, publicar preview/deploy, rodar smoke externo e aprovar LGPD minima.
-- OpenAI real e e-mail real seguem desativados por padrao.
+- OpenAI/DeepSeek reais e e-mail real seguem desativados por padrao. Resend foi decidido, mas ainda nao implementado/configurado.

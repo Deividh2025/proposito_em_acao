@@ -2,6 +2,14 @@
 
 Data: 2026-06-02.
 
+## Estado atual verificado em 2026-06-03
+
+- Evals locais validam schemas/guardrails de contrato, nao providers reais.
+- `safeInvoke` ainda registra `guardrail_status: "not_run"` no path generico de provider.
+- DeepSeek foi decidido como provider planejado, mas ainda nao existe adapter/uso no codigo.
+- O seletor `automatic`/`openai`/`deepseek`, consentimento por provider e retencao de 90 dias de auditoria de IA ainda precisam de implementacao.
+- Ativacao real de OpenAI/DeepSeek continua bloqueada ate guardrails executados, evals ampliados, custos/rate limits, secrets server-side, logs seguros e fallback local/manual.
+
 ## Escopo
 
 Revisao da camada central de IA, guardrails, schemas estruturados, evals locais e pontos onde output vira dado persistido.
@@ -37,5 +45,5 @@ Revisao da camada central de IA, guardrails, schemas estruturados, evals locais 
 
 - `safeInvoke` ainda registra `guardrail_status` como `not_run` quando o fluxo nao chama guardrail composto explicitamente.
 - Ampliar fixtures positivas por agente antes de ativar OpenAI real.
-- Escolher roteamento por agente entre OpenAI, DeepSeek Flash e DeepSeek Pro, com limites de custo/latencia.
+- Implementar seletor `automatic`/`openai`/`deepseek` e roteamento do modo `automatic` entre OpenAI, DeepSeek Flash e DeepSeek Pro, com limites de custo/latencia.
 - Aprovar base de conhecimento real e politica de versionamento.

@@ -2,6 +2,16 @@
 
 Este documento e fonte de verdade para seguranca, privacidade, consentimento, Atalaia, Metacognicao, IA, logs e preparacao futura de Supabase/RLS. Ele nao substitui revisao juridica LGPD antes de producao.
 
+## Estado atual verificado em 2026-06-03
+
+- Estado do produto: V1 local ampla / pre-beta real; beta real segue bloqueado.
+- Retencao decidida: analytics, feedback beta e metadados de auditoria de IA por 90 dias quando houver persistencia real.
+- Consentimento de IA deve ser separado, versionado e revogavel por provider (`openai`, `deepseek` e modo `automatic`).
+- Nao havera fallback automatico entre providers de IA; falha usa fallback local seguro ou fluxo manual.
+- Resend foi decidido para e-mail transacional e SMTP customizado do Supabase Auth, mas ainda nao esta implementado/configurado.
+- Analytics sera first-party no Supabase, opt-in desligado por padrao, mas coleta real ainda nao existe.
+- Atalaia/consentimento/Auth/escritas reais possuem S0/S1 registrados em `docs/BUG_TRIAGE.md` e bloqueiam beta real.
+
 ## Dados sensiveis
 
 Devem ser tratados como sensiveis desde a concepcao: fe, saude, sono, energia, familia, relacionamentos, financas, emocoes, pensamentos, impulsos, Chamado, Metacognicao, calendario, habitos, Placar, Revisao Semanal, Atalaia e Documento de Compromisso.
@@ -75,7 +85,7 @@ Metacognicao e privada por padrao. O historico pode conter pensamento bruto, emo
 
 Compartilhamento com Atalaia so pode ocorrer por selecao manual de um resumo especifico, com consentimento explicito, previa e escopo.
 
-## RLS futura no Supabase
+## RLS no Supabase
 
 Na fundacao Prompt 4:
 
@@ -138,7 +148,7 @@ A camada central de IA registra somente metadados por `ai_run_audit_v1`:
 
 OpenAI real fica isolada em modulo server-only. `OPENAI_API_KEY` nao pode ser exposta em `NEXT_PUBLIC_*`, client components, browser, mobile ou logs.
 
-DeepSeek real, aprovado como provider planejado no Prompt 16, segue a mesma regra: `DEEPSEEK_API_KEY` fica apenas server-side, sem `NEXT_PUBLIC_*`, sem browser/mobile/logs e sem envio de dados sensiveis antes de minimizacao, guardrails, evals e aprovacao operacional.
+DeepSeek real, aprovado como provider planejado no Prompt 16, segue a mesma regra: `DEEPSEEK_API_KEY` fica apenas server-side, sem `NEXT_PUBLIC_*`, sem browser/mobile/logs e sem envio de dados sensiveis antes de minimizacao, guardrails, evals, consentimento por provider e aprovacao operacional.
 
 ## Prompt 8 - Execucao e dados sensiveis
 
@@ -222,7 +232,7 @@ Regras especificas:
 
 ## Retencao
 
-A politica de retencao deve ser definida antes da primeira coleta real. A regra base e reter apenas pelo tempo necessario a finalidade declarada, com exportacao e exclusao disponiveis em fase apropriada.
+A politica de retencao de analytics, feedback beta e metadados de auditoria de IA foi definida como 90 dias antes da primeira coleta real. A regra base dos demais dados sensiveis e reter apenas pelo tempo necessario a finalidade declarada, com exportacao e exclusao disponiveis em fase apropriada.
 
 ## Exportacao e exclusao
 

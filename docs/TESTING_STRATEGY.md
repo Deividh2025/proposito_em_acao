@@ -2,7 +2,15 @@
 
 ## Estado atual
 
-A stack Next.js, Vitest e Playwright existe. O Supabase CLI foi executado via `npx`, um branch preview foi criado, as migrations locais foram aplicadas nesse preview e a matriz RLS dinamica minima passou em 2026-06-02. Nao ha chamadas reais de IA.
+A stack Next.js, Vitest e Playwright existe. Em 2026-06-03, `supabase --version` esta disponivel localmente (`2.98.2`) e o projeto foi listado em modo read-only. Um branch preview foi criado e validado historicamente em 2026-06-02, mas essa evidencia precisa de rerun fresco antes de beta real. Nao ha chamadas reais de IA.
+
+Gates atuais desta auditoria:
+
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 14 arquivos e 81 testes.
+- `npm.cmd run build`: passou, 39 paginas.
+- `npm.cmd run test:e2e`: passou, 29 testes.
 
 Observacao historica: secoes antigas por prompt podem registrar RLS como pendente no momento da implementacao daquele prompt. O status atual consolidado e o do preview Supabase documentado em `docs/RLS_TEST_REPORT.md` e `docs/RELEASE_READINESS.md`.
 
@@ -21,6 +29,8 @@ Quando a stack existir, cobrir regras puras:
 - Regras de Placar e retomada.
 
 ## Testes de integracao
+
+Estado atual: `src/tests/integration/README.md` existe, mas nao ha suite executavel suficiente para declarar integracao real.
 
 - Auth e perfil.
 - Persistencia de Chamado, alvos, projetos, tarefas e calendario.
@@ -52,7 +62,7 @@ Testes adicionados/esperados:
 - E2E para `/onboarding`: perfil, Mapa da Vida, Chamado, mock seguro, aceite de hipotese e dashboard inicial.
 - E2E para `/dashboard`: direcao inicial, proxima etapa e modulos limitados.
 
-Sem Supabase CLI/projeto aplicado, RLS real permanece pendente. O checkout valida dominio, schema, fallback local e renderizacao.
+Sem rerun fresco em ambiente aprovado, RLS real permanece pendente. O checkout valida dominio, schema, fallback local e renderizacao.
 
 ## Testes de RLS futuros
 
@@ -103,7 +113,7 @@ Testes adicionados/esperados:
 - `src/tests/unit/execution-domain.test.ts` valida SMART-E mock, plano de projeto, quebra de tarefa e overview de execucao.
 - `src/tests/unit/ai-central-layer.test.ts` valida os schemas atualizados de SMART-E, project plan, task breakdown e agente `taskBreakdown`.
 - E2E recomendado: criar alvo manual, gerar alvo mock, gerar projeto, criar tarefa, quebrar em microtarefas e marcar microtarefa.
-- RLS real permanece pendente enquanto Supabase CLI nao estiver instalado; usar checklist de `supabase/tests/README.md` e `docs/RLS_POLICIES.md`.
+- RLS real permanece pendente ate rerun fresco em ambiente aprovado; usar checklist de `supabase/tests/README.md` e `docs/RLS_POLICIES.md`.
 
 ## Prompt 9
 
@@ -112,7 +122,7 @@ Testes adicionados/esperados:
 - `src/tests/unit/calendar-inbox-domain.test.ts` valida montagem de semana, proxima acao, sobrecarga, classificacao de inbox e processamento.
 - `src/tests/unit/ai-central-layer.test.ts` valida `inbox_classification_output_v1`, `schedule_overload_output_v1` e agente `scheduleReviewer`.
 - `src/tests/e2e/calendar-inbox.spec.ts` cobre abertura do calendario, criacao de bloco, agendamento de tarefa, reagendamento, captura na inbox, classificacao e conversao para bloco.
-- RLS real de `calendar_blocks` e `inbox_items` permanece pendente enquanto Supabase CLI nao estiver instalado; usar `supabase/tests/README.md` e `docs/RLS_POLICIES.md`.
+- RLS real de `calendar_blocks` e `inbox_items` permanece pendente ate rerun fresco em ambiente aprovado; usar `supabase/tests/README.md` e `docs/RLS_POLICIES.md`.
 - Testes de logs sensiveis devem confirmar que capturas, links, preocupacoes e agenda nao aparecem em logs brutos quando observabilidade existir.
 
 ## Prompt 10
@@ -125,7 +135,7 @@ Testes adicionados/esperados:
 - `src/ai/evals/metacognition.cases.ts` foi ampliado com privacidade, crise e linguagem pastoral segura.
 - `src/ai/evals/schema-validation.test.ts` valida guardrails, schemas e evals.
 - E2E recomendado: `/action-unblocker` gera plano, `/metacognition` gera reflexao, historico privado carrega e crise mostra rota de ajuda humana.
-- RLS real de `action_unblock_sessions` e `metacognition_sessions` permanece pendente enquanto Supabase CLI nao estiver instalado; usar `supabase/tests/README.md`.
+- RLS real de `action_unblock_sessions` e `metacognition_sessions` permanece pendente ate rerun fresco em ambiente aprovado; usar `supabase/tests/README.md`.
 
 ## Prompt 11
 
@@ -134,7 +144,7 @@ Testes adicionados/esperados:
 - `src/tests/unit/focus-habits-scoreboard-domain.test.ts` valida duracoes de foco, captura de distracao, plano de habito, retomada e Placar.
 - `src/tests/e2e/focus-habits-scoreboard.spec.ts` cobre iniciar foco, capturar distracao, concluir foco, gerar habito mock, marcar retomada e marcar Placar.
 - `src/tests/unit/ai-central-layer.test.ts` valida `habit_plan_output_v1` ampliado e `scoreboard_plan_output_v1`.
-- RLS real de `focus_sessions`, `focus_distractions`, `habits`, `habit_logs`, `discipline_scoreboards`, `scoreboard_items` e `scoreboard_entries` permanece pendente enquanto Supabase CLI nao estiver instalado.
+- RLS real de `focus_sessions`, `focus_distractions`, `habits`, `habit_logs`, `discipline_scoreboards`, `scoreboard_items` e `scoreboard_entries` permanece pendente ate rerun fresco em ambiente aprovado.
 
 ## Prompt 12
 
@@ -143,7 +153,7 @@ Testes adicionados/esperados:
 - `src/tests/unit/review-garden-domain.test.ts` valida perguntas da revisao, `weekly_review_output_v1`, retomadas sem vergonha, `garden_state_output_v1` e metadados minimos do Jardim.
 - `src/tests/unit/ai-central-layer.test.ts` valida `weekly_review_output_v1` ampliado e `garden_state_output_v1`.
 - `src/tests/e2e/review-garden.spec.ts` cobre abrir revisao, gerar sintese mock, visualizar foco da proxima semana, salvar revisao em fallback local/dev, abrir Jardim e validar cuidado sem punicao.
-- RLS real de `weekly_reviews`, `garden_states` e `garden_events` permanece pendente enquanto Supabase CLI nao estiver instalado.
+- RLS real de `weekly_reviews`, `garden_states` e `garden_events` permanece pendente ate rerun fresco em ambiente aprovado.
 - Evals futuros devem cobrir culpa espiritual, vergonha, diagnostico, vazamento de Metacognicao e compartilhamento indevido com Atalaia.
 
 ## Prompt 13
@@ -153,7 +163,7 @@ Testes adicionados/esperados:
 - `src/tests/unit/accountability-commitments-domain.test.ts` valida permissoes por nivel, previa sem dados privados, Documento de Compromisso revisavel e bloqueio de alavancas abusivas.
 - `src/tests/unit/ai-central-layer.test.ts` valida `accountability_message_output_v1` atualizado e `commitment_document_output_v1`.
 - `src/tests/e2e/accountability-commitments.spec.ts` cobre abertura de Atalaia, geracao de previa, painel limitado do Atalaia, Documento de Compromisso e bloqueio de alavanca abusiva.
-- RLS real de `accountability_partners`, `accountability_grants`, `accountability_events`, `accountability_notifications`, `commitment_documents` e `commitment_levers` permanece pendente enquanto Supabase CLI nao estiver instalado/aplicado.
+- RLS real de `accountability_partners`, `accountability_grants`, `accountability_events`, `accountability_notifications`, `commitment_documents` e `commitment_levers` permanece pendente ate rerun fresco em ambiente aprovado. Incluir `atalia_invited` e imutabilidade de escopo no aceite.
 - Testes RLS futuros devem confirmar Atalaia autorizado, Atalaia revogado, permissao ausente, outro alvo, documento nao compartilhado e notificacao cancelada.
 - Testes de e-mail futuro devem confirmar provider server-side, assunto/corpo neutros, sem dados sensiveis e `pending_provider_config` quando ambiente nao estiver configurado.
 
@@ -164,7 +174,7 @@ Testes adicionados/esperados:
 - `src/tests/unit/mobile-energy-domain.test.ts` valida schema de energia, sugestao de baixa energia e fallback local/dev.
 - `src/tests/e2e/mobile-pwa.spec.ts` cobre `/mobile`, captura, habito, Placar, foco curto, Desbloqueador rapido, Metacognicao rapida e energia em viewport 390x844.
 - PWA deve validar manifest, icones, pagina offline e service worker sem cache de dados sensiveis.
-- RLS real de `energy_checkins` permanece pendente enquanto Supabase CLI/projeto aplicado nao estiver disponivel.
+- RLS real de `energy_checkins` permanece pendente ate rerun fresco em ambiente aprovado.
 - Testes futuros devem cobrir double tap/idempotencia, matriz mobile de viewports e eventual fila offline segura se aprovada.
 
 ## Prompt 17

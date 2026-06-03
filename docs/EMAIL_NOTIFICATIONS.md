@@ -1,8 +1,12 @@
 # Email Notifications
 
-## Status Prompt 13
+## Estado atual verificado em 2026-06-03
 
-Infraestrutura de e-mail real ainda nao esta configurada. `.env.example` tem `EMAIL_PROVIDER` e `EMAIL_FROM`, mas nao ha adapter real nem dependencia de provedor.
+- E-mail real ainda nao esta configurado.
+- Resend foi decidido como provider transacional, com dominio verificado antes de envio real.
+- Resend tambem sera usado como SMTP customizado do Supabase Auth.
+- `.env.example` tem `EMAIL_PROVIDER` e `EMAIL_FROM`, mas ainda nao ha adapter real, `RESEND_API_KEY` documentada no exemplo ou dependencia de provedor.
+- Notificacoes do Atalaia continuam em fallback `pending_provider_config` ate adapter, secrets, dominio/remetente, templates, consentimento e logs seguros serem aprovados.
 
 ## Regra
 
@@ -38,8 +42,10 @@ Notificacoes pendentes devem ser canceladas quando o grant for revogado. `queued
 
 ## Pendencias
 
-- Escolher provedor.
-- Implementar adapter server-only.
+- Implementar adapter Resend server-only.
+- Adicionar placeholders documentais de Resend sem secrets quando a implementacao for aprovada.
+- Verificar dominio/remetente Resend.
+- Configurar Resend como SMTP customizado do Supabase Auth.
 - Definir secrets server-side.
 - Testar cancelamento por revogacao.
 - Validar RLS real com Supabase CLI/MCP.

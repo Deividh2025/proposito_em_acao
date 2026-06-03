@@ -81,11 +81,15 @@ Captura rapida, habitos, Placar, foco curto, Desbloqueador, Metacognicao rapida 
 
 E2E, evals de IA, matriz RLS, hardening de logs, LGPD, acessibilidade, performance, deploy e monitoramento.
 
-Status Prompt 15/16: V1 localmente verde e documentacao operacional de deploy/preview preparada. Producao aberta segue bloqueada por Supabase remoto desalinhado, RLS dinamico, Auth real, LGPD minima, secrets e smoke publicado.
+Status 2026-06-03: V1 local ampla / pre-beta real. Gates locais atuais foram reexecutados nesta auditoria (`lint`, `typecheck`, `test`, `build`, `test:e2e`) e passaram, mas validam fallback local/dev e nao comprovam integracao real, Auth publicado, Supabase/RLS remoto, Resend, IA real, analytics real ou deploy.
+
+Bloqueios da fase: Auth SSR/callback/confirmacao/recuperacao incompletos, tipos Supabase ainda genericos, health check apenas liveness, CSP ainda permissiva, CI/branch protection/releases ausentes, Docker/rollback nao ensaiados, e varias rotas principais ainda exibem dados demonstrativos.
 
 ## Fase 11 - Beta fechado e V1.1
 
 Preparar beta fechado, metricas, analytics seguro, feedback, suporte, incident response, monitoramento pos-deploy e roadmap V1.1. Nao liberar usuarios reais antes dos gates externos de preview, Supabase/Auth/RLS, LGPD, smoke publicado e rollback.
+
+Status 2026-06-03: beta fechado real permanece bloqueado. Decisoes atuais para a proxima etapa: Hostinger VPS KVM 1 com Coolify e gate de upgrade; dominio exato manual; Supabase principal somente apos cutover validado; IA selecionavel `automatic`/`openai`/`deepseek`; Resend para e-mail transacional e SMTP do Supabase Auth; analytics first-party Supabase com opt-in desligado e retencao de 90 dias.
 
 ## Criterio de avanco
 

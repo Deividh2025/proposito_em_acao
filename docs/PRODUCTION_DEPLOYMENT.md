@@ -6,13 +6,13 @@ Data: 2026-06-02.
 
 Deploy produtivo aberto: bloqueado.
 
-Preview controlado: proximo passo em VPS Hostinger com Coolify, desde que dominio/URL temporaria, secrets de preview, SSH, firewall, Docker/Coolify, logs, backup e aplicacao das migrations em Supabase branch/preview sejam configurados.
+Preview controlado: proximo passo em Hostinger VPS KVM 1 com Coolify, desde que dominio/URL temporaria, secrets de preview, SSH, firewall, Docker/Coolify, logs, backup e aplicacao das migrations em Supabase branch/preview sejam configurados.
 
 ## Decisao tecnica
 
 A stack atual e Next.js App Router com rotas server-side, server actions, Supabase Auth/RLS, OpenAI server-side preparada, DeepSeek server-side planejado e PWA. O deploy precisa de runtime Node.js real, build confiavel, variaveis server-side, HTTPS, logs e rollback.
 
-Plataforma escolhida pelo fundador: VPS da Hostinger com Coolify.
+Plataforma escolhida pelo fundador: Hostinger VPS KVM 1 com Coolify, com upgrade obrigatorio se a KVM 1 nao sustentar a aplicacao com estabilidade.
 
 Justificativa:
 
@@ -23,11 +23,11 @@ Justificativa:
 
 ## Hostinger
 
-Hostinger sera usada via VPS, nao como hospedagem estatica. A VPS precisa suportar Linux estavel, SSH, Docker/Coolify, Node/Next server-side, variaveis server-side, build `npm run build`, start `npm run start`, HTTPS, logs e mecanismo claro de rollback.
+Hostinger sera usada via VPS, nao como hospedagem estatica. A VPS inicial sera KVM 1 e precisa suportar Linux estavel, SSH, Docker/Coolify, Node/Next server-side, variaveis server-side, build `npm.cmd run build`, start `npm.cmd run start`, HTTPS, logs e mecanismo claro de rollback.
 
 Hostinger estatica, PHP/shared sem runtime Node, ou plano sem server-side persistente fica inadequado para esta V1, porque o app depende de validacoes server-side, Supabase/Auth, possivel service role server-only e OpenAI server-only.
 
-Conclusao: Hostinger VPS + Coolify aprovado como direcao. A adequacao final ainda depende de validar recursos da VPS, Docker/Coolify saudavel, dominio/SSL, deploy de preview, logs, backup e rollback.
+Conclusao: Hostinger VPS KVM 1 + Coolify aprovado como direcao inicial. A adequacao final ainda depende de validar recursos da VPS, Docker/Coolify saudavel, dominio/SSL, deploy de preview, logs, backup e rollback; se falhar, fazer upgrade antes de beta real.
 
 ## Coolify
 
@@ -49,24 +49,24 @@ Configuracao de preview preparada no repo:
 
 - `Dockerfile` multi-stage com servidor de producao do Next.js.
 - `.dockerignore` bloqueando `.env*`, `.next`, `node_modules`, logs e outputs locais.
-- Health check HTTP em `/api/health`.
+- Health check HTTP em `/api/health`, atualmente apenas liveness; readiness real ainda precisa validar dependencias.
 - Smoke externo parametrizado por `PLAYWRIGHT_BASE_URL` via `npm.cmd run test:e2e:external`.
 - Guia operacional em `docs/COOLIFY_PREVIEW_SETUP.md`.
 
 Validacao local:
 
-- Build Next e Playwright local passaram.
-- Docker build local ainda depende de Docker Desktop/daemon ativo.
+- Build Next e Playwright local foram rerodados nesta auditoria em 2026-06-03 (`npm.cmd run build` e `npm.cmd run test:e2e`) e passaram.
+- Docker build local ainda depende de Docker Desktop/daemon ativo e nao foi validado nesta auditoria.
 - Publicacao do preview depende de acesso ao Coolify/Hostinger e URL HTTPS aprovada.
 - Cutover Supabase preview em `docs/SUPABASE_PREVIEW_CUTOVER.md`, com typegen e harness Auth/RLS.
 
 ## Bloqueios de producao
 
-- Branch preview Supabase foi criado e migrations/RLS dinamicas passaram, mas producao aberta continua bloqueada ate smoke em URL publicada.
+- Branch preview Supabase foi criado e migrations/RLS dinamicas passaram historicamente em 2026-06-02, mas producao aberta e beta real continuam bloqueados ate rerun fresco e smoke em URL publicada.
 - Auth real ainda precisa validar signup, login, confirmacao de e-mail, redirects, logout e expiracao na URL do preview.
-- Politica minima LGPD de consentimento, retencao, exportacao e exclusao ainda depende de aprovacao.
-- OpenAI e DeepSeek reais devem permanecer desativados ate configurar chaves server-side, modelos, custo, rate limit, fallback, roteamento por agente e evals ampliados.
-- E-mail real deve permanecer desativado ate provider/remetente/aprovacao de mensagens.
+- Politica minima LGPD de consentimento, revogacao, exportacao e exclusao ainda depende de aprovacao; retencao de analytics, feedback beta e auditoria de IA foi decidida em 90 dias, mas enforcement tecnico e pendente.
+- OpenAI e DeepSeek reais devem permanecer desativados ate configurar chaves server-side, modelos, custo, rate limit, fallback local/manual, roteamento por agente, consentimento por provider e evals ampliados.
+- E-mail real deve permanecer desativado ate Resend, dominio, remetente, SMTP Auth e mensagens serem aprovados.
 
 ## Passos para preview
 
@@ -140,3 +140,5 @@ Nesta execucao, o deploy real nao foi realizado porque os gates externos bloquei
 - Supabase Auth redirect URLs: https://supabase.com/docs/guides/auth/redirect-urls
 - DeepSeek API changelog: https://api-docs.deepseek.com/updates/
 - DeepSeek models and pricing: https://api-docs.deepseek.com/quick_start/pricing
+
+Disponibilidade rechecada em 2026-06-03 para Hostinger, Coolify, Supabase Auth/SMTP, Resend SMTP Supabase, OpenAI Structured Outputs e DeepSeek docs. A checagem confirma fontes oficiais acessiveis, nao configuracao operacional.

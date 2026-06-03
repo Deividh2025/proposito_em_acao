@@ -14,6 +14,20 @@ Proposito em Acao e um sistema operacional de vida guiado por proposito. A plata
 
 A V1 deve ser completa em largura e controlada em profundidade: todos os modulos centrais existem, mas com profundidade inicial simples, segura e integrada.
 
+## Estado operacional atual
+
+Data de sincronizacao: 2026-06-03.
+
+- Classificacao: V1 local ampla / pre-beta real.
+- Proximo objetivo: beta real fechado, nao producao aberta.
+- Os fluxos locais e E2E cobrem largura relevante, mas varias paginas ainda usam dados demonstrativos ou fallback local/dev. Isso nao deve ser tratado como jornada real persistida do usuario.
+- Beta real segue bloqueado por URL HTTPS publicada, Auth SSR/callback/confirmacao/recuperacao validados, secrets no provedor, smoke externo, LGPD minima, rollback aprovado e evidencia fresca de Supabase/RLS.
+- Plataforma decidida: dominio e Hostinger VPS KVM 1 com Coolify, com gate obrigatorio de upgrade se a KVM 1 nao sustentar a aplicacao.
+- Backend do beta: projeto Supabase principal apenas apos cutover validado e aprovado.
+- IA real planejada: seletor `automatic`, `openai` ou `deepseek`, padrao `automatic`, consentimento por provider e sem fallback automatico entre providers.
+- E-mail real planejado: Resend para transacional e SMTP customizado do Supabase Auth.
+- Analytics planejado: first-party no Supabase, opt-in desligado por padrao, retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA.
+
 ## Problema
 
 Pessoas sobrecarregadas, dispersas, procrastinadoras ou com baixa funcao executiva costumam ter ferramentas separadas para agenda, tarefas, habitos, reflexao e planejamento. Essas ferramentas resolvem sintomas operacionais, mas nao integram direcao, autorregulacao, proxima acao e retomada.
@@ -291,17 +305,18 @@ Aceite: usuario controla intensidade e respostas seguem guardrails.
 ### Seguranca e privacidade
 
 - Dados privados por padrao.
-- Consentimento granular.
-- RLS futura em tabelas expostas.
+- Consentimento granular, versionado e revogavel.
+- RLS obrigatoria em tabelas expostas.
 - Logs sem dados intimos.
 - Atalaia por alvo.
+- Escritas sensiveis com validacao server-side e confirmacao de resultado.
 
 Aceite: nenhum compartilhamento ocorre sem escopo e consentimento.
 
 ## Requisitos nao funcionais
 
-- Seguranca: auth segura, RLS, menor privilegio e validacao server-side.
-- Privacidade: minimizacao, consentimento, exportacao e exclusao futuras.
+- Seguranca: auth segura, RLS em tabelas expostas, menor privilegio, validacao server-side, Atalaia por grant especifico e confirmacao de escritas sensiveis.
+- Privacidade: minimizacao, consentimento granular/versionado/revogavel, retencao definida, exportacao e exclusao antes da primeira coleta real.
 - Performance: dashboard rapido, fluxos principais com poucos cliques.
 - Confiabilidade: rascunhos em sessoes longas e fallback manual se IA falhar.
 - Acessibilidade: contraste, teclado, textos legiveis e baixa estimulacao.

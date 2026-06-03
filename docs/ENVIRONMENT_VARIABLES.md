@@ -31,6 +31,8 @@ Chaves publicaveis devem usar `NEXT_PUBLIC_SUPABASE_ANON_KEY` para compatibilida
 - `OPENAI_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
 - `OPENAI_MODEL`: modelo OpenAI aprovado por ambiente/fluxo; nao e secret, mas deve ser controlado por ambiente.
 
+O seletor de provider planejado aceitara `automatic`, `openai` e `deepseek`, com padrao `automatic`. A variavel de selecao ainda nao foi implementada no codigo; quando for adicionada, deve ser server-side/configuracao segura e respeitar consentimento por provider.
+
 ## DeepSeek
 
 - `DEEPSEEK_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
@@ -44,6 +46,8 @@ DeepSeek foi aprovado como provider planejado pelo fundador, junto com OpenAI. A
 
 - `EMAIL_PROVIDER`: provedor futuro. Vazio significa nenhum envio real e status `pending_provider_config`.
 - `EMAIL_FROM`: remetente futuro. Deve ficar vazio ate haver dominio/remetente aprovado.
+
+Decisao atual: `EMAIL_PROVIDER` deve usar Resend quando o adapter for implementado, com dominio verificado. O Supabase Auth tambem deve usar Resend como SMTP customizado. Uma futura `RESEND_API_KEY` deve ser server-side, nunca `NEXT_PUBLIC_*`, e adicionada como placeholder somente quando a implementacao for aprovada.
 
 No Prompt 13, notificacoes do Atalaia sao preparadas no backend, mas nao enviam e-mail real sem provider configurado e revisao de seguranca.
 
@@ -79,7 +83,13 @@ Manter vazias/desativadas ate aprovacao explicita:
 - `SUPABASE_SERVICE_ROLE_KEY`, salvo necessidade server-side controlada.
 - `OPENAI_API_KEY`, ate aprovar modelo, custo, rate limit e evals ampliados.
 - `DEEPSEEK_API_KEY`, ate aprovar custo, rate limit, evals ampliados e roteamento por agente.
-- `EMAIL_PROVIDER` e `EMAIL_FROM`, ate aprovar provider, remetente e templates.
+- `EMAIL_PROVIDER`, `EMAIL_FROM` e futura `RESEND_API_KEY`, ate aprovar dominio, remetente, templates e SMTP Auth.
+
+Gates manuais:
+
+- Dominio exato de preview/producao ainda nao definido.
+- Hostinger KVM 1 precisa ser validada; upgrade e obrigatorio se build/runtime/HTTPS/logs/rollback nao ficarem estaveis.
+- Analytics, feedback beta e auditoria de IA devem aplicar retencao de 90 dias quando houver persistencia real.
 
 Nunca usar `NEXT_PUBLIC_` para OpenAI, service role, provider secrets, webhook secrets ou tokens.
 Nunca usar `NEXT_PUBLIC_` para DeepSeek.

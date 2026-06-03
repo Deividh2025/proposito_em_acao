@@ -34,6 +34,13 @@ Quando documentos divergirem, siga a regra mais restritiva, verifique o estado r
 - Zod, React Hook Form, lucide-react, Vitest, Playwright, ESLint e Prettier.
 - PWA com `public/manifest.json`, `public/sw.js` e icones em `public/icons/`.
 - Dockerfile preparado para preview/deploy via VPS Hostinger + Coolify.
+- Plataforma decidida para beta: Hostinger VPS KVM 1 com Coolify, dominio a adquirir na Hostinger e gate obrigatorio de upgrade se a KVM 1 nao sustentar build, runtime, logs, HTTPS e rollback com estabilidade.
+- O dominio exato ainda e gate manual antes de qualquer deploy publicado.
+- O backend do beta usara o projeto Supabase principal somente apos cutover validado, evidencia fresca de Auth/RLS e aprovacao explicita.
+- O usuario podera selecionar provider de IA em configuracoes: `automatic`, `openai` ou `deepseek`; o padrao planejado e `automatic`.
+- Consentimento de IA deve ser separado, versionado e revogavel por provider. Nao deve haver fallback automatico entre providers; falha de provider deve usar fallback local seguro ou fluxo manual.
+- E-mail transacional planejado: Resend com dominio verificado. Supabase Auth deve usar Resend como SMTP customizado antes de Auth real do beta.
+- Analytics planejado: first-party no Supabase, opt-in desligado por padrao. Analytics, feedback beta e metadados de auditoria de IA devem ter retencao de 90 dias.
 
 Nao alterar stack, provider, Auth, deploy, banco, CI/CD, modelo de IA ou estrategia mobile sem etapa propria e aprovacao explicita.
 
@@ -82,6 +89,9 @@ SQL versionado, scripts preparados ou migrations locais nao sao prova de validac
 7. Atualizar documentacao quando houver mudanca relevante de arquitetura, IA, banco, UX, seguranca, release ou escopo.
 8. Reportar bloqueios, suposicoes, comandos nao executados e validacoes pendentes.
 9. Nunca mascarar risco de seguranca, privacidade, IA, Supabase, Atalaia, LGPD ou escopo.
+10. Fallback positivo `local-draft` so pode representar ausencia de configuracao/sessao ou modo local/dev. Falha real de Supabase, Auth, RLS, provider, e-mail, consentimento ou escrita sensivel deve retornar `ok: false` ou bloquear o fluxo.
+11. Updates/deletes e escritas sensiveis devem confirmar erro e linha afetada quando o resultado altera estado real.
+12. Aceite do Atalaia nunca pode ampliar escopo definido pelo dono; permissoes, alvo, consentimento e grant revisados devem permanecer imutaveis durante o aceite.
 
 ## Nunca fazer sem aprovacao explicita
 

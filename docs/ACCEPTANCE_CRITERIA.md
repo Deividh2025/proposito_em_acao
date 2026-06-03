@@ -170,3 +170,15 @@
 - Usuario registra energia em `/mobile/energy`.
 - `energy_checkins` tem migration e RLS owner-only.
 - Mobile permanece complementar; app nativo, push notifications, calendario complexo, Atalaia mobile funcional, fila offline sensivel, deploy e OpenAI real acionada pela UI seguem fora de escopo.
+
+## Prompt 17 - Aceite de Beta Fechado e Observabilidade
+
+- Plano de beta fechado existe e preserva gates externos antes de usuarios reais.
+- North Star, metricas de ativacao, retencao e qualitativas estao definidas.
+- Eventos de analytics usam allowlist e nao capturam conteudo sensivel.
+- Feedback in-app existe ou esta documentado como rascunho local, sem envio real obrigatorio.
+- Feedback externo depende de URL/canal aprovado, sem tokens ou dados sensiveis.
+- Bug triage, feedback triage, suporte, incident response e monitoramento pos-deploy existem.
+- V1.1 separa hardening/correcoes de novas features.
+- Nenhuma grande funcionalidade nova e implementada nesta etapa.
+- Beta com usuarios reais continua bloqueado ate preview, Supabase/Auth/RLS, LGPD, secrets, smoke e rollback estarem aprovados.

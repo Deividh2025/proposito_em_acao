@@ -138,6 +138,8 @@ A camada central de IA registra somente metadados por `ai_run_audit_v1`:
 
 OpenAI real fica isolada em modulo server-only. `OPENAI_API_KEY` nao pode ser exposta em `NEXT_PUBLIC_*`, client components, browser, mobile ou logs.
 
+DeepSeek real, aprovado como provider planejado no Prompt 16, segue a mesma regra: `DEEPSEEK_API_KEY` fica apenas server-side, sem `NEXT_PUBLIC_*`, sem browser/mobile/logs e sem envio de dados sensiveis antes de minimizacao, guardrails, evals e aprovacao operacional.
+
 ## Prompt 8 - Execucao e dados sensiveis
 
 Alvos, projetos, tarefas e microtarefas podem revelar Chamado, rotina, familia, saude, financas, emocoes, trabalho e responsabilidades. Regras especificas:
@@ -260,3 +262,15 @@ PWA/mobile e superficie complementar para acoes rapidas. Regras especificas:
 - Sem fila offline sensivel, push notifications ou app nativo antes do Prompt 15.
 - Sem Auth/Supabase, a UI deve declarar fallback local/dev, sem prometer persistencia produtiva.
 - Nada do mobile e compartilhado automaticamente com Atalaia.
+
+## Prompt 17 - Beta, analytics e feedback
+
+Analytics e feedback entram como superficie operacional sensivel. Regras especificas:
+
+- Analytics real exige consentimento especifico, LGPD minima, retencao definida, ambiente seguro e allowlist de eventos.
+- Eventos nao podem registrar conteudo de Chamado, Metacognicao, Inbox, calendario, saude, familia, financas, fe, emocoes, prompts, respostas de IA, titulos, notas, tokens ou mensagens ao Atalaia.
+- Feedback in-app do beta e rascunho local/preparado; envio externo depende de `NEXT_PUBLIC_BETA_FEEDBACK_URL` aprovado, sem tokens e com politica de acesso.
+- Campo livre de feedback deve ser curto, com aviso para nao inserir dados intimos e triagem/redacao quando houver indicio sensivel.
+- Suporte nao deve pedir prints com dados intimos nem copiar feedback bruto sensivel para issues, docs, e-mail ou ferramentas externas.
+- PWA/mobile nao deve armazenar feedback ou analytics sensivel em localStorage, sessionStorage, IndexedDB ou CacheStorage.
+- Metricas do beta devem ser agregadas e orientadas a acoes significativas, nao pageviews com conteudo de vida.

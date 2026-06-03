@@ -5,7 +5,6 @@
 - Nome final do modulo de Metacognicao.
 - Intensidade padrao da camada crista.
 - Publico inicial prioritario.
-- Se Atalaia entra na V1 completa ou V1.1.
 - Nivel inicial de gamificacao do Jardim da Vida.
 - Modelo comercial.
 - Materiais proprietarios para base de conhecimento da IA.
@@ -15,9 +14,10 @@
 - Biblioteca de calendario.
 - Biblioteca de drag-and-drop.
 - Biblioteca de componentes, se houver.
-- Provedor de deploy final.
-- Estrategia de observabilidade.
-- Aplicacao das migrations anteriores ao Prompt 14 no projeto Supabase remoto.
+- Estrategia final de observabilidade produtiva: provider first-party/externo, retencao, consentimento, acesso e agregacao.
+- Canal/formulario externo de feedback beta e politica de acesso/retencao.
+- Se analytics real fica desligado no primeiro beta ou coleta apenas eventos consentidos.
+- Rerun fresco de migrations, typegen e matriz RLS antes de beta real/producao.
 - Estrategia final de testes automatizados de RLS com CLI/MCP.
 
 ## Supabase
@@ -33,3 +33,6 @@
 - Prompt 14: push notifications ficam fora ate prompt proprio.
 - Prompt 14: offline sensivel/fila de sincronizacao fica fora; offline continua limitado a shell segura.
 - Prompt 14: migration `mobile_pwa_prompt14_alignment` aplicada no Supabase real `proposito_em_acao`.
+- Prompt 16: plataforma principal de deploy sera VPS Hostinger com Coolify; Vercel fica como contingencia.
+- Prompt 16: providers planejados de IA real sao OpenAI API e DeepSeek API, ainda desativados por padrao ate aprovacao operacional.
+- Prompt 17: Atalaia permanece na V1 em profundidade basica, por alvo/grant/permissao, com expansoes avancadas para V1.1/V2.

@@ -4,11 +4,12 @@ Fundacao Supabase do Proposito em Acao.
 
 ## Estado atual
 
-- Projeto remoto informado pelo fundador, mas nao aplicado por este agente porque nao ha access token, service role ou senha de banco disponivel neste workspace.
-- Migrations versionadas foram criadas em `supabase/migrations/`.
+- Projeto remoto informado pelo fundador: `bceumcfmjftoukzrfthe`.
+- Migrations versionadas existem em `supabase/migrations/`.
 - RLS foi definido para tabelas expostas do schema `public`.
 - Storage privado foi preparado para buckets futuros.
-- `supabase` CLI nao esta instalada neste ambiente local.
+- Nesta inspecao local, `supabase --version` nao esta disponivel no terminal.
+- O cutover seguro para branch preview esta documentado em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 
 ## Migrations
 
@@ -19,19 +20,29 @@ Ordem de aplicacao:
 3. `202605310003_private_storage.sql`
 4. `202605310004_onboarding_calling_metadata.sql`
 5. `202605310005_execution_prompt8_alignment.sql`
+6. `202605310006_calendar_inbox_prompt9_alignment.sql`
+7. `202605310007_action_unblocker_metacognition_prompt10_alignment.sql`
+8. `202605310008_focus_habits_scoreboard_prompt11_alignment.sql`
+9. `202605310009_weekly_review_garden_prompt12_alignment.sql`
+10. `202606010010_accountability_commitment_prompt13_alignment.sql`
+11. `202606010011_mobile_pwa_prompt14_alignment.sql`
+12. `20260602214345_accountability_partner_active_select_policy.sql`
 
 ## Aplicacao manual
 
-Quando o Supabase CLI estiver instalado e autenticado:
+Quando o Supabase CLI estiver instalado e autenticado, siga primeiro `docs/SUPABASE_PREVIEW_CUTOVER.md`.
+
+Comandos base do pack:
 
 ```powershell
-supabase --version
-supabase link --project-ref bceumcfmjftoukzrfthe
-supabase db push
-supabase gen types typescript --project-id bceumcfmjftoukzrfthe > src/types/database.ts
+npx.cmd -y supabase --version
+npx.cmd -y supabase db push --dry-run --db-url "$env:SUPABASE_PREVIEW_DB_URL"
+npx.cmd -y supabase db push --db-url "$env:SUPABASE_PREVIEW_DB_URL"
+npm.cmd run supabase:types:preview
+npm.cmd run supabase:validate:preview
 ```
 
-Quando usar SQL Editor no dashboard, aplicar as migrations na ordem acima e depois executar os cenarios de `supabase/tests/README.md`.
+Evite SQL Editor para cutover completo, salvo fallback aprovado. Se for inevitavel, aplicar as migrations na ordem acima, registrar evidencia de cada arquivo e depois executar `supabase/tests/README.md` e o harness `npm.cmd run supabase:validate:preview`.
 
 ## Regras
 

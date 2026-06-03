@@ -10,7 +10,7 @@
 | `inbox_items` | CRUD proprio | Negado | Negado | Negado | Negado |
 | `calendar_blocks` | CRUD proprio | Negado | Negado | Negado | Negado |
 | `consent_records` | Select proprio | Negado | Negado | Negado | Negado |
-| `accountability_partners` | Select/insert/update proprio | Negado | Negado | Negado | Negado |
+| `accountability_partners` | Select/insert/update proprio | Negado | Negado | Select da propria relacao ativa aceita | Negado |
 | `accountability_grants` | Select/insert/update proprio | Negado | Negado | Select grant ativo proprio como parceiro | Negado |
 | `accountability_events` | Select proprio | Negado | Negado | Select eventos minimos do grant ativo | Negado |
 | `accountability_notifications` | Select/insert/update proprio | Negado | Negado | Select notificacoes aprovadas/enviadas do grant ativo | Negado |
@@ -22,5 +22,5 @@
 ## Observacoes
 
 - Escritas sensiveis de consentimento, auditoria e eventos devem ocorrer server-side.
-- Atalaia nao acessa base tables sensiveis diretamente.
+- Atalaia nao acessa base tables sensiveis diretamente; `accountability_partners` expõe apenas a propria relacao ativa aceita para viabilizar grants/eventos especificos.
 - Revogacao depende de `status`, `revoked_at` e `expires_at`.

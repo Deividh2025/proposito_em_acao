@@ -3,7 +3,7 @@
 ## Ambientes
 
 - Local: desenvolvimento com `.env.local` privado.
-- Preview: branch/PR com variaveis segregadas.
+- Preview: VPS Hostinger com Coolify, branch/PR e variaveis segregadas.
 - Producao: dominio final, secrets de producao e observabilidade.
 
 ## Estrategia local
@@ -15,7 +15,7 @@
 
 ## Preview
 
-- Preferir plataforma com suporte nativo a Next.js server-side.
+- Usar VPS Hostinger com Coolify, conforme decisao do fundador no Prompt 16.
 - Usar projeto Supabase separado ou schema/ambiente isolado.
 - Nunca reutilizar service role de producao.
 
@@ -27,11 +27,28 @@
 
 ## Hostinger
 
-Hostinger pode ser considerado se o plano suportar runtime Node/Next adequado, variaveis server-side, build confiavel, HTTPS, logs e estrategia de rollback. Se o plano for apenas hospedagem estatica, nao atende o backend server-side necessario para OpenAI, Supabase service role e validacoes sensiveis.
+Hostinger sera usada via VPS com Coolify. A decisao exclui hospedagem estatica/shared para esta V1.
+
+No Prompt 16, a avaliacao tecnica concluiu:
+
+- Hostinger VPS pode atender se tiver recursos suficientes, SSH seguro, Docker/Coolify saudavel, Next.js server-side, Node 20+, build, start, variaveis server-side, logs, HTTPS e rollback.
+- Hostinger estatica ou hospedagem sem processo Node persistente nao atende.
+- Sem acesso operacional Hostinger chamavel nesta sessao, o deploy pela conta nao foi executado.
+
+## Coolify
+
+Coolify sera a camada de deploy na VPS:
+
+- conectar ao GitHub privado;
+- configurar app Next.js;
+- guardar secrets por ambiente;
+- emitir/gerenciar HTTPS via proxy configurado;
+- fornecer logs e rollback operacional;
+- executar preview antes de producao aberta.
 
 ## Alternativas
 
-- Vercel: melhor encaixe operacional para Next, mas avaliar custo e residencia/privacidade.
+- Vercel: alternativa de contingencia se Coolify/VPS nao atender estabilidade, logs, SSL ou rollback.
 - Render/Fly/Railway: Node server com mais controle operacional.
 - Coolify/VPS: controle e custo, com maior responsabilidade de operacao.
 
@@ -43,6 +60,11 @@ Hostinger pode ser considerado se o plano suportar runtime Node/Next adequado, v
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `OPENAI_API_KEY`
+- `OPENAI_MODEL`
+- `DEEPSEEK_API_KEY`
+- `DEEPSEEK_BASE_URL`
+- `DEEPSEEK_MODEL_FLASH`
+- `DEEPSEEK_MODEL_PRO`
 - `EMAIL_PROVIDER`
 - `EMAIL_FROM`
 - `NODE_ENV`
@@ -71,7 +93,7 @@ Status externo: nao liberar producao ate concluir:
 - configurar secrets no provedor de deploy;
 - aprovar LGPD, consentimentos, retencao, exportacao e exclusao;
 - definir provider de e-mail ou manter notificacoes externas desativadas;
-- manter OpenAI real desativada ate modelo, custo, guardrails e base de conhecimento serem aprovados.
+- manter IA real desativada ate modelos, custo, rate limit, guardrails, roteamento por agente e base de conhecimento serem aprovados.
 
 ## Checklist PWA futuro
 
@@ -83,3 +105,26 @@ Status externo: nao liberar producao ate concluir:
 - Icones finais substituem placeholders antes de producao.
 - Teste de instalabilidade e offline seguro em mobile real.
 - Sem push notifications ate prompt proprio.
+
+## Prompt 16 - deploy readiness
+
+Status local fresco em 2026-06-02:
+
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 13 arquivos e 74 testes.
+- `npm.cmd run build`: passou.
+- `npm.cmd run test:e2e`: passou, 26 testes Playwright.
+
+Status externo:
+
+- Supabase `bceumcfmjftoukzrfthe` consultado como `ACTIVE_HEALTHY`.
+- Migrations remotas listadas: apenas `20260602134002 mobile_pwa_prompt14_alignment`.
+- Tabelas publicas remotas visiveis nao cobrem a V1 completa.
+
+Decisao atualizada pelo fundador:
+
+- Producao aberta bloqueada.
+- Primeiro passo recomendado e escolhido: preview controlado em VPS Hostinger com Coolify.
+- OpenAI API e DeepSeek API serao providers reais planejados, com DeepSeek `deepseek-v4-flash` e `deepseek-v4-pro`.
+- Documentos operacionais criados: `PRODUCTION_DEPLOYMENT.md`, `PRODUCTION_ENVIRONMENT.md`, `SMOKE_TEST_REPORT.md`, `ROLLBACK_PLAN.md`, `OPERATIONS_RUNBOOK.md` e `BETA_CHECKLIST.md`.

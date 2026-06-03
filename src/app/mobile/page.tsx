@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 import { MobileQuickActionGrid } from "@/components/mobile/MobileQuickActionGrid";
 import { MobileShell } from "@/components/mobile/MobileShell";
 
@@ -23,6 +24,7 @@ export default function MobileHomePage() {
           Ver atalhos de hoje
         </Link>
       </section>
+      <FeedbackButton compact defaultModule="mobile" />
     </MobileShell>
   );
 }

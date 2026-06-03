@@ -10,7 +10,8 @@ Consentimento e autorizacao sao separados. Um consentimento registra vontade e h
 - Uso de IA.
 - Tratamento de dados sensiveis.
 - Comunicacoes.
-- Analytics/telemetria, se houver.
+- Analytics/telemetria.
+- Feedback beta e pesquisa de produto.
 - Atalaia por alvo e escopo.
 - Documento de compromisso.
 - Uso em evals internas, se aprovado.
@@ -49,3 +50,9 @@ Revogacao deve:
 - Calendario completo.
 - Saude, familia, financas, emocoes e fe.
 - Prompts privados e respostas brutas de IA.
+
+## Analytics e feedback
+
+Analytics de produto exige consentimento especifico, versao, finalidade, retencao e revogacao. Eventos devem usar allowlist e metadados minimos, sem Chamado, Metacognicao, Inbox, calendario detalhado, fe, saude, familia, financas, emocoes, prompts, respostas de IA ou mensagens ao Atalaia.
+
+Feedback beta com campo livre deve ser tratado como potencialmente sensivel. Envio externo so pode ocorrer apos aprovacao de formulario/canal, acesso, retencao e aviso claro para nao inserir dados intimos.

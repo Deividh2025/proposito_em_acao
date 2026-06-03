@@ -21,6 +21,7 @@ Registro das decisoes de produto, arquitetura e governanca.
 - `docs/source/prd_proposito_em_acao.md` e a fonte raiz; `docs/PRD.md` e a fonte operacional derivada da V1.
 - `docs/SECURITY_PRIVACY.md` e a fonte principal de seguranca/privacidade; `docs/SECURITY_NOTES.md` permanece como nota resumida de bootstrap.
 - Stack tecnica inicial decidida: Next.js App Router, React, TypeScript strict, Tailwind, Supabase, OpenAI server-side futuro, Zod, React Hook Form, Vitest e Playwright.
+- `AGENTS.md` deve ser mantido como guia operacional vivo do repositorio real, incluindo stack atual, comandos, gates, regras de aprovacao e limites de seguranca.
 - Prompt 4 prepara migrations, RLS, storage e clientes Supabase no repositorio; aplicacao remota exige credenciais administrativas e validacao propria.
 - Projeto Supabase informado para desenvolvimento: `https://bceumcfmjftoukzrfthe.supabase.co`, project ref `bceumcfmjftoukzrfthe`.
 - Repositorio GitHub informado: `Deividh2025/proposito_em_acao`, remote HTTPS `https://github.com/Deividh2025/proposito_em_acao.git`.
@@ -91,6 +92,20 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Prompt 15 define que Atalaia RLS deve ser grant-specific e partner-specific, nao apenas `user_id + goal_id + permission`.
 - Prompt 15 define que structured outputs enviados pelo cliente em fluxos privados precisam passar por guardrail de persistencia owner-only antes de salvar.
 - Prompt 15 deixa a V1 localmente verde, mas Prompt 16 deve iniciar por deploy/preview controlado e validacao Supabase real, nao por producao aberta.
+- Prompt 16 recomendou Vercel como primeira plataforma de preview controlado para Next.js antes da decisao final do fundador.
+- Decisao final do fundador apos a avaliacao do Prompt 16: usar VPS Hostinger com Coolify como plataforma principal de deploy; Vercel fica como alternativa de contingencia.
+- Dono da plataforma: Deividh de Sa; e-mail operacional informado: `deividhvianei@gmail.com`.
+- Providers de IA planejados para producao: OpenAI API e DeepSeek API.
+- Modelos DeepSeek planejados: `deepseek-v4-flash` para fluxos mais rapidos/custo menor e `deepseek-v4-pro` para fluxos mais complexos, ambos dependentes de evals, rate limit e roteamento por agente.
+- Prompt 16 bloqueia producao aberta porque o Supabase remoto `bceumcfmjftoukzrfthe` segue desalinhado das migrations locais da V1 e ainda nao houve matriz RLS/Auth dinamica publicada.
+- Prompt 16 mantem IA real e e-mail real desativados ate decisao explicita de modelo, custo, rate limit, provider, remetente, templates e guardrails.
+- Prompt 16 adiciona headers minimos de seguranca no `next.config.ts` e cria runbook, rollback, smoke report, ambiente de producao e checklist beta.
+- Prompt 17 prepara beta fechado, observabilidade segura, feedback, suporte, incident response, monitoramento e V1.1; nao libera usuarios reais.
+- North Star do beta: semanas com pelo menos 3 acoes concluidas alinhadas a um alvo vinculado ao Chamado.
+- Analytics real so pode ser ativado apos consentimento especifico, LGPD minima, retencao definida, ambiente seguro e allowlist sem conteudo sensivel.
+- Feedback in-app do beta e rascunho local; envio externo depende de `NEXT_PUBLIC_BETA_FEEDBACK_URL` aprovado, sem tokens ou query sensivel.
+- Suporte inicial do beta usa `deividhvianei@gmail.com` ate canal dedicado ser aprovado.
+- V1.1 deve estabilizar e simplificar a V1; hardening de Supabase/RLS/Auth/LGPD/smoke vem antes de features novas.
 
 ## Pendencias
 
@@ -144,6 +159,15 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Rodar matriz RLS dinamica em Supabase branch/preview com usuario A, usuario B, Atalaia autorizado e Atalaia revogado.
 - Validar signup, login, logout, confirmacao de e-mail e redirects de Auth em ambiente real.
 - Aprovar release checklist do Prompt 16 antes de deploy produtivo.
+- Aprovar especificacao da VPS Hostinger, acesso SSH, dominio/URL de preview e dominio final.
+- Instalar/configurar Coolify, HTTPS, firewall, logs, backups e rollback antes de qualquer publicacao.
+- Aprovar rollback antes de beta fechado.
+- Executar smoke tests em URL publicada antes de convidar usuarios reais.
+- Definir provider de e-mail transacional e se `deividhvianei@gmail.com` sera apenas contato operacional ou remetente.
+- Definir modelo OpenAI padrao e roteamento por agente entre OpenAI, DeepSeek Flash e DeepSeek Pro.
+- Aprovar canal/formulario externo de feedback beta e politica de acesso/retencao.
+- Aprovar consentimento de analytics/feedback, prazo de retencao e se analytics real fica desligado no primeiro beta.
+- Corrigir ou aceitar explicitamente mensagens tecnicas de erro Supabase expostas em algumas server actions antes de beta real.
 
 ## Template de decisao
 

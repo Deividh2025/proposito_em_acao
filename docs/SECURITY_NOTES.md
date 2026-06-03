@@ -55,6 +55,7 @@ Tratar como sensiveis desde o modelo de produto:
 - Views expostas devem respeitar RLS.
 - Funcoes privilegiadas nao devem ficar em schema exposto.
 - `service_role` nao pode simplificar fluxo normal do app.
+- O harness `npm.cmd run supabase:validate:preview` usa `SUPABASE_SERVICE_ROLE_KEY` somente no terminal do operador para criar/remover fixtures ficticios em branch preview; nunca deve rodar contra producao nem dentro do runtime do app.
 
 ## OpenAI e IA
 
@@ -65,6 +66,7 @@ Tratar como sensiveis desde o modelo de produto:
 - Saidas que viram dados devem ser validadas por schema.
 - Usuario deve revisar mudancas que alterem agenda, alvos, tarefas ou mensagens a Atalaia.
 - Prompt 7 adiciona provider OpenAI server-only, provider mock, safe invoke e metadados `ai_run_audit_v1`.
+- Prompt 16 aprova DeepSeek como provider planejado adicional, tambem server-only, com modelos `deepseek-v4-flash` e `deepseek-v4-pro`; a chave DeepSeek nao pode ir para client, logs ou `NEXT_PUBLIC_*`.
 - Provider real existe como preparacao tecnica; fluxos de produto continuam sem chamada real por padrao.
 - Falhas reais de escrita no Supabase nao devem ser reportadas como persistencia local bem-sucedida; somente ausencia de configuracao pode cair em fallback local/dev positivo.
 - Prompt 8 adiciona alvos/projetos/tarefas/microtarefas com mock seguro; analise ecologica, Chamado e rotina nao devem ir para logs ou Atalaia.
@@ -73,6 +75,7 @@ Tratar como sensiveis desde o modelo de produto:
 - Prompt 13 adiciona Atalaia e Documento de Compromisso em profundidade controlada; compartilhamento exige alvo, permissao granular, previa, consentimento e revogacao efetiva.
 - E-mail real do Atalaia permanece desativado sem provider server-side configurado; assuntos e corpos devem ser neutros e sem dados sensiveis.
 - Prompt 14 adiciona PWA/mobile complementar; service worker so pode cachear assets estaticos seguros e pagina offline, nunca Metacognicao, Inbox, calendario, Atalaia, tokens, notificacoes ou respostas de server actions.
+- Prompt 17 adiciona preparacao de beta, analytics seguro e feedback. Analytics real exige consentimento/retencao e allowlist; feedback externo exige URL aprovada sem tokens; nenhum conteudo sensivel deve ser coletado em eventos, feedback, suporte ou logs.
 
 ## Guardrails de IA
 
@@ -115,6 +118,6 @@ Antes da primeira coleta real de dados, documentar bases legais, consentimento p
 - Fluxo inicial de onboarding/direcao, camada central de IA e nucleo inicial de execucao estao preparados, mas modulos finais ainda seguem por etapas.
 - Calendario e inbox/GTD basicos foram adicionados no Prompt 9 como centro operacional, mantendo privacidade por padrao.
 - Desbloqueador e Metacognicao funcionais foram adicionados no Prompt 10, mantendo Metacognicao privada por padrao.
-- Nenhuma chamada real a OpenAI API e acionada por fluxo de produto.
+- Nenhuma chamada real a OpenAI API ou DeepSeek API e acionada por fluxo de produto sem etapa propria de ativacao, evals e secrets.
 - Nenhum deploy realizado.
 - PWA/mobile complementar existe para acoes rapidas; a migration remota `mobile_pwa_prompt14_alignment` foi aplicada em 2026-06-02, enquanto app nativo, push notifications e fila offline sensivel seguem fora de escopo antes do Prompt 15.

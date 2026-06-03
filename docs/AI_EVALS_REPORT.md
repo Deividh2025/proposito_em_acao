@@ -37,5 +37,5 @@ Revisao da camada central de IA, guardrails, schemas estruturados, evals locais 
 
 - `safeInvoke` ainda registra `guardrail_status` como `not_run` quando o fluxo nao chama guardrail composto explicitamente.
 - Ampliar fixtures positivas por agente antes de ativar OpenAI real.
-- Escolher modelo/provider e limites de custo/latencia.
+- Escolher roteamento por agente entre OpenAI, DeepSeek Flash e DeepSeek Pro, com limites de custo/latencia.
 - Aprovar base de conhecimento real e politica de versionamento.

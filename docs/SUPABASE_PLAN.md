@@ -78,6 +78,29 @@ Considerar para:
 - `202605310003_private_storage.sql`
 - `202605310004_onboarding_calling_metadata.sql`
 - `202605310005_execution_prompt8_alignment.sql`
+- `202605310006_calendar_inbox_prompt9_alignment.sql`
+- `202605310007_action_unblocker_metacognition_prompt10_alignment.sql`
+- `202605310008_focus_habits_scoreboard_prompt11_alignment.sql`
+- `202605310009_weekly_review_garden_prompt12_alignment.sql`
+- `202606010010_accountability_commitment_prompt13_alignment.sql`
+- `202606010011_mobile_pwa_prompt14_alignment.sql`
+- `20260602214345_accountability_partner_active_select_policy.sql`
+
+## Status remoto Prompt 16
+
+Consulta em 2026-06-02:
+
+- Projeto `bceumcfmjftoukzrfthe` (`proposito_em_acao`) ativo e saudavel em `sa-east-1`.
+- Migrations remotas listadas: apenas `20260602134002 mobile_pwa_prompt14_alignment`.
+- Tabelas publicas remotas visiveis: `energy_checkins`.
+
+Conclusao: o Supabase remoto ainda nao esta alinhado com todas as migrations locais da V1. Producao aberta fica bloqueada ate aplicar/alinha-las em branch/preview e rodar RLS dinamica.
+
+## Status preview posterior
+
+Relatorios de 2026-06-02 registram que a branch preview `preview-release-readiness` foi criada, migrations locais foram alinhadas no preview e a matriz RLS dinamica passou com personas de dono, outro usuario, anonimo, Atalaia ativo e Atalaia revogado.
+
+Essa evidencia nao libera beta real automaticamente. Antes de beta com usuarios reais ou producao, repetir o cutover/harness, gerar tipos reais, validar Auth em URL publicada, remover fixtures e anexar evidencia fresca em `docs/RLS_TEST_REPORT.md` e `docs/SMOKE_TEST_REPORT.md`.
 
 ## Tipos
 
@@ -95,9 +118,12 @@ Considerar para:
 
 ## Proximos passos
 
-1. Instalar/autenticar Supabase CLI ou MCP.
-2. Aplicar migrations em ambiente controlado.
-3. Rodar advisors/lints e testes RLS por persona.
-4. Gerar tipos reais.
-5. Configurar redirects de Auth no dashboard.
-6. Revisar backups antes de producao.
+1. Instalar/autenticar Supabase CLI ou usar conector operacional aprovado.
+2. Seguir `docs/SUPABASE_PREVIEW_CUTOVER.md`.
+3. Aplicar migrations em branch/preview isolada, com backup quando houver dados reais.
+4. Rodar advisors/lints e testes RLS por persona.
+5. Gerar tipos reais via `npm.cmd run supabase:types:preview`.
+6. Rodar harness dinamico via `npm.cmd run supabase:validate:preview`.
+7. Configurar redirects de Auth no dashboard.
+8. Revisar backups antes de producao.
+9. Registrar resultado em `docs/SMOKE_TEST_REPORT.md` e `docs/RLS_TEST_REPORT.md`.

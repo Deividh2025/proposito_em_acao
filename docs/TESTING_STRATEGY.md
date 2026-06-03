@@ -2,7 +2,9 @@
 
 ## Estado atual
 
-A stack Next.js, Vitest e Playwright existe. Migrations Supabase/RLS foram preparadas, mas ainda nao foram aplicadas em ambiente local/remoto porque o CLI Supabase nao esta instalado neste workspace. Nao ha chamadas reais de IA.
+A stack Next.js, Vitest e Playwright existe. O Supabase CLI foi executado via `npx`, um branch preview foi criado, as migrations locais foram aplicadas nesse preview e a matriz RLS dinamica minima passou em 2026-06-02. Nao ha chamadas reais de IA.
+
+Observacao historica: secoes antigas por prompt podem registrar RLS como pendente no momento da implementacao daquele prompt. O status atual consolidado e o do preview Supabase documentado em `docs/RLS_TEST_REPORT.md` e `docs/RELEASE_READINESS.md`.
 
 ## Testes unitarios
 
@@ -66,6 +68,8 @@ Para cada tabela exposta:
 - `service_role` nao aparece no cliente.
 - Filho nao pode apontar para parent de outro usuario.
 - Metacognicao, Chamado completo e revisoes privadas nao aparecem em acesso de Atalaia.
+
+Status atual: a matriz dinamica em preview cobriu dono, outro usuario, anonimo, Atalaia ativo e Atalaia revogado para alvo, Metacognicao e tabelas principais de accountability. Ainda faltam smoke publicado, Auth real e expansao da matriz para todas as tabelas antes de beta com usuarios reais.
 
 ## Testes de IA/evals
 
@@ -162,6 +166,15 @@ Testes adicionados/esperados:
 - PWA deve validar manifest, icones, pagina offline e service worker sem cache de dados sensiveis.
 - RLS real de `energy_checkins` permanece pendente enquanto Supabase CLI/projeto aplicado nao estiver disponivel.
 - Testes futuros devem cobrir double tap/idempotencia, matriz mobile de viewports e eventual fila offline segura se aprovada.
+
+## Prompt 17
+
+Testes adicionados/esperados:
+
+- `src/tests/unit/beta-operations-domain.test.ts` valida allowlist/sanitizacao de analytics e feedback beta local.
+- `src/tests/e2e/beta-feedback.spec.ts` abre feedback beta no desktop e mobile, prepara rascunho local sem envio externo e confirma aviso de dados sensiveis.
+- Smoke publicado deve validar que `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se configurada, nao contem token ou query sensivel.
+- Testes futuros de analytics real devem confirmar consentimento, bloqueio sem consentimento, rejeicao de chaves sensiveis e ausencia de texto de usuario.
 
 ## Testes de UX critico
 

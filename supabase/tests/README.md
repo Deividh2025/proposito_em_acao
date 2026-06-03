@@ -1,6 +1,8 @@
 # Supabase RLS Test Scenarios
 
-Estes cenarios devem ser executados quando houver Supabase CLI, projeto vinculado ou ambiente local com Auth.
+Estes cenarios devem ser executados quando houver Supabase CLI, branch preview ou ambiente local com Auth.
+
+O roteiro operacional completo esta em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 
 ## Personas
 
@@ -81,12 +83,26 @@ Estes cenarios devem ser executados quando houver Supabase CLI, projeto vinculad
 ## Comandos esperados quando CLI existir
 
 ```powershell
-supabase start
-supabase db reset
-supabase migration list --local
-supabase db lint
+npx.cmd -y supabase --version
+npx.cmd -y supabase migration list --db-url "$env:SUPABASE_PREVIEW_DB_URL"
+npx.cmd -y supabase db push --dry-run --db-url "$env:SUPABASE_PREVIEW_DB_URL"
+npx.cmd -y supabase db lint --db-url "$env:SUPABASE_PREVIEW_DB_URL"
 ```
 
-## Estado atual
+## Harness dinamico de preview
 
-O CLI `supabase` nao esta instalado neste ambiente, entao estes cenarios ficam como checklist manual ate a ferramenta estar disponivel.
+Depois de aplicar as migrations em branch preview e configurar as variaveis operacionais:
+
+```powershell
+$env:SUPABASE_PREVIEW_CONFIRM="preview"
+$env:NEXT_PUBLIC_SUPABASE_URL="https://SEU-PREVIEW.supabase.co"
+$env:NEXT_PUBLIC_SUPABASE_ANON_KEY="anon-ou-publishable-key"
+$env:SUPABASE_SERVICE_ROLE_KEY="service-role-do-preview"
+npm.cmd run supabase:validate:preview
+```
+
+O harness cria usuarios ficticios `user_a`, `user_b`, `atalia-active` e `atalia-revoked`, valida Auth com anon key, testa isolamento RLS nas tabelas criticas, valida Atalaia ativo/revogado e remove fixtures ao final. Use `SUPABASE_PREVIEW_KEEP_FIXTURES=1` apenas para depuracao manual em branch sem dados reais.
+
+## Estado local desta inspecao
+
+O CLI `supabase` nao esta instalado neste terminal, entao o pack foi preparado sem aplicar nada no remoto.

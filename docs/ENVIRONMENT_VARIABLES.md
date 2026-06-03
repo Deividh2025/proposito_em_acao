@@ -8,6 +8,7 @@
 
 - `NEXT_PUBLIC_APP_NAME`: nome publico do app.
 - `NEXT_PUBLIC_APP_URL`: URL publica do ambiente.
+- `NEXT_PUBLIC_BETA_FEEDBACK_URL`: link publico opcional para formulario externo aprovado do beta. Deve ficar vazio ate aprovacao e nunca conter tokens, segredos, dados de usuario ou querystring sensivel.
 
 ## Supabase
 
@@ -28,6 +29,16 @@ Chaves publicaveis devem usar `NEXT_PUBLIC_SUPABASE_ANON_KEY` para compatibilida
 ## OpenAI
 
 - `OPENAI_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
+- `OPENAI_MODEL`: modelo OpenAI aprovado por ambiente/fluxo; nao e secret, mas deve ser controlado por ambiente.
+
+## DeepSeek
+
+- `DEEPSEEK_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
+- `DEEPSEEK_BASE_URL`: base URL server-side. Valor planejado: `https://api.deepseek.com`.
+- `DEEPSEEK_MODEL_FLASH`: modelo DeepSeek rapido/custo menor. Valor planejado: `deepseek-v4-flash`.
+- `DEEPSEEK_MODEL_PRO`: modelo DeepSeek de maior capacidade. Valor planejado: `deepseek-v4-pro`.
+
+DeepSeek foi aprovado como provider planejado pelo fundador, junto com OpenAI. Ativacao real ainda exige guardrails, evals, custos, rate limit e roteamento por agente.
 
 ## Email
 
@@ -46,3 +57,47 @@ No Prompt 13, notificacoes do Atalaia sao preparadas no backend, mas nao enviam 
 - Nao registrar secrets em logs.
 - Rotacionar qualquer secret exposto.
 - Separar variaveis por ambiente.
+
+## Prompt 16 - producao/preview
+
+Configurar valores reais somente no cofre do provedor escolhido.
+
+No Coolify, separar variaveis de runtime e build. Secrets server-side devem ser runtime-only sempre que possivel; valores publicos `NEXT_PUBLIC_*` podem ser necessarios no build do Next.js porque sao embutidos no bundle cliente.
+
+Obrigatorias em preview/producao:
+
+- `NEXT_PUBLIC_APP_NAME`
+- `NEXT_PUBLIC_APP_URL`
+- `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se formulario externo do beta for aprovado.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_PROJECT_ID`
+- `NODE_ENV`
+
+Manter vazias/desativadas ate aprovacao explicita:
+
+- `SUPABASE_SERVICE_ROLE_KEY`, salvo necessidade server-side controlada.
+- `OPENAI_API_KEY`, ate aprovar modelo, custo, rate limit e evals ampliados.
+- `DEEPSEEK_API_KEY`, ate aprovar custo, rate limit, evals ampliados e roteamento por agente.
+- `EMAIL_PROVIDER` e `EMAIL_FROM`, ate aprovar provider, remetente e templates.
+
+Nunca usar `NEXT_PUBLIC_` para OpenAI, service role, provider secrets, webhook secrets ou tokens.
+Nunca usar `NEXT_PUBLIC_` para DeepSeek.
+
+## Cutover Supabase preview
+
+Variaveis de operador para `docs/SUPABASE_PREVIEW_CUTOVER.md`. Nao colocar no Git, no browser ou em variaveis publicas do app.
+
+- `SUPABASE_ACCESS_TOKEN`: secret para CLI Supabase.
+- `SUPABASE_PREVIEW_DB_URL`: URL Postgres da branch preview; contem senha e deve ser tratada como secret.
+- `SUPABASE_PREVIEW_CONFIRM=preview`: trava explicita antes de rodar harness mutavel.
+- `SUPABASE_TYPES_OUTPUT`: opcional; padrao `src/types/database.ts`.
+- `SUPABASE_PREVIEW_KEEP_FIXTURES`: opcional; `1` preserva fixtures apenas para depuracao manual em branch sem dados reais.
+- `SUPABASE_SKIP_STORAGE_RLS`: opcional; `1` pula storage no harness quando a Storage API do preview ainda nao estiver disponivel.
+
+Scripts:
+
+```powershell
+npm.cmd run supabase:types:preview
+npm.cmd run supabase:validate:preview
+```

@@ -143,7 +143,7 @@ create table if not exists public.goals (
   title text not null,
   description text,
   status text not null default 'draft'
-    check (status in ('draft', 'active', 'paused', 'completed', 'abandoned', 'in_review')),
+    check (status in ('draft', 'active', 'paused', 'completed', 'abandoned', 'needs_review')),
   specific text,
   measurable text,
   achievable text,
@@ -167,7 +167,7 @@ create table if not exists public.projects (
   description text,
   phase text,
   status text not null default 'active'
-    check (status in ('draft', 'active', 'paused', 'completed', 'archived')),
+    check (status in ('draft', 'active', 'paused', 'completed', 'archived', 'needs_review')),
   risks jsonb not null default '[]'::jsonb,
   resources jsonb not null default '[]'::jsonb,
   next_action text,
@@ -184,10 +184,10 @@ create table if not exists public.tasks (
   goal_id uuid,
   title text not null,
   description text,
-  task_type text not null default 'task'
-    check (task_type in ('task', 'milestone', 'routine', 'admin')),
+  task_type text not null default 'one_off'
+    check (task_type in ('one_off', 'project_task', 'recurring_work', 'microtask', 'restart_task')),
   status text not null default 'pending'
-    check (status in ('pending', 'scheduled', 'in_focus', 'completed', 'postponed', 'blocked', 'cancelled')),
+    check (status in ('pending', 'scheduled', 'in_focus', 'completed', 'deferred', 'stuck', 'cancelled')),
   energy_level text check (energy_level in ('low', 'medium', 'high')),
   estimated_minutes integer check (estimated_minutes is null or estimated_minutes > 0),
   due_date date,

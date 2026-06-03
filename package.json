@@ -14,7 +14,10 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "node scripts/run-e2e.mjs"
+    "test:e2e": "node scripts/run-e2e.mjs",
+    "test:e2e:external": "node scripts/smoke-external.mjs",
+    "supabase:types:preview": "node scripts/generate-supabase-types.mjs",
+    "supabase:validate:preview": "node scripts/validate-supabase-preview.mjs"
   },
   "engines": {
     "node": ">=20.11.0",

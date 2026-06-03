@@ -82,6 +82,7 @@ Docs que devem mudar junto com a implementacao.
 14. Mobile/PWA complementar.
 15. QA, seguranca e privacidade.
 16. Deploy.
+17. Beta fechado, observabilidade, feedback, metricas e plano V1.1.
 
 ## Regras de execucao
 

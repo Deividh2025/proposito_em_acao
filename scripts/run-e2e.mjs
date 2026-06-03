@@ -76,13 +76,13 @@ try {
     {
       cwd: root,
       env: process.env,
-      stdio: "inherit",
+      stdio: "ignore",
       windowsHide: true
     }
   );
 
   await waitForServer();
-  await run(process.execPath, [playwrightCli, "test", "--reporter=list"]);
+  await run(process.execPath, [playwrightCli, "test", "--reporter=list", "--workers=1"]);
 } catch (error) {
   exitCode = 1;
   console.error(error);

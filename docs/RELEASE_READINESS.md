@@ -110,3 +110,17 @@ Recomendacao:
 
 - Gate de migrations/RLS em preview: aprovado.
 - Beta/smoke externo continuam bloqueados ate validar fluxos reais de Auth, configurar secrets no deploy, publicar preview acessivel, aprovar LGPD minima e executar smoke test no URL publicado.
+- Artefatos de Coolify/Docker e smoke externo foram preparados, mas `docker build` local depende do Docker daemon ativo e a publicacao depende de acesso/URL Coolify/Hostinger.
+
+## Addendum Cutover Pack
+
+Data: 2026-06-02.
+
+Preparacao adicionada para repetir o cutover Supabase preview de forma segura e revisavel:
+
+- `docs/SUPABASE_PREVIEW_CUTOVER.md` com mapa ordenado de 12 migrations, preflight, dry-run, aplicacao, typegen, harness Auth/RLS, smoke e rollback.
+- `scripts/generate-supabase-types.mjs` e `npm.cmd run supabase:types:preview`.
+- `scripts/validate-supabase-preview.mjs` e `npm.cmd run supabase:validate:preview`.
+- `supabase/README.md` e `supabase/tests/README.md` sincronizados com o fluxo atual.
+
+Status desta rodada: pack pronto, remoto nao alterado. Como `supabase --version` nao esta disponivel localmente, o gate externo permanece dependente de execucao por operador autenticado no preview. Producao aberta segue bloqueada ate evidencia fresca de migrations, typegen real, Auth real publicado, smoke externo, secrets, LGPD minima e rollback.

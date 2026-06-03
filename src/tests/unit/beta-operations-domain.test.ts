@@ -95,7 +95,8 @@ describe("Prompt 17 beta feedback domain", () => {
     });
 
     expect(draft.mode).toBe("local-draft");
-    expect(draft.message).toContain("modo beta/local");
+    expect(draft.message).toContain("Rascunho local/dev preparado");
+    expect(draft.message).toContain("Nada foi enviado para canal externo");
     expect(draft.hasSensitiveHint).toBe(false);
   });
 });

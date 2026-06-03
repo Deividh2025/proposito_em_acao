@@ -45,13 +45,25 @@ Requisitos minimos:
 - Logs revisados sem dados sensiveis.
 - Rollback de release validado.
 
+Configuracao de preview preparada no repo:
+
+- `Dockerfile` multi-stage com servidor de producao do Next.js.
+- `.dockerignore` bloqueando `.env*`, `.next`, `node_modules`, logs e outputs locais.
+- Health check HTTP em `/api/health`.
+- Smoke externo parametrizado por `PLAYWRIGHT_BASE_URL` via `npm.cmd run test:e2e:external`.
+- Guia operacional em `docs/COOLIFY_PREVIEW_SETUP.md`.
+
+Validacao local:
+
+- Build Next e Playwright local passaram.
+- Docker build local ainda depende de Docker Desktop/daemon ativo.
+- Publicacao do preview depende de acesso ao Coolify/Hostinger e URL HTTPS aprovada.
+- Cutover Supabase preview em `docs/SUPABASE_PREVIEW_CUTOVER.md`, com typegen e harness Auth/RLS.
+
 ## Bloqueios de producao
 
-- Supabase remoto `bceumcfmjftoukzrfthe` esta ativo, mas lista somente a migration remota `20260602134002 mobile_pwa_prompt14_alignment`.
-- Tabelas publicas remotas visiveis nao cobrem a V1 completa; foi observada `public.energy_checkins` e tabelas de `storage`.
-- Migrations locais Prompt 4-14 ainda precisam ser aplicadas/alinhadas em ambiente controlado.
-- Matriz RLS dinamica ainda nao foi executada com usuario A, usuario B, Atalaia autorizado e Atalaia revogado.
-- Auth real ainda precisa validar signup, login, confirmacao de e-mail, redirects, logout e expiracao.
+- Branch preview Supabase foi criado e migrations/RLS dinamicas passaram, mas producao aberta continua bloqueada ate smoke em URL publicada.
+- Auth real ainda precisa validar signup, login, confirmacao de e-mail, redirects, logout e expiracao na URL do preview.
 - Politica minima LGPD de consentimento, retencao, exportacao e exclusao ainda depende de aprovacao.
 - OpenAI e DeepSeek reais devem permanecer desativados ate configurar chaves server-side, modelos, custo, rate limit, fallback, roteamento por agente e evals ampliados.
 - E-mail real deve permanecer desativado ate provider/remetente/aprovacao de mensagens.
@@ -61,15 +73,16 @@ Requisitos minimos:
 1. Provisionar VPS Hostinger e registrar sistema operacional/recursos.
 2. Instalar/configurar Coolify em servidor novo/limpo.
 3. Conectar Coolify ao repositorio privado.
-4. Configurar app Next.js com build `npm run build` e start `npm run start`.
+4. Configurar app Next.js com Dockerfile do repo, porta `3000` e health check `/api/health`.
 5. Configurar variaveis de preview sem expor valores.
 6. Configurar dominio temporario/preview e HTTPS.
-7. Aplicar migrations locais em Supabase branch/preview.
-8. Gerar tipos Supabase reais.
-9. Configurar Auth redirects de preview.
-10. Rodar gates locais e build no Coolify.
-11. Rodar smoke tests de preview.
-12. Registrar resultados em `docs/SMOKE_TEST_REPORT.md`.
+7. Executar o roteiro de `docs/SUPABASE_PREVIEW_CUTOVER.md`.
+8. Gerar tipos Supabase reais via `npm.cmd run supabase:types:preview`.
+9. Rodar harness Auth/RLS via `npm.cmd run supabase:validate:preview`.
+10. Configurar Auth redirects de preview.
+11. Rodar gates locais e build no Coolify.
+12. Rodar smoke tests de preview.
+13. Registrar resultados em `docs/SMOKE_TEST_REPORT.md`.
 
 ## Variaveis
 

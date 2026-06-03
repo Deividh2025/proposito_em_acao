@@ -84,6 +84,7 @@ Considerar para:
 - `202605310009_weekly_review_garden_prompt12_alignment.sql`
 - `202606010010_accountability_commitment_prompt13_alignment.sql`
 - `202606010011_mobile_pwa_prompt14_alignment.sql`
+- `20260602214345_accountability_partner_active_select_policy.sql`
 
 ## Status remoto Prompt 16
 
@@ -112,9 +113,11 @@ Conclusao: o Supabase remoto ainda nao esta alinhado com todas as migrations loc
 ## Proximos passos
 
 1. Instalar/autenticar Supabase CLI ou usar conector operacional aprovado.
-2. Aplicar migrations em branch/preview, com backup quando houver dados reais.
-3. Rodar advisors/lints e testes RLS por persona.
-4. Gerar tipos reais.
-5. Configurar redirects de Auth no dashboard.
-6. Revisar backups antes de producao.
-7. Registrar resultado em `docs/SMOKE_TEST_REPORT.md` e `docs/RLS_TEST_REPORT.md`.
+2. Seguir `docs/SUPABASE_PREVIEW_CUTOVER.md`.
+3. Aplicar migrations em branch/preview isolada, com backup quando houver dados reais.
+4. Rodar advisors/lints e testes RLS por persona.
+5. Gerar tipos reais via `npm.cmd run supabase:types:preview`.
+6. Rodar harness dinamico via `npm.cmd run supabase:validate:preview`.
+7. Configurar redirects de Auth no dashboard.
+8. Revisar backups antes de producao.
+9. Registrar resultado em `docs/SMOKE_TEST_REPORT.md` e `docs/RLS_TEST_REPORT.md`.

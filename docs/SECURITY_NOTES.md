@@ -55,6 +55,7 @@ Tratar como sensiveis desde o modelo de produto:
 - Views expostas devem respeitar RLS.
 - Funcoes privilegiadas nao devem ficar em schema exposto.
 - `service_role` nao pode simplificar fluxo normal do app.
+- O harness `npm.cmd run supabase:validate:preview` usa `SUPABASE_SERVICE_ROLE_KEY` somente no terminal do operador para criar/remover fixtures ficticios em branch preview; nunca deve rodar contra producao nem dentro do runtime do app.
 
 ## OpenAI e IA
 

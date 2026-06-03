@@ -26,13 +26,15 @@ Beta fechado ainda nao aprovado. A plataforma foi decidida, mas o app ainda prec
 - [x] Headers minimos de producao no Next.
 - [x] Plano de beta, metricas, analytics seguro, feedback, suporte, incident response e V1.1 documentados.
 - [x] Feedback in-app preparado como rascunho local, sem persistencia real.
+- [x] Pack de cutover Supabase preview preparado em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
+- [x] Scripts preparados: `supabase:types:preview` e `supabase:validate:preview`.
 - [ ] Deploy de preview.
 - [ ] Configurar secrets de preview.
 - [ ] Instalar/configurar Coolify na VPS Hostinger.
 - [ ] Configurar dominio temporario e HTTPS no Coolify.
 - [ ] Aplicar migrations locais em Supabase preview.
-- [ ] Gerar tipos Supabase reais.
-- [ ] Rodar matriz RLS dinamica.
+- [ ] Gerar tipos Supabase reais via `npm.cmd run supabase:types:preview`.
+- [ ] Rodar matriz RLS dinamica via `npm.cmd run supabase:validate:preview`.
 - [ ] Validar Auth real.
 - [ ] Rodar smoke tests em URL publicada.
 - [ ] Validar PWA install/offline via HTTPS.

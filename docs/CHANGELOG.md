@@ -85,6 +85,8 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Componentes `src/components/feedback/FeedbackButton.tsx` e `src/components/feedback/FeedbackForm.tsx`, expostos no painel desktop e hub mobile.
 - Teste unitario `src/tests/unit/beta-operations-domain.test.ts`.
 - Skills locais novas: `beta-operations-skill`, `product-analytics-skill`, `feedback-triage-skill`, `bug-triage-skill` e `v1-1-roadmap-skill`.
+- Pack de cutover Supabase preview em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
+- Scripts `supabase:types:preview` e `supabase:validate:preview` para typegen real e harness Auth/RLS em branch preview.
 
 ### Changed
 
@@ -120,6 +122,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Prompt 16 confirmou via Supabase que o projeto remoto esta ativo, mas ainda lista somente `20260602134002 mobile_pwa_prompt14_alignment`; producao aberta segue bloqueada.
 - Prompt 17 limita analytics a eventos/metadados minimos, consentimento especifico, retencao definida e sem conteudo sensivel.
 - Feedback beta nasce como rascunho local; formulario externo depende de `NEXT_PUBLIC_BETA_FEEDBACK_URL` aprovado, sem tokens.
+- Harness Supabase preview exige `SUPABASE_PREVIEW_CONFIRM=preview`, usa service role apenas no terminal do operador e remove fixtures ficticios ao final.
 - `/onboarding` mudou de placeholder para fluxo interativo do Prompt 6.
 - `docs/OPENAI_INTEGRATION_PLAN.md` atualizado de plano conceitual para plano tecnico preparado com Responses API, Structured Outputs e limites server-side.
 - `vitest.config.ts` agora inclui testes de evals em `src/ai/evals/**/*.test.ts`.

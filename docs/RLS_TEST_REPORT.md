@@ -73,3 +73,17 @@ Validacao final executada no preview:
 - Fixtures temporarios foram removidos apos a matriz; contagem remanescente retornou `0`.
 
 Status: matriz RLS dinamica passou no branch preview. Producao aberta ainda depende de Auth real, secrets/deploy, LGPD minima e smoke test publicado.
+
+## Addendum Cutover Pack
+
+Data: 2026-06-02.
+
+Esta rodada preparou o pack revisavel para repetir o cutover em branch preview, sem aplicar nada no remoto:
+
+- Roteiro central: `docs/SUPABASE_PREVIEW_CUTOVER.md`.
+- Harness dinamico: `scripts/validate-supabase-preview.mjs`.
+- Script npm: `npm.cmd run supabase:validate:preview`.
+- Personas cobertas: `user_a`, `user_b`, `atalia-active` e `atalia-revoked`.
+- Cobertura: Auth por anon key, owner-only, bloqueio user B/anon, integridade cross-owner, Atalaia ativo/revogado, `energy_checkins` e storage privado.
+
+Status desta rodada: nao executado contra Supabase porque o CLI `supabase` nao esta instalado no terminal local e o pedido explicitamente proibiu aplicar remoto. A proxima execucao deve anexar evidencia fresca de comandos, branch preview, migrations, lint/advisors, fixtures removidos e resultado do harness.

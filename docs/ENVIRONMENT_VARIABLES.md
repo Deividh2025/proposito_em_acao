@@ -62,6 +62,8 @@ No Prompt 13, notificacoes do Atalaia sao preparadas no backend, mas nao enviam 
 
 Configurar valores reais somente no cofre do provedor escolhido.
 
+No Coolify, separar variaveis de runtime e build. Secrets server-side devem ser runtime-only sempre que possivel; valores publicos `NEXT_PUBLIC_*` podem ser necessarios no build do Next.js porque sao embutidos no bundle cliente.
+
 Obrigatorias em preview/producao:
 
 - `NEXT_PUBLIC_APP_NAME`
@@ -81,3 +83,21 @@ Manter vazias/desativadas ate aprovacao explicita:
 
 Nunca usar `NEXT_PUBLIC_` para OpenAI, service role, provider secrets, webhook secrets ou tokens.
 Nunca usar `NEXT_PUBLIC_` para DeepSeek.
+
+## Cutover Supabase preview
+
+Variaveis de operador para `docs/SUPABASE_PREVIEW_CUTOVER.md`. Nao colocar no Git, no browser ou em variaveis publicas do app.
+
+- `SUPABASE_ACCESS_TOKEN`: secret para CLI Supabase.
+- `SUPABASE_PREVIEW_DB_URL`: URL Postgres da branch preview; contem senha e deve ser tratada como secret.
+- `SUPABASE_PREVIEW_CONFIRM=preview`: trava explicita antes de rodar harness mutavel.
+- `SUPABASE_TYPES_OUTPUT`: opcional; padrao `src/types/database.ts`.
+- `SUPABASE_PREVIEW_KEEP_FIXTURES`: opcional; `1` preserva fixtures apenas para depuracao manual em branch sem dados reais.
+- `SUPABASE_SKIP_STORAGE_RLS`: opcional; `1` pula storage no harness quando a Storage API do preview ainda nao estiver disponivel.
+
+Scripts:
+
+```powershell
+npm.cmd run supabase:types:preview
+npm.cmd run supabase:validate:preview
+```

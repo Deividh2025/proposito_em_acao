@@ -55,7 +55,7 @@ export function buildFeedbackDraft(input: BetaFeedbackInput): BetaFeedbackDraft 
     module: parsed.module,
     hasSensitiveHint,
     message: hasSensitiveHint
-      ? "Feedback preparado em modo beta/local. Revise e remova dados sensiveis antes de qualquer envio externo."
-      : "Feedback preparado em modo beta/local. O envio externo depende do formulario/canal aprovado para o beta."
+      ? "Rascunho local/dev preparado. Nada foi enviado para canal externo. Revise e remova dados sensiveis antes de qualquer envio externo aprovado."
+      : "Rascunho local/dev preparado. Nada foi enviado para canal externo. Envio externo depende do formulario/canal aprovado para o beta."
   };
 }

@@ -33,7 +33,7 @@ export function FeedbackButton({ compact = false, defaultModule = "dashboard" }:
             Feedback beta
           </h2>
           <p className="mt-1 text-xs leading-5 text-ink-600">
-            Ajude a encontrar atrito sem enviar conteudo privado.
+            Prepare um rascunho local/dev sem enviar conteudo privado.
           </p>
         </div>
         {isOpen ? (
@@ -54,7 +54,7 @@ export function FeedbackButton({ compact = false, defaultModule = "dashboard" }:
           variant="outline"
         >
           <MessageSquare aria-hidden className="h-4 w-4" />
-          Enviar feedback
+          Preparar rascunho
         </Button>
       )}
     </section>

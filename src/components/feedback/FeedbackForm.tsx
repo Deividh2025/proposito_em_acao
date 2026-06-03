@@ -20,7 +20,6 @@ type FeedbackStatus =
   | {
       kind: "success";
       message: string;
-      hasSensitiveHint: boolean;
     };
 
 const scoreOptions = [1, 2, 3, 4, 5];
@@ -47,7 +46,6 @@ export function FeedbackForm({ defaultModule = "dashboard", externalUrl }: Feedb
 
       setStatus({
         kind: "success",
-        hasSensitiveHint: draft.hasSensitiveHint,
         message: draft.message
       });
     } catch {
@@ -61,8 +59,8 @@ export function FeedbackForm({ defaultModule = "dashboard", externalUrl }: Feedb
   return (
     <form action={submitFeedback} className="space-y-4">
       <SensitiveDataNotice title="Feedback sem dados intimos">
-        Use frases curtas e nao envie Chamado, Metacognicao, saude, familia, financas,
-        calendario, tokens ou conteudo privado.
+        Use frases curtas. O rascunho fica local/dev; nao envie Chamado,
+        Metacognicao, saude, familia, financas, calendario, tokens ou conteudo privado.
       </SensitiveDataNotice>
 
       <label className="block text-sm font-semibold text-ink-800">
@@ -145,7 +143,7 @@ export function FeedbackForm({ defaultModule = "dashboard", externalUrl }: Feedb
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button className="w-full sm:w-auto" intent="action" type="submit">
-          Preparar feedback
+          Preparar rascunho local
         </Button>
         {externalUrl ? (
           <a
@@ -162,12 +160,8 @@ export function FeedbackForm({ defaultModule = "dashboard", externalUrl }: Feedb
       <div aria-live="polite">
         {status?.kind === "success" ? (
           <SuccessState
-            description={
-              status.hasSensitiveHint
-                ? `${status.message} Ha indicio de dado sensivel no texto.`
-                : status.message
-            }
-            title="Rascunho pronto"
+            description={status.message}
+            title="Rascunho local pronto"
           />
         ) : null}
         {status?.kind === "error" ? (

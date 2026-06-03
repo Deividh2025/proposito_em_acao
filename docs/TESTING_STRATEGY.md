@@ -172,7 +172,7 @@ Testes adicionados/esperados:
 Testes adicionados/esperados:
 
 - `src/tests/unit/beta-operations-domain.test.ts` valida allowlist/sanitizacao de analytics e feedback beta local.
-- E2E futuro deve abrir feedback beta no desktop e mobile, preparar rascunho sem envio externo e confirmar aviso de dados sensiveis.
+- `src/tests/e2e/beta-feedback.spec.ts` abre feedback beta no desktop e mobile, prepara rascunho local sem envio externo e confirma aviso de dados sensiveis.
 - Smoke publicado deve validar que `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se configurada, nao contem token ou query sensivel.
 - Testes futuros de analytics real devem confirmar consentimento, bloqueio sem consentimento, rejeicao de chaves sensiveis e ausencia de texto de usuario.
 

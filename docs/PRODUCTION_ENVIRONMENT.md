@@ -7,7 +7,7 @@ Data: 2026-06-02.
 | Ambiente | Status | Uso |
 |---|---|---|
 | Local | Ativo | Desenvolvimento e gates automatizados. |
-| Preview | Pendente de execucao | Primeiro deploy controlado em VPS Hostinger/Coolify, smoke tests, Supabase branch/preview e Auth real. |
+| Preview | Parcial | Supabase branch/preview e RLS dinamica validados; falta deploy Coolify, URL HTTPS, Auth real e smoke externo. |
 | Producao | Bloqueado | Somente apos Supabase/RLS/Auth/LGPD/secrets/smoke aprovados. |
 
 ## Responsavel
@@ -40,9 +40,10 @@ Projeto conhecido:
 
 Status de schema remoto:
 
-- Migrations remotas listadas: `20260602134002 mobile_pwa_prompt14_alignment`.
-- Tabelas publicas visiveis: `energy_checkins`.
-- Conclusao: remoto nao esta alinhado com todas as migrations locais da V1.
+- Branch preview `preview-release-readiness` criado para validacao.
+- Migrations locais alinhadas no preview ate `20260602214345`.
+- Matriz RLS dinamica passou no preview para dono, outro usuario, anonimo, Atalaia ativo e Atalaia revogado.
+- Security advisor do preview sem issues apos ativar protecao contra senhas vazadas.
 
 ## Auth redirects
 

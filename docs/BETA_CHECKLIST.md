@@ -4,13 +4,15 @@ Data: 2026-06-02.
 
 ## Status
 
-Beta fechado ainda nao aprovado. A plataforma foi decidida, mas o app ainda precisa preview controlado em VPS Hostinger/Coolify e validacao real de Supabase/Auth/RLS.
+Beta fechado ainda nao aprovado. A plataforma foi decidida, mas o app ainda precisa preview controlado em VPS Hostinger/Coolify, Auth real em URL publicada, smoke externo, secrets, LGPD minima e rollback.
+
+Ha evidencia anterior de Supabase/RLS em branch preview em 2026-06-02. Antes de convidar usuarios reais, repetir o cutover/harness e anexar evidencia fresca.
 
 ## Fundador precisa aprovar
 
 - [x] Plataforma de preview/producao: VPS Hostinger com Coolify.
 - [ ] URL temporaria e dominio final.
-- [ ] Aplicacao de migrations em Supabase branch/preview.
+- [ ] Rerun fresco de migrations/harness em Supabase branch/preview antes do beta real.
 - [ ] Politica minima de privacidade, termos, consentimento, retencao, exportacao e exclusao.
 - [x] Providers de IA planejados: OpenAI API e DeepSeek API.
 - [ ] Se IA real fica desativada no primeiro beta.
@@ -28,13 +30,14 @@ Beta fechado ainda nao aprovado. A plataforma foi decidida, mas o app ainda prec
 - [x] Feedback in-app preparado como rascunho local, sem persistencia real.
 - [x] Pack de cutover Supabase preview preparado em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 - [x] Scripts preparados: `supabase:types:preview` e `supabase:validate:preview`.
+- [x] Evidencia anterior de migrations/RLS em preview registrada em `docs/RLS_TEST_REPORT.md`.
 - [ ] Deploy de preview.
 - [ ] Configurar secrets de preview.
 - [ ] Instalar/configurar Coolify na VPS Hostinger.
 - [ ] Configurar dominio temporario e HTTPS no Coolify.
-- [ ] Aplicar migrations locais em Supabase preview.
-- [ ] Gerar tipos Supabase reais via `npm.cmd run supabase:types:preview`.
-- [ ] Rodar matriz RLS dinamica via `npm.cmd run supabase:validate:preview`.
+- [ ] Repetir aplicacao/alinhamento de migrations locais em Supabase preview antes do beta real.
+- [ ] Gerar tipos Supabase reais via `npm.cmd run supabase:types:preview` com evidencia fresca.
+- [ ] Rodar matriz RLS dinamica via `npm.cmd run supabase:validate:preview` com evidencia fresca.
 - [ ] Validar Auth real.
 - [ ] Rodar smoke tests em URL publicada.
 - [ ] Validar PWA install/offline via HTTPS.

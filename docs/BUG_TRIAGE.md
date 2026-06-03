@@ -58,7 +58,7 @@ Criterios de fechamento:
 
 ## Bugs/riscos conhecidos para fila
 
-- Supabase remoto ainda desalinhado da V1 completa.
-- RLS dinâmica ainda não executada com personas.
+- Supabase remoto de producao/base ainda nao deve ser tratado como pronto para V1 completa sem evidencia fresca.
+- RLS dinamica foi executada em branch preview em 2026-06-02, mas deve ser repetida e anexada como evidencia fresca antes de beta real ou producao.
 - Auth real ainda não validado em ambiente publicado.
 - Algumas server actions retornam `error.message` técnico do Supabase ao usuário; registrar como S1/S2 antes de beta real e trocar por mensagem genérica sanitizada.

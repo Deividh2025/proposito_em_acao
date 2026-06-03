@@ -96,6 +96,12 @@ Consulta em 2026-06-02:
 
 Conclusao: o Supabase remoto ainda nao esta alinhado com todas as migrations locais da V1. Producao aberta fica bloqueada ate aplicar/alinha-las em branch/preview e rodar RLS dinamica.
 
+## Status preview posterior
+
+Relatorios de 2026-06-02 registram que a branch preview `preview-release-readiness` foi criada, migrations locais foram alinhadas no preview e a matriz RLS dinamica passou com personas de dono, outro usuario, anonimo, Atalaia ativo e Atalaia revogado.
+
+Essa evidencia nao libera beta real automaticamente. Antes de beta com usuarios reais ou producao, repetir o cutover/harness, gerar tipos reais, validar Auth em URL publicada, remover fixtures e anexar evidencia fresca em `docs/RLS_TEST_REPORT.md` e `docs/SMOKE_TEST_REPORT.md`.
+
 ## Tipos
 
 - `src/types/database.ts` contem placeholder preparatorio.

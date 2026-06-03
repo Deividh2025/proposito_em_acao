@@ -104,6 +104,8 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - `README.md`, `DEPLOYMENT_PLAN.md`, `RELEASE_READINESS.md`, `ENVIRONMENT_VARIABLES.md`, `SUPABASE_PLAN.md`, `SUPABASE_AUTH.md` e `DECISIONS.md` sincronizados com o bloqueio de producao do Prompt 16.
 - Docs de IA e seguranca sincronizados com DeepSeek como provider planejado adicional, sem ativacao real em fluxo de produto.
 - `README.md`, `AGENTS.md`, `PLANS.md`, docs operacionais, seguranca, consentimento, ambiente e aceite sincronizados com Prompt 17.
+- `AGENTS.md` reestruturado como guia operacional do repo real, com stack, comandos, pastas importantes, regras de aprovacao, testes, PR e auditoria.
+- `README.md`, `RELEASE_READINESS.md`, `BETA_CHECKLIST.md`, `SUPABASE_PLAN.md`, `OPEN_QUESTIONS.md` e `BUG_TRIAGE.md` sincronizados com o estado vivo pre-beta: evidencia anterior de RLS preview existe, mas beta real exige rerun fresco, Auth publicado, smoke externo, secrets, LGPD e rollback.
 
 ### Fixed
 

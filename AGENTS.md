@@ -1,210 +1,182 @@
 # AGENTS.md
 
-## Identidade do projeto
+## Projeto
 
 Projeto: Proposito em Acao.
 
 Produto: SaaS desktop-first de vida intencional, foco, execucao, habitos, autorregulacao e produtividade assistida por IA, com PWA/mobile complementar para acoes rapidas.
 
-Eixo do produto: Chamado Pessoal antes de agenda. O sistema deve partir da direcao de vida e transformar essa direcao em alvos, projetos, tarefas, habitos e calendario.
+Eixo do produto: Chamado Pessoal antes de agenda. O sistema parte da direcao de vida e transforma essa direcao em alvos, projetos, tarefas, habitos e calendario.
 
-Regra central: a V1 deve ser completa em largura e controlada em profundidade. Todos os modulos principais devem existir, ainda que alguns nascam simples.
+Regra central: a V1 deve ser completa em largura e controlada em profundidade. Todos os modulos principais devem existir, ainda que alguns sejam simples.
+
+Estado operacional: V1 local ampla e pre-beta real. Prompt 17 preparou beta fechado, observabilidade, feedback e V1.1, mas beta com usuarios reais e producao aberta continuam bloqueados ate existir URL HTTPS publicada, Auth real validado, smoke externo, secrets configurados no provedor, LGPD minima, rollback aprovado e evidencia fresca de Supabase/RLS.
 
 ## Fontes de verdade
 
-- `docs/source/prd_proposito_em_acao.md` e o PRD original sao a fonte raiz de escopo.
-- `docs/PRODUCT_VISION.md` define visao, proposta de valor e limites do produto.
-- `docs/PRD.md` e a fonte operacional de requisitos da V1.
-- `docs/MVP_SCOPE.md` define largura/profundidade da V1.
-- `docs/USER_FLOWS.md` define fluxos principais.
-- `docs/DOMAIN_MODEL.md` e `docs/DATABASE_SCHEMA_DRAFT.md` orientam dominio e banco futuro.
-- `docs/AI_ARCHITECTURE.md`, `docs/AI_GUARDRAILS.md` e `docs/METACOGNITION_MODULE.md` orientam IA e Metacognicao.
-- `docs/SECURITY_PRIVACY.md` e `docs/DATA_SENSITIVITY_MATRIX.md` orientam seguranca, privacidade, consentimento, Atalaia e LGPD.
-- `docs/UX_UI_GUIDE.md` define UX TDAH-first.
-- `docs/TESTING_STRATEGY.md` e `docs/ACCEPTANCE_CRITERIA.md` definem qualidade e aceite.
-- `AGENTS.md` rege como Codex e agentes devem trabalhar neste repositorio.
-- `PLANS.md` rege execucao por etapas.
-- `docs/DECISIONS.md` registra decisoes de produto, arquitetura e governanca.
-- Mudancas relevantes em arquitetura, IA, banco, UX, seguranca ou escopo devem atualizar a documentacao correspondente.
+- Produto e escopo: `docs/source/prd_proposito_em_acao.md`, `docs/PRODUCT_VISION.md`, `docs/PRD.md`, `docs/MVP_SCOPE.md`, `docs/USER_FLOWS.md`.
+- Dominio e banco: `docs/DOMAIN_MODEL.md`, `docs/DATABASE_SCHEMA.md`, `docs/DATABASE_SCHEMA_DRAFT.md`.
+- Arquitetura e stack: `docs/STACK_DECISION.md`, `docs/ARCHITECTURE.md`, `docs/FRONTEND_ARCHITECTURE.md`, `docs/BACKEND_ARCHITECTURE.md`.
+- IA: `docs/AI_ARCHITECTURE.md`, `docs/AI_AGENTS.md`, `docs/AI_SCHEMAS.md`, `docs/AI_GUARDRAILS.md`, `docs/AI_EVALS.md`, `docs/METACOGNITION_MODULE.md`.
+- Seguranca e dados: `docs/SECURITY_PRIVACY.md`, `docs/DATA_SENSITIVITY_MATRIX.md`, `docs/SECURITY_NOTES.md`, `docs/CONSENT_ACCESS_MODEL.md`.
+- Supabase/RLS: `docs/SUPABASE_PLAN.md`, `docs/SUPABASE_PREVIEW_CUTOVER.md`, `docs/RLS_POLICIES.md`, `docs/RLS_ACCESS_MATRIX.md`, `supabase/README.md`.
+- UX e qualidade: `docs/UX_UI_GUIDE.md`, `docs/ACCESSIBILITY.md`, `docs/TESTING_STRATEGY.md`, `docs/TESTING_SETUP.md`, `docs/ACCEPTANCE_CRITERIA.md`.
+- Release e beta: `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md`, `docs/SMOKE_TEST_REPORT.md`, `docs/ROLLBACK_PLAN.md`, `docs/OPERATIONS_RUNBOOK.md`.
+- Workflow: `PLANS.md`, `docs/CODEX_WORKFLOW.md`, `docs/PR_CHECKLIST.md`, `docs/DECISIONS.md`, `docs/CHANGELOG.md`.
 
-## Regras de trabalho do Codex
+Quando documentos divergirem, siga a regra mais restritiva, verifique o estado real do repositorio/ambiente e reporte a inconsistencia antes de agir.
+
+## Stack real
+
+- Next.js App Router, React, TypeScript strict e Tailwind CSS.
+- Supabase para Auth, Postgres, RLS e Storage.
+- OpenAI API e DeepSeek API planejados server-side; chamadas reais ficam desativadas ate aprovacao operacional.
+- Zod, React Hook Form, lucide-react, Vitest, Playwright, ESLint e Prettier.
+- PWA com `public/manifest.json`, `public/sw.js` e icones em `public/icons/`.
+- Dockerfile preparado para preview/deploy via VPS Hostinger + Coolify.
+
+Nao alterar stack, provider, Auth, deploy, banco, CI/CD, modelo de IA ou estrategia mobile sem etapa propria e aprovacao explicita.
+
+## Comandos principais
+
+Use `npm.cmd` no Windows deste projeto.
+
+- Instalar dependencias: `npm.cmd install`.
+- Desenvolvimento local: `npm.cmd run dev`.
+- Build: `npm.cmd run build`.
+- Servir build local: `npm.cmd run start`.
+- Lint: `npm.cmd run lint`.
+- Typecheck: `npm.cmd run typecheck`.
+- Testes unitarios/integracao/evals: `npm.cmd run test`.
+- E2E local: `npm.cmd run test:e2e`.
+- Smoke externo: definir `PLAYWRIGHT_BASE_URL` ou `PREVIEW_URL` e rodar `npm.cmd run test:e2e:external`.
+- Gerar tipos Supabase de preview: `npm.cmd run supabase:types:preview`.
+- Validar Supabase preview/Auth/RLS: `npm.cmd run supabase:validate:preview`.
+
+`npm.cmd run test:e2e` usa `scripts/run-e2e.mjs`: faz build, sobe `next start` em `127.0.0.1:3000`, aguarda readiness, roda Playwright com `--workers=1` e encerra o servidor no Windows. Prefira esse caminho ao `webServer` do Playwright.
+
+SQL versionado, scripts preparados ou migrations locais nao sao prova de validacao remota. So declare Supabase/Auth/RLS validado quando houver evidencia fresca do ambiente correto.
+
+## Estrutura importante
+
+- `src/app/`: rotas App Router e server actions.
+- `src/components/`: componentes de UI, layout e modulos.
+- `src/domain/`: regras de dominio, tipos e persistencia/fallbacks.
+- `src/ai/`: agentes, schemas, prompts, guardrails e evals.
+- `src/lib/supabase/`: clients separados para browser, server e admin server-only.
+- `src/lib/openai/` e `src/lib/email/`: providers reais/mockados e barreiras server-side.
+- `src/tests/unit`, `src/tests/integration`, `src/tests/e2e`: testes.
+- `supabase/migrations/`: migrations versionadas.
+- `scripts/`: harnesses de E2E, smoke externo e Supabase preview.
+- `knowledge/`: placeholder de base de conhecimento da IA; nao e memoria do projeto e nao deve receber material real/vector store/file search sem aprovacao.
+- `.agents/skills/`: skills locais do projeto; use a skill relevante quando a tarefa envolver seu dominio.
+
+## Regras de trabalho
 
 1. Inspecionar antes de alterar arquivos.
-2. Preservar tudo que ja existir; nao apagar nem sobrescrever sem justificativa clara.
-3. Planejar antes de codar em toda tarefa complexa, multi-arquivo, sensivel ou que mude comportamento de produto.
-4. Usar subagentes quando houver multiplos dominios, risco alto, revisao especializada ou trabalho paralelizavel.
-5. Trabalhar em escopos pequenos e revisaveis.
-6. Nao criar funcionalidades fora do PRD sem aprovacao explicita.
-7. Nao escolher stack definitiva sem uma etapa propria de arquitetura.
-8. Reportar bloqueios, suposicoes e comandos nao executados.
-9. Nunca mascarar risco de seguranca, privacidade, IA ou escopo.
+2. Preservar trabalho existente; nao apagar, sobrescrever ou reverter mudancas sem justificativa e aprovacao quando houver risco.
+3. Planejar antes de tarefa complexa, multi-arquivo, sensivel ou que mude comportamento de produto.
+4. Usar subagentes quando houver dominios independentes, risco alto, revisao especializada ou trabalho paralelizavel.
+5. Trabalhar em escopos pequenos, revisaveis e alinhados ao PRD.
+6. Nao criar funcionalidade fora do PRD ou da decisao aprovada.
+7. Atualizar documentacao quando houver mudanca relevante de arquitetura, IA, banco, UX, seguranca, release ou escopo.
+8. Reportar bloqueios, suposicoes, comandos nao executados e validacoes pendentes.
+9. Nunca mascarar risco de seguranca, privacidade, IA, Supabase, Atalaia, LGPD ou escopo.
 
-## Limites historicos da etapa de bootstrap
+## Nunca fazer sem aprovacao explicita
 
-A etapa inicial de bootstrap nao deveria implementar frontend do SaaS, banco de dados, autenticacao, projeto Supabase, chamadas reais a OpenAI API, deploy, telas finais ou prompts finais de produto.
-
-## Limites da etapa atual de Supabase/Auth/RLS
-
-Nesta etapa e permitido criar migrations, policies, storage privado, clientes Supabase seguros, tipos preparatorios, testes/cenarios RLS, documentacao tecnica e skills locais relacionadas. Nao implementar UI completa, onboarding completo, Chamado funcional, Metacognicao funcional, chamadas reais a OpenAI, deploy, uso de service role no frontend ou acesso amplo de Atalaia.
-
-## Limites da etapa atual de Onboarding e Direcao
-
-Prompt 6 autoriza implementar o fluxo inicial de onboarding: perfil essencial, Mapa da Vida, Chamado Pessoal em discernimento, hipotese provisoria e dashboard inicial. A etapa continua proibindo alvos completos, projetos, tarefas, calendario funcional, Metacognicao funcional, Desbloqueador funcional, habitos, Placar completo, Atalaia funcional, deploy, OpenAI real sem autorizacao/configuracao e acesso amplo a dados sensiveis. Sem Auth/Supabase aplicado, qualquer persistencia deve ser apresentada como fallback local/dev e nao como dado produtivo confirmado.
-
-## Limites da etapa atual de Alvos, Projetos e Tarefas
-
-Prompt 8 autoriza implementar o nucleo de execucao: alvos SMART-E revisaveis, projetos, tarefas, microtarefas, proxima acao, mocks seguros e persistencia Supabase preparada por server actions. A etapa continua proibindo calendario funcional, inbox funcional, habitos funcionais, Placar completo, Metacognicao funcional, Desbloqueador funcional, Atalaia funcional, deploy, OpenAI real acionada por UI e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
-
-## Limites da etapa atual de Calendario e Inbox/GTD
-
-Prompt 9 autoriza implementar calendario de execucao simples, visao semanal, visao diaria, blocos de tempo, agendamento/reagendamento, alerta basico de sobrecarga, caixa de entrada, captura rapida, classificacao mock/IA preparada e processamento revisavel. A etapa continua proibindo Desbloqueador funcional, Metacognicao funcional, Modo Foco funcional, habitos completos, Placar completo, Atalaia funcional, revisao semanal funcional, Jardim funcional, deploy, OpenAI real acionada por UI, integracoes externas de calendario, drag-and-drop obrigatorio, recorrencia avancada e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
-
-## Limites da etapa atual de Desbloqueador e Metacognicao
-
-Prompt 10 autoriza implementar Desbloqueador de Acao funcional, Metacognicao funcional, mocks seguros, schemas estruturados, historico privado, persistencia Supabase preparada por server actions, guardrails clinicos/pastorais/de crise e evals principais. A etapa continua proibindo Modo Foco completo, habitos completos, Placar completo, Atalaia funcional, revisao semanal funcional, Jardim funcional, deploy, OpenAI real acionada por UI, compartilhamento automatico de Metacognicao, diagnostico clinico, terapia profunda, afirmacao de vontade divina especifica e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
-
-## Limites da etapa atual de Foco, Habitos e Placar
-
-Prompt 11 autoriza implementar Modo Foco/Pomodoro, captura de distracoes, conclusao de foco, habitos com IA mockada/real preparada, marcacao diaria de habitos, Placar da Disciplina, retomadas, indicadores leves, migrations preparatorias, RLS owner-only, testes e documentacao. A etapa continua proibindo Atalaia funcional, compartilhamento de Placar com Atalaia, Revisao Semanal funcional, Jardim funcional, Modo Foco mobile/PWA completo, integracoes externas de calendario, deploy, OpenAI real acionada por UI sem autorizacao/configuracao e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
-
-## Limites da etapa atual de PWA/Mobile Complementar
-
-Prompt 14 autoriza implementar PWA responsivo complementar, manifest, icones PWA simples, service worker seguro, shell `/mobile`, captura rapida, marcacao rapida de habitos e Placar, foco curto, Desbloqueador rapido, Metacognicao rapida, check-in de energia, migration `energy_checkins`, RLS owner-only, testes e documentacao. A etapa continua proibindo app nativo, push notifications, fila offline sensivel, cache de dados sensiveis, calendario mobile complexo, edicao profunda de projetos/tarefas, Atalaia mobile funcional, deploy, OpenAI real acionada pela UI e qualquer uso de service role no frontend. Sem Auth/Supabase aplicado, persistencia deve ser fallback local/dev e nao dado produtivo confirmado.
-
-## Limites da etapa atual de QA final V1
-
-Prompt 15 autoriza QA final, testes automatizados/manuais criticos, auditoria de seguranca, RLS, IA, UX TDAH-first, PWA/mobile, correcoes indispensaveis, Auth basico faltante, relatorios e checklist de release. A etapa continua proibindo funcionalidades novas fora da V1, relaxar seguranca para passar teste, desabilitar RLS, expor secrets, ativar OpenAI real sem decisao, aplicar migrations/deploy produtivo sem aprovacao e declarar pronto para producao sem validar Supabase/RLS/Auth reais.
-
-## Limites da etapa atual de Beta Fechado e Observabilidade
-
-Prompt 17 autoriza preparar beta fechado, observabilidade basica, metricas de produto, eventos seguros de analytics, feedback beta, triagem de bugs/feedback, suporte, incident response, monitoramento pos-deploy, skills operacionais e plano V1.1. A etapa continua proibindo grandes funcionalidades novas, analytics com conteudo sensivel, coleta real sem consentimento/LGPD/retencao, beta com usuarios reais antes de preview/Supabase/RLS/Auth/smoke publicados, OpenAI/DeepSeek/e-mail real sem aprovacao operacional, deploy produtivo aberto e mudancas de migrations sem plano proprio.
-
-## Skills locais obrigatorias por dominio
-
-- Produto/escopo: `prd-product-skill`.
-- Documentacao: `docs-sync-skill`.
-- Plano: `execution-plan-skill`.
-- Regras operacionais: `agents-md-skill`.
-- Seguranca/privacidade: `security-privacy-skill`.
-- IA/guardrails: `ai-guardrails-skill`.
-- UX TDAH-first: `ux-tdah-first-skill`.
-- Metacognicao: `metacognition-skill`.
-- Modelo de dominio: `domain-model-skill`.
-- Structured outputs de IA: `ai-structured-output-skill`.
-- Supabase/RLS: `supabase-rls-skill`.
-- Migrations de banco: `database-migration-skill`.
-- Auth seguro: `auth-security-skill`.
-- Atalaia/permissoes: `accountability-permission-skill`.
-- Testes RLS: `rls-testing-skill`.
-- Alvos SMART-E: `smart-goals-skill`.
-- Planejamento de projetos: `project-planning-skill`.
-- Tarefas/microtarefas: `task-breakdown-skill`.
-- Dominio de execucao: `execution-domain-skill`.
-- Calendario de execucao: `calendar-execution-skill`.
-- Inbox/GTD: `gtd-inbox-skill`.
-- Trabalho recorrente simples: `recurring-work-skill`.
-- Sobrecarga de agenda: `schedule-overload-skill`.
-- Classificador de inbox: `inbox-classifier-skill`.
-- Desbloqueador de Acao: `action-unblocker-skill`.
-- Reflexao TCC/metacognitiva: `cbt-reflection-skill`.
-- Crise emocional: `crisis-guardrail-skill`.
-- Dados reflexivos privados: `private-reflection-data-skill`.
-- Modo Foco: `focus-mode-skill`.
-- Design de habitos: `habit-design-skill`.
-- Placar: `scoreboard-skill`.
-- Captura de distracoes: `distraction-capture-skill`.
-- Medicao de retomadas: `restart-tracking-skill`.
-- PWA/mobile: `pwa-mobile-skill`.
-- Captura mobile: `mobile-capture-skill`.
-- Interacao rapida: `fast-interaction-skill`.
-- Privacidade mobile: `mobile-privacy-skill`.
-- Baixa energia mobile: `mobile-low-energy-skill`.
-- QA final V1: `qa-final-v1-skill`.
-- Release readiness: `release-readiness-skill`.
-- Auditoria de seguranca: `security-audit-skill`.
-- Testes de regressao: `regression-testing-skill`.
-- Operacao beta: `beta-operations-skill`.
-- Analytics de produto: `product-analytics-skill`.
-- Triagem de feedback: `feedback-triage-skill`.
-- Triagem de bugs: `bug-triage-skill`.
-- Roadmap V1.1: `v1-1-roadmap-skill`.
-
-## Git e GitHub
-
-- Branch principal: `main`.
-- Branches futuras devem seguir escopo claro, por exemplo `chore/bootstrap-repo-governance`, `docs/product-sources-of-truth`, `feat/onboarding-profile`, `security/supabase-rls-baseline`.
-- Commits devem preferir Conventional Commits, por exemplo `chore: bootstrap project governance`.
-- PRs devem ser pequenos, com checklist preenchido e revisao humana/Codex/CodeRabbit quando disponivel.
-- GitHub remoto recomendado: repositorio privado `proposito-em-acao`.
+- Ativar OpenAI/DeepSeek real em fluxo de produto.
+- Enviar e-mail real ou notificacao externa.
+- Coletar analytics/feedback real com usuarios.
+- Aplicar migrations em ambiente remoto/producao.
+- Alterar policies RLS, Auth, roles ou grants de Atalaia.
+- Relaxar seguranca para passar teste.
+- Expor ou usar `service_role` no cliente, browser, mobile, logs ou `NEXT_PUBLIC_*`.
+- Publicar deploy, preview publico, beta com usuarios reais ou producao aberta.
+- Mudar stack, provider, dominio, CI/CD, secrets, retencao/LGPD ou modelo comercial.
+- Compartilhar Chamado, Metacognicao, Revisao Semanal, saude, familia, financas, emocoes ou dados privados com Atalaia.
+- Cachear dados sensiveis no PWA/offline.
 
 ## Seguranca e privacidade
 
-- Nunca commitar `.env`, `.env.local`, secrets, tokens, chaves ou credenciais.
-- `.env.example` deve conter somente placeholders.
-- Dados de fe, saude, familia, financas, emocoes, Chamado, Metacognicao, Atalaia, calendario, habitos e revisoes sao sensiveis.
-- Dados sensiveis devem ser privados por padrao, coletados com finalidade clara e minimizados.
-- Logs nao devem conter conteudo intimo, prompts privados, respostas brutas de IA ou dados sensiveis desnecessarios.
+- Nunca commitar `.env`, `.env.local`, tokens, chaves, credenciais, access tokens, DB URLs com senha ou secrets.
+- `.env.example` deve conter apenas placeholders.
+- Dados de fe, saude, familia, financas, emocoes, Chamado, Metacognicao, Atalaia, calendario, habitos, revisoes, feedback e analytics sao sensiveis.
+- Dados sensiveis sao privados por padrao, minimizados, coletados com finalidade clara e protegidos por consentimento quando aplicavel.
+- Logs nao devem conter conteudo intimo, prompts privados, respostas brutas de IA, secrets ou erros tecnicos sensiveis.
 - Consentimentos devem ser granulares, versionados, auditaveis e revogaveis.
-- Acoes sensiveis exigem validacao server-side quando a stack existir.
+- Acoes sensiveis exigem validacao server-side.
 
-## Supabase
+## Supabase/RLS
 
 - Toda tabela em schema exposto deve ter Row Level Security habilitado.
-- Politicas devem refletir o modelo real de acesso por usuario, escopo e, quando aplicavel, alvo.
-- Roles e permissoes de autorizacao nao devem depender de metadata editavel pelo usuario. Preferir `app_metadata` ou tabelas server-managed.
-- `service_role` ou secret key nunca podem ir para cliente, browser, mobile ou logs.
-- Storage deve ser privado por padrao.
+- Policies devem refletir owner-only, escopo por usuario, alvo, grant e consentimento quando aplicavel.
+- Atalaia acessa apenas dados autorizados por alvo, permissao granular e revogacao efetiva.
+- Roles e permissoes nao devem depender de metadata editavel pelo usuario; prefira `app_metadata` ou tabelas server-managed.
+- Storage e privado por padrao.
 - Views expostas devem respeitar RLS; em Postgres 15+, preferir `security_invoker = true`.
 - Funcoes `security definer` nao devem ficar em schema exposto.
-- Atalaia deve acessar apenas dados autorizados por alvo, por permissao granular e com revogacao efetiva.
+- `SUPABASE_SERVICE_ROLE_KEY` e somente server/operador autorizado; nunca browser, mobile, logs ou docs.
 
 ## IA
 
 - IA e camada operacional integrada, nao chatbot solto.
-- Saidas de IA que virarem dados devem usar schemas estruturados e validacao.
+- Saidas de IA que viram dados devem usar schemas estruturados e validacao.
 - IA nao deve diagnosticar, substituir terapia, prometer cura, afirmar vontade divina especifica, usar culpa espiritual, humilhar ou manipular.
-- Fluxos com risco emocional grave devem orientar ajuda humana adequada, nao tratar crise como simples produtividade.
-- Mudancas em Chamado, Metacognicao, Desbloqueador de Acao, Revisao Semanal ou Atalaia exigem revisao de guardrails.
+- Fluxos com risco emocional grave devem orientar ajuda humana adequada, nao tratar crise como produtividade comum.
+- Mudancas em Chamado, Metacognicao, Desbloqueador, Revisao Semanal, Atalaia, analytics ou feedback exigem revisao de guardrails.
+- Prompt bruto, resposta bruta e conteudo intimo nao devem ser armazenados por padrao.
 
-## Metacognicao
+## Metacognicao e Atalaia
 
-- Privada por padrao.
-- Nao e terapia nem atendimento clinico.
-- Deve separar fato, interpretacao, sentimento e impulso.
-- Pode confrontar autoengano, vitimizacao e fuga de responsabilidade sem humilhar.
-- Deve terminar com microacao, descanso legitimo, oracao/reflexao opcional ou encaminhamento adequado.
-- Compartilhamento com Atalaia so pode ocorrer por selecao manual e consentimento explicito.
+- Metacognicao e privada por padrao, nao e terapia nem atendimento clinico.
+- Deve separar fato, interpretacao, sentimento e impulso; pode confrontar sem humilhar; termina com microacao, descanso legitimo, oracao/reflexao opcional ou encaminhamento adequado.
+- Compartilhamento com Atalaia so pode ocorrer por selecao manual, previa clara e consentimento explicito.
+- Atalaia e vinculado a alvo especifico, nunca a conta inteira.
+- Excluir por padrao: Chamado completo, Metacognicao, saude, familia, financas, emocoes, revisoes privadas, inbox bruto e calendario completo.
 
-## Atalaia
+## Testes e verificacao
 
-- Vinculado a alvo especifico, nunca a conta inteira.
-- Consentimento granular, revogavel e auditavel.
-- Acesso minimo: status, progresso, marcos e pedidos autorizados.
-- Excluir por padrao: Chamado completo, Metacognicao, saude, familia, financas, emocoes e revisoes privadas.
-- Mensagens ao Atalaia devem ter previa clara do que sera enviado.
+Antes de concluir, rode verificacoes proporcionais ao risco:
 
-## Definition of Done
+- Docs-only: `git diff --check` e revisao de diff/status.
+- Mudanca de codigo comum: `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test`.
+- App Router, server actions, config, dependencia ou comportamento de build: incluir `npm.cmd run build`.
+- Jornada de usuario ou UI funcional: incluir `npm.cmd run test:e2e`.
+- Supabase/RLS: revisar migrations, testes estaticos e, em ambiente aprovado, `npm.cmd run supabase:validate:preview`.
+- Preview/deploy: incluir smoke externo com `npm.cmd run test:e2e:external` contra URL HTTPS publicada.
 
-Uma tarefa so pode ser concluida quando:
+Se uma verificacao nao for executada, informe o motivo e o risco residual. Nao declare sucesso externo sem evidencia fresca.
 
-- O escopo corresponde ao PRD ou a decisao aprovada.
-- O plano foi executado ou desvios foram documentados.
-- Documentacao foi atualizada quando houve mudanca relevante.
-- Nenhum secret ou dado sensivel entrou no diff.
-- RLS/politicas foram revisadas quando houver Supabase.
-- Schemas e guardrails foram revisados quando houver IA.
-- Lint, typecheck, testes e build passam quando a stack existir.
-- Limitacoes, riscos pendentes e proximos passos foram declarados.
+## Git, branches e PRs
 
-## Checklist antes de concluir
+- Branch principal: `main`.
+- Remoto esperado: `origin` em `https://github.com/Deividh2025/proposito_em_acao.git`.
+- Preferir branches pequenas com prefixo claro, normalmente `codex/`.
+- Commits devem seguir Conventional Commits.
+- PRs devem ser pequenos, com checklist preenchido, docs sincronizadas e revisao Codex/CodeRabbit quando disponivel.
+- Antes de commit/push, revisar `git status --short --branch`, diff, secrets, arquivos ignorados e verificacoes.
+
+## Checklist obrigatorio antes de PR ou push
 
 - `git status --short --branch` revisado.
-- Arquivos criados/alterados listados.
+- Arquivos criados/alterados listados e diff entendido.
+- Nenhum secret, dado sensivel ou `.env*` real no diff.
+- Escopo corresponde ao PRD ou decisao aprovada.
+- Documentacao sincronizada quando houve mudanca relevante.
+- RLS/policies revisadas quando houver Supabase.
+- Schemas, prompts e guardrails revisados quando houver IA.
 - Verificacoes executadas e resultados registrados.
-- Documentacao sincronizada.
-- Nenhuma funcionalidade fora de escopo adicionada.
-- Nenhuma acao externa pendente foi apresentada como concluida.
+- Limitacoes, riscos pendentes e proximos passos declarados.
+- Nenhuma acao externa pendente apresentada como concluida.
+
+## Auditoria de bugs e seguranca
+
+- Classificar bugs por severidade, impacto, privacidade e bloqueio de fluxo.
+- Reproduzir com dados ficticios e menor fluxo possivel.
+- Bugs de vazamento, RLS, Auth, Atalaia, cache sensivel, IA insegura, secrets ou deploy quebrado bloqueiam beta/producao.
+- Registrar achados em `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/SECURITY_AUDIT_REPORT.md`, `docs/RLS_TEST_REPORT.md` ou `docs/RELEASE_READINESS.md`, conforme o caso.
 
 ## Como lidar com duvidas
 
-Se a duvida for discoverable no repositorio, inspecione primeiro. Se for preferencia de produto, tradeoff de arquitetura, risco de privacidade ou decisao comercial, pergunte ou registre uma suposicao explicita quando a decisao for segura.
+Se a duvida for discoverable no repositorio, inspecione primeiro. Se for preferencia de produto, tradeoff de arquitetura, risco de privacidade ou decisao comercial, pergunte ou registre uma suposicao explicita apenas quando a decisao for segura e reversivel.

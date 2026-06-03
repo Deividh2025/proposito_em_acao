@@ -21,6 +21,7 @@ Registro das decisoes de produto, arquitetura e governanca.
 - `docs/source/prd_proposito_em_acao.md` e a fonte raiz; `docs/PRD.md` e a fonte operacional derivada da V1.
 - `docs/SECURITY_PRIVACY.md` e a fonte principal de seguranca/privacidade; `docs/SECURITY_NOTES.md` permanece como nota resumida de bootstrap.
 - Stack tecnica inicial decidida: Next.js App Router, React, TypeScript strict, Tailwind, Supabase, OpenAI server-side futuro, Zod, React Hook Form, Vitest e Playwright.
+- `AGENTS.md` deve ser mantido como guia operacional vivo do repositorio real, incluindo stack atual, comandos, gates, regras de aprovacao e limites de seguranca.
 - Prompt 4 prepara migrations, RLS, storage e clientes Supabase no repositorio; aplicacao remota exige credenciais administrativas e validacao propria.
 - Projeto Supabase informado para desenvolvimento: `https://bceumcfmjftoukzrfthe.supabase.co`, project ref `bceumcfmjftoukzrfthe`.
 - Repositorio GitHub informado: `Deividh2025/proposito_em_acao`, remote HTTPS `https://github.com/Deividh2025/proposito_em_acao.git`.

@@ -2,6 +2,14 @@
 
 Data: 2026-06-02.
 
+## Status vivo consolidado
+
+- Produto: V1 local ampla, em pre-beta real.
+- Gates locais passaram em rodadas anteriores, mas devem ser reexecutados antes de novo PR, release candidate ou deploy.
+- Supabase/RLS em branch preview teve evidencia anterior em 2026-06-02; a rodada mais recente preparou o pack revisavel e exige rerun fresco antes de beta com usuarios reais ou producao.
+- Beta real e producao aberta continuam bloqueados ate URL HTTPS publicada, Auth real validado, smoke externo, secrets no provedor, LGPD minima, rollback aprovado e decisao operacional de IA/e-mail/analytics.
+- SQL versionado, scripts preparados ou docs atualizados nao equivalem a validacao remota aplicada.
+
 ## Status
 
 Localmente aprovado para preparar Prompt 16, mas nao aprovado para deploy produtivo imediato sem gates externos.

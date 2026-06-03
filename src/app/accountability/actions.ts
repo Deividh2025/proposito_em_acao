@@ -14,16 +14,20 @@ import {
   type BasicAccountabilityActionResult
 } from "@/domain/accountability";
 import { executionActionResultSchema } from "@/domain/execution/persistence";
+import {
+  missingSessionResult,
+  noAffectedRowResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { buildAccountabilityEmailTemplate } from "@/lib/email/templates/accountability";
 import { createEmailProvider } from "@/lib/email/provider";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-function localDraft(message: string, id?: string): BasicAccountabilityActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: true, message, id });
-}
-
 function errorDraft(message: string): BasicAccountabilityActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: false, message });
+  return realServiceErrorResult(executionActionResultSchema, message);
 }
 
 function hashToken(token: string) {
@@ -48,7 +52,13 @@ export async function generateAccountabilityInviteDraft(input: unknown): Promise
 }
 
 export async function persistAccountabilityInvite(input: unknown): Promise<BasicAccountabilityActionResult> {
-  const parsed = persistAccountabilityInviteInputSchema.parse(input);
+  const inputResult = safeParseActionInput(persistAccountabilityInviteInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const draft = buildAccountabilityInviteDraft(parsed);
 
   if (!draft.preview.privacy_check.safe_to_send) {
@@ -69,7 +79,11 @@ export async function persistAccountabilityInvite(input: unknown): Promise<Basic
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Convite mantido como rascunho local/dev. Entre para persistir com RLS.", draft.grant.id);
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Convite mantido como rascunho local/dev. Entre para persistir com RLS.",
+        draft.grant.id
+      );
     }
 
     const { data: goal, error: goalError } = await supabase
@@ -123,7 +137,7 @@ export async function persistAccountabilityInvite(input: unknown): Promise<Basic
       return errorDraft("Atalaia criado, mas o grant por alvo nao foi salvo.");
     }
 
-    await supabase.from("accountability_events").insert({
+    const { error: eventError } = await supabase.from("accountability_events").insert({
       user_id: user.id,
       accountability_partner_id: partnerId,
       accountability_grant_id: grantId,
@@ -138,6 +152,13 @@ export async function persistAccountabilityInvite(input: unknown): Promise<Basic
       }
     });
 
+    if (eventError) {
+      return realServiceErrorResult(
+        executionActionResultSchema,
+        "Convite salvo, mas a auditoria do Atalaia nao foi registrada."
+      );
+    }
+
     const emailProvider = createEmailProvider();
     const emailResult = await emailProvider.send({
       body: emailTemplate.body,
@@ -151,7 +172,7 @@ export async function persistAccountabilityInvite(input: unknown): Promise<Basic
       to: parsed.partnerEmail
     });
 
-    await supabase.from("accountability_notifications").insert({
+    const { error: notificationError } = await supabase.from("accountability_notifications").insert({
       user_id: user.id,
       accountability_partner_id: partnerId,
       accountability_grant_id: grantId,
@@ -170,19 +191,37 @@ export async function persistAccountabilityInvite(input: unknown): Promise<Basic
       privacy_check: draft.preview.privacy_check
     });
 
-    return executionActionResultSchema.parse({
-      id: grantId,
-      message: `Convite salvo com grant por alvo. ${emailResult.message}`,
-      mode: "supabase",
-      ok: true
-    });
+    if (notificationError) {
+      return realServiceErrorResult(
+        executionActionResultSchema,
+        "Convite salvo, mas a notificacao do Atalaia nao foi registrada."
+      );
+    }
+
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      `Convite salvo com grant por alvo. ${emailResult.message}`,
+      grantId
+    );
   } catch {
-    return localDraft("Modo local seguro: convite validado sem persistencia remota ou envio real.", draft.grant.id);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: convite validado sem persistencia remota ou envio real.",
+      draft.grant.id,
+      {},
+      "Nao foi possivel salvar o convite do Atalaia agora."
+    );
   }
 }
 
 export async function acceptAccountabilityInvite(input: unknown): Promise<BasicAccountabilityActionResult> {
-  const parsed = acceptAccountabilityInviteInputSchema.parse(input);
+  const inputResult = safeParseActionInput(acceptAccountabilityInviteInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -191,7 +230,10 @@ export async function acceptAccountabilityInvite(input: unknown): Promise<BasicA
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Aceite simulado em local/dev. Auth real e necessario para ativar o painel limitado.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Aceite simulado em local/dev. Auth real e necessario para ativar o painel limitado."
+      );
     }
 
     const tokenHash = hashToken(parsed.inviteToken);
@@ -224,41 +266,56 @@ export async function acceptAccountabilityInvite(input: unknown): Promise<BasicA
       ...(parsed.partnerDisplayName ? { name: parsed.partnerDisplayName } : {})
     };
 
-    const { error: partnerUpdateError } = await supabase
+    const { data: partnerUpdateData, error: partnerUpdateError } = await supabase
       .from("accountability_partners")
       .update(partnerUpdate)
       .eq("id", partnerId)
       .eq("status", "invited")
-      .is("partner_user_id", null);
+      .is("partner_user_id", null)
+      .select("id")
+      .maybeSingle();
 
-    if (partnerUpdateError) {
+    if (partnerUpdateError || !partnerUpdateData?.id) {
       return errorDraft("Nao foi possivel aceitar o convite agora.");
     }
 
-    const { error: grantUpdateError } = await supabase
+    const { data: grantUpdateData, error: grantUpdateError } = await supabase
       .from("accountability_grants")
       .update({ accepted_at: new Date().toISOString(), status: "active" })
       .eq("accountability_partner_id", partnerId)
       .eq("user_id", ownerUserId)
-      .eq("status", "invited");
+      .eq("status", "invited")
+      .select("id")
+      .maybeSingle();
 
-    if (grantUpdateError) {
+    if (grantUpdateError || !grantUpdateData?.id) {
       return errorDraft("Convite aceito, mas o grant por alvo nao foi ativado.");
     }
 
-    return executionActionResultSchema.parse({
-      id: partnerId,
-      message: "Convite aceito. O painel limitado respeita o grant por alvo.",
-      mode: "supabase",
-      ok: true
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Convite aceito. O painel limitado respeita o grant por alvo.",
+      partnerId
+    );
   } catch {
-    return localDraft("Modo local seguro: aceite validado sem ativar acesso real.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: aceite validado sem ativar acesso real.",
+      undefined,
+      {},
+      "Nao foi possivel aceitar o convite agora."
+    );
   }
 }
 
 export async function revokeAccountabilityGrant(input: unknown): Promise<BasicAccountabilityActionResult> {
-  const parsed = revokeAccountabilityGrantInputSchema.parse(input);
+  const inputResult = safeParseActionInput(revokeAccountabilityGrantInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -267,11 +324,15 @@ export async function revokeAccountabilityGrant(input: unknown): Promise<BasicAc
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Revogacao simulada em local/dev. Entre para revogar um grant real.", parsed.grantId);
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Revogacao simulada em local/dev. Entre para revogar um grant real.",
+        parsed.grantId
+      );
     }
 
     const revokedAt = new Date().toISOString();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("accountability_grants")
       .update({
         revoked_at: revokedAt,
@@ -279,27 +340,45 @@ export async function revokeAccountabilityGrant(input: unknown): Promise<BasicAc
         status: "revoked"
       })
       .eq("id", parsed.grantId)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
       return errorDraft("Nao foi possivel revogar o grant agora.");
     }
 
-    await supabase
+    if (!data?.id) {
+      return noAffectedRowResult(executionActionResultSchema, "Grant nao encontrado para este usuario.");
+    }
+
+    const { error: notificationCancelError } = await supabase
       .from("accountability_notifications")
       .update({ status: "cancelled", blocked_reason: "grant_revoked" })
       .eq("accountability_grant_id", parsed.grantId)
       .eq("user_id", user.id)
       .in("status", ["draft", "previewed", "approved", "queued"]);
 
-    return executionActionResultSchema.parse({
-      id: parsed.grantId,
-      message: "Acesso revogado e notificacoes pendentes canceladas.",
-      mode: "supabase",
-      ok: true
-    });
+    if (notificationCancelError) {
+      return realServiceErrorResult(
+        executionActionResultSchema,
+        "Grant revogado, mas as notificacoes pendentes nao foram canceladas agora."
+      );
+    }
+
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Acesso revogado e notificacoes pendentes canceladas.",
+      parsed.grantId
+    );
   } catch {
-    return localDraft("Modo local seguro: revogacao validada e notificacoes tratadas como canceladas.", parsed.grantId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: revogacao validada e notificacoes tratadas como canceladas.",
+      parsed.grantId,
+      {},
+      "Nao foi possivel revogar o grant agora."
+    );
   }
 }
 

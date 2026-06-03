@@ -36,7 +36,7 @@ export function MobileShell({ children, showBack = true, subtitle, title }: Mobi
           </div>
         </section>
       </header>
-      <main className="space-y-4">{children}</main>
+      <section className="space-y-4">{children}</section>
       <MobileQuickNav />
     </div>
   );

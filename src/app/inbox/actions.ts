@@ -15,14 +15,17 @@ import {
   type InboxActionResult
 } from "@/domain/inbox/persistence";
 import { executionActionResultSchema } from "@/domain/execution/persistence";
+import {
+  missingSessionResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-function localDraft(message: string, id?: string): BasicInboxActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: true, message, id });
-}
-
 function errorDraft(message: string): BasicInboxActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: false, message });
+  return realServiceErrorResult(executionActionResultSchema, message);
 }
 
 const GENERIC_INBOX_ERROR = "Nao foi possivel concluir a acao da inbox agora. Tente novamente.";
@@ -90,7 +93,13 @@ async function destinationBelongsToUser(
 }
 
 export async function captureInboxItem(input: unknown): Promise<BasicInboxActionResult> {
-  const parsed = captureInboxItemInputSchema.parse(input);
+  const inputResult = safeParseActionInput(captureInboxItemInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -99,7 +108,10 @@ export async function captureInboxItem(input: unknown): Promise<BasicInboxAction
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Item capturado nesta sessão local/dev. Entre para persistir com RLS.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Item capturado nesta sessão local/dev. Entre para persistir com RLS."
+      );
     }
 
     const { data, error } = await supabase
@@ -118,19 +130,30 @@ export async function captureInboxItem(input: unknown): Promise<BasicInboxAction
       return errorDraft(GENERIC_INBOX_ERROR);
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Item capturado no Supabase com policy owner-only.",
-      id: data?.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Item capturado no Supabase com policy owner-only.",
+      data.id
+    );
   } catch {
-    return localDraft("Item capturado nesta sessão local/dev. Nenhum dado foi enviado para OpenAI.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Item capturado nesta sessão local/dev. Nenhum dado foi enviado para OpenAI.",
+      undefined,
+      {},
+      GENERIC_INBOX_ERROR
+    );
   }
 }
 
 export async function classifyInboxItem(input: unknown): Promise<InboxActionResult> {
-  const parsed = classifyInboxItemInputSchema.parse(input);
+  const inputResult = safeParseActionInput(classifyInboxItemInputSchema, input, inboxActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const classification = inboxClassificationOutputSchema.parse(buildInboxClassificationMock(parsed.content));
 
   return inboxActionResultSchema.parse({
@@ -143,7 +166,13 @@ export async function classifyInboxItem(input: unknown): Promise<InboxActionResu
 }
 
 export async function processInboxItem(input: unknown): Promise<BasicInboxActionResult> {
-  const parsed = processInboxItemInputSchema.parse(input);
+  const inputResult = safeParseActionInput(processInboxItemInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -152,7 +181,7 @@ export async function processInboxItem(input: unknown): Promise<BasicInboxAction
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft(localProcessMessage(parsed.destinationType), parsed.itemId);
+      return missingSessionResult(executionActionResultSchema, localProcessMessage(parsed.destinationType), parsed.itemId);
     }
 
     const { data: inboxItem, error: inboxError } = await supabase
@@ -298,14 +327,19 @@ export async function processInboxItem(input: unknown): Promise<BasicInboxAction
       return errorDraft("Item da inbox nao encontrado para este usuario.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Item processado com filtro de dono e revisão humana.",
-      id: destinationId ?? parsed.itemId
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Item processado com filtro de dono e revisão humana.",
+      destinationId ?? parsed.itemId
+    );
   } catch {
-    return localDraft(localProcessMessage(parsed.destinationType), parsed.itemId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      localProcessMessage(parsed.destinationType),
+      parsed.itemId,
+      {},
+      GENERIC_INBOX_ERROR
+    );
   }
 }
 

@@ -14,14 +14,18 @@ import {
   type ScoreboardActionResult
 } from "@/domain/scoreboard";
 import { executionActionResultSchema } from "@/domain/execution/persistence";
+import {
+  localOnlyDraftResult,
+  missingSessionResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-function localDraft(message: string, id?: string): BasicScoreboardActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: true, message, id });
-}
-
 function errorDraft(message: string): BasicScoreboardActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: false, message });
+  return realServiceErrorResult(executionActionResultSchema, message);
 }
 
 export async function generateScoreboardPlanDraft(input: unknown): Promise<ScoreboardActionResult> {
@@ -37,7 +41,13 @@ export async function generateScoreboardPlanDraft(input: unknown): Promise<Score
 }
 
 export async function createScoreboard(input: unknown): Promise<BasicScoreboardActionResult> {
-  const parsed = createScoreboardInputSchema.parse(input);
+  const inputResult = safeParseActionInput(createScoreboardInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -46,7 +56,7 @@ export async function createScoreboard(input: unknown): Promise<BasicScoreboardA
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Placar criado apenas nesta sessao local/dev.");
+      return missingSessionResult(executionActionResultSchema, "Placar criado apenas nesta sessao local/dev.");
     }
 
     const { data, error } = await supabase
@@ -67,19 +77,30 @@ export async function createScoreboard(input: unknown): Promise<BasicScoreboardA
       return errorDraft("Nao foi possivel criar o Placar agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Placar salvo no Supabase como privado por padrao.",
-      id: data.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Placar salvo no Supabase como privado por padrao.",
+      data.id
+    );
   } catch {
-    return localDraft("Modo local seguro: Placar validado sem persistencia remota.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: Placar validado sem persistencia remota.",
+      undefined,
+      {},
+      "Nao foi possivel criar o Placar agora."
+    );
   }
 }
 
 export async function persistScoreboardPlan(input: unknown): Promise<BasicScoreboardActionResult> {
-  const parsed = persistScoreboardPlanInputSchema.parse(input);
+  const inputResult = safeParseActionInput(persistScoreboardPlanInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const plan = parsed.output;
 
   try {
@@ -89,7 +110,10 @@ export async function persistScoreboardPlan(input: unknown): Promise<BasicScoreb
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Plano de Placar mantido local/dev. Entre para persistir com RLS.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Plano de Placar mantido local/dev. Entre para persistir com RLS."
+      );
     }
 
     const { data: scoreboard, error: scoreboardError } = await supabase
@@ -130,22 +154,39 @@ export async function persistScoreboardPlan(input: unknown): Promise<BasicScoreb
       return errorDraft("Placar criado, mas os itens nao foram salvos agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Placar e itens salvos como privados e revisaveis.",
-      id: scoreboard.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Placar e itens salvos como privados e revisaveis.",
+      scoreboard.id
+    );
   } catch {
-    return localDraft("Modo local seguro: plano de Placar validado sem envio externo.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: plano de Placar validado sem envio externo.",
+      undefined,
+      {},
+      "Nao foi possivel salvar o Placar agora."
+    );
   }
 }
 
 export async function createScoreboardItem(input: unknown): Promise<BasicScoreboardActionResult> {
-  const parsed = createScoreboardItemInputSchema.parse(input);
+  const inputResult = safeParseActionInput(createScoreboardItemInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   if (!parsed.scoreboardId) {
-    return localDraft("Item de Placar criado local/dev ate existir um Placar salvo.");
+    return localOnlyDraftResult(
+      executionActionResultSchema,
+      "Item de Placar criado local/dev ate existir um Placar salvo.",
+      undefined,
+      {},
+      "Salve o Placar antes de persistir um item real."
+    );
   }
 
   try {
@@ -155,7 +196,7 @@ export async function createScoreboardItem(input: unknown): Promise<BasicScorebo
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Item de Placar criado apenas nesta sessao local/dev.");
+      return missingSessionResult(executionActionResultSchema, "Item de Placar criado apenas nesta sessao local/dev.");
     }
 
     const { data: scoreboard, error: scoreboardError } = await supabase
@@ -189,19 +230,30 @@ export async function createScoreboardItem(input: unknown): Promise<BasicScorebo
       return errorDraft("Nao foi possivel criar o item do Placar agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Item do Placar salvo com validacao owner-only.",
-      id: data.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Item do Placar salvo com validacao owner-only.",
+      data.id
+    );
   } catch {
-    return localDraft("Modo local seguro: item de Placar validado sem persistencia remota.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: item de Placar validado sem persistencia remota.",
+      undefined,
+      {},
+      "Nao foi possivel criar o item do Placar agora."
+    );
   }
 }
 
 export async function markScoreboardItem(input: unknown): Promise<BasicScoreboardActionResult> {
-  const parsed = markScoreboardItemInputSchema.parse(input);
+  const inputResult = safeParseActionInput(markScoreboardItemInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const entryDate = parsed.entryDate ?? new Date().toISOString().slice(0, 10);
 
   try {
@@ -211,7 +263,11 @@ export async function markScoreboardItem(input: unknown): Promise<BasicScoreboar
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Marcacao do Placar registrada apenas nesta sessao local/dev.", parsed.itemId);
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Marcacao do Placar registrada apenas nesta sessao local/dev.",
+        parsed.itemId
+      );
     }
 
     const { data: item, error: itemError } = await supabase
@@ -247,13 +303,18 @@ export async function markScoreboardItem(input: unknown): Promise<BasicScoreboar
       return errorDraft("Nao foi possivel marcar o Placar agora.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Placar marcado com idempotencia por item e data.",
-      id: data.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Placar marcado com idempotencia por item e data.",
+      data.id
+    );
   } catch {
-    return localDraft("Modo local seguro: marcacao do Placar validada sem envio externo.", parsed.itemId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Modo local seguro: marcacao do Placar validada sem envio externo.",
+      parsed.itemId,
+      {},
+      "Nao foi possivel marcar o Placar agora."
+    );
   }
 }

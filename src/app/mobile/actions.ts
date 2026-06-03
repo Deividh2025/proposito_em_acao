@@ -1,10 +1,23 @@
 "use server";
 
 import { buildEnergyAdjustment, energyCheckInInputSchema, mobileActionResultSchema } from "@/domain/energy";
+import {
+  missingSessionResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function recordEnergyCheckIn(input: unknown) {
-  const parsed = energyCheckInInputSchema.parse(input);
+  const inputResult = safeParseActionInput(energyCheckInInputSchema, input, mobileActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const adjustment = buildEnergyAdjustment(parsed);
   const capturedAt = parsed.clientCreatedAt ?? new Date().toISOString();
 
@@ -15,12 +28,12 @@ export async function recordEnergyCheckIn(input: unknown) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return mobileActionResultSchema.parse({
-        mode: "local-draft",
-        ok: true,
-        message: "Check-in de energia registrado nesta sessão local/dev.",
-        suggestion: adjustment.suggestion
-      });
+      return missingSessionResult(
+        mobileActionResultSchema,
+        "Check-in de energia registrado nesta sessão local/dev.",
+        undefined,
+        { suggestion: adjustment.suggestion }
+      );
     }
 
     const { data, error } = await supabase
@@ -38,27 +51,24 @@ export async function recordEnergyCheckIn(input: unknown) {
       .single();
 
     if (error || !data?.id) {
-      return mobileActionResultSchema.parse({
-        mode: "local-draft",
-        ok: false,
-        message: "Não foi possível registrar energia agora.",
+      return realServiceErrorResult(mobileActionResultSchema, "Nao foi possivel registrar energia agora.", {
         suggestion: adjustment.suggestion
       });
     }
 
-    return mobileActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Check-in de energia registrado com RLS owner-only.",
-      id: data.id,
-      suggestion: adjustment.suggestion
-    });
+    return supabaseSuccessResult(
+      mobileActionResultSchema,
+      "Check-in de energia registrado com RLS owner-only.",
+      data.id,
+      { suggestion: adjustment.suggestion }
+    );
   } catch {
-    return mobileActionResultSchema.parse({
-      mode: "local-draft",
-      ok: true,
-      message: "Check-in de energia registrado nesta sessão local/dev.",
-      suggestion: adjustment.suggestion
-    });
+    return persistenceCatchResult(
+      mobileActionResultSchema,
+      "Check-in de energia registrado nesta sessão local/dev.",
+      undefined,
+      { suggestion: adjustment.suggestion },
+      "Nao foi possivel registrar energia agora."
+    );
   }
 }

@@ -8,18 +8,28 @@ import {
   startFocusSessionInputSchema,
   type FocusActionResult
 } from "@/domain/focus";
+import {
+  missingSessionResult,
+  noAffectedRowResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-function localDraft(message: string, id?: string): FocusActionResult {
-  return focusActionResultSchema.parse({ mode: "local-draft", ok: true, message, id });
-}
-
 function errorDraft(message: string): FocusActionResult {
-  return focusActionResultSchema.parse({ mode: "local-draft", ok: false, message });
+  return realServiceErrorResult(focusActionResultSchema, message);
 }
 
 export async function startFocusSession(input: unknown): Promise<FocusActionResult> {
-  const parsed = startFocusSessionInputSchema.parse(input);
+  const inputResult = safeParseActionInput(startFocusSessionInputSchema, input, focusActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -28,7 +38,10 @@ export async function startFocusSession(input: unknown): Promise<FocusActionResu
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Sessao de foco iniciada nesta sessao local/dev. Entre para persistir com RLS.");
+      return missingSessionResult(
+        focusActionResultSchema,
+        "Sessao de foco iniciada nesta sessao local/dev. Entre para persistir com RLS."
+      );
     }
 
     if (parsed.taskId) {
@@ -75,22 +88,43 @@ export async function startFocusSession(input: unknown): Promise<FocusActionResu
     }
 
     if (parsed.taskId) {
-      await supabase.from("tasks").update({ status: "in_focus" }).eq("id", parsed.taskId).eq("user_id", user.id);
+      const { data: taskUpdate, error: taskUpdateError } = await supabase
+        .from("tasks")
+        .update({ status: "in_focus" })
+        .eq("id", parsed.taskId)
+        .eq("user_id", user.id)
+        .select("id")
+        .maybeSingle();
+
+      if (taskUpdateError || !taskUpdate?.id) {
+        return realServiceErrorResult(focusActionResultSchema, "Sessao criada, mas a tarefa nao entrou em foco.");
+      }
     }
 
-    return focusActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Sessao de foco salva no Supabase com policy owner-only.",
-      id: data.id
-    });
+    return supabaseSuccessResult(
+      focusActionResultSchema,
+      "Sessao de foco salva no Supabase com policy owner-only.",
+      data.id
+    );
   } catch {
-    return localDraft("Modo local seguro: foco iniciado sem enviar dados a servico externo.");
+    return persistenceCatchResult(
+      focusActionResultSchema,
+      "Modo local seguro: foco iniciado sem enviar dados a servico externo.",
+      undefined,
+      {},
+      "Nao foi possivel iniciar a sessao de foco agora."
+    );
   }
 }
 
 export async function captureFocusDistraction(input: unknown): Promise<FocusActionResult> {
-  const parsed = captureFocusDistractionInputSchema.parse(input);
+  const inputResult = safeParseActionInput(captureFocusDistractionInputSchema, input, focusActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -99,7 +133,7 @@ export async function captureFocusDistraction(input: unknown): Promise<FocusActi
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Distracao capturada apenas nesta sessao local/dev.");
+      return missingSessionResult(focusActionResultSchema, "Distracao capturada apenas nesta sessao local/dev.");
     }
 
     const { data: session, error: sessionError } = await supabase
@@ -116,7 +150,7 @@ export async function captureFocusDistraction(input: unknown): Promise<FocusActi
     let inboxItemId: string | null = null;
 
     if (parsed.routeToInbox) {
-      const { data: inboxItem } = await supabase
+      const { data: inboxItem, error: inboxError } = await supabase
         .from("inbox_items")
         .insert({
           user_id: user.id,
@@ -127,6 +161,10 @@ export async function captureFocusDistraction(input: unknown): Promise<FocusActi
         })
         .select("id")
         .maybeSingle();
+
+      if (inboxError || !inboxItem?.id) {
+        return realServiceErrorResult(focusActionResultSchema, "Nao foi possivel encaminhar a distracao para a Inbox.");
+      }
 
       inboxItemId = typeof inboxItem?.id === "string" ? inboxItem.id : null;
     }
@@ -148,22 +186,33 @@ export async function captureFocusDistraction(input: unknown): Promise<FocusActi
       return errorDraft("Nao foi possivel registrar a distracao agora.");
     }
 
-    return focusActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: parsed.routeToInbox
+    return supabaseSuccessResult(
+      focusActionResultSchema,
+      parsed.routeToInbox
         ? "Distracao salva e encaminhada para a Inbox com RLS owner-only."
         : "Distracao salva na sessao de foco com RLS owner-only.",
-      id: parsed.sessionId,
-      distractionId: data.id
-    });
+      parsed.sessionId,
+      { distractionId: data.id }
+    );
   } catch {
-    return localDraft("Modo local seguro: distracao registrada sem log externo.");
+    return persistenceCatchResult(
+      focusActionResultSchema,
+      "Modo local seguro: distracao registrada sem log externo.",
+      undefined,
+      {},
+      "Nao foi possivel registrar a distracao agora."
+    );
   }
 }
 
 export async function completeFocusSession(input: unknown): Promise<FocusActionResult> {
-  const parsed = completeFocusSessionInputSchema.parse(input);
+  const inputResult = safeParseActionInput(completeFocusSessionInputSchema, input, focusActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -172,7 +221,10 @@ export async function completeFocusSession(input: unknown): Promise<FocusActionR
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Sessao concluida nesta sessao local/dev. Placar real exige Auth/Supabase.");
+      return missingSessionResult(
+        focusActionResultSchema,
+        "Sessao concluida nesta sessao local/dev. Placar real exige Auth/Supabase."
+      );
     }
 
     const { data, error } = await supabase
@@ -193,34 +245,60 @@ export async function completeFocusSession(input: unknown): Promise<FocusActionR
     }
 
     if (parsed.completeTask && parsed.taskId) {
-      await supabase
+      const { data: taskUpdate, error: taskUpdateError } = await supabase
         .from("tasks")
         .update({ status: "completed", completed_at: new Date().toISOString() })
         .eq("id", parsed.taskId)
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .select("id")
+        .maybeSingle();
+
+      if (taskUpdateError || !taskUpdate?.id) {
+        return realServiceErrorResult(focusActionResultSchema, "Sessao concluida, mas a tarefa nao foi atualizada.");
+      }
     }
 
     if (parsed.calendarBlockId) {
-      await supabase
+      const { data: blockUpdate, error: blockUpdateError } = await supabase
         .from("calendar_blocks")
         .update({ status: "completed" })
         .eq("id", parsed.calendarBlockId)
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .select("id")
+        .maybeSingle();
+
+      if (blockUpdateError || !blockUpdate?.id) {
+        return realServiceErrorResult(
+          focusActionResultSchema,
+          "Sessao concluida, mas o bloco de calendario nao foi atualizado."
+        );
+      }
     }
 
-    return focusActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Sessao de foco concluida com filtros de dono.",
-      id: parsed.sessionId
-    });
+    return supabaseSuccessResult(
+      focusActionResultSchema,
+      "Sessao de foco concluida com filtros de dono.",
+      parsed.sessionId
+    );
   } catch {
-    return localDraft("Modo local seguro: conclusao de foco validada sem persistencia remota.", parsed.sessionId);
+    return persistenceCatchResult(
+      focusActionResultSchema,
+      "Modo local seguro: conclusao de foco validada sem persistencia remota.",
+      parsed.sessionId,
+      {},
+      "Nao foi possivel concluir a sessao de foco agora."
+    );
   }
 }
 
 export async function interruptFocusSession(input: unknown): Promise<FocusActionResult> {
-  const parsed = interruptFocusSessionInputSchema.parse(input);
+  const inputResult = safeParseActionInput(interruptFocusSessionInputSchema, input, focusActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -229,10 +307,14 @@ export async function interruptFocusSession(input: unknown): Promise<FocusAction
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Sessao pausada/interrompida apenas nesta sessao local/dev.", parsed.sessionId);
+      return missingSessionResult(
+        focusActionResultSchema,
+        "Sessao pausada/interrompida apenas nesta sessao local/dev.",
+        parsed.sessionId
+      );
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("focus_sessions")
       .update({
         status: parsed.status,
@@ -240,19 +322,26 @@ export async function interruptFocusSession(input: unknown): Promise<FocusAction
         completion_note: parsed.completionNote ?? null
       })
       .eq("id", parsed.sessionId)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
     if (error) {
-      return errorDraft("Nao foi possivel atualizar a sessao de foco agora.");
+      return realServiceErrorResult(focusActionResultSchema, "Nao foi possivel atualizar a sessao de foco agora.");
     }
 
-    return focusActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Sessao atualizada sem punir a retomada.",
-      id: parsed.sessionId
-    });
+    if (!data?.id) {
+      return noAffectedRowResult(focusActionResultSchema, "Sessao de foco nao encontrada para este usuario.");
+    }
+
+    return supabaseSuccessResult(focusActionResultSchema, "Sessao atualizada sem punir a retomada.", parsed.sessionId);
   } catch {
-    return localDraft("Modo local seguro: pausa/interrupcao validada sem envio externo.", parsed.sessionId);
+    return persistenceCatchResult(
+      focusActionResultSchema,
+      "Modo local seguro: pausa/interrupcao validada sem envio externo.",
+      parsed.sessionId,
+      {},
+      "Nao foi possivel atualizar a sessao de foco agora."
+    );
   }
 }

@@ -7,20 +7,29 @@ import {
   type CalendarActionResult
 } from "@/domain/calendar/persistence";
 import { executionActionResultSchema } from "@/domain/execution/persistence";
+import {
+  missingSessionResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-function localDraft(message: string, id?: string): CalendarActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: true, message, id });
-}
-
 function errorDraft(message: string): CalendarActionResult {
-  return executionActionResultSchema.parse({ mode: "local-draft", ok: false, message });
+  return realServiceErrorResult(executionActionResultSchema, message);
 }
 
 const GENERIC_CALENDAR_ERROR = "Nao foi possivel concluir a acao no calendario agora. Tente novamente.";
 
 export async function createCalendarBlock(input: unknown): Promise<CalendarActionResult> {
-  const parsed = createCalendarBlockInputSchema.parse(input);
+  const inputResult = safeParseActionInput(createCalendarBlockInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -29,7 +38,10 @@ export async function createCalendarBlock(input: unknown): Promise<CalendarActio
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Bloco criado nesta sessão local/dev. Entre para persistir com RLS owner-only.");
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Bloco criado nesta sessão local/dev. Entre para persistir com RLS owner-only."
+      );
     }
 
     if (parsed.taskId) {
@@ -64,19 +76,30 @@ export async function createCalendarBlock(input: unknown): Promise<CalendarActio
       return errorDraft(GENERIC_CALENDAR_ERROR);
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Bloco salvo no Supabase com policy owner-only.",
-      id: data?.id
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Bloco salvo no Supabase com policy owner-only.",
+      data.id
+    );
   } catch {
-    return localDraft("Bloco criado nesta sessão local/dev. Nenhum dado foi enviado para servico externo.");
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Bloco criado nesta sessão local/dev. Nenhum dado foi enviado para servico externo.",
+      undefined,
+      {},
+      GENERIC_CALENDAR_ERROR
+    );
   }
 }
 
 export async function updateCalendarBlock(input: unknown): Promise<CalendarActionResult> {
-  const parsed = updateCalendarBlockInputSchema.parse(input);
+  const inputResult = safeParseActionInput(updateCalendarBlockInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -85,7 +108,7 @@ export async function updateCalendarBlock(input: unknown): Promise<CalendarActio
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Bloco reagendado sem culpa.", parsed.blockId);
+      return missingSessionResult(executionActionResultSchema, "Bloco reagendado sem culpa.", parsed.blockId);
     }
 
     const { data, error } = await supabase
@@ -111,19 +134,30 @@ export async function updateCalendarBlock(input: unknown): Promise<CalendarActio
       return errorDraft("Bloco nao encontrado para este usuario.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Bloco atualizado com filtro de dono.",
-      id: parsed.blockId
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Bloco atualizado com filtro de dono.",
+      parsed.blockId
+    );
   } catch {
-    return localDraft("Bloco reagendado sem culpa.", parsed.blockId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Bloco reagendado sem culpa.",
+      parsed.blockId,
+      {},
+      GENERIC_CALENDAR_ERROR
+    );
   }
 }
 
 export async function deleteCalendarBlock(input: unknown): Promise<CalendarActionResult> {
-  const parsed = deleteCalendarBlockInputSchema.parse(input);
+  const inputResult = safeParseActionInput(deleteCalendarBlockInputSchema, input, executionActionResultSchema);
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -132,7 +166,11 @@ export async function deleteCalendarBlock(input: unknown): Promise<CalendarActio
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft("Cancelamento simulado nesta sessao local/dev.", parsed.blockId);
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Cancelamento simulado nesta sessao local/dev.",
+        parsed.blockId
+      );
     }
 
     const { data, error } = await supabase
@@ -151,13 +189,18 @@ export async function deleteCalendarBlock(input: unknown): Promise<CalendarActio
       return errorDraft("Bloco nao encontrado para este usuario.");
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Bloco cancelado no Supabase com policy owner-only.",
-      id: parsed.blockId
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Bloco cancelado no Supabase com policy owner-only.",
+      parsed.blockId
+    );
   } catch {
-    return localDraft("Cancelamento simulado nesta sessao local/dev.", parsed.blockId);
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Cancelamento simulado nesta sessao local/dev.",
+      parsed.blockId,
+      {},
+      GENERIC_CALENDAR_ERROR
+    );
   }
 }

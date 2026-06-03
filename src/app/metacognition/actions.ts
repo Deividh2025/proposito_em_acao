@@ -12,17 +12,25 @@ import {
   type MetacognitionActionResult
 } from "@/domain/metacognition/persistence";
 import { executionActionResultSchema } from "@/domain/execution/persistence";
+import {
+  localDraftResult,
+  missingSessionResult,
+  persistenceCatchResult,
+  realServiceErrorResult,
+  safeParseActionInput,
+  supabaseSuccessResult
+} from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const GENERIC_METACOGNITION_ERROR =
   "Nao foi possivel salvar a sessao de Metacognicao agora. Tente novamente.";
 
 function localDraft(message: string, output?: unknown, id?: string): MetacognitionActionResult {
-  return metacognitionActionResultSchema.parse({ mode: "local-draft", ok: true, message, id, output });
+  return localDraftResult(metacognitionActionResultSchema, message, id, { output });
 }
 
 function errorDraft(message: string): MetacognitionActionResult {
-  return metacognitionActionResultSchema.parse({ mode: "local-draft", ok: false, message });
+  return realServiceErrorResult(metacognitionActionResultSchema, message);
 }
 
 async function belongsToUser(
@@ -49,7 +57,17 @@ export async function generateMetacognitionReflection(input: unknown): Promise<M
 }
 
 export async function persistMetacognitionSession(input: unknown): Promise<MetacognitionActionResult> {
-  const parsed = persistMetacognitionSessionInputSchema.parse(input);
+  const inputResult = safeParseActionInput(
+    persistMetacognitionSessionInputSchema,
+    input,
+    metacognitionActionResultSchema
+  );
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
   const safetyReview = reviewOwnerPersistenceSafety({
     reviewedSchemaVersion: parsed.output.schema_version,
     value: parsed.output
@@ -66,9 +84,11 @@ export async function persistMetacognitionSession(input: unknown): Promise<Metac
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return localDraft(
+      return missingSessionResult(
+        metacognitionActionResultSchema,
         "Sessao de Metacognicao mantida como rascunho local/dev. Entre para persistir com RLS owner-only.",
-        parsed.output
+        undefined,
+        { output: parsed.output }
       );
     }
 
@@ -125,17 +145,19 @@ export async function persistMetacognitionSession(input: unknown): Promise<Metac
       return errorDraft(GENERIC_METACOGNITION_ERROR);
     }
 
-    return metacognitionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Sessao de Metacognicao salva no Supabase com policy owner-only.",
-      id: data.id,
-      output: parsed.output
-    });
+    return supabaseSuccessResult(
+      metacognitionActionResultSchema,
+      "Sessao de Metacognicao salva no Supabase com policy owner-only.",
+      data.id,
+      { output: parsed.output }
+    );
   } catch {
-    return localDraft(
+    return persistenceCatchResult(
+      metacognitionActionResultSchema,
       "Sessao de Metacognicao mantida como rascunho local/dev. Nenhum dado foi enviado para OpenAI.",
-      parsed.output
+      undefined,
+      { output: parsed.output },
+      GENERIC_METACOGNITION_ERROR
     );
   }
 }
@@ -201,7 +223,17 @@ export async function listMetacognitionHistory(input: unknown = {}) {
 }
 
 export async function deleteMetacognitionSession(input: unknown) {
-  const parsed = z.object({ sessionId: z.string().trim().min(1) }).strict().parse(input);
+  const inputResult = safeParseActionInput(
+    z.object({ sessionId: z.string().trim().min(1) }).strict(),
+    input,
+    executionActionResultSchema
+  );
+
+  if (!inputResult.ok) {
+    return inputResult.result;
+  }
+
+  const parsed = inputResult.data;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -210,12 +242,11 @@ export async function deleteMetacognitionSession(input: unknown) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return executionActionResultSchema.parse({
-        mode: "local-draft",
-        ok: true,
-        message: "Exclusao simulada nesta sessao local/dev.",
-        id: parsed.sessionId
-      });
+      return missingSessionResult(
+        executionActionResultSchema,
+        "Exclusao simulada nesta sessao local/dev.",
+        parsed.sessionId
+      );
     }
 
     const { data, error } = await supabase
@@ -227,26 +258,22 @@ export async function deleteMetacognitionSession(input: unknown) {
       .maybeSingle();
 
     if (error || !data?.id) {
-      return executionActionResultSchema.parse({
-        mode: "local-draft",
-        ok: false,
-        message: GENERIC_METACOGNITION_ERROR
-      });
+      return realServiceErrorResult(executionActionResultSchema, GENERIC_METACOGNITION_ERROR);
     }
 
-    return executionActionResultSchema.parse({
-      mode: "supabase",
-      ok: true,
-      message: "Sessao privada excluida com filtro de dono.",
-      id: parsed.sessionId
-    });
+    return supabaseSuccessResult(
+      executionActionResultSchema,
+      "Sessao privada excluida com filtro de dono.",
+      parsed.sessionId
+    );
   } catch {
-    return executionActionResultSchema.parse({
-      mode: "local-draft",
-      ok: true,
-      message: "Exclusao simulada nesta sessao local/dev.",
-      id: parsed.sessionId
-    });
+    return persistenceCatchResult(
+      executionActionResultSchema,
+      "Exclusao simulada nesta sessao local/dev.",
+      parsed.sessionId,
+      {},
+      GENERIC_METACOGNITION_ERROR
+    );
   }
 }
 

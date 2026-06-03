@@ -92,7 +92,40 @@ Esta rodada preparou o pack revisavel para repetir o cutover em branch preview, 
 - Roteiro central: `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 - Harness dinamico: `scripts/validate-supabase-preview.mjs`.
 - Script npm: `npm.cmd run supabase:validate:preview`.
-- Personas cobertas: `user_a`, `user_b`, `atalia-active` e `atalia-revoked`.
+- Personas cobertas originalmente: `user_a`, `user_b`, `atalia-active` e `atalia-revoked`.
 - Cobertura: Auth por anon key, owner-only, bloqueio user B/anon, integridade cross-owner, Atalaia ativo/revogado, `energy_checkins` e storage privado.
 
-Status desta rodada: nao executado contra Supabase porque o CLI `supabase` nao esta instalado no terminal local e o pedido explicitamente proibiu aplicar remoto. A proxima execucao deve anexar evidencia fresca de comandos, branch preview, migrations, lint/advisors, fixtures removidos e resultado do harness.
+Status desta rodada: nao executado contra Supabase remoto porque o pedido explicitamente proibiu aplicar remoto sem aprovacao. A proxima execucao deve anexar evidencia fresca de comandos, branch preview, migrations, lint/advisors, fixtures removidos e resultado do harness.
+
+## Addendum Etapa 2 - Atalaia convidado
+
+Data: 2026-06-03.
+
+Mudancas locais versionadas:
+
+- Migration nova: `supabase/migrations/20260603211654_accountability_acceptance_rls_hardening.sql`.
+- Policies de update direto do convidado para aceite foram removidas.
+- `accountability_grants` agora possui `invite_token_hash` para vincular aceite ao grant especifico.
+- Triggers `app_private.assert_accountability_partner_acceptance_scope_immutable` e `app_private.assert_accountability_grant_acceptance_scope_immutable` protegem campos revisados pelo dono.
+- `app_private.has_active_accountability_grant` foi recriada com `search_path = pg_catalog, public`.
+- `accountability_partners_partner_select_active` passa a exigir grant ativo associado para evitar leitura residual de relacao ativa apos revogacao do grant.
+- Convites pendentes legados recebem backfill apenas quando ha um unico grant `invited` inequivoco; casos ambiguos devem ser expirados/reemitidos em preview.
+
+Testes locais executados nesta etapa:
+
+- `npm.cmd run test -- src\tests\unit\rls-policy-safety.test.ts`: passou, 1 arquivo e 6 testes.
+- `npm.cmd run test -- src\tests\unit\accountability-commitments-domain.test.ts src\tests\integration\accountability-secure-actions.test.ts src\tests\unit\rls-policy-safety.test.ts src\tests\unit\supabase-preview-harness.test.ts src\tests\unit\accountability-acceptance-ui.test.ts`: passou, 5 arquivos e 26 testes.
+
+Cobertura adicionada ao harness `scripts/validate-supabase-preview.mjs`:
+
+- Personas: `user_a`, `user_b`, `atalia_invited`, `atalia_active`, `atalia_revoked` e `anon`.
+- `atalia_invited` le somente a preview pendente do proprio convite.
+- Tentativas de alterar `permissions`, `goal_id`, `user_id`, `tracking_level`, `notification_frequency` e `expires_at` falham.
+- Aceite controlado ativa apenas o grant vinculado ao token hash especifico.
+- Grant irmao permanece `invited`.
+- Revogacao corta leitura futura de partner, grant, evento, notificacao e documento compartilhado.
+- Harness recusa por padrao o project ref principal conhecido e pode validar `SUPABASE_PREVIEW_PROJECT_REF` quando informado.
+
+Status remoto: nao aplicado e nao executado contra Supabase preview nesta etapa. O projeto principal nao foi modificado. A evidencia RLS remota continua pendente ate executar dry-run, push em branch preview aprovada, `supabase:types:preview` e `supabase:validate:preview`.
+
+Risco residual: criacao/aceite/revogacao usam actions server-side com ordem fail-closed e compensacao de falha, nao RPC transacional. Antes de beta real, preferir RPC em `app_private` ou validar compensacao no preview com falhas induzidas.

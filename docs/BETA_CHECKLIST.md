@@ -37,11 +37,12 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [x] Plano de beta, feedback, suporte, incident response e V1.1 existem.
 - [x] Pack de cutover Supabase preview existe em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 - [x] Scripts preparados: `supabase:types:preview` e `supabase:validate:preview`.
+- [x] Atalaia/RLS endurecido localmente contra escalada no aceite, com harness preview expandido para `atalia_invited`.
 - [ ] Corrigir/validar bugs S0/S1 do `docs/BUG_TRIAGE.md`.
 - [ ] Publicar preview HTTPS em Hostinger/Coolify.
 - [ ] Configurar secrets de preview no provedor.
 - [ ] Validar Hostinger KVM 1 ou executar upgrade.
-- [ ] Repetir cutover/harness Supabase com evidencia fresca.
+- [ ] Aplicar migration de hardening do Atalaia em branch preview aprovada e repetir cutover/harness Supabase com evidencia fresca.
 - [ ] Gerar tipos Supabase reais e revisar diff.
 - [ ] Implementar/validar Auth SSR completo em URL publicada.
 - [ ] Rodar smoke externo em URL HTTPS.
@@ -58,7 +59,8 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [ ] Consentimento de analytics/feedback antes de coleta real.
 - [ ] Retencao de 90 dias implementada quando houver persistencia de analytics/feedback/auditoria de IA.
 - [ ] `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se usada, sem tokens, query sensivel ou dados pessoais.
-- [ ] Atalaia limitado por alvo/grant/permissao/revogacao, sem expansao no aceite.
+- [x] Atalaia limitado localmente por alvo/grant/permissao/revogacao, sem expansao no aceite.
+- [ ] Atalaia validado remotamente em Supabase preview apos aplicar a migration da Etapa 2.
 - [ ] Metacognicao, Chamado e Revisao privados por padrao.
 - [ ] Logs sem conteudo intimo.
 - [ ] PWA sem cache sensivel.
@@ -72,7 +74,8 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [ ] Mobile nao possui `<main>` aninhado.
 - [ ] Linguagem sem vergonha/culpa.
 - [ ] Proxima acao clara em dashboard/mobile.
-- [ ] Atalaia tem previa real e clara antes de qualquer envio externo.
+- [x] Atalaia nao usa grant demonstrativo no aceite quando Supabase/Auth esta configurado.
+- [ ] Atalaia tem previa real validada por Auth SSR/E2E em URL publicada antes de qualquer envio externo.
 
 ## Veredito atual
 

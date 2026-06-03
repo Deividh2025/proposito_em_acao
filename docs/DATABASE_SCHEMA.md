@@ -14,6 +14,7 @@ Schema implementado em:
 - `supabase/migrations/202606010010_accountability_commitment_prompt13_alignment.sql`
 - `supabase/migrations/202606010011_mobile_pwa_prompt14_alignment.sql`
 - `supabase/migrations/20260602214345_accountability_partner_active_select_policy.sql`
+- `supabase/migrations/20260603211654_accountability_acceptance_rls_hardening.sql`
 
 ## Estado atual verificado em 2026-06-03
 
@@ -158,7 +159,20 @@ Status remoto: aplicada em 2026-06-02 no projeto Supabase `proposito_em_acao` (`
 
 ## Prompt 15 - RLS Atalaia
 
-`20260602214345_accountability_partner_active_select_policy.sql` ajusta leitura de Atalaia ativo para grants aceitos. A auditoria estatica de 2026-06-03 ainda aponta risco no aceite: a transicao `invited -> active` precisa impedir alteracao de `permissions`, `goal_id`, `accountability_partner_id`, `user_id` e demais campos definidos pelo dono.
+`20260602214345_accountability_partner_active_select_policy.sql` ajusta leitura de Atalaia ativo para grants aceitos.
+
+## Etapa 2 - aceite seguro do Atalaia
+
+`20260603211654_accountability_acceptance_rls_hardening.sql` endurece a transicao `invited -> active`:
+
+- `accountability_grants` recebe `invite_token_hash` para vincular aceite a um grant especifico.
+- Indice unico parcial impede reutilizacao de token hash ativo em multiplos grants.
+- Constraint limita token hash a grants `invited`.
+- Policies diretas `accountability_partners_invitee_accept_pending` e `accountability_grants_invitee_accept_pending` sao removidas.
+- Triggers em `app_private` bloqueiam alteracao de `permissions`, `sharing_permissions`, `goal_id`, `accountability_partner_id`, `user_id`, `tracking_level`, `notification_frequency`, `consent_version`, `consent_recorded_at`, `expires_at` e campos equivalentes do parceiro durante aceite.
+- `app_private.has_active_accountability_grant` e recriada com `search_path = pg_catalog, public`.
+
+Rollback local antes de aplicar em preview: remover esta migration do branch. Rollback preview, se aplicada apenas em branch sem dados reais: descartar/recriar a branch preview e remover fixtures do harness.
 
 ## Tipos TypeScript
 

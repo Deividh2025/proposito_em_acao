@@ -6,6 +6,7 @@
 - Analytics e feedback beta exigem opt-in antes de coleta real; analytics sera first-party no Supabase e desligado por padrao.
 - Retencao decidida: 90 dias para analytics, feedback beta e metadados de auditoria de IA.
 - Atalaia nao pode ampliar permissoes no aceite do convite; o escopo revisado pelo dono deve ser imutavel para o convidado.
+- Etapa 2 persiste consentimento minimo do Atalaia em criacao, aceite e revogacao do grant, mas nao fecha consentimentos amplos de IA, analytics ou feedback.
 
 ## Principio
 
@@ -38,6 +39,10 @@ Consentimento e autorizacao sao separados. Um consentimento registra vontade e h
 - `expires_at`;
 - `revoked_at`.
 
+Na criacao do convite, o consentimento registra versao, alvo, permissoes revisadas, nivel, frequencia e hash do e-mail do Atalaia. No aceite, a action registra aceite do convite com hash do usuario/e-mail autenticado e referencia minima ao grant/parceiro. Na revogacao, o grant muda para `revoked`, notificacoes pendentes sao canceladas e o consentimento ativo do alvo e marcado com `revoked_at`.
+
+Falhas obrigatorias de `consent_records`, `accountability_events` ou `accountability_notifications` devem retornar `ok:false`. Na criacao, token/estado de convite so se tornam utilizaveis depois das escritas obrigatorias; no aceite, acesso so e ativado depois de consentimento e evento. Logs, mensagens e payloads nao devem conter token bruto de convite, prompt bruto, resposta bruta, conteudo intimo, e-mail com contexto sensivel ou secrets.
+
 ## Revogacao
 
 Revogacao deve:
@@ -47,6 +52,8 @@ Revogacao deve:
 - preservar historico minimo;
 - nao apagar automaticamente consentimento historico;
 - nao expor conteudo intimo no evento de auditoria.
+
+Na Etapa 2, a revogacao do Atalaia corta grant/parceiro e cancela notificacoes antes de declarar sucesso; se a auditoria final falhar, retorna `ok:false` sem reabrir acesso. A validacao dinamica de revogacao em Supabase preview ainda deve ser repetida antes do beta real.
 
 ## Dados fora de compartilhamento padrao
 

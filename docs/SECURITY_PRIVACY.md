@@ -10,7 +10,8 @@ Este documento e fonte de verdade para seguranca, privacidade, consentimento, At
 - Nao havera fallback automatico entre providers de IA; falha usa fallback local seguro ou fluxo manual.
 - Resend foi decidido para e-mail transacional e SMTP customizado do Supabase Auth, mas ainda nao esta implementado/configurado.
 - Analytics sera first-party no Supabase, opt-in desligado por padrao, mas coleta real ainda nao existe.
-- Atalaia/consentimento/Auth/escritas reais possuem S0/S1 registrados em `docs/BUG_TRIAGE.md` e bloqueiam beta real.
+- Atalaia/consentimento/Auth/escritas reais possuem S0/S1 registrados em `docs/BUG_TRIAGE.md` e bloqueiam beta real ate validacao remota/externa proporcional.
+- Etapa 2 reduziu Atalaia localmente: aceite nao usa grant demonstrativo, nao permite escalada de escopo, e criacao/aceite/revogacao exigem auditoria/consentimento minimo ou retornam `ok:false`.
 
 ## Dados sensiveis
 
@@ -79,6 +80,8 @@ Excluidos por padrao:
 
 Toda mensagem ao Atalaia deve ter previa clara antes de envio. Revogacao deve ter efeito imediato quando a arquitetura permitir.
 
+Na Etapa 2, aceite e revogacao do Atalaia passam a ser action server-side auditavel. O convidado nao deve executar update direto que altere escopo; token bruto de convite nao deve aparecer em logs, mensagens de erro ou payloads persistidos.
+
 ## Metacognicao
 
 Metacognicao e privada por padrao. O historico pode conter pensamento bruto, emocoes, impulsos e fragilidades internas, portanto nao deve ser compartilhado automaticamente, nao deve entrar em logs brutos e nao deve ser tratado como prontuario clinico.
@@ -99,6 +102,7 @@ Na fundacao Prompt 4:
 - Funcoes `security definer` nao devem ficar em schema exposto.
 - As migrations preparadas deixam Metacognicao, Chamado completo, revisoes privadas, inbox bruto, calendario completo e logs owner-only.
 - Atalaia acessa apenas accountability/grants/notificacoes/documento compartilhado, com grant ativo e revogacao.
+- Atalaia convidado pode ver somente preview pendente sanitizada e nao pode alterar `permissions`, `goal_id`, `user_id`, parceiro, tracking, frequencia, expiracao ou consentimento revisado pelo dono.
 - Storage privado exige path por usuario e signed URL server-side para compartilhamento futuro.
 
 ## Secrets

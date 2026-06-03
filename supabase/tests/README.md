@@ -9,7 +9,7 @@ O roteiro operacional completo esta em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 - `anon`: nao autenticado.
 - `user_a`: dono de goal, task, metacognition e consent.
 - `user_b`: outro usuario.
-- `atalia_authorized`: parceiro autenticado com grant ativo para um `goal_id` de `user_a`.
+- `atalia_authorized` / `atalia_active`: parceiro autenticado com grant ativo para um `goal_id` de `user_a`.
 - `atalia_invited`: parceiro autenticado ou link convidado durante a transicao `invited -> active`, sem permissao para alterar escopo definido pelo dono.
 - `atalia_revoked`: parceiro com grant revogado ou expirado.
 
@@ -82,6 +82,9 @@ O roteiro operacional completo esta em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 50. Metacognicao, Chamado e Revisao Semanal continuam sem policy de Atalaia mesmo depois das correcoes do Prompt 15.
 51. `atalia_invited` nao consegue alterar `permissions`, `goal_id`, `accountability_partner_id`, `user_id`, `consent_version` ou qualquer campo de escopo durante aceite.
 52. Aceite ativa apenas o grant associado ao convite especifico, nao todos os grants convidados do parceiro.
+53. `atalia_invited` le somente a propria relacao pendente por e-mail autenticado, nao o grant completo antes do aceite.
+54. `atalia_invited` nao consegue alterar `tracking_level`, `notification_frequency` ou `expires_at`.
+55. Revogacao dinamica corta leitura futura de partner, grant, evento, notificacao e documento compartilhado.
 
 ## Comandos esperados quando CLI existir
 
@@ -104,8 +107,10 @@ $env:SUPABASE_SERVICE_ROLE_KEY="service-role-do-preview"
 npm.cmd run supabase:validate:preview
 ```
 
-O harness cria usuarios ficticios `user_a`, `user_b`, `atalia-active` e `atalia-revoked`, valida Auth com anon key, testa isolamento RLS nas tabelas criticas, valida Atalaia ativo/revogado e remove fixtures ao final. Use `SUPABASE_PREVIEW_KEEP_FIXTURES=1` apenas para depuracao manual em branch sem dados reais.
+O harness cria usuarios ficticios `user-a`, `user-b`, `atalia_invited`, `atalia_active` e `atalia_revoked`, valida Auth com anon key, testa isolamento RLS nas tabelas criticas, valida Atalaia convidado/ativo/revogado e remove fixtures ao final. Use `SUPABASE_PREVIEW_KEEP_FIXTURES=1` apenas para depuracao manual em branch sem dados reais.
+
+Desde a Etapa 2, o harness tambem tenta escalar `permissions`, `goal_id`, `user_id`, `tracking_level`, `notification_frequency` e `expires_at`, valida aceite de grant especifico por token hash e confirma que revogacao corta leituras futuras.
 
 ## Estado local verificado em 2026-06-03
 
-O CLI `supabase` esta disponivel neste terminal (`2.98.2`) e `npx.cmd -y supabase --version` retorna versao mais nova. O checkout nao esta linkado ao projeto e nenhuma migration/harness remoto foi executado nesta auditoria documental. A evidencia de preview/RLS continua historica ate rerun fresco antes do beta real.
+O CLI `supabase` esta disponivel neste terminal (`2.98.2`) e `npx.cmd -y supabase --version` retorna versao mais nova. A Etapa 2 expandiu o harness, mas nenhuma migration/harness remoto foi executado contra Supabase preview nesta etapa. A evidencia de preview/RLS continua historica ate rerun fresco antes do beta real.

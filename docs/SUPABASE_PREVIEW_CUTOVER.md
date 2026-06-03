@@ -29,6 +29,9 @@ Definir somente no terminal do operador, cofre temporario ou CI seguro. Nao comm
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon/publishable key da branch/projeto. | Publica. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Apenas harness/operador para criar fixtures Auth e limpar. | Secret critico. |
 | `SUPABASE_PREVIEW_CONFIRM` | Deve ser `preview` para liberar o harness mutavel. | Controle operacional. |
+| `SUPABASE_PREVIEW_PROJECT_REF` | Opcional, mas recomendado; se definido, deve bater com a URL Supabase usada pelo harness. | Controle operacional. |
+| `SUPABASE_PREVIEW_BLOCKED_PROJECT_REFS` | Lista de refs bloqueados para o harness; por padrao inclui o projeto principal conhecido. | Controle operacional. |
+| `SUPABASE_ALLOW_MAIN_PROJECT_PREVIEW_HARNESS` | Override excepcional para rodar harness em ref bloqueado. Nao usar no Supabase principal sem aprovacao explicita. | Controle operacional. |
 | `SUPABASE_TYPES_OUTPUT` | Opcional; caminho de saida dos tipos. Padrao: `src/types/database.ts`. | Nao secret. |
 | `SUPABASE_PREVIEW_KEEP_FIXTURES` | Opcional; `1` preserva fixtures para depuracao manual. | Controle operacional. |
 | `SUPABASE_SKIP_STORAGE_RLS` | Opcional; `1` pula storage se o preview ainda nao expuser Storage API. | Controle operacional. |
@@ -87,6 +90,12 @@ npx.cmd -y supabase db push --dry-run --db-url "$env:SUPABASE_PREVIEW_DB_URL"
 
 Se aparecer migration remota equivalente com timestamp diferente, como `20260602134002 mobile_pwa_prompt14_alignment` versus `202606010011_mobile_pwa_prompt14_alignment`, pausar. Caminho preferido: recriar branch preview sem dados e aplicar o conjunto local inteiro. `migration repair` so pode ser usado em branch preview sem dados reais, com diff revisado e evidencia registrada.
 
+Antes de aplicar a Etapa 2 em preview com fixtures antigas, verificar convites pendentes legados:
+
+- Grants `invited` sem `accountability_grants.invite_token_hash`.
+- Partners `invited` com mais de um grant pendente sem hash.
+- Convites pendentes ambiguos devem ser expirados/reemitidos em preview antes do harness; a migration so faz backfill de caso inequivoco.
+
 ### 3. Aplicar migrations no preview
 
 ```powershell
@@ -126,7 +135,10 @@ npm.cmd run supabase:validate:preview
 
 Cobertura automatizada:
 
-- Cria `user_a`, `user_b`, `atalia-active` e `atalia-revoked` ficticios.
+- Cria `user_a`, `user_b`, `atalia_invited`, `atalia_active` e `atalia_revoked` ficticios.
+- Valida que `atalia_invited` nao altera `permissions`, `goal_id`, `user_id`, `tracking_level`, `notification_frequency` ou `expires_at`.
+- Valida aceite controlado de apenas um grant vinculado ao token hash especifico.
+- Valida que revogacao corta leitura futura de partner, grant, evento, notificacao e documento compartilhado.
 - Confirma sign-in por Auth com anon key.
 - Confirma que `user_a` cria/le Chamado, alvo, Metacognicao, energia, Atalaia, grant, notificacao e Documento de Compromisso.
 - Cria evento minimo por service role do operador para validar leitura RLS de Atalaia, sem expor escrita de evento ao cliente.

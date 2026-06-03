@@ -42,6 +42,8 @@ export type AccountabilityGrantDraft = {
   revokedAt: string | null;
 };
 
+export type AccountabilityGrantPreview = Omit<AccountabilityGrantDraft, "inviteToken">;
+
 export const accountabilityPermissionLabels: Record<AccountabilityPermission, string> = {
   goal_name: "Ver nome do alvo",
   deadline: "Ver prazo",

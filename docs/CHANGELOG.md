@@ -6,6 +6,22 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 ## [Unreleased]
 
+### Added
+
+- Etapa 2 adiciona migration local `20260603211654_accountability_acceptance_rls_hardening.sql` para hardening de aceite do Atalaia, com `invite_token_hash` no grant, triggers de imutabilidade e `search_path` seguro.
+- Harness Supabase preview passa a cobrir `atalia_invited`, tentativa de escalada de escopo, aceite de grant especifico e revogacao cortando leituras futuras.
+
+### Changed
+
+- Aceite do Atalaia passa a buscar preview real sanitizada quando Supabase/Auth estao configurados, sem grant demonstrativo.
+- Permissoes do Atalaia passam a persistir exatamente a selecao revisada pelo dono, sem reintroduzir defaults do nivel automaticamente.
+- Criacao, aceite e revogacao do Atalaia passam a exigir consentimento/auditoria/notificacao obrigatoria ou retornar `ok:false`.
+
+### Security
+
+- Etapa 2 remove policies diretas de update do convidado no aceite do Atalaia e concentra ativacao/revogacao em action server-side auditavel.
+- Nenhuma migration remota foi aplicada no Supabase principal; validacao preview da Etapa 2 segue pendente.
+
 ### Docs
 
 - Sincroniza fontes de verdade para o estado V1 local ampla / pre-beta real em 2026-06-03.

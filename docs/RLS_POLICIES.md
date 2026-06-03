@@ -2,7 +2,7 @@
 
 ## Fonte
 
-Policies implementadas em `supabase/migrations/202605310002_rls_policies.sql`, ajuste de leitura ativa de Atalaia em `supabase/migrations/20260602214345_accountability_partner_active_select_policy.sql` e storage em `supabase/migrations/202605310003_private_storage.sql`.
+Policies implementadas em `supabase/migrations/202605310002_rls_policies.sql`, ajuste de leitura ativa de Atalaia em `supabase/migrations/20260602214345_accountability_partner_active_select_policy.sql`, hardening de aceite em `supabase/migrations/20260603211654_accountability_acceptance_rls_hardening.sql` e storage em `supabase/migrations/202605310003_private_storage.sql`.
 
 ## Modelo por persona
 
@@ -11,6 +11,7 @@ Policies implementadas em `supabase/migrations/202605310002_rls_policies.sql`, a
 | `anon` | Sem acesso a dados privados. |
 | Dono autenticado | CRUD nos registros proprios, exceto tabelas de auditoria/consentimento/eventos que sao leitura limitada. |
 | Outro usuario | Sem acesso a registros de terceiros. |
+| Atalaia convidado | Le somente a propria relacao pendente por e-mail autenticado; nao atualiza partner/grant nem le escopo de grant antes do aceite controlado. |
 | Atalaia autorizado | Le somente dados em tabelas de accountability e compromisso explicitamente compartilhado para grant ativo. |
 | Atalaia revogado | Sem acesso apos `revoked_at`, status revogado ou expiracao. |
 | Service role | Apenas server-side, nunca frontend. |
@@ -35,6 +36,10 @@ Atalaia pode ler:
 - `accountability_events` minimos ligados ao grant ativo.
 - `accountability_notifications` aprovadas, enfileiradas ou enviadas.
 - `commitment_documents` quando `shared_with_atalaias = true` e permissao `commitment_document = true`.
+
+Durante convite pendente, `atalia_invited` pode ler apenas a linha pendente de `accountability_partners` quando `status = 'invited'`, `invite_token_hash` existe, o convite nao expirou, `partner_user_id` ainda e nulo e o e-mail autenticado bate com o e-mail do convite. O aceite/revogacao real e feito por action server-side; a migration de hardening remove policies de update direto do convidado e adiciona triggers defensivas para impedir alteracao de escopo caso uma policy futura reabra update.
+
+A leitura da propria relacao ativa em `accountability_partners` tambem exige existencia de pelo menos um `accountability_grants` ativo, nao revogado e nao expirado para a relacao. Isso evita leitura residual do partner depois da revogacao do grant.
 
 Atalaia nao tem policy em:
 
@@ -136,6 +141,16 @@ Atalaia passa de placeholder para fluxo funcional local/dev com persistencia pre
 
 As policies desta etapa foram versionadas para aplicacao em preview antes de qualquer uso produtivo.
 
+## Etapa 2 - Hardening de aceite do Atalaia
+
+`20260603211654_accountability_acceptance_rls_hardening.sql` adiciona o vinculo `invite_token_hash` em `accountability_grants`, cria indice unico parcial para tokens ativos, remove as policies `accountability_partners_invitee_accept_pending` e `accountability_grants_invitee_accept_pending`, e instala triggers em `app_private` com `search_path = pg_catalog, public`.
+
+As triggers bloqueiam, para qualquer update nao-owner e nao-service-role, alteracoes de `user_id`, `goal_id`, `accountability_partner_id`, `permissions`, `sharing_permissions`, `tracking_level`, `notification_frequency`, `consent_version`, `consent_recorded_at`, `expires_at` e campos de escopo do parceiro durante `invited -> active`. A action server-side valida token hash, e-mail autenticado, expiracao, status `invited`, parceiro sem `partner_user_id`, grant especifico e owner antes de ativar o convite.
+
+Convites legados pendentes recebem backfill apenas quando ha um unico grant `invited` inequivoco para o partner pendente. Convites pendentes ambiguos sem `accountability_grants.invite_token_hash` devem ser expirados/reemitidos no preview antes de beta.
+
+Nenhuma policy de Atalaia foi adicionada a Chamado completo, Metacognicao, revisoes privadas, inbox bruto, calendario completo, saude, familia, financas, emocoes, `audit_events` ou `ai_run_audits`.
+
 ## Prompt 14 - PWA/Mobile
 
 `energy_checkins` deve permanecer owner-only:
@@ -160,7 +175,7 @@ Status remoto: a migration `mobile_pwa_prompt14_alignment` foi aplicada em 2026-
 
 Nova persona obrigatoria: `atalia_invited`.
 
-Risco identificado: durante `invited -> active`, o convidado nao pode ampliar escopo revisado pelo dono. Policies/actions precisam impedir alteracao de `permissions`, `goal_id`, `user_id`, `accountability_partner_id`, `consent_version`, `tracking_level`, `notification_frequency` e campos equivalentes.
+Risco identificado e reduzido localmente: durante `invited -> active`, o convidado nao pode ampliar escopo revisado pelo dono. A Etapa 2 versionou migration, actions e testes locais para impedir alteracao de `permissions`, `goal_id`, `user_id`, `accountability_partner_id`, `consent_version`, `tracking_level`, `notification_frequency` e campos equivalentes.
 
 Criterio antes de beta real:
 
@@ -169,3 +184,5 @@ Criterio antes de beta real:
 - `atalia_invited` nao altera escopo.
 - `atalia_authorized` le apenas grant/evento/notificacao/documento compartilhado do proprio grant ativo.
 - `atalia_revoked` perde leitura futura.
+
+Status: validado por testes locais/estaticos nesta branch. Validacao dinamica em Supabase preview segue pendente ate aplicar a migration em branch/ambiente aprovado.

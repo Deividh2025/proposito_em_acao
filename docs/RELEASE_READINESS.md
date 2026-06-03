@@ -48,6 +48,19 @@ Executado localmente em 2026-06-03 na branch `codex/runtime-error-contracts`:
 
 Limitacao: estes gates sao locais. Eles nao substituem Supabase/Auth/RLS remoto, smoke externo, secrets, LGPD, Docker/Coolify ou rollback.
 
+## Evidencia da Etapa 2 - Supabase/RLS/Atalaia
+
+Executado localmente em 2026-06-03 na branch `codex/supabase-rls-accountability-hardening`:
+
+- `gh pr view 2`: mergeado na `main` em `2026-06-03T18:48:25Z`.
+- `gh pr view 3`: mergeado na `main` em `2026-06-03T20:45:18Z`.
+- Branch criada de `main`: `codex/supabase-rls-accountability-hardening`.
+- Migration criada: `20260603211654_accountability_acceptance_rls_hardening.sql`.
+- Teste focado de Atalaia/RLS/UI/harness: passou, 5 arquivos e 18 testes.
+- `npm.cmd run typecheck`: passou.
+
+Limitacao: nesta etapa nao houve `db push`, typegen real nem `supabase:validate:preview` contra Supabase remoto. O projeto principal nao foi alterado.
+
 ## Evidencia historica que nao libera beta sozinha
 
 - Em 2026-06-02, docs registram branch preview Supabase `preview-release-readiness`, migrations locais alinhadas e matriz RLS dinamica minima aprovada.
@@ -72,6 +85,7 @@ Limitacao: estes gates sao locais. Eles nao substituem Supabase/Auth/RLS remoto,
 - Configurar secrets no provedor, sem commitar `.env` real.
 - Validar Auth real publicado: signup, login, confirmacao, callback, recuperacao, logout, redirects e refresh centralizado.
 - Repetir cutover/harness Supabase em branch/preview ou ambiente aprovado e anexar evidencia fresca.
+- Aplicar e validar a migration de hardening do Atalaia em branch preview aprovada antes de beta real.
 - Gerar tipos reais do Supabase e revisar diff.
 - Rodar smoke externo contra URL HTTPS.
 - Aprovar LGPD minima: termos, privacidade, consentimentos, revogacao, exportacao, exclusao e retencao.
@@ -92,7 +106,7 @@ Limitacao: estes gates sao locais. Eles nao substituem Supabase/Auth/RLS remoto,
 - Supabase principal alinhado.
 - RLS completa no ambiente atual.
 - Tipos reais gerados.
-- Atalaia seguro por escopo.
+- Atalaia seguro em ambiente remoto.
 - IA real segura.
 - Resend configurado.
 - Analytics real consentido.

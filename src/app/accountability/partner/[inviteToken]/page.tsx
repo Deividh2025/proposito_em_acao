@@ -1,7 +1,7 @@
 import { PartnerLimitedPanel } from "@/components/accountability/PartnerLimitedPanel";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
-import { buildAccountabilityInviteDraft } from "@/domain/accountability";
+import { getAccountabilityInvitePreview } from "@/app/accountability/actions";
 import { AcceptInviteButton } from "./AcceptInviteButton";
 
 type PartnerInvitePageProps = {
@@ -10,20 +10,7 @@ type PartnerInvitePageProps = {
 
 export default async function PartnerInvitePage({ params }: PartnerInvitePageProps) {
   const { inviteToken } = await params;
-  const grant = buildAccountabilityInviteDraft({
-    completedMilestones: ["Marco inicial revisado"],
-    firstAction: "Acompanhar uma atualizacao autorizada.",
-    goalDeadline: "2026-07-31",
-    goalId: "goal-exemplo",
-    goalStatus: "ativo",
-    goalTitle: "Concluir primeiro marco do alvo",
-    level: "balanced",
-    notificationFrequency: "weekly",
-    partnerEmail: "atalia@example.com",
-    partnerName: "Pessoa de confianca",
-    permissions: ["goal_name", "status", "completed_milestones", "help_request"],
-    progressPercentage: 32
-  }).grant;
+  const preview = await getAccountabilityInvitePreview({ inviteToken });
 
   return (
     <div className="space-y-6">
@@ -35,8 +22,13 @@ export default async function PartnerInvitePage({ params }: PartnerInvitePagePro
       <SensitiveDataNotice title="Escopo limitado">
         Este convite nao libera conta inteira, Chamado completo, Metacognicao, revisoes privadas, inbox ou agenda.
       </SensitiveDataNotice>
-      <PartnerLimitedPanel grant={{ ...grant, inviteToken, status: "invited" }} />
-      <AcceptInviteButton inviteToken={inviteToken} />
+      {!preview.ok ? (
+        <SensitiveDataNotice title={preview.requiresAuth ? "Autenticacao necessaria" : "Convite indisponivel"}>
+          {preview.message}
+        </SensitiveDataNotice>
+      ) : null}
+      {preview.grant ? <PartnerLimitedPanel grant={preview.grant} /> : null}
+      {preview.canAccept ? <AcceptInviteButton inviteToken={inviteToken} /> : null}
     </div>
   );
 }

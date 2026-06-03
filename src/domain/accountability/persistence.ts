@@ -10,7 +10,6 @@ import { executionActionResultSchema, type ExecutionActionResult } from "@/domai
 import {
   accountabilityLevelLabels,
   accountabilityPermissionLabels,
-  defaultPermissionsByLevel,
   prohibitedAccountabilityCategories,
   type AccountabilityGrantDraft,
   type AccountabilityLevel,
@@ -99,16 +98,16 @@ export type AccountabilityInviteDraft = z.infer<typeof accountabilityInviteDraft
 export type AccountabilityActionResult = z.infer<typeof accountabilityActionResultSchema>;
 export type BasicAccountabilityActionResult = ExecutionActionResult;
 
+export const ACCOUNTABILITY_PRIVATE_SCOPE_MESSAGE =
+  "A previa contem dado privado fora do escopo do Atalaia. Revise antes de salvar o convite.";
+
 export function normalizePermissions(
   level: AccountabilityLevel,
   permissions: AccountabilityPermission[]
 ): AccountabilityPermission[] {
-  const withLevelDefaults = new Set<AccountabilityPermission>([
-    ...defaultPermissionsByLevel[level],
-    ...permissions
-  ]);
+  void level;
 
-  return Array.from(withLevelDefaults);
+  return Array.from(new Set(permissions));
 }
 
 const sensitiveContentChecks = {
@@ -156,6 +155,11 @@ export function buildAccountabilityMessagePreview(input: CreateAccountabilityInv
     .join(" ");
   const privacyFlags = detectPrivateContent(userSuppliedText);
   const safeToSend = !Object.values(privacyFlags).some(Boolean);
+
+  if (!safeToSend) {
+    throw new Error(ACCOUNTABILITY_PRIVATE_SCOPE_MESSAGE);
+  }
+
   const permissionLabels = permissions.map((permission) => accountabilityPermissionLabels[permission]);
   const bodyParts = [
     `${input.partnerName}, voce foi convidado para acompanhar o alvo "${input.goalTitle}" no Propósito em Ação.`,

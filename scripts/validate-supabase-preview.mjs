@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -11,6 +11,14 @@ const emailDomain = process.env.SUPABASE_PREVIEW_TEST_EMAIL_DOMAIN || "example.t
 const fixturePrefix = `preview-cutover-${runId}`;
 const keepFixtures = process.env.SUPABASE_PREVIEW_KEEP_FIXTURES === "1";
 const skipStorage = process.env.SUPABASE_SKIP_STORAGE_RLS === "1";
+const expectedPreviewProjectRef = process.env.SUPABASE_PREVIEW_PROJECT_REF;
+const allowMainProjectHarness = process.env.SUPABASE_ALLOW_MAIN_PROJECT_PREVIEW_HARNESS === "1";
+const blockedProjectRefs = new Set(
+  (process.env.SUPABASE_PREVIEW_BLOCKED_PROJECT_REFS || "bceumcfmjftoukzrfthe")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean)
+);
 
 if (confirmation !== "preview") {
   console.error("Set SUPABASE_PREVIEW_CONFIRM=preview to confirm this harness is not pointed at production.");
@@ -20,6 +28,31 @@ if (confirmation !== "preview") {
 if (!supabaseUrl || !anonKey || !serviceRoleKey) {
   console.error(
     "Set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY for the preview branch."
+  );
+  process.exit(1);
+}
+
+function projectRefFromSupabaseUrl(url) {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname.endsWith(".supabase.co") ? hostname.split(".")[0] : "";
+  } catch {
+    return "";
+  }
+}
+
+const urlProjectRef = projectRefFromSupabaseUrl(supabaseUrl);
+
+if (expectedPreviewProjectRef && urlProjectRef !== expectedPreviewProjectRef) {
+  console.error(
+    `SUPABASE_PREVIEW_PROJECT_REF does not match NEXT_PUBLIC_SUPABASE_URL (${urlProjectRef || "unknown"}).`
+  );
+  process.exit(1);
+}
+
+if (!allowMainProjectHarness && urlProjectRef && blockedProjectRefs.has(urlProjectRef)) {
+  console.error(
+    "Preview harness refused to run against a blocked Supabase project ref. Use a branch preview URL/ref or set SUPABASE_ALLOW_MAIN_PROJECT_PREVIEW_HARNESS=1 only for an explicitly approved non-production dry run."
   );
   process.exit(1);
 }
@@ -40,6 +73,10 @@ const storageObjects = [];
 
 function formatError(error) {
   return error?.message || String(error);
+}
+
+function hashInviteToken(token) {
+  return createHash("sha256").update(token).digest("hex");
 }
 
 async function step(label, callback) {
@@ -201,33 +238,45 @@ async function cleanupFixtures() {
 async function run() {
   let userA;
   let userB;
+  let atalaiaInvited;
   let atalaiaActive;
   let atalaiaRevoked;
 
   await step("create preview Auth personas", async () => {
     userA = await createPersona("user-a");
     userB = await createPersona("user-b");
-    atalaiaActive = await createPersona("atalia-active");
-    atalaiaRevoked = await createPersona("atalia-revoked");
+    atalaiaInvited = await createPersona("atalia_invited");
+    atalaiaActive = await createPersona("atalia_active");
+    atalaiaRevoked = await createPersona("atalia_revoked");
   });
 
   await step("sign in preview personas with anon key", async () => {
-    await Promise.all([userA, userB, atalaiaActive, atalaiaRevoked].map((persona) => signIn(persona)));
+    await Promise.all([userA, userB, atalaiaInvited, atalaiaActive, atalaiaRevoked].map((persona) => signIn(persona)));
   });
 
   let calling;
   let goal;
   let metacognition;
   let energy;
+  let partnerInvited;
   let partnerActive;
   let partnerRevoked;
+  let grantInvited;
+  let siblingInvitedGrant;
   let grantActive;
   let grantRevoked;
   let event;
+  let eventRevoked;
   let notification;
+  let notificationRevoked;
   let commitment;
 
   const now = new Date().toISOString();
+  const inviteExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString();
+  const invitedToken = `${fixturePrefix}-atalia-invited`;
+  const siblingToken = `${fixturePrefix}-atalia-sibling`;
+  const invitedTokenHash = hashInviteToken(invitedToken);
+  const siblingTokenHash = hashInviteToken(siblingToken);
 
   await step("create owner fixtures through RLS", async () => {
     calling = await insertOne(userA.client, "callings", {
@@ -275,6 +324,16 @@ async function run() {
       user_id: userA.id
     });
 
+    partnerInvited = await insertOne(userA.client, "accountability_partners", {
+      email: atalaiaInvited.email,
+      invite_expires_at: inviteExpiresAt,
+      invite_token_hash: invitedTokenHash,
+      name: "Atalaia Preview Convidado",
+      relationship_label: "fixture-preview",
+      status: "invited",
+      user_id: userA.id
+    });
+
     partnerActive = await insertOne(userA.client, "accountability_partners", {
       accepted_at: now,
       email: atalaiaActive.email,
@@ -293,6 +352,39 @@ async function run() {
       relationship_label: "fixture-preview",
       revoked_at: now,
       status: "revoked",
+      user_id: userA.id
+    });
+
+    grantInvited = await insertOne(userA.client, "accountability_grants", {
+      accountability_partner_id: partnerInvited.id,
+      consent_recorded_at: now,
+      consent_version: "preview_cutover_v2",
+      goal_id: goal.id,
+      invite_token_hash: invitedTokenHash,
+      notification_frequency: "weekly",
+      permissions: {
+        goal_name: true,
+        status: true
+      },
+      sharing_permissions: ["goal_name", "status"],
+      status: "invited",
+      tracking_level: "balanced",
+      user_id: userA.id
+    });
+
+    siblingInvitedGrant = await insertOne(userA.client, "accountability_grants", {
+      accountability_partner_id: partnerInvited.id,
+      consent_recorded_at: now,
+      consent_version: "preview_cutover_v2",
+      goal_id: goal.id,
+      invite_token_hash: siblingTokenHash,
+      notification_frequency: "milestones_only",
+      permissions: {
+        goal_name: true
+      },
+      sharing_permissions: ["goal_name"],
+      status: "invited",
+      tracking_level: "light",
       user_id: userA.id
     });
 
@@ -332,6 +424,20 @@ async function run() {
       user_id: userA.id
     });
 
+    eventRevoked = await insertOne(admin, "accountability_events", {
+      accountability_grant_id: grantRevoked.id,
+      accountability_partner_id: partnerRevoked.id,
+      actor_id: userA.id,
+      actor_type: "owner",
+      event_type: "preview_cutover_revoked_check",
+      goal_id: goal.id,
+      metadata_minimal: {
+        kind: "preview_cutover_revoked",
+        run_id: runId
+      },
+      user_id: userA.id
+    });
+
     event = await insertOne(admin, "accountability_events", {
       accountability_grant_id: grantActive.id,
       accountability_partner_id: partnerActive.id,
@@ -363,6 +469,27 @@ async function run() {
       provider_status: "pending_provider_config",
       status: "approved",
       template_key: "preview_cutover",
+      template_version: "v1",
+      user_id: userA.id
+    });
+
+    notificationRevoked = await insertOne(admin, "accountability_notifications", {
+      accountability_grant_id: grantRevoked.id,
+      accountability_partner_id: partnerRevoked.id,
+      approved_at: now,
+      channel: "in_app",
+      goal_id: goal.id,
+      notification_type: "preview_cutover_revoked_check",
+      preview_payload: {
+        kind: "preview_cutover_revoked",
+        message: "Status minimo revogado."
+      },
+      privacy_check: {
+        passed: true
+      },
+      provider_status: "pending_provider_config",
+      status: "approved",
+      template_key: "preview_cutover_revoked",
       template_version: "v1",
       user_id: userA.id
     });
@@ -442,6 +569,148 @@ async function run() {
     );
   });
 
+  await step("atalia_invited sees only pending invite preview and cannot read grant scope", async () => {
+    const anon = makeClient(anonKey);
+
+    await expectRows(
+      "atalia_invited reads own pending partner invite",
+      atalaiaInvited.client.from("accountability_partners").select("id").eq("id", partnerInvited.id),
+      1
+    );
+    await expectDeniedOrNoRows(
+      "atalia_invited cannot read pending grant directly",
+      atalaiaInvited.client.from("accountability_grants").select("id").eq("id", grantInvited.id)
+    );
+    await expectDeniedOrNoRows(
+      "user_b cannot read pending Atalaia invite",
+      userB.client.from("accountability_partners").select("id").eq("id", partnerInvited.id)
+    );
+    await expectDeniedOrNoRows(
+      "anon cannot read pending Atalaia invite",
+      anon.from("accountability_partners").select("id").eq("id", partnerInvited.id)
+    );
+  });
+
+  await step("atalia_invited cannot escalate acceptance scope by direct update", async () => {
+    await expectWriteDenied(
+      "atalia_invited cannot activate partner directly",
+      atalaiaInvited.client
+        .from("accountability_partners")
+        .update({
+          accepted_at: now,
+          invite_token_hash: null,
+          partner_user_id: atalaiaInvited.id,
+          status: "active"
+        })
+        .eq("id", partnerInvited.id)
+        .select("id")
+    );
+    await expectWriteDenied(
+      "atalia_invited cannot alter grant permissions",
+      atalaiaInvited.client
+        .from("accountability_grants")
+        .update({
+          permissions: {
+            goal_name: true,
+            metacognition: true,
+            status: true
+          }
+        })
+        .eq("id", grantInvited.id)
+        .select("id")
+    );
+    await expectWriteDenied(
+      "atalia_invited cannot alter goal_id",
+      atalaiaInvited.client
+        .from("accountability_grants")
+        .update({ goal_id: randomUUID() })
+        .eq("id", grantInvited.id)
+        .select("id")
+    );
+    await expectWriteDenied(
+      "atalia_invited cannot alter user_id",
+      atalaiaInvited.client
+        .from("accountability_grants")
+        .update({ user_id: atalaiaInvited.id })
+        .eq("id", grantInvited.id)
+        .select("id")
+    );
+    await expectWriteDenied(
+      "atalia_invited cannot alter tracking level or frequency",
+      atalaiaInvited.client
+        .from("accountability_grants")
+        .update({ notification_frequency: "important_events", tracking_level: "firm" })
+        .eq("id", grantInvited.id)
+        .select("id")
+    );
+    await expectWriteDenied(
+      "atalia_invited cannot alter expires_at",
+      atalaiaInvited.client
+        .from("accountability_grants")
+        .update({ expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString() })
+        .eq("id", grantInvited.id)
+        .select("id")
+    );
+  });
+
+  await step("controlled acceptance activates only the invite-specific grant", async () => {
+    const { data: acceptedPartner, error: acceptedPartnerError } = await admin
+      .from("accountability_partners")
+      .update({
+        accepted_at: now,
+        invite_token_hash: null,
+        partner_user_id: atalaiaInvited.id,
+        status: "active"
+      })
+      .eq("id", partnerInvited.id)
+      .eq("user_id", userA.id)
+      .eq("invite_token_hash", invitedTokenHash)
+      .select("id")
+      .single();
+
+    if (acceptedPartnerError || acceptedPartner?.id !== partnerInvited.id) {
+      throw new Error(`controlled partner acceptance: ${formatError(acceptedPartnerError)}`);
+    }
+
+    const { data: acceptedGrant, error: acceptedGrantError } = await admin
+      .from("accountability_grants")
+      .update({
+        accepted_at: now,
+        invite_token_hash: null,
+        status: "active"
+      })
+      .eq("id", grantInvited.id)
+      .eq("user_id", userA.id)
+      .eq("accountability_partner_id", partnerInvited.id)
+      .eq("invite_token_hash", invitedTokenHash)
+      .select("id")
+      .single();
+
+    if (acceptedGrantError || acceptedGrant?.id !== grantInvited.id) {
+      throw new Error(`controlled grant acceptance: ${formatError(acceptedGrantError)}`);
+    }
+
+    await expectRows(
+      "atalia_invited reads only the accepted grant",
+      atalaiaInvited.client.from("accountability_grants").select("id").eq("id", grantInvited.id),
+      1
+    );
+    await expectDeniedOrNoRows(
+      "atalia_invited cannot read sibling invited grant",
+      atalaiaInvited.client.from("accountability_grants").select("id").eq("id", siblingInvitedGrant.id)
+    );
+
+    const { data: siblingGrant, error: siblingGrantError } = await admin
+      .from("accountability_grants")
+      .select("status, invite_token_hash")
+      .eq("id", siblingInvitedGrant.id)
+      .single();
+
+    if (siblingGrantError || siblingGrant?.status !== "invited" || siblingGrant?.invite_token_hash !== siblingTokenHash) {
+      throw new Error("controlled acceptance changed the sibling invited grant.");
+    }
+  });
+
   await step("Atalaia active sees only authorized accountability rows", async () => {
     await expectRows(
       "Atalaia reads own active partner relation",
@@ -510,6 +779,77 @@ async function run() {
     await expectDeniedOrNoRows(
       "revoked Atalaia cannot read revoked grant",
       atalaiaRevoked.client.from("accountability_grants").select("id").eq("id", grantRevoked.id)
+    );
+    await expectDeniedOrNoRows(
+      "revoked Atalaia cannot read revoked event",
+      atalaiaRevoked.client.from("accountability_events").select("id").eq("id", eventRevoked.id)
+    );
+    await expectDeniedOrNoRows(
+      "revoked Atalaia cannot read revoked notification",
+      atalaiaRevoked.client.from("accountability_notifications").select("id").eq("id", notificationRevoked.id)
+    );
+    await expectDeniedOrNoRows(
+      "revoked Atalaia cannot read shared commitment after revocation",
+      atalaiaRevoked.client.from("commitment_documents").select("id").eq("id", commitment.id)
+    );
+  });
+
+  await step("revocation cuts future reads for formerly active Atalaia", async () => {
+    const { error: notificationCancelError } = await admin
+      .from("accountability_notifications")
+      .update({ blocked_reason: "grant_revoked", status: "cancelled" })
+      .eq("accountability_grant_id", grantActive.id)
+      .eq("user_id", userA.id)
+      .in("status", ["draft", "previewed", "approved", "queued"]);
+
+    if (notificationCancelError) {
+      throw new Error(`revoke notification fixture: ${formatError(notificationCancelError)}`);
+    }
+
+    const { error: grantRevokeError } = await admin
+      .from("accountability_grants")
+      .update({
+        invite_token_hash: null,
+        revoked_at: now,
+        revoked_reason: "preview revocation check",
+        status: "revoked"
+      })
+      .eq("id", grantActive.id)
+      .eq("user_id", userA.id);
+
+    if (grantRevokeError) {
+      throw new Error(`revoke active grant fixture: ${formatError(grantRevokeError)}`);
+    }
+
+    const { error: partnerRevokeError } = await admin
+      .from("accountability_partners")
+      .update({ revoked_at: now, status: "revoked" })
+      .eq("id", partnerActive.id)
+      .eq("user_id", userA.id);
+
+    if (partnerRevokeError) {
+      throw new Error(`revoke active partner fixture: ${formatError(partnerRevokeError)}`);
+    }
+
+    await expectDeniedOrNoRows(
+      "formerly active Atalaia cannot read partner after revocation",
+      atalaiaActive.client.from("accountability_partners").select("id").eq("id", partnerActive.id)
+    );
+    await expectDeniedOrNoRows(
+      "formerly active Atalaia cannot read grant after revocation",
+      atalaiaActive.client.from("accountability_grants").select("id").eq("id", grantActive.id)
+    );
+    await expectDeniedOrNoRows(
+      "formerly active Atalaia cannot read event after revocation",
+      atalaiaActive.client.from("accountability_events").select("id").eq("id", event.id)
+    );
+    await expectDeniedOrNoRows(
+      "formerly active Atalaia cannot read notification after revocation",
+      atalaiaActive.client.from("accountability_notifications").select("id").eq("id", notification.id)
+    );
+    await expectDeniedOrNoRows(
+      "formerly active Atalaia cannot read shared commitment after revocation",
+      atalaiaActive.client.from("commitment_documents").select("id").eq("id", commitment.id)
     );
   });
 

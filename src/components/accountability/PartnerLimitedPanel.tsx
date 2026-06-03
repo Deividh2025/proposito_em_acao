@@ -2,10 +2,10 @@ import { ShieldCheck } from "lucide-react";
 
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
-import type { AccountabilityGrantDraft } from "@/domain/accountability";
+import type { AccountabilityGrantPreview } from "@/domain/accountability";
 
 type PartnerLimitedPanelProps = {
-  grant: AccountabilityGrantDraft;
+  grant: AccountabilityGrantPreview;
 };
 
 export function PartnerLimitedPanel({ grant }: PartnerLimitedPanelProps) {

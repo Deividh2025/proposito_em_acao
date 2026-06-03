@@ -1,30 +1,33 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  buildAccountabilityInviteDraft,
-  normalizePermissions,
-  type AccountabilityPermission
-} from "@/domain/accountability";
+import { buildAccountabilityInviteDraft, normalizePermissions } from "@/domain/accountability";
 import { buildCommitmentDocumentDraft, validateCommitmentLever } from "@/domain/commitments";
 
 describe("Prompt 13 accountability domain", () => {
-  it("normalizes permissions from the selected accountability level", () => {
+  it("keeps the owner's reviewed permissions without reintroducing level defaults", () => {
     const permissions = normalizePermissions("firm", ["goal_name"]);
 
-    expect(permissions).toEqual(
-      expect.arrayContaining([
-        "goal_name",
-        "deadline",
-        "status",
-        "progress_percentage",
-        "completed_milestones",
-        "limited_scoreboard",
-        "help_request",
-        "delay_alert",
-        "completion",
-        "custom_message"
-      ] satisfies AccountabilityPermission[])
-    );
+    expect(permissions).toEqual(["goal_name"]);
+  });
+
+  it("persists exactly the reviewed permission set in invite drafts", () => {
+    const draft = buildAccountabilityInviteDraft({
+      completedMilestones: ["Marco revisado"],
+      firstAction: "Executar uma microacao.",
+      goalDeadline: "2026-07-31",
+      goalId: "goal-1",
+      goalStatus: "ativo",
+      goalTitle: "Alvo autorizado",
+      level: "firm",
+      notificationFrequency: "important_events",
+      partnerEmail: "atalia@example.com",
+      partnerName: "Atalaia",
+      permissions: ["goal_name", "status"],
+      progressPercentage: 30
+    });
+
+    expect(draft.grant.permissions).toEqual(["goal_name", "status"]);
+    expect(draft.preview.shared_fields).toEqual(["goal_name", "status"]);
   });
 
   it("builds invite preview without private accountability categories", () => {
@@ -51,6 +54,26 @@ describe("Prompt 13 accountability domain", () => {
       safe_to_send: true
     });
     expect(draft.excludedPrivateCategories).toEqual(expect.arrayContaining(["Metacognicao", "Chamado completo"]));
+  });
+
+  it("blocks invite draft generation when reviewed text contains prohibited private categories", () => {
+    expect(() =>
+      buildAccountabilityInviteDraft({
+        completedMilestones: ["Marco revisado"],
+        customMessage: "Resumo inclui metacognicao, chamado completo, saude, familia, financas e emocoes.",
+        firstAction: "Executar uma microacao.",
+        goalDeadline: "2026-07-31",
+        goalId: "goal-1",
+        goalStatus: "ativo",
+        goalTitle: "Alvo autorizado",
+        level: "balanced",
+        notificationFrequency: "weekly",
+        partnerEmail: "atalia@example.com",
+        partnerName: "Atalaia",
+        permissions: ["goal_name", "custom_message"],
+        progressPercentage: 30
+      })
+    ).toThrow(/dado privado fora do escopo/i);
   });
 });
 

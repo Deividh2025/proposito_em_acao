@@ -17,6 +17,7 @@ Supabase e o backend principal planejado:
 - Branches lidas: `main` e `preview-release-readiness`.
 - Checkout nao esta linkado ao projeto; comandos mutaveis remotos exigem etapa propria e aprovacao.
 - Evidencia de preview/RLS de 2026-06-02 e historica; repetir cutover/harness antes de beta real.
+- Etapa 2 criou hardening local de Atalaia em `20260603211654_accountability_acceptance_rls_hardening.sql`, ainda nao aplicado em preview remoto.
 - Projeto Supabase principal so deve ser usado pelo beta apos cutover validado e aprovado.
 - Tipos reais ainda pendentes; `src/types/database.ts` permanece generico.
 
@@ -95,6 +96,7 @@ Considerar para:
 - `202606010010_accountability_commitment_prompt13_alignment.sql`
 - `202606010011_mobile_pwa_prompt14_alignment.sql`
 - `20260602214345_accountability_partner_active_select_policy.sql`
+- `20260603211654_accountability_acceptance_rls_hardening.sql`
 
 ## Status remoto Prompt 16
 
@@ -111,6 +113,17 @@ Conclusao: o Supabase remoto ainda nao esta alinhado com todas as migrations loc
 Relatorios de 2026-06-02 registram que a branch preview `preview-release-readiness` foi criada, migrations locais foram alinhadas no preview e a matriz RLS dinamica passou com personas de dono, outro usuario, anonimo, Atalaia ativo e Atalaia revogado.
 
 Essa evidencia nao libera beta real automaticamente. Antes de beta com usuarios reais ou producao, repetir o cutover/harness, gerar tipos reais, validar Auth em URL publicada, remover fixtures e anexar evidencia fresca em `docs/RLS_TEST_REPORT.md` e `docs/SMOKE_TEST_REPORT.md`.
+
+## Status Etapa 2
+
+Em 2026-06-03, a branch local da Etapa 2 adicionou hardening de aceite/revogacao do Atalaia:
+
+- `accountability_grants.invite_token_hash` vincula token ao grant especifico.
+- Policies de update direto do convidado foram removidas.
+- Triggers em `app_private` impedem alteracao de escopo durante aceite.
+- Harness preview cobre `atalia_invited`, escalada negada, aceite de grant especifico e revogacao.
+
+Nao houve `db push`, lint remoto, typegen real ou harness dinamico contra preview nesta etapa. Esses comandos continuam pendentes ate ambiente/credenciais preview e aprovacao explicita.
 
 ## Tipos
 

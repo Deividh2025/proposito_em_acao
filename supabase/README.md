@@ -12,6 +12,7 @@ Fundacao Supabase do Proposito em Acao.
 - O checkout nao esta linkado ao projeto e nao deve executar comandos mutaveis sem etapa propria, variaveis operacionais e aprovacao.
 - Branches lidas em modo read-only: `main` e `preview-release-readiness`.
 - O cutover seguro para branch preview esta documentado em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
+- Etapa 2 criou a migration local `20260603211654_accountability_acceptance_rls_hardening.sql`; ela ainda nao foi aplicada em preview remoto.
 
 ## Migrations
 
@@ -29,6 +30,7 @@ Ordem de aplicacao:
 10. `202606010010_accountability_commitment_prompt13_alignment.sql`
 11. `202606010011_mobile_pwa_prompt14_alignment.sql`
 12. `20260602214345_accountability_partner_active_select_policy.sql`
+13. `20260603211654_accountability_acceptance_rls_hardening.sql`
 
 ## Aplicacao manual
 
@@ -46,10 +48,13 @@ npm.cmd run supabase:validate:preview
 
 Evite SQL Editor para cutover completo, salvo fallback aprovado. Se for inevitavel, aplicar as migrations na ordem acima, registrar evidencia de cada arquivo e depois executar `supabase/tests/README.md` e o harness `npm.cmd run supabase:validate:preview`.
 
+Nao aplicar a migration de hardening do Atalaia no Supabase principal nesta etapa. O caminho aprovado e dry-run, push e harness somente em branch preview/ambiente explicitamente autorizado.
+
 ## Regras
 
 - Nunca commitar `.env`, service role, DB password ou access token.
 - `SUPABASE_SERVICE_ROLE_KEY` e server-only.
 - Atalaia nao recebe acesso direto a tabelas sensiveis.
+- Atalaia convidado nao executa update direto para aceitar convite; aceite/revogacao ficam em action server-side auditavel.
 - Metacognicao permanece privada por padrao.
 - Storage e privado por padrao.

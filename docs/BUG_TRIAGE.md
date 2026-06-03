@@ -25,14 +25,20 @@ Padronizar registro, severidade, reproducao e fechamento de bugs do beta fechado
 | SEC-CSP-001 | Reduzido | `unsafe-eval` foi removido de producao; `unsafe-inline` permanece como risco residual ate nonce/hash. |
 | QA-INT-001 | Reduzido | Criada suite executavel `src/tests/integration/runtime-error-contracts.test.ts`; integracao real ampla ainda deve crescer antes do beta. |
 
+## Fechados ou reduzidos na Etapa 2
+
+| ID | Status | Evidencia |
+|---|---|---|
+| SEC-ATL-001 | Corrigido localmente, pendente preview | Migration `20260603211654_accountability_acceptance_rls_hardening.sql` remove update direto de aceite pelo convidado, adiciona token hash no grant e triggers de imutabilidade; actions aceitam apenas grant vinculado a token/e-mail/parceiro; testes locais cobrem escalada negada. Fechamento completo exige aplicar e validar em Supabase preview aprovado. |
+| SEC-ATL-002 | Reduzido | A tela `partner/[inviteToken]` deixou de criar grant demonstrativo e usa preview real sanitizada quando Supabase/Auth esta configurado. Auth SSR completo e E2E autenticado real continuam em `AUTH-SSR-001`. |
+| SEC-ATL-003 | Corrigido localmente | `normalizePermissions` preserva exatamente as permissoes revisadas pelo dono; teste garante que permissao removida nao volta por default de nivel. Fechamento para beta acompanha a validacao do fluxo de Atalaia em preview. |
+| SEC-CONSENT-001 | Reduzido | Criacao, aceite e revogacao do Atalaia passam a registrar consentimento/evento/notificacao obrigatoria ou retornar `ok:false`; consentimentos amplos de IA/analytics/feedback seguem fora desta etapa. |
+| QA-INT-001 | Reduzido | Harness preview inclui `atalia_invited`, tentativa de escalada, aceite especifico e revogacao cortando leituras futuras. Execucao remota fresca continua pendente. |
+
 ## Ledger aberto
 
 | ID | Sev | Dominio | Titulo | Evidencia | Proximo passo | Criterio de fechamento |
 |---|---|---|---|---|---|---|
-| SEC-ATL-001 | S0 | Atalaia/RLS | Atalaia pode ampliar escopo no aceite | `202606010010_accountability_commitment_prompt13_alignment.sql` permite update do grant convidado sem restringir colunas; `accountability/actions.ts` ativa grants por parceiro/status | Corrigir policy/action para imutabilidade de `permissions`, `goal_id`, `user_id`, parceiro e consentimento | Teste negativo RLS com `atalia_invited` nao altera escopo e so ativa grant do convite |
-| SEC-ATL-002 | S0 | Atalaia/UX | Tela de aceite usa grant demonstrativo, nao convite real | `src/app/accountability/partner/[inviteToken]/page.tsx` constroi draft local pelo token | Buscar previa real sanitizada e validar token/expiracao/grant especifico | E2E/integ mostra previa real e nao inventa permissoes |
-| SEC-ATL-003 | S1 | Atalaia | Permissoes desmarcadas podem voltar por defaults do nivel | `normalizePermissions` adiciona defaults; `PermissionSelector` permite desmarcar | Ajustar UX/regra para consentimento granular explicito | Teste garante que permissao removida nao retorna sem acao do dono |
-| SEC-CONSENT-001 | S1 | Consentimento/auditoria | Consentimento e auditoria nao sao persistidos de forma confiavel | Nao ha escrita de `consent_records`; Etapa 1 passou a checar erros de eventos/notificacoes ja existentes, mas consentimento versionado ainda nao foi implementado | Persistir consentimentos versionados e checar erros de auditoria/notificacao em toda rota sensivel | Falha de consentimento/auditoria retorna `ok:false`; teste cobre erro |
 | AUTH-SSR-001 | S1 | Auth | Auth SSR incompleto | Ausencia de proxy/middleware, callback, confirmacao e recuperacao; `server.ts` menciona refresh externo | Implementar fluxo SSR completo conforme Supabase Auth | Smoke Auth em URL HTTPS cobre signup, confirmacao, login, logout, recovery e refresh |
 | DB-TYPES-001 | S1 | Supabase | Tipos de banco continuam genericos | `src/types/database.ts` usa `Record<string, ...>` | Gerar tipos reais apos cutover preview aprovado | Diff de tipos reais revisado e typecheck passa com schema concreto |
 | OPS-HEALTH-001 | S1 | Operacao | Health check nao valida dependencias | `/api/health` retorna sempre `ok:true` | Separar liveness/readiness e validar dependencias no readiness | Smoke externo usa endpoint que detecta Supabase/Auth/config ausente |

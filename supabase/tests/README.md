@@ -10,6 +10,7 @@ O roteiro operacional completo esta em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 - `user_a`: dono de goal, task, metacognition e consent.
 - `user_b`: outro usuario.
 - `atalia_authorized`: parceiro autenticado com grant ativo para um `goal_id` de `user_a`.
+- `atalia_invited`: parceiro autenticado ou link convidado durante a transicao `invited -> active`, sem permissao para alterar escopo definido pelo dono.
 - `atalia_revoked`: parceiro com grant revogado ou expirado.
 
 ## Casos minimos
@@ -79,6 +80,8 @@ O roteiro operacional completo esta em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 48. `atalia_authorized` nao le notificacao se `accountability_grant_id` divergir, mesmo com permissao no mesmo alvo.
 49. Revogacao de grant corta leitura futura e cancela notificacoes pendentes.
 50. Metacognicao, Chamado e Revisao Semanal continuam sem policy de Atalaia mesmo depois das correcoes do Prompt 15.
+51. `atalia_invited` nao consegue alterar `permissions`, `goal_id`, `accountability_partner_id`, `user_id`, `consent_version` ou qualquer campo de escopo durante aceite.
+52. Aceite ativa apenas o grant associado ao convite especifico, nao todos os grants convidados do parceiro.
 
 ## Comandos esperados quando CLI existir
 
@@ -103,6 +106,6 @@ npm.cmd run supabase:validate:preview
 
 O harness cria usuarios ficticios `user_a`, `user_b`, `atalia-active` e `atalia-revoked`, valida Auth com anon key, testa isolamento RLS nas tabelas criticas, valida Atalaia ativo/revogado e remove fixtures ao final. Use `SUPABASE_PREVIEW_KEEP_FIXTURES=1` apenas para depuracao manual em branch sem dados reais.
 
-## Estado local desta inspecao
+## Estado local verificado em 2026-06-03
 
-O CLI `supabase` nao esta instalado neste terminal, entao o pack foi preparado sem aplicar nada no remoto.
+O CLI `supabase` esta disponivel neste terminal (`2.98.2`) e `npx.cmd -y supabase --version` retorna versao mais nova. O checkout nao esta linkado ao projeto e nenhuma migration/harness remoto foi executado nesta auditoria documental. A evidencia de preview/RLS continua historica ate rerun fresco antes do beta real.

@@ -6,6 +6,13 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 ## [Unreleased]
 
+### Docs
+
+- Sincroniza fontes de verdade para o estado V1 local ampla / pre-beta real em 2026-06-03.
+- Registra decisoes atuais: Hostinger VPS KVM 1 com gate de upgrade, dominio Hostinger pendente, Supabase principal apos cutover validado, IA selecionavel `automatic`/`openai`/`deepseek`, consentimento por provider, sem fallback automatico entre providers, Resend transacional/SMTP Auth, analytics first-party Supabase opt-in off e retencao de 90 dias.
+- Formaliza bloqueadores de beta real: Auth SSR incompleto, tipos Supabase genericos, Atalaia/consentimento/auditoria, escrita sem confirmacao, health check liveness-only, CSP permissiva, ausencia de CI/branch protection/releases, Docker/rollback nao ensaiados e dados demonstrativos em rotas principais.
+- Separa evidencia historica de Supabase preview de evidencia fresca exigida antes de beta com usuarios reais.
+
 ### Added
 
 - Estrutura inicial de governanca do repositorio.
@@ -122,7 +129,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Migration remota `mobile_pwa_prompt14_alignment` aplicada em 2026-06-02 no Supabase `proposito_em_acao` (`bceumcfmjftoukzrfthe`), versao `20260602134002`.
 - Prompt 15 reforca Auth server-side sem service role no browser e registra que migrations remotas Supabase ainda precisam ser alinhadas antes de producao.
 - Prompt 16 confirmou via Supabase que o projeto remoto esta ativo, mas ainda lista somente `20260602134002 mobile_pwa_prompt14_alignment`; producao aberta segue bloqueada.
-- Prompt 17 limita analytics a eventos/metadados minimos, consentimento especifico, retencao definida e sem conteudo sensivel.
+- Prompt 17 limita analytics a eventos/metadados minimos, consentimento especifico e sem conteudo sensivel. Em 2026-06-03, a retencao operacional foi definida como 90 dias para analytics, feedback beta e metadados de auditoria de IA, mas enforcement tecnico ainda e pendente.
 - Feedback beta nasce como rascunho local; formulario externo depende de `NEXT_PUBLIC_BETA_FEEDBACK_URL` aprovado, sem tokens.
 - Harness Supabase preview exige `SUPABASE_PREVIEW_CONFIRM=preview`, usa service role apenas no terminal do operador e remove fixtures ficticios ao final.
 - `/onboarding` mudou de placeholder para fluxo interativo do Prompt 6.
@@ -149,7 +156,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 - Definicao inicial de que secrets nao devem ser commitados.
 - Classificacao de dados de Metacognicao, fe, saude, familia, financas, emocoes, Chamado e Atalaia como sensiveis.
-- Regras de consentimento, Atalaia, logs, RLS futura e structured outputs documentadas.
+- Regras de consentimento, Atalaia, logs, RLS e structured outputs documentadas.
 - RLS preparado em todas as tabelas expostas do schema `public`.
 - Atalaia limitado a grants por alvo, sem policy em Chamado completo, Metacognicao, revisoes privadas, inbox bruto ou calendario completo.
 - Storage privado preparado para uploads, anexos e documentos de compromisso.

@@ -27,7 +27,7 @@ Rotas existentes:
 - `/accountability`
 - `/settings`
 
-Essas rotas validam shell, navegacao e componentes fundacionais. Elas nao implementam fluxos finais de produto.
+Essas rotas validam shell, navegacao e cobertura ampla da V1 local. Elas nao devem ser confundidas com prontidao de beta real: parte das telas ainda usa dados demonstrativos, mocks ou fallback local/dev, e a persistencia real depende de Auth/Supabase/RLS em ambiente validado.
 
 Excecao do Prompt 6:
 
@@ -35,7 +35,15 @@ Excecao do Prompt 6:
 - `/dashboard` implementa dashboard inicial de direcao e progressao assistida.
 - `/goals`, `/projects` e `/tasks` implementam nucleo inicial do Prompt 8 com mock seguro, fallback local/dev e server actions preparadas para Supabase.
 - `/calendar` e `/inbox` implementam o centro operacional do Prompt 9 com calendario semana/dia, blocos, agendamento, captura, classificacao mockada e processamento.
-- As demais rotas continuam placeholders de largura da V1.
+- Prompt 10 a 14 adicionaram Desbloqueador, Metacognicao, Foco, Habitos, Placar, Revisao, Jardim, Atalaia, Compromissos e rotas mobile/PWA em profundidade controlada.
+
+## Estado atual verificado em 2026-06-03
+
+- Varias paginas principais ainda exibem amostras locais: alvos, projetos, tarefas, calendario/inbox, habitos, Placar, Jardim e Atalaia possuem componentes com `sample*`, mocks ou paineis demonstrativos.
+- A Inbox atualiza estado local em captura/conversao sem checar `result.ok`; antes do beta real, a UI deve diferenciar falha real de rascunho local.
+- Rotas mobile usam `MobileShell` com `<main>` dentro do `<main>` global do AppShell; corrigir antes de tratar mobile/PWA como pronto.
+- `/settings` ainda nao implementa seletor real de provider de IA (`automatic`, `openai`, `deepseek`) nem consentimento por provider.
+- E2E local valida navegacao e fallback, nao prova dados reais do usuario nem Auth real publicado.
 
 ## App Router
 

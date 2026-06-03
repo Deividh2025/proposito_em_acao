@@ -16,6 +16,8 @@
 
 **Versão deste PRD:** 1.0.
 
+**Adendo operacional 2026-06-03:** este PRD fonte continua sendo a raiz de produto, mas decisoes posteriores registradas em `docs/DECISIONS.md` substituem pendencias antigas quando houver conflito. Estado atual: V1 local ampla / pre-beta real; proximo objetivo e beta real fechado. Decisoes atuais: Hostinger VPS KVM 1 com Coolify e gate de upgrade; dominio exato ainda pendente; Supabase principal somente apos cutover validado; IA selecionavel por `automatic`, `openai` ou `deepseek` com padrao `automatic`, consentimento por provider e sem fallback automatico; Resend para e-mail transacional e SMTP do Supabase Auth; analytics first-party no Supabase com opt-in desligado e retencao de 90 dias para analytics, feedback beta e auditoria de IA.
+
 **Status:** documento-base para validação estratégica antes da criação do playbook de prompts e da implementação por etapas.
 
 ---

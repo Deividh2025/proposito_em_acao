@@ -4,6 +4,17 @@
 
 IA e camada operacional integrada, nao chatbot solto. Toda resposta que vira dado deve usar schema estruturado, validacao e revisao do usuario quando afetar agenda, alvos, tarefas, Metacognicao ou Atalaia.
 
+## Estado atual verificado em 2026-06-03
+
+- OpenAI real e DeepSeek real continuam desativados em fluxos de produto.
+- Codigo atual possui provider mock e provider OpenAI server-only; DeepSeek ainda nao possui adapter, resolver ou uso em fluxo.
+- Tipos atuais aceitam `mock | openai`; o seletor `automatic | openai | deepseek` e decisao atual, mas ainda pendente de implementacao.
+- `safeInvoke` valida schema e pode usar fallback local, mas registra `guardrail_status: "not_run"`; isso bloqueia IA real em fluxos sensiveis.
+- `ai_run_audit_v1` existe como contrato/metadado, mas auditoria persistida em `ai_run_audits` ainda nao esta comprovada no codigo de produto.
+- Consentimento de IA devera ser separado, versionado e revogavel por provider.
+- Nao havera fallback automatico entre providers. Em falha de provider, usar fallback local seguro ou fluxo manual.
+- Metadados de auditoria de IA terao retencao operacional de 90 dias antes de IA real.
+
 ## Agentes internos
 
 - Copiloto de Jornada.
@@ -21,7 +32,7 @@ IA e camada operacional integrada, nao chatbot solto. Toda resposta que vira dad
 
 ## Structured Outputs
 
-- Schemas futuros em `src/ai/schemas`.
+- Schemas em `src/ai/schemas`.
 - Validacao com Zod e/ou JSON Schema.
 - Server-side validation antes de persistir.
 - Evals negativos antes de liberar agentes sensiveis.
@@ -29,8 +40,8 @@ IA e camada operacional integrada, nao chatbot solto. Toda resposta que vira dad
 ## Prompts internos
 
 - Diretório preparado: `src/ai/prompts`.
-- Prompts finais nao foram criados.
-- Prompts devem ser versionados e revisados por guardrails.
+- Prompts iniciais foram versionados como contratos.
+- Prompts finais de producao devem ser revisados por guardrails e evals reais antes de ativar provider.
 
 ## Guardrails
 
@@ -52,7 +63,7 @@ Futura base deve conter materiais aprovados sobre Chamado, mordomia do tempo, do
 
 ## Evals
 
-Diretorio preparado: `src/ai/evals`.
+Diretorio preparado: `src/ai/evals` com casos locais. Evals locais nao validam provider real, custo, latencia, rate limit ou aderencia de modelo em producao.
 
 Casos minimos futuros:
 
@@ -81,7 +92,7 @@ Casos minimos futuros:
 
 OpenAI deve permanecer server-side. O client real esta em `src/lib/openai/client.ts` com barreira `server-only`, e o provider real fica isolado em `src/lib/openai/provider.ts`.
 
-Docs oficiais consultadas em 2026-05-31 indicam que novos projetos devem preferir a Responses API e que Structured Outputs exigem schemas estritos com campos requeridos:
+Docs oficiais consultadas originalmente em 2026-05-31 e checadas novamente por disponibilidade em 2026-06-03 indicam que novos projetos devem preferir a Responses API e que Structured Outputs exigem schemas estritos com campos requeridos:
 
 - https://developers.openai.com/api/docs/guides/migrate-to-responses
 - https://developers.openai.com/api/docs/guides/structured-outputs
@@ -96,12 +107,14 @@ Arquivos:
 
 Logs de IA devem usar `ai_run_audit_v1`, sem prompt bruto e sem resposta bruta.
 
-## Prompt 16 - OpenAI + DeepSeek
+## Decisao atual - OpenAI + DeepSeek
 
 Decisao do fundador:
 
 - OpenAI API sera usada como provider real planejado.
 - DeepSeek API sera usada como provider real planejado.
+- Configuracoes futuras devem permitir `automatic`, `openai` e `deepseek`, com `automatic` como padrao.
+- OpenAI e DeepSeek permanecem configuraveis por variaveis de ambiente.
 - Modelos DeepSeek planejados: `deepseek-v4-flash` e `deepseek-v4-pro`.
 
 DeepSeek deve seguir o mesmo padrao de seguranca do OpenAI provider:
@@ -112,7 +125,7 @@ DeepSeek deve seguir o mesmo padrao de seguranca do OpenAI provider:
 - schema estruturado e validacao server-side;
 - guardrails antes de persistir, enviar ou compartilhar;
 - logs sem prompt bruto/resposta bruta;
-- fallback seguro quando provider falhar;
+- fallback local seguro ou fluxo manual quando provider falhar, sem fallback automatico para outro provider;
 - evals antes de ativar fluxo real.
 
 Antes de ativar IA real, ainda falta decidir:
@@ -121,5 +134,5 @@ Antes de ativar IA real, ainda falta decidir:
 - quais agentes usam OpenAI, DeepSeek Flash ou DeepSeek Pro;
 - limites de custo por usuario/ambiente;
 - rate limit e timeout;
-- politica de fallback entre providers;
+- regras de fallback local/manual por fluxo;
 - se algum fluxo sensivel ficara apenas mock/manual no beta.

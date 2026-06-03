@@ -36,14 +36,15 @@ Cada PR deve ter escopo claro, checklist preenchido, documentacao sincronizada e
 
 ## GitHub local-first
 
-Repositorio GitHub informado pelo fundador: `Deividh2025/proposito_em_acao`.
+Estado verificado em 2026-06-03: o remoto `origin` ja aponta para `https://github.com/Deividh2025/proposito_em_acao.git`, a branch principal e `main` e o PR #1 ja foi mergeado.
 
-Nesta etapa, o repositorio remoto no GitHub nao sera criado automaticamente. Quando autorizado e com ferramenta autenticada disponivel, conectar o remote local e publicar:
+Antes de producao aberta ainda faltam CI/workflows, branch protection efetiva ou governanca equivalente, releases/tags e rollback verificavel.
+
+Use branches pequenas e publique explicitamente:
 
 ```powershell
-git remote add origin https://github.com/Deividh2025/proposito_em_acao.git
-git remote -v
-git push -u origin main
+git switch -c codex/nome-curto
+git push -u origin codex/nome-curto
 ```
 
 Se o trabalho estiver em branch de etapa, publicar o branch explicitamente e abrir PR para `main`:

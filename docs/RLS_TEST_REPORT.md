@@ -2,6 +2,15 @@
 
 Data: 2026-06-02.
 
+## Estado atual verificado em 2026-06-03
+
+- Supabase CLI esta disponivel localmente (`2.98.2`) e o projeto `proposito_em_acao` foi listado em modo read-only.
+- O checkout nao esta linkado ao projeto; nenhuma migration, fixture ou harness remoto foi executado nesta auditoria documental.
+- Branches lidas: `main` e `preview-release-readiness`.
+- A evidencia de preview/RLS de 2026-06-02 e historica e deve ser repetida antes de beta real.
+- Novos cenarios obrigatorios antes de beta: `atalia_invited` nao pode alterar escopo durante aceite; aceite deve ativar apenas o grant do convite; `permissions`, `goal_id`, `user_id`, parceiro e consentimento devem ser imutaveis para o convidado.
+- A matriz deve ser expandida para todas as tabelas sensiveis e para zero-linha-afetada em updates/deletes.
+
 ## Escopo
 
 Revisao de policies locais, regressao estatica de SQL e consulta remota limitada via Supabase plugin.
@@ -72,7 +81,7 @@ Validacao final executada no preview:
 - Anonimo nao le alvo privado.
 - Fixtures temporarios foram removidos apos a matriz; contagem remanescente retornou `0`.
 
-Status: matriz RLS dinamica passou no branch preview. Producao aberta ainda depende de Auth real, secrets/deploy, LGPD minima e smoke test publicado.
+Status historico: matriz RLS dinamica passou no branch preview em 2026-06-02. Producao aberta e beta real ainda dependem de rerun fresco, Auth real, secrets/deploy, LGPD minima, smoke test publicado e cobertura dos novos cenarios de Atalaia convidado.
 
 ## Addendum Cutover Pack
 

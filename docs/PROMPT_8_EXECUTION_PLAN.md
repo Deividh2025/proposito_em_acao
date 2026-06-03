@@ -8,7 +8,7 @@ Implementar o nucleo de execucao `Alvos SMART-E -> Projetos -> Tarefas -> Microt
 
 Fontes consultadas: `AGENTS.md`, `PLANS.md`, `README.md`, `docs/PRD.md`, `docs/MVP_SCOPE.md`, `docs/PRODUCT_VISION.md`, `docs/USER_FLOWS.md`, `docs/DOMAIN_MODEL.md`, `docs/DATABASE_SCHEMA.md`, `docs/RLS_POLICIES.md`, `docs/SECURITY_PRIVACY.md`, `docs/DATA_SENSITIVITY_MATRIX.md`, `docs/AI_ARCHITECTURE.md`, `docs/AI_SCHEMAS.md`, `docs/AI_GUARDRAILS.md`, `docs/AI_AGENTS.md`, `docs/UX_UI_GUIDE.md`, `docs/DESIGN_SYSTEM.md`, `docs/ACCEPTANCE_CRITERIA.md`, `docs/CHANGELOG.md` e `docs/DECISIONS.md`.
 
-Estado atual: o repo ja possui Next.js App Router, Supabase clients, migrations iniciais, design system, onboarding/direcao inicial, agentes/schemas/prompts do Prompt 7 e worktree com alteracoes pendentes da etapa anterior. Supabase CLI nao esta instalado no workspace, entao migrations serao versionadas e documentadas, mas nao aplicadas remotamente.
+Estado historico do Prompt 8: o repo ja possuia Next.js App Router, Supabase clients, migrations iniciais, design system, onboarding/direcao inicial, agentes/schemas/prompts do Prompt 7 e worktree com alteracoes pendentes da etapa anterior. Naquela etapa, migrations seriam versionadas e documentadas, mas nao aplicadas remotamente. Estado atual de CLI/Supabase deve ser lido em `docs/SUPABASE_PLAN.md` e `docs/RLS_TEST_REPORT.md`.
 
 ## Arquivos envolvidos
 

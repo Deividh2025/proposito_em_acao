@@ -3,8 +3,17 @@
 ## Ambientes
 
 - Local: desenvolvimento com `.env.local` privado.
-- Preview: VPS Hostinger com Coolify, branch/PR e variaveis segregadas.
+- Preview: Hostinger VPS KVM 1 com Coolify, branch/PR e variaveis segregadas.
 - Producao: dominio final, secrets de producao e observabilidade.
+
+## Estado atual verificado em 2026-06-03
+
+- Hostinger KVM 1 e a VPS inicial escolhida; upgrade e obrigatorio se build/runtime/HTTPS/logs/rollback nao forem estaveis.
+- Dominio exato ainda nao foi definido e bloqueia deploy publicado.
+- GitHub nao tem workflows, releases, tags ou branch protection efetiva na `main`.
+- Dockerfile existe, mas imagem nao foi validada nesta auditoria e nao ha `HEALTHCHECK`.
+- `/api/health` e apenas liveness; nao serve como readiness de Supabase/Auth/secrets/providers.
+- Beta real depende de smoke externo contra URL HTTPS publicada.
 
 ## Estrategia local
 
@@ -15,7 +24,7 @@
 
 ## Preview
 
-- Usar VPS Hostinger com Coolify, conforme decisao do fundador no Prompt 16.
+- Usar Hostinger VPS KVM 1 com Coolify, conforme decisao atual do fundador.
 - Usar projeto Supabase separado ou schema/ambiente isolado.
 - Nunca reutilizar service role de producao.
 
@@ -28,6 +37,8 @@
 ## Hostinger
 
 Hostinger sera usada via VPS com Coolify. A decisao exclui hospedagem estatica/shared para esta V1.
+
+Plano inicial: KVM 1. Gate obrigatorio: se CPU/memoria/disco/rede nao sustentarem build, runtime Next.js, logs, HTTPS e rollback com estabilidade, fazer upgrade antes de beta real.
 
 No Prompt 16, a avaliacao tecnica concluiu:
 

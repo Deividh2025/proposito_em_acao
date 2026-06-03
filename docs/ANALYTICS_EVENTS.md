@@ -1,5 +1,13 @@
 # Analytics Events - Prompt 17
 
+## Estado atual verificado em 2026-06-03
+
+- Analytics real ainda nao esta ativo.
+- Decisao atual: analytics first-party no Supabase, opt-in desligado por padrao.
+- Retencao de raw events: 90 dias.
+- Eventos devem ser bloqueados quando consentimento estiver ausente ou revogado.
+- Nenhum evento pode conter texto do usuario, prompt/resposta de IA, dados de Chamado, Metacognicao, Atalaia, inbox bruto, calendario detalhado ou dados sensiveis.
+
 ## Estado
 
 Contrato preparado em `src/domain/analytics/`. Nenhum provider externo foi ativado.

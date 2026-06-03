@@ -80,7 +80,7 @@ Salvar metadados, nao prompts brutos:
 - `latency_ms`
 - `error_code`
 
-## RLS futura
+## RLS planejada/aplicavel
 
 Politicas minimas por tabela:
 

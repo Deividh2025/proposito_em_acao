@@ -4,7 +4,15 @@ Data: 2026-06-02.
 
 ## Estado operacional
 
-O produto esta verde localmente e pronto para preparar preview controlado em VPS Hostinger com Coolify. Producao aberta esta bloqueada ate Supabase/Auth/RLS/LGPD/secrets/smoke reais passarem.
+O produto esta em V1 local ampla / pre-beta real e pronto para continuar a preparacao de preview controlado em Hostinger VPS KVM 1 com Coolify. Beta real e producao aberta estao bloqueados ate Supabase/Auth/RLS/LGPD/secrets/smoke reais passarem e S0/S1 de `docs/BUG_TRIAGE.md` serem resolvidos.
+
+Decisoes atuais:
+
+- Hostinger KVM 1 com gate de upgrade.
+- Dominio exato ainda pendente.
+- Resend para e-mail transacional e SMTP customizado do Supabase Auth.
+- Analytics first-party no Supabase, opt-in desligado por padrao.
+- Retencao de 90 dias para analytics, feedback beta e auditoria de IA.
 
 ## Dono e contato
 
@@ -68,7 +76,7 @@ Proibido:
 
 - Feedback in-app atual e rascunho local e nao deve ser apresentado como coleta produtiva.
 - Formulario externo so pode ser ativado via `NEXT_PUBLIC_BETA_FEEDBACK_URL` aprovado, sem tokens ou query sensivel.
-- Analytics real exige consentimento, retencao e allowlist antes de coleta.
+- Analytics real exige consentimento, retencao de 90 dias e allowlist antes de coleta.
 - Eventos devem medir acoes significativas e metadados minimos, sem texto de usuario.
 
 ## Incidentes
@@ -99,7 +107,7 @@ Providers planejados:
 Manter IA real desativada ate aprovar:
 
 - modelo OpenAI;
-- roteamento por agente entre OpenAI, DeepSeek Flash e DeepSeek Pro;
+- seletor `automatic`/`openai`/`deepseek` e roteamento do modo `automatic`;
 - custo;
 - rate limit;
 - evals ampliados;
@@ -111,9 +119,10 @@ Manter IA real desativada ate aprovar:
 
 Manter real desativado ate aprovar:
 
-- provider;
+- Resend server-only;
 - remetente;
-- dominio;
+- dominio verificado;
+- SMTP customizado do Supabase Auth;
 - templates;
 - unsubscribe/revogacao quando aplicavel;
 - logs minimos sem dados sensiveis.

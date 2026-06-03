@@ -155,3 +155,17 @@ Status remoto: a migration `mobile_pwa_prompt14_alignment` foi aplicada em 2026-
 - Policies locais de `accountability_grants` e `accountability_events` foram corrigidas para exigir grant/parceiro especifico.
 - Projeto Supabase remoto `bceumcfmjftoukzrfthe` foi encontrado ativo e advisors de seguranca nao retornaram lints.
 - Migrations remotas listadas nao cobrem todo o conjunto local da V1; validacao RLS dinamica segue pendente antes de producao.
+
+## Auditoria 2026-06-03 - Atalaia convidado
+
+Nova persona obrigatoria: `atalia_invited`.
+
+Risco identificado: durante `invited -> active`, o convidado nao pode ampliar escopo revisado pelo dono. Policies/actions precisam impedir alteracao de `permissions`, `goal_id`, `user_id`, `accountability_partner_id`, `consent_version`, `tracking_level`, `notification_frequency` e campos equivalentes.
+
+Criterio antes de beta real:
+
+- Aceite ativa apenas o grant ligado ao convite especifico.
+- Convite expirado/revogado nao ativa acesso.
+- `atalia_invited` nao altera escopo.
+- `atalia_authorized` le apenas grant/evento/notificacao/documento compartilhado do proprio grant ativo.
+- `atalia_revoked` perde leitura futura.

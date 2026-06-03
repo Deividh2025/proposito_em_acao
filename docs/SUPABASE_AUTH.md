@@ -1,5 +1,13 @@
 # Supabase Auth
 
+## Estado atual verificado em 2026-06-03
+
+- `/auth` existe como superficie basica para email/senha.
+- Auth SSR ainda esta incompleto: faltam refresh centralizado via middleware/proxy/route handler, callback, confirmacao de email e recuperacao completos.
+- Auth real nao foi validado em URL HTTPS publicada.
+- Resend foi decidido como SMTP customizado do Supabase Auth, mas ainda nao esta configurado.
+- Esse estado bloqueia beta real.
+
 ## Fluxo V1
 
 Auth inicial por email/senha, com confirmacao de email. OAuth fica para etapa futura.
@@ -36,8 +44,8 @@ O app usa `@supabase/ssr`:
 Configurar no Supabase:
 
 - Local: `http://localhost:3000/**`.
-- Preview Vercel: `https://*-<team-or-account-slug>.vercel.app/**` ou URL exata do preview aprovado.
-- Hostinger/alternativa: URL exata do preview aprovado.
+- Preview Hostinger/Coolify: URL exata HTTPS do preview aprovado.
+- Vercel/alternativa de contingencia: `https://*-<team-or-account-slug>.vercel.app/**` ou URL exata do preview aprovado, somente se essa alternativa for aprovada.
 - Producao: URL exata do dominio final aprovado, preferencialmente sem wildcard.
 
 O `NEXT_PUBLIC_APP_URL` do ambiente deve corresponder ao Site URL/redirect permitido. Confirmacao de e-mail, login, logout e expiracao de sessao devem ser validados por smoke test publicado antes de beta.

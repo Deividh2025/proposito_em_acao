@@ -11,11 +11,11 @@
 ## Comandos
 
 ```powershell
-npm run lint
-npm run typecheck
-npm run test
-npm run build
-npm run test:e2e
+npm.cmd run lint
+npm.cmd run typecheck
+npm.cmd run test
+npm.cmd run build
+npm.cmd run test:e2e
 ```
 
 ## Estrutura
@@ -24,7 +24,7 @@ npm run test:e2e
 - `src/tests/integration`: validacao server-side, clients e fluxos sem browser.
 - `src/tests/e2e`: jornadas reais no navegador.
 
-O comando `npm run test:e2e` usa `scripts/run-e2e.mjs` para buildar, iniciar o Next, executar Playwright e encerrar o servidor corretamente no Windows.
+O comando `npm.cmd run test:e2e` usa `scripts/run-e2e.mjs` para buildar, iniciar o Next, executar Playwright e encerrar o servidor corretamente no Windows.
 
 ## Minimo por PR
 
@@ -44,15 +44,14 @@ O comando `npm run test:e2e` usa `scripts/run-e2e.mjs` para buildar, iniciar o N
 
 ## Supabase CLI
 
-O CLI `supabase` nao esta instalado neste ambiente. Quando estiver disponivel:
+Estado 2026-06-03: o CLI `supabase` esta disponivel localmente (`2.98.2`), mas o checkout nao esta linkado ao projeto. Use comandos read-only sem aprovacao; comandos que criam fixtures, aplicam migrations ou escrevem no remoto exigem etapa propria e aprovacao.
 
 ```powershell
 supabase --version
-supabase start
-supabase db reset
-supabase db lint
 supabase migration list --local
 ```
+
+Para preview aprovado, seguir `docs/SUPABASE_PREVIEW_CUTOVER.md` e registrar evidencia em `docs/RLS_TEST_REPORT.md`.
 
 ## Testes futuros de IA
 

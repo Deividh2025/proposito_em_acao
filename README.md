@@ -2,7 +2,7 @@
 
 SaaS desktop-first de vida intencional, foco, execucao, habitos, autorregulacao e produtividade assistida por IA, com PWA/mobile complementar para acoes rapidas.
 
-Status atual: V1 local ampla e pre-beta real, com operacao de beta fechado e observabilidade segura preparadas. A plataforma decidida e VPS Hostinger com Coolify; OpenAI API e DeepSeek API estao planejados server-side, mas desativados por padrao. Beta com usuarios reais e producao aberta seguem bloqueados ate URL HTTPS publicada, Auth real validado, smoke externo, secrets no provedor, LGPD minima, rollback aprovado e evidencia fresca de Supabase/RLS. Consulte `docs/RELEASE_READINESS.md` para o status vivo.
+Status atual: V1 local ampla e pre-beta real. As rotas e gates locais possuem cobertura relevante, mas varias paginas ainda usam dados demonstrativos/fallback local-dev e isso nao comprova jornada real persistida do usuario. A plataforma decidida e Hostinger VPS KVM 1 com Coolify, dominio a adquirir na Hostinger e gate de upgrade obrigatorio se a KVM 1 nao sustentar a aplicacao com estabilidade. OpenAI API e DeepSeek API estao planejados server-side, selecionaveis por `automatic`, `openai` ou `deepseek` no futuro, mas desativados por padrao. Resend foi decidido para e-mail transacional e SMTP customizado do Supabase Auth. Analytics sera first-party no Supabase, opt-in desligado por padrao, com retencao de 90 dias para analytics, feedback beta e auditoria de IA. Beta com usuarios reais e producao aberta seguem bloqueados ate URL HTTPS publicada, Auth real validado, smoke externo, secrets no provedor, LGPD minima, rollback aprovado e evidencia fresca de Supabase/RLS. Consulte `docs/RELEASE_READINESS.md` para o status vivo.
 
 ## Visao
 
@@ -43,7 +43,9 @@ Stack definida para a fundacao inicial:
 - TypeScript strict.
 - Tailwind CSS.
 - Supabase para Auth, Postgres, RLS e Storage.
-- OpenAI e DeepSeek server-side em etapa futura, com structured outputs.
+- OpenAI e DeepSeek server-side em etapa futura, com structured outputs, consentimento por provider e sem fallback automatico entre providers.
+- Resend para e-mail transacional e SMTP customizado do Supabase Auth.
+- Analytics first-party no Supabase, opt-in desligado por padrao e retencao operacional de 90 dias.
 - Zod, React Hook Form, Vitest, Playwright, ESLint e Prettier.
 
 ## Organizacao do repositorio
@@ -148,12 +150,6 @@ Nunca commitar `.env`, chaves, tokens ou secrets. Dados de fe, saude, familia, f
 
 ## GitHub
 
-Fluxo local primeiro. O repositorio remoto informado pelo fundador e `Deividh2025/proposito_em_acao`.
+Fluxo local primeiro, com branches pequenas e PRs revisaveis. O repositorio remoto atual e `origin` em `https://github.com/Deividh2025/proposito_em_acao.git`; a branch principal e `main`.
 
-Remote local esperado:
-
-```powershell
-git remote add origin https://github.com/Deividh2025/proposito_em_acao.git
-```
-
-Push inicial, PRs e configuracoes do repositorio privado devem ocorrer em etapa propria, com autenticacao GitHub validada.
+Estado verificado em 2026-06-03: repositorio privado, `main` sem branch protection efetiva pela API, zero workflows GitHub Actions e sem releases publicadas. Isso bloqueia producao aberta ate existir governanca de release/rollback suficiente.

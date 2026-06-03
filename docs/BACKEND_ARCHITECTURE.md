@@ -44,7 +44,19 @@ Rotas server-side ou server actions devem proteger:
 - Evitar prompts privados, respostas brutas e dados sensiveis.
 - Eventos de consentimento e revogacao devem ser auditaveis.
 
-## Estado Prompt 4
+## Estado atual verificado em 2026-06-03
+
+- Backend real continua sendo Next.js server actions/routes + Supabase.
+- Supabase CLI esta disponivel localmente (`2.98.2`) e o projeto `proposito_em_acao` foi listado em modo read-only, mas o checkout nao esta linkado para comandos mutaveis.
+- Auth SSR esta incompleto: nao ha middleware/proxy central de refresh, callback, confirmacao e recuperacao completos.
+- `src/types/database.ts` ainda e generico; tipos reais precisam ser gerados apos cutover validado.
+- Health check atual e liveness simples e nao valida Supabase, Auth, secrets ou providers.
+- Actions que alteram estado real devem confirmar erros e linha afetada; fallback positivo so e aceitavel para ausencia de configuracao/sessao, nao para falha real.
+- Resend foi decidido para e-mail transacional e SMTP customizado do Supabase Auth, mas adapter real ainda nao existe.
+- DeepSeek foi decidido como provider planejado junto com OpenAI, mas o codigo ainda aceita apenas provider `mock`/`openai`.
+- Analytics planejado sera first-party no Supabase, opt-in desligado por padrao e retencao de 90 dias; ainda nao ha persistencia real.
+
+## Historico Prompt 4
 
 - Projeto remoto Supabase nao foi modificado por falta de credenciais administrativas/CLI.
 - Migrations de schema, RLS e storage foram criadas em `supabase/migrations/`.

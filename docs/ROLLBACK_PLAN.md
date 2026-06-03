@@ -6,6 +6,13 @@ Data: 2026-06-02.
 
 Plano de rollback para preview/producao do Proposito em Acao, cobrindo app Next.js, Supabase, Auth, secrets, PWA/service worker e dominio.
 
+## Estado atual verificado em 2026-06-03
+
+- Ainda nao ha releases, tags ou deployments publicados no GitHub.
+- Rollback existe como plano, mas nao e executavel para producao aberta ate existir release/deployment anterior conhecido como bom.
+- Coolify/Hostinger KVM 1 precisam de rehearsal antes do beta real.
+- Qualquer rollback que toque dados reais, Supabase principal, dominio ou usuarios exige aprovacao do fundador.
+
 ## Gatilhos de rollback
 
 - Build/deploy publica versao quebrada.
@@ -34,6 +41,8 @@ Rollback manual na VPS, se Coolify falhar:
 5. Rodar smoke minimo.
 
 Vercel passa a ser alternativa de contingencia, nao plataforma principal.
+
+Gate: antes de beta real, criar release/tag ou registro de deployment que permita identificar claramente a versao anterior boa.
 
 ## Supabase
 

@@ -1,5 +1,13 @@
 # Privacy-Safe Analytics
 
+## Estado atual verificado em 2026-06-03
+
+- Analytics real ainda nao esta ativo.
+- Decisao atual: analytics first-party no Supabase, com opt-in desligado por padrao.
+- Retencao operacional decidida: 90 dias para eventos de analytics, feedback beta e metadados de auditoria de IA.
+- O contrato local em `src/domain/analytics/` ainda nao persiste eventos e nao deve ser tratado como coleta pronta.
+- Antes de qualquer persistencia, o codigo deve bloquear coleta quando consentimento estiver ausente ou revogado.
+
 ## Regra central
 
 Analytics deve medir comportamento de produto sem capturar conteúdo de vida do usuário.
@@ -39,10 +47,12 @@ Feedback livre deve ser tratado como potencialmente sensível. O beta atual só 
 
 ## Retenção
 
-Definir antes da primeira coleta real:
+Politica decidida antes da primeira coleta real:
 
-- Prazo para raw events.
-- Prazo para rollups agregados.
+- Raw events de analytics: 90 dias.
+- Feedback beta: 90 dias.
+- Metadados de auditoria de IA: 90 dias.
+- Rollups agregados podem ser mantidos apenas se nao contiverem identificadores pessoais ou conteudo sensivel.
 - Quem acessa.
 - Como exportar/excluir quando aplicável.
 - Como apagar dados após revogação.

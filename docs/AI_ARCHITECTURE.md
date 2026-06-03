@@ -117,6 +117,16 @@ Fluxo previsto:
 
 OpenAI real nao foi ativada em fluxo de produto nesta etapa.
 
+## Estado atual verificado em 2026-06-03
+
+- OpenAI e DeepSeek seguem como providers reais planejados, mas desativados em fluxos de produto.
+- O seletor planejado de configuracoes sera `automatic`, `openai` ou `deepseek`, com padrao `automatic`.
+- `automatic` ainda precisa de regras de roteamento por agente, custo, latencia, qualidade, consentimento e rate limit.
+- Nao havera fallback automatico entre providers; falha usa fallback local seguro ou fluxo manual.
+- Consentimento de IA deve ser separado, versionado e revogavel por provider.
+- DeepSeek ainda nao tem adapter no codigo; tipos atuais aceitam apenas `mock | openai`.
+- Metadados de auditoria de IA terao retencao operacional de 90 dias antes de IA real.
+
 ## Prompt 16 - Providers de producao planejados
 
 Decisao do fundador:
@@ -124,6 +134,8 @@ Decisao do fundador:
 - Usar OpenAI API.
 - Usar DeepSeek API.
 - Modelos DeepSeek planejados: `deepseek-v4-flash` e `deepseek-v4-pro`.
+- Permitir selecao futura entre `automatic`, `openai` e `deepseek`, com `automatic` como padrao.
+- Manter fallback entre providers desabilitado; usar fallback local/manual por fluxo.
 
 Diretriz tecnica:
 

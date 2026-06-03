@@ -1,5 +1,12 @@
 # Consent Access Model
 
+## Estado atual verificado em 2026-06-03
+
+- Consentimento de IA deve ser separado por provider (`openai`, `deepseek` e modo `automatic`), versionado, auditavel e revogavel.
+- Analytics e feedback beta exigem opt-in antes de coleta real; analytics sera first-party no Supabase e desligado por padrao.
+- Retencao decidida: 90 dias para analytics, feedback beta e metadados de auditoria de IA.
+- Atalaia nao pode ampliar permissoes no aceite do convite; o escopo revisado pelo dono deve ser imutavel para o convidado.
+
 ## Principio
 
 Consentimento e autorizacao sao separados. Um consentimento registra vontade e historico; um grant operacional libera acesso limitado enquanto estiver ativo.
@@ -7,7 +14,7 @@ Consentimento e autorizacao sao separados. Um consentimento registra vontade e h
 ## Consentimentos minimos
 
 - Termos e politica de privacidade.
-- Uso de IA.
+- Uso de IA por provider (`openai`, `deepseek` e modo `automatic`).
 - Tratamento de dados sensiveis.
 - Comunicacoes.
 - Analytics/telemetria.

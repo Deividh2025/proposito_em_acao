@@ -1,6 +1,6 @@
 # Security Notes
 
-Nota: a fonte principal e mais completa de seguranca, privacidade, consentimento, Atalaia, Metacognicao, RLS futura e LGPD agora e `docs/SECURITY_PRIVACY.md`. A matriz detalhada de dados esta em `docs/DATA_SENSITIVITY_MATRIX.md`.
+Nota: a fonte principal e mais completa de seguranca, privacidade, consentimento, Atalaia, Metacognicao, RLS/Supabase e LGPD agora e `docs/SECURITY_PRIVACY.md`. A matriz detalhada de dados esta em `docs/DATA_SENSITIVITY_MATRIX.md`.
 
 Este documento registra riscos e regras iniciais de seguranca e privacidade. Ele nao substitui uma politica juridica de privacidade, DPIA/LIA ou revisao LGPD antes de producao.
 

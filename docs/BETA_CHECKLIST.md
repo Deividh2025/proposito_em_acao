@@ -1,89 +1,79 @@
 # Beta Checklist
 
-Data: 2026-06-02.
+Data de sincronizacao: 2026-06-03.
 
 ## Status
 
-Beta fechado ainda nao aprovado. A plataforma foi decidida, mas o app ainda precisa preview controlado em VPS Hostinger/Coolify, Auth real em URL publicada, smoke externo, secrets, LGPD minima e rollback.
+Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-beta real. A proxima meta e publicar um preview HTTPS controlado e validar Auth/Supabase/RLS/smoke antes de convidar usuarios reais.
 
-Ha evidencia anterior de Supabase/RLS em branch preview em 2026-06-02. Antes de convidar usuarios reais, repetir o cutover/harness e anexar evidencia fresca.
+## Decisoes fechadas
+
+- [x] Infraestrutura: Hostinger VPS KVM 1 com Coolify.
+- [x] Gate de upgrade: obrigatorio se KVM 1 nao sustentar a aplicacao com estabilidade.
+- [x] Dominio sera adquirido na Hostinger.
+- [x] Supabase principal sera usado no beta apenas apos cutover validado e aprovado.
+- [x] IA planejada: `automatic`, `openai` ou `deepseek`, padrao `automatic`.
+- [x] Consentimento de IA separado, versionado e revogavel por provider.
+- [x] Sem fallback automatico entre providers; falha usa fallback local seguro ou fluxo manual.
+- [x] Resend para e-mail transacional e SMTP customizado do Supabase Auth.
+- [x] Analytics first-party no Supabase, opt-in desligado por padrao.
+- [x] Retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA.
 
 ## Fundador precisa aprovar
 
-- [x] Plataforma de preview/producao: VPS Hostinger com Coolify.
-- [ ] URL temporaria e dominio final.
-- [ ] Rerun fresco de migrations/harness em Supabase branch/preview antes do beta real.
-- [ ] Politica minima de privacidade, termos, consentimento, retencao, exportacao e exclusao.
-- [x] Providers de IA planejados: OpenAI API e DeepSeek API.
+- [ ] Dominio exato de preview/producao.
+- [ ] Upgrade de VPS, se KVM 1 falhar no gate tecnico.
+- [ ] Janela e operador para cutover Supabase principal.
+- [ ] Politica minima de privacidade, termos, consentimentos, revogacao, exportacao e exclusao.
 - [ ] Se IA real fica desativada no primeiro beta.
 - [ ] Se e-mail real fica desativado no primeiro beta.
-- [ ] Plano de rollback.
+- [ ] Canal externo de feedback beta, se houver.
+- [ ] Plano de rollback ensaiado.
 - [ ] Grupo inicial de usuarios beta e regra de dados ficticios/reais.
 
 ## Engenharia precisa concluir
 
-- [x] Gates locais frescos.
-- [x] Build de producao local.
-- [x] E2E local.
-- [x] Headers minimos de producao no Next.
-- [x] Plano de beta, metricas, analytics seguro, feedback, suporte, incident response e V1.1 documentados.
-- [x] Feedback in-app preparado como rascunho local, sem persistencia real.
-- [x] Pack de cutover Supabase preview preparado em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
+- [x] Gates locais recentes de lint/typecheck/test passaram nesta auditoria.
+- [x] Plano de beta, feedback, suporte, incident response e V1.1 existem.
+- [x] Pack de cutover Supabase preview existe em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 - [x] Scripts preparados: `supabase:types:preview` e `supabase:validate:preview`.
-- [x] Evidencia anterior de migrations/RLS em preview registrada em `docs/RLS_TEST_REPORT.md`.
-- [ ] Deploy de preview.
-- [ ] Configurar secrets de preview.
-- [ ] Instalar/configurar Coolify na VPS Hostinger.
-- [ ] Configurar dominio temporario e HTTPS no Coolify.
-- [ ] Repetir aplicacao/alinhamento de migrations locais em Supabase preview antes do beta real.
-- [ ] Gerar tipos Supabase reais via `npm.cmd run supabase:types:preview` com evidencia fresca.
-- [ ] Rodar matriz RLS dinamica via `npm.cmd run supabase:validate:preview` com evidencia fresca.
-- [ ] Validar Auth real.
-- [ ] Rodar smoke tests em URL publicada.
+- [ ] Corrigir/validar bugs S0/S1 do `docs/BUG_TRIAGE.md`.
+- [ ] Publicar preview HTTPS em Hostinger/Coolify.
+- [ ] Configurar secrets de preview no provedor.
+- [ ] Validar Hostinger KVM 1 ou executar upgrade.
+- [ ] Repetir cutover/harness Supabase com evidencia fresca.
+- [ ] Gerar tipos Supabase reais e revisar diff.
+- [ ] Implementar/validar Auth SSR completo em URL publicada.
+- [ ] Rodar smoke externo em URL HTTPS.
 - [ ] Validar PWA install/offline via HTTPS.
+- [ ] Criar CI ou registrar alternativa de governanca antes de release publica.
+- [ ] Ensaiar rollback com release/tag/deployment conhecido.
 
-## Segurança
+## Seguranca
 
 - [ ] Nenhum secret em Git/diff/log.
 - [ ] Service role somente server-side.
-- [ ] OpenAI key somente server-side, se ativada.
-- [ ] DeepSeek key somente server-side, se ativada.
-- [ ] Consentimento especifico para analytics/feedback definido antes de coleta real.
-- [ ] Retencao/exportacao/exclusao de analytics e feedback aprovada.
+- [ ] OpenAI/DeepSeek keys somente server-side, se ativadas.
+- [ ] Consentimento especifico por provider de IA antes de IA real.
+- [ ] Consentimento de analytics/feedback antes de coleta real.
+- [ ] Retencao de 90 dias implementada quando houver persistencia de analytics/feedback/auditoria de IA.
 - [ ] `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se usada, sem tokens, query sensivel ou dados pessoais.
-- [ ] Atalaia limitado por alvo/grant/permissao/revogacao.
+- [ ] Atalaia limitado por alvo/grant/permissao/revogacao, sem expansao no aceite.
 - [ ] Metacognicao, Chamado e Revisao privados por padrao.
 - [ ] Logs sem conteudo intimo.
 - [ ] PWA sem cache sensivel.
-
-## Operacao beta
-
-- [x] Bug triage documentado.
-- [x] Feedback triage documentado.
-- [x] Support runbook documentado.
-- [x] Incident response documentado.
-- [x] Post-deploy monitoring documentado.
-- [ ] Canal/formulario externo de feedback aprovado.
-- [ ] Rotina diaria de acompanhamento aprovada pelo fundador.
-- [ ] Grupo inicial de usuarios beta aprovado.
+- [ ] CSP endurecida ou risco formalmente aceito antes de producao.
 
 ## Produto/UX
 
-- [ ] Fluxos principais usam dados de teste nao sensiveis no smoke.
+- [ ] Fluxos principais usam dados reais do usuario ou estados vazios reais no smoke; dados demonstrativos nao podem parecer persistencia.
+- [ ] Usuario entende fallback local/dev versus persistencia real.
+- [ ] Inbox nao marca sucesso local quando `result.ok` falha.
+- [ ] Mobile nao possui `<main>` aninhado.
 - [ ] Linguagem sem vergonha/culpa.
 - [ ] Proxima acao clara em dashboard/mobile.
-- [ ] Usuario entende fallback local/dev versus persistencia real.
-- [ ] Atalaia tem previa clara antes de qualquer envio externo.
+- [ ] Atalaia tem previa real e clara antes de qualquer envio externo.
 
 ## Veredito atual
 
-Pronto para preparar preview controlado e ensaio interno com dados ficticios. Nao pronto para beta fechado com usuarios reais.
-
-## Decisoes registradas
-
-- Dono da plataforma: Deividh de Sa.
-- E-mail operacional: `deividhvianei@gmail.com`.
-- Infraestrutura: VPS Hostinger.
-- Deploy/PaaS: Coolify.
-- IA planejada: OpenAI API e DeepSeek API.
-- Modelos DeepSeek planejados: `deepseek-v4-flash` e `deepseek-v4-pro`.
+Pronto para continuar preparacao documental e tecnica de preview controlado. Nao pronto para beta fechado com usuarios reais.

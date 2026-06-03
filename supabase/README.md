@@ -8,7 +8,9 @@ Fundacao Supabase do Proposito em Acao.
 - Migrations versionadas existem em `supabase/migrations/`.
 - RLS foi definido para tabelas expostas do schema `public`.
 - Storage privado foi preparado para buckets futuros.
-- Nesta inspecao local, `supabase --version` nao esta disponivel no terminal.
+- Nesta inspecao de 2026-06-03, `supabase --version` esta disponivel (`2.98.2`) e `supabase projects list` listou `proposito_em_acao` em modo read-only.
+- O checkout nao esta linkado ao projeto e nao deve executar comandos mutaveis sem etapa propria, variaveis operacionais e aprovacao.
+- Branches lidas em modo read-only: `main` e `preview-release-readiness`.
 - O cutover seguro para branch preview esta documentado em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 
 ## Migrations

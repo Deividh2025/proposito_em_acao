@@ -10,6 +10,15 @@ Data: 2026-06-02.
 | Preview | Parcial | Supabase branch/preview e RLS dinamica validados; falta deploy Coolify, URL HTTPS, Auth real e smoke externo. |
 | Producao | Bloqueado | Somente apos Supabase/RLS/Auth/LGPD/secrets/smoke aprovados. |
 
+## Estado atual verificado em 2026-06-03
+
+- Proximo objetivo: beta real fechado, nao producao aberta.
+- GitHub: repositorio privado, `main` sem protecao efetiva pela API, zero workflows, zero releases e zero tags/deployments publicados.
+- Supabase CLI local disponivel (`2.98.2`) e projeto `proposito_em_acao` listado em modo read-only; evidencia de RLS preview continua historica de 2026-06-02 e deve ser repetida antes de beta real.
+- `/api/health` e liveness simples; nao valida Supabase, Auth, secrets, provider de IA, Resend ou dependencias.
+- Dockerfile existe, mas a imagem nao foi validada nesta auditoria e nao possui `HEALTHCHECK`.
+- Auth real publicado segue bloqueado por falta de callback/confirmacao/recuperacao/refresh centralizado validados em URL HTTPS.
+
 ## Responsavel
 
 - Dono da plataforma: Deividh de Sa.
@@ -22,10 +31,12 @@ Este e-mail fica registrado como contato operacional/fundador. Ele ainda nao def
 - Local: `http://localhost:3000` ou `http://127.0.0.1:3000`.
 - Preview: pendente de dominio temporario e HTTPS na VPS Hostinger/Coolify.
 - Producao: pendente de dominio final aprovado.
+- Dominio exato: gate manual antes de qualquer deploy publicado.
 
 ## Plataforma
 
 - Provedor de infraestrutura: VPS Hostinger.
+- Plano inicial: Hostinger KVM 1, com gate obrigatorio de upgrade se nao sustentar a aplicacao com estabilidade.
 - PaaS self-hosted: Coolify.
 - Plataforma anterior recomendada, Vercel, passa a alternativa de contingencia, nao decisao principal.
 
@@ -100,8 +111,8 @@ Modelos DeepSeek informados:
 
 ## E-mail
 
-E-mail real permanece desativado. Fluxos de Atalaia usam fallback `pending_provider_config` ate provider/remetente/mensagens serem aprovados.
+E-mail real permanece desativado. Resend foi decidido para transacional e SMTP customizado do Supabase Auth, mas ainda exige adapter, dominio verificado, secrets, remetente, templates e smoke. Fluxos de Atalaia usam fallback `pending_provider_config` ate isso existir.
 
 ## Feedback beta
 
-`NEXT_PUBLIC_BETA_FEEDBACK_URL` pode apontar para um formulario externo aprovado. Por ser publico no browser, nao deve conter tokens, identificadores pessoais, querystrings sensiveis ou secrets. O feedback in-app permanece rascunho local ate haver politica de coleta, consentimento e retencao.
+`NEXT_PUBLIC_BETA_FEEDBACK_URL` pode apontar para um formulario externo aprovado. Por ser publico no browser, nao deve conter tokens, identificadores pessoais, querystrings sensiveis ou secrets. O feedback in-app permanece rascunho local ate haver politica de coleta, consentimento e retencao de 90 dias implementada.

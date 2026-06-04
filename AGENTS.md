@@ -40,6 +40,7 @@ Quando documentos divergirem, siga a regra mais restritiva, verifique o estado r
 - O usuario podera selecionar provider de IA em configuracoes: `automatic`, `openai` ou `deepseek`; o padrao planejado e `automatic`.
 - Consentimento de IA deve ser separado, versionado e revogavel por provider. Nao deve haver fallback automatico entre providers; falha de provider deve usar fallback local seguro ou fluxo manual.
 - E-mail transacional planejado: Resend com dominio verificado. Supabase Auth deve usar Resend como SMTP customizado antes de Auth real do beta.
+- E-mail real nunca roda sem `EMAIL_PROVIDER=resend`, `EMAIL_REAL_ENABLED=true`, `EMAIL_DOMAIN_VERIFIED=true`, `RESEND_API_KEY` server-side, remetente `notify.<dominio>` verificado e aprovacao operacional.
 - Analytics planejado: first-party no Supabase, opt-in desligado por padrao. Analytics, feedback beta e metadados de auditoria de IA devem ter retencao de 90 dias.
 
 Nao alterar stack, provider, Auth, deploy, banco, CI/CD, modelo de IA ou estrategia mobile sem etapa propria e aprovacao explicita.
@@ -115,6 +116,7 @@ SQL versionado, scripts preparados ou migrations locais nao sao prova de validac
 - Dados de fe, saude, familia, financas, emocoes, Chamado, Metacognicao, Atalaia, calendario, habitos, revisoes, feedback e analytics sao sensiveis.
 - Dados sensiveis sao privados por padrao, minimizados, coletados com finalidade clara e protegidos por consentimento quando aplicavel.
 - Logs nao devem conter conteudo intimo, prompts privados, respostas brutas de IA, secrets ou erros tecnicos sensiveis.
+- Logs nao devem conter corpo de e-mail, invite token, URL com token, `RESEND_API_KEY`, SMTP password ou `RESEND_WEBHOOK_SECRET`.
 - Consentimentos devem ser granulares, versionados, auditaveis e revogaveis.
 - Acoes sensiveis exigem validacao server-side.
 
@@ -140,6 +142,14 @@ SQL versionado, scripts preparados ou migrations locais nao sao prova de validac
 - Prompt bruto, resposta bruta e conteudo intimo nao devem ser armazenados por padrao.
 - IA real nunca roda sem kill switch explicito, secrets server-side, consentimento versionado por provider e guardrails antes/depois do provider.
 - Fallback automatico entre OpenAI e DeepSeek e proibido; escolha/falha de provider deve ir para fallback local seguro ou fluxo manual.
+
+## E-mail transacional
+
+- E-mails transacionais devem ser server-side, neutros e sem conteudo sensivel no assunto/corpo.
+- Conteudo detalhado deve ficar atras de link autenticado/expiravel.
+- Tokens de convite e webhook nunca entram em logs, docs, analytics, feedback ou payload bruto persistido.
+- Webhook Resend deve validar assinatura com corpo cru e armazenar somente metadados minimos redigidos.
+- Falha de provider nao pode marcar notificacao como enviada.
 
 ## Metacognicao e Atalaia
 

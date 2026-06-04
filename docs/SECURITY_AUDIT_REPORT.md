@@ -12,9 +12,33 @@ Achados bloqueantes atuais:
 - S1 `AUTH-SSR-001`: fundacao local de Auth SSR foi implementada, mas ainda falta validacao externa em URL HTTPS publicada com redirects reais, SMTP/Resend decidido e cookies reais.
 - S1 `DB-TYPES-001`: tipos reais Supabase ainda nao foram gerados a partir de preview aprovado.
 - S1 `AI-CONSENT-AUDIT-001`: IA real possui rota segura local, mas consentimento/auditoria ainda nao sao persistidos em banco aprovado.
+- S1 `EMAIL-RESEND-001` reduzido localmente: adapter Resend, templates neutros e webhook assinado foram preparados, mas envio real, dominio verificado, SMTP Auth e smoke externo seguem pendentes.
 - S2 residual `SEC-CSP-001`: CSP de producao nao usa mais `unsafe-eval`, mas ainda permite `unsafe-inline` ate etapa de nonce/hash.
 
 Ver `docs/BUG_TRIAGE.md` para IDs, evidencias e criterios de fechamento.
+
+## Auditoria transversal do PR #8
+
+Data: 2026-06-04.
+
+Veredito de seguranca: sem S0/S1 novo que bloqueie merge preparatorio do PR #8; beta real segue bloqueado.
+
+Evidencias:
+
+- PR #7 confirmado como mergeado; PR #8 estava `MERGEABLE`, draft e sem checks remotos configurados.
+- Subagentes de seguranca/Auth/RLS e demais recortes foram tentados, mas falharam por sessao expirada do conector; a auditoria seguiu com comandos locais reproduziveis.
+- `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test`, `npm.cmd run build`, `npm.cmd run test:e2e` e `git diff --check` passaram na branch da Etapa 6.
+- Secret scan nao encontrou `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, database URL com senha ou padrao de chave real no diff. Os hits restantes eram placeholders vazios, documentacao e fixtures de teste.
+- `NEXT_PUBLIC_*` sensiveis nao foram adicionados para Resend, OpenAI, DeepSeek, webhook ou service role. As chaves publicas Supabase seguem como anon/publishable.
+- `SUPABASE_SERVICE_ROLE_KEY` aparece em modulo server-only (`src/lib/supabase/admin.ts`), docs e testes; nenhum uso client-side novo foi identificado.
+- Webhook Resend permanece dependente de `RESEND_WEBHOOK_SECRET` e rejeita secret ausente fora de `local-demo`; payload bruto nao e armazenado como trilha de auditoria.
+- Templates/e-mails da Etapa 6 continuam sem conteudo sensivel de Chamado, Metacognicao, saude, familia, financas, emocoes, calendario ou tarefa.
+- PWA/cache nao apresentou inclusao de rotas Auth/API autenticadas em cache estatico nesta auditoria local; prova negativa HTTPS continua pendente.
+
+Riscos residuais:
+
+- `SEC-CSP-001`: CSP ainda usa `unsafe-inline`; endurecer com nonce/hash ou aceitar formalmente antes de beta/producao publica.
+- Auth/RLS externo, SMTP Auth Resend, webhook real delivered/bounced, PWA em HTTPS e Supabase preview com personas reais ainda nao foram validados nesta auditoria.
 
 ## Resultado geral
 
@@ -59,6 +83,7 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Etapa 5 removeu `guardrail_status: not_run` da auditoria de IA, adicionou roteamento server-side OpenAI/DeepSeek com kill switch default off, consentimento por provider e redaction recursiva de metadados.
 - Auditoria transversal do PR #7 reforcou `safeInvokeAi` com minimizacao de chaves sensiveis antes de provider, timeout abortavel por `AbortSignal`, limite diario stub antes de chamada real e guardrail de saida especifico para impedir vazamento de Metacognicao ao Atalaia.
 - Fallback de crise de Metacognicao deixou de reecoar impulso/pensamento bruto do usuario bloqueado.
+- Etapa 6 adicionou provider Resend server-only bloqueado por default, templates de e-mail sem conteudo sensivel, webhook com assinatura Svix, redaction de tokens/secrets e regressao para provider falho nao marcar notificacao como enviada.
 
 ## Supabase remoto
 
@@ -86,4 +111,4 @@ Data: 2026-06-02.
 - Headers minimos de seguranca foram adicionados em `next.config.ts`: CSP, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` e HSTS em producao.
 - Supabase preview foi criado, migrations locais foram aplicadas e matriz RLS dinamica passou historicamente ate `20260602214345`.
 - Producao aberta segue bloqueada ate validar Auth real, configurar secrets fora do Git, publicar preview/deploy, rodar smoke externo e aprovar LGPD minima.
-- OpenAI/DeepSeek reais e e-mail real seguem desativados por padrao. Resend foi decidido, mas ainda nao implementado/configurado.
+- OpenAI/DeepSeek reais e e-mail real seguem desativados por padrao. Resend foi implementado localmente como provider server-only, mas continua bloqueado por dominio/secrets/smoke.

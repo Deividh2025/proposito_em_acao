@@ -34,8 +34,9 @@ import {
   validationErrorResult
 } from "@/domain/execution/action-results";
 import { buildAccountabilityEmailTemplate } from "@/lib/email/templates/accountability";
-import { createEmailProvider } from "@/lib/email/provider";
+import { createEmailProvider, type EmailSendResult } from "@/lib/email/provider";
 import { invokeMockedAiOutput } from "@/lib/ai/mock-invoke";
+import { getServerEnv } from "@/lib/config/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -75,6 +76,39 @@ function jsonString(value: unknown): string | undefined {
 
 function stableJson(value: unknown) {
   return JSON.stringify(value);
+}
+
+function buildAccountabilityInviteLink(inviteToken: string) {
+  const env = getServerEnv();
+  const path = `/accountability/partner/${encodeURIComponent(inviteToken)}`;
+
+  return new URL(path, env.NEXT_PUBLIC_APP_URL).toString();
+}
+
+function mapEmailResultToNotificationUpdate(emailResult: EmailSendResult) {
+  const providerStatus = emailResult.status === "failed" ? "blocked" : emailResult.status;
+  const blockedReason =
+    emailResult.status === "blocked" || emailResult.status === "failed" || emailResult.status === "pending_provider_config"
+      ? emailResult.blockedReason ?? emailResult.status
+      : null;
+  const status =
+    emailResult.status === "queued" || emailResult.status === "sent"
+      ? emailResult.status
+      : emailResult.status === "pending_provider_config"
+        ? "draft"
+        : "blocked";
+
+  return {
+    blocked_reason: blockedReason,
+    provider_status: providerStatus,
+    sent_at: emailResult.status === "sent" ? new Date().toISOString() : null,
+    sent_payload_redacted: {
+      provider: emailResult.provider,
+      provider_message_id: emailResult.providerMessageId ?? null,
+      status: emailResult.status
+    },
+    status
+  };
 }
 
 function previewMatchesApprovedPayload(parsed: CreateAccountabilityInviteInput & { preview: unknown }) {
@@ -226,7 +260,7 @@ export async function persistAccountabilityInvite(input: unknown): Promise<Basic
     event: "invite",
     safeSummary: parsed.goalTitle,
     userName: "Usuario",
-    secureLink: `/accountability/partner/${draft.grant.inviteToken}`
+    secureLink: buildAccountabilityInviteLink(draft.grant.inviteToken)
   });
 
   try {
@@ -363,27 +397,16 @@ export async function persistAccountabilityInvite(input: unknown): Promise<Basic
       );
     }
 
-    const emailProvider = createEmailProvider();
-    const emailResult = await emailProvider.send({
-      body: emailTemplate.body,
-      metadata: {
-        goalId: parsed.goalId,
-        grantId,
-        templateKey: emailTemplate.templateKey,
-        templateVersion: emailTemplate.templateVersion
-      },
-      subject: emailTemplate.subject,
-      to: parsed.partnerEmail
-    });
-
-    const { error: notificationError } = await admin.from("accountability_notifications").insert({
+    const { data: notification, error: notificationError } = await admin
+      .from("accountability_notifications")
+      .insert({
       user_id: user.id,
       accountability_partner_id: partnerId,
       accountability_grant_id: grantId,
       goal_id: parsed.goalId,
       notification_type: "invite",
       channel: "email",
-      status: emailResult.status === "pending_provider_config" ? "draft" : emailResult.status,
+      status: "draft",
       preview_payload: {
         schema_version: draft.preview.schema_version,
         message_type: draft.preview.message_type,
@@ -391,10 +414,15 @@ export async function persistAccountabilityInvite(input: unknown): Promise<Basic
         privacy_check: draft.preview.privacy_check,
         subject: draft.preview.subject
       },
-      provider_status: emailResult.status,
+      provider_status: "pending_provider_config",
+      template_key: emailTemplate.templateKey,
+      template_version: emailTemplate.templateVersion,
       privacy_check: draft.preview.privacy_check
-    });
+      })
+      .select("id")
+      .single();
 
+    const notificationId = jsonString(notification?.id);
     if (notificationError) {
       const cleaned = await compensateFailedInvite(admin, { consentId, failedAt: nowIso, grantId, partnerId, userId: user.id });
       return realServiceErrorResult(
@@ -402,6 +430,16 @@ export async function persistAccountabilityInvite(input: unknown): Promise<Basic
         cleaned
           ? "Convite nao foi ativado porque a notificacao do Atalaia nao foi registrada."
           : "Convite nao foi ativado porque a notificacao do Atalaia falhou. Revise a limpeza operacional."
+      );
+    }
+
+    if (!notificationId) {
+      const cleaned = await compensateFailedInvite(admin, { consentId, failedAt: nowIso, grantId, partnerId, userId: user.id });
+      return realServiceErrorResult(
+        executionActionResultSchema,
+        cleaned
+          ? "Convite nao foi ativado porque a notificacao do Atalaia nao retornou identificador."
+          : "Convite nao foi ativado porque a notificacao ficou sem identificador. Revise a limpeza operacional."
       );
     }
 
@@ -447,6 +485,33 @@ export async function persistAccountabilityInvite(input: unknown): Promise<Basic
         cleaned
           ? "Convite nao foi ativado porque o parceiro permaneceu fechado."
           : "Convite nao foi ativado e requer revisao operacional antes de reenviar."
+      );
+    }
+
+    const emailProvider = createEmailProvider();
+    const emailResult = await emailProvider.send({
+      body: emailTemplate.body,
+      metadata: {
+        goalId: parsed.goalId,
+        grantId,
+        notificationId,
+        templateKey: emailTemplate.templateKey,
+        templateVersion: emailTemplate.templateVersion
+      },
+      subject: emailTemplate.subject,
+      to: parsed.partnerEmail
+    });
+
+    const { error: notificationStatusError } = await admin
+      .from("accountability_notifications")
+      .update(mapEmailResultToNotificationUpdate(emailResult))
+      .eq("id", notificationId)
+      .eq("user_id", user.id);
+
+    if (notificationStatusError) {
+      return realServiceErrorResult(
+        executionActionResultSchema,
+        "Convite ativado, mas o status do provider de e-mail nao foi registrado."
       );
     }
 

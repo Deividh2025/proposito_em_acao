@@ -5,7 +5,7 @@
 - `/auth` existe como superficie basica para email/senha.
 - Fundacao local de Auth SSR foi implementada: `proxy.ts`, `src/lib/supabase/proxy.ts`, refresh/claims via `auth.getClaims()`, rotas de callback/confirmacao/recuperacao, `next` seguro, rotas protegidas e `/api/ready`.
 - Auth real nao foi validado em URL HTTPS publicada com redirects reais, SMTP real e cookies de ambiente final.
-- Resend foi decidido como SMTP customizado do Supabase Auth, mas ainda nao esta configurado.
+- Resend foi decidido como SMTP customizado do Supabase Auth. A Etapa 6 preparou adapter transacional e documentacao, mas o dashboard Supabase ainda nao foi configurado porque falta dominio/remetente verificado.
 - `src/types/database.ts` permanece generico ate typegen real em preview aprovado.
 - Esse estado bloqueia beta real.
 
@@ -76,6 +76,21 @@ Configurar no Supabase:
 - Producao: URL exata do dominio final aprovado, preferencialmente sem wildcard.
 
 O `NEXT_PUBLIC_APP_URL` do ambiente deve corresponder ao Site URL/redirect permitido. Confirmacao de e-mail, login, logout e expiracao de sessao devem ser validados por smoke test publicado antes de beta.
+
+## SMTP Auth via Resend
+
+Configuracao manual pendente ate existir dominio aprovado:
+
+1. Comprar/definir o dominio de preview/producao.
+2. Verificar o dominio no Resend.
+3. Criar remetente de Auth no padrao `acesso@notify.<dominio>`.
+4. Obter credenciais SMTP do Resend no painel.
+5. Configurar SMTP customizado do Supabase Auth no dashboard do projeto aprovado.
+6. Atualizar templates de Auth para usar o fluxo do app, especialmente `/auth/confirm?token_hash=...` quando aplicavel.
+7. Configurar Site URL e Redirect URLs exatos do ambiente HTTPS publicado.
+8. Testar signup, confirmacao, login, recovery/update password, logout, callback e redirects seguros.
+
+Nao configurar SMTP automaticamente via script nesta etapa. `RESEND_API_KEY`, senha SMTP e `RESEND_WEBHOOK_SECRET` ficam apenas em secret server-side/provedor e nunca em Git, logs ou `NEXT_PUBLIC_*`.
 
 Checklist minimo de readiness para beta:
 

@@ -39,6 +39,7 @@ const serverEnvSchema = publicEnvSchema.extend({
   EMAIL_REAL_ENABLED: disabledByDefaultFlagSchema.default(false),
   ANALYTICS_REAL_ENABLED: disabledByDefaultFlagSchema.default(false),
   FEEDBACK_REAL_ENABLED: disabledByDefaultFlagSchema.default(false),
+  EMAIL_DOMAIN_VERIFIED: disabledByDefaultFlagSchema.default(false),
   AI_PROVIDER_DEFAULT: aiProviderDefaultSchema,
   AI_REQUEST_TIMEOUT_MS: positiveIntegerEnvSchema(20_000),
   AI_DAILY_USER_LIMIT: positiveIntegerEnvSchema(50),
@@ -52,7 +53,12 @@ const serverEnvSchema = publicEnvSchema.extend({
   DEEPSEEK_MODEL_FLASH: optionalStringEnvSchema.default("deepseek-chat"),
   DEEPSEEK_MODEL_PRO: optionalStringEnvSchema.default("deepseek-reasoner"),
   EMAIL_PROVIDER: optionalStringEnvSchema,
-  EMAIL_FROM: optionalStringEnvSchema
+  EMAIL_FROM: optionalStringEnvSchema,
+  EMAIL_FROM_AUTH: optionalStringEnvSchema,
+  EMAIL_FROM_NOTIFICATIONS: optionalStringEnvSchema,
+  RESEND_API_KEY: optionalStringEnvSchema,
+  RESEND_WEBHOOK_SECRET: optionalStringEnvSchema,
+  RESEND_TEST_RECIPIENT: optionalStringEnvSchema
 });
 
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
@@ -85,6 +91,7 @@ export function getServerEnv(): ServerEnv {
     EMAIL_REAL_ENABLED: process.env.EMAIL_REAL_ENABLED,
     ANALYTICS_REAL_ENABLED: process.env.ANALYTICS_REAL_ENABLED,
     FEEDBACK_REAL_ENABLED: process.env.FEEDBACK_REAL_ENABLED,
+    EMAIL_DOMAIN_VERIFIED: process.env.EMAIL_DOMAIN_VERIFIED,
     AI_PROVIDER_DEFAULT: process.env.AI_PROVIDER_DEFAULT,
     AI_REQUEST_TIMEOUT_MS: process.env.AI_REQUEST_TIMEOUT_MS,
     AI_DAILY_USER_LIMIT: process.env.AI_DAILY_USER_LIMIT,
@@ -98,7 +105,12 @@ export function getServerEnv(): ServerEnv {
     DEEPSEEK_MODEL_FLASH: process.env.DEEPSEEK_MODEL_FLASH,
     DEEPSEEK_MODEL_PRO: process.env.DEEPSEEK_MODEL_PRO,
     EMAIL_PROVIDER: process.env.EMAIL_PROVIDER,
-    EMAIL_FROM: process.env.EMAIL_FROM
+    EMAIL_FROM: process.env.EMAIL_FROM,
+    EMAIL_FROM_AUTH: process.env.EMAIL_FROM_AUTH,
+    EMAIL_FROM_NOTIFICATIONS: process.env.EMAIL_FROM_NOTIFICATIONS,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    RESEND_WEBHOOK_SECRET: process.env.RESEND_WEBHOOK_SECRET,
+    RESEND_TEST_RECIPIENT: process.env.RESEND_TEST_RECIPIENT
   });
 }
 

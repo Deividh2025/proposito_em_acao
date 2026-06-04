@@ -133,3 +133,39 @@ Testes executados apos as correcoes:
 - `npm.cmd run test`: passou, 32 arquivos e 194 testes.
 - `npm.cmd run build`: passou, 44 rotas.
 - `npm.cmd run test:e2e`: passou, 33 testes.
+
+## Etapa 6 - Resend, SMTP Auth e e-mails transacionais seguros
+
+Data: 2026-06-04.
+
+| Bug | Correcao | Evidencia |
+|---|---|---|
+| `EMAIL-RESEND-001` reduzido | Adapter Resend server-only criado com `fetch`, timeout, kill switch, dominio verificado obrigatorio, remetente `notify.<dominio>` aprovado e retorno normalizado. Templates de Atalaia ficam neutros e sem conteudo sensivel. Webhook Resend valida assinatura Svix pelo corpo cru e atualiza somente metadados redigidos. | `src/lib/email/provider.ts`, `src/lib/email/resendProvider.ts`, `src/lib/email/templates/accountability.ts`, `src/app/api/email/resend/webhook/route.ts`, `src/tests/unit/email-provider.test.ts`, `src/tests/unit/email-templates.test.ts`, `src/tests/integration/resend-webhook.test.ts`. |
+| `AUTH-SSR-001` reduzido no eixo SMTP | Procedimento manual de SMTP Auth via Resend documentado para dashboard Supabase, Site URL, Redirect URLs, templates Auth e smoke externo. | `docs/SUPABASE_AUTH.md`, `docs/ENVIRONMENT_VARIABLES.md`, `docs/EMAIL_NOTIFICATIONS.md`. |
+| `SEC-CONSENT-001` reforcado no Atalaia | Persistencia do convite registra notificacao antes do provider, ativa token/grant antes do envio e atualiza `provider_status` sem corpo bruto, token ou e-mail de destino. Falha do provider nao marca notificacao como enviada. | `src/app/accountability/actions.ts`, `src/tests/integration/accountability-secure-actions.test.ts`. |
+
+Testes focados executados durante a implementacao:
+
+- `npm.cmd run test -- src/tests/unit/email-provider.test.ts src/tests/unit/email-templates.test.ts src/tests/integration/resend-webhook.test.ts src/tests/integration/accountability-secure-actions.test.ts`: passou, 4 arquivos e 33 testes.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 35 arquivos e 215 testes.
+- `npm.cmd run build`: passou, 44 rotas.
+- `npm.cmd run test:e2e`: primeira tentativa falhou por concorrencia com `next build`; rerun isolado passou, 33 testes.
+- `git diff --check`: passou, apenas avisos CRLF do Windows.
+
+Pendencia: nenhum envio real foi executado. Fechamento completo depende de dominio/remetente verificado, `EMAIL_REAL_ENABLED=true`, `EMAIL_DOMAIN_VERIFIED=true`, secrets no provedor, SMTP Auth configurado no Supabase e smoke aprovado com `RESEND_TEST_RECIPIENT`.
+
+## Auditoria transversal do PR #8 - sem correcao de codigo
+
+Data: 2026-06-04.
+
+Esta auditoria nao aplicou correcao de codigo. Ela confirmou que os bugs reduzidos pela Etapa 6 permanecem no estado esperado para merge preparatorio e registrou riscos residuais.
+
+| Bug | Resultado | Evidencia |
+|---|---|---|
+| `EMAIL-RESEND-001` | Mantido como reduzido localmente | Gates locais passaram; envio real continua bloqueado por `EMAIL_REAL_ENABLED=false`, `EMAIL_DOMAIN_VERIFIED=false`, ausencia de dominio/remetente verificado e ausencia de SMTP Auth Supabase configurado. |
+| `QA-INT-001` | Mantido como reduzido | Suite local passou com lint, typecheck, 35 arquivos/215 testes, build, E2E e smoke local com Playwright desktop/mobile sem console/pageerror. |
+| `SEC-CSP-001` | Mantido pendente | Varredura confirmou `unsafe-inline` ainda presente na CSP; nao houve mudanca de codigo nesta auditoria. |
+
+Subagentes foram tentados para os cinco recortes da auditoria, mas falharam por sessao expirada do conector. A evidencia registrada foi coletada por comandos locais.

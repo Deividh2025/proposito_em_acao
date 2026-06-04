@@ -73,6 +73,29 @@ Status geral: aprovado com restricoes para merge preparatorio; bloqueado para be
 | AI-CRISIS-001 | Fechado localmente | Fallback de crise de Metacognicao deixou de reecoar impulso/pensamento bruto do usuario quando a entrada foi bloqueada por guardrail. |
 | QA-INT-001 | Reduzido | Suite local passou apos auditoria com 32 arquivos/194 testes; E2E passou com 33 testes. |
 
+## Fechados ou reduzidos na Etapa 6
+
+| ID | Status | Evidencia |
+|---|---|---|
+| EMAIL-RESEND-001 | Reduzido localmente | Adapter Resend server-only, templates neutros, webhook assinado e status de provider foram implementados. Envio real segue bloqueado por default e fechamento completo exige dominio/remetente verificado, SMTP Auth Supabase, secrets no provedor e smoke com `RESEND_TEST_RECIPIENT`. |
+| AUTH-SSR-001 | Reduzido no eixo SMTP | Procedimento manual de SMTP Auth via Resend foi documentado, mas Auth externo continua bloqueado sem URL HTTPS, dashboard Supabase configurado e smoke real de signup/confirm/recovery. |
+| QA-INT-001 | Reduzido | Testes focados cobrem provider bloqueado/mock/Resend, templates sem termos sensiveis, webhook com assinatura invalida/valida e Atalaia nao marcando provider falho como enviado. |
+
+## Auditoria transversal do PR #8
+
+Data: 2026-06-04.
+
+Status geral: aprovado com restricoes para merge preparatorio; bloqueado para beta/release real.
+
+| ID | Status | Evidencia |
+|---|---|---|
+| EMAIL-RESEND-001 | Reauditado e mantido reduzido localmente | PR #8 estava `MERGEABLE`, mas ainda em draft, sem checks remotos. Gates locais passaram com 35 arquivos/215 testes, build e E2E. Nenhum e-mail real foi enviado e o fechamento segue pendente de dominio/remetente verificado, SMTP Auth Supabase, secrets no provedor e smoke com `RESEND_TEST_RECIPIENT`. |
+| QA-INT-001 | Reduzido | `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test`, `npm.cmd run build`, `npm.cmd run test:e2e` e `git diff --check` passaram localmente. Smoke local com `next start` e Playwright desktop/mobile cobriu `/`, `/auth`, `/dashboard`, `/metacognition`, `/accountability`, `/api/health` e `/api/ready`, sem console/pageerror. |
+| SEC-CSP-001 | Mantido como S2 | Varredura confirmou `script-src 'self' 'unsafe-inline'` em producao e `unsafe-eval` apenas fora de producao. Nao bloqueia merge preparatorio, mas permanece risco antes de beta/producao publica. |
+| OPS-GH-001 | Mantido como S1 | PR #8 nao tinha checks remotos configurados no `statusCheckRollup`; CI/branch protection/release continuam bloqueadores de beta/release, nao de merge preparatorio local auditado. |
+
+Subagentes de auditoria foram tentados para cinco recortes, mas todos falharam por erro externo de sessao encerrada do conector. A classificacao acima se baseia em inspecao e comandos locais reproduziveis.
+
 ## Ledger aberto
 
 | ID | Sev | Dominio | Titulo | Evidencia | Proximo passo | Criterio de fechamento |
@@ -83,8 +106,8 @@ Status geral: aprovado com restricoes para merge preparatorio; bloqueado para be
 | OPS-GH-001 | S1 | GitHub/release | Sem CI, branch protection efetiva ou releases | API GitHub: `main` protected false, zero workflows, zero releases | Criar workflow/gates, tags/release process ou registrar limitacao operacional aceita | PR/release exige CI verde e rollback referenciavel |
 | OPS-DOCKER-001 | S1 | Deploy | Docker/rollback nao ensaiados | Dockerfile sem `HEALTHCHECK`; imagem nao validada nesta auditoria; sem releases/deployments | Validar build da imagem, healthcheck e rollback Coolify | Smoke de container e rollback rehearsal documentados |
 | ANALYTICS-001 | S1 | Analytics/LGPD | Analytics nao bloqueia coleta sem consentimento | Contrato local ainda aceita evento sem persistencia; docs exigem bloqueio | Implementar opt-in off, revogacao e retencao 90 dias antes de persistir | Teste confirma ausencia/revogacao de consentimento bloqueia evento |
-| EMAIL-RESEND-001 | S1 | Email/Auth | Resend decidido, mas nao implementado/configurado | Docs atualizados; codigo ainda sem adapter Resend/SMTP Auth | Implementar adapter server-only, dominio, SMTP Auth e templates seguros | E-mail real passa smoke com dominio verificado e sem dados sensiveis |
 | AI-CONSENT-AUDIT-001 | S1 | IA/LGPD | Consentimento e auditoria de IA ainda nao sao persistidos | A rota checa `consentRecords`, mas os fluxos reais ainda nao consultam/persistem consentimento/auditoria em banco | Implementar persistencia de consentimento por provider e `ai_run_audits` com retencao 90 dias em etapa aprovada | IA real so chama provider quando consentimento versionado/revogavel e auditoria minima persistida estiverem validados |
+| EMAIL-RESEND-001 | S1 | Email/Auth | Resend preparado localmente, mas nao configurado em dominio/SMTP real | Etapa 6 adicionou adapter Resend server-only, templates neutros, webhook assinado e testes locais; envio real segue bloqueado por `EMAIL_REAL_ENABLED=false`, `EMAIL_DOMAIN_VERIFIED=false`, sem dominio/remetente verificado e sem SMTP Auth dashboard | Configurar dominio/remetente Resend, SMTP Auth Supabase e smoke aprovado com `RESEND_TEST_RECIPIENT` | E-mail real passa smoke com dominio verificado, webhook delivered/bounced e sem dados sensiveis |
 | PROD-DEMO-001 | S1 | Produto/dados | Smoke autenticado externo ainda nao comprovou ausencia de demo | Etapa 4 removeu `sample*` direto de `src/app`/`src/components` e usa empty states/queries, mas faltam URL HTTPS, Auth real e RLS remoto fresco | Rodar smoke autenticado contra preview aprovado cobrindo dashboard, goals/tasks, calendar/inbox, accountability e mobile | Smoke autenticado mostra dados do usuario ou vazio real; nenhuma amostra aparece fora de `local-demo` |
 | SEC-CSP-001 | S2 | Seguranca | CSP ainda permite `unsafe-inline` | `unsafe-eval` saiu de producao, mas `script-src`/`style-src` ainda mantem `unsafe-inline` | Implementar nonce/hash ou decisao formal de risco antes de deploy publico | Build/E2E passam com nonce/hash ou risco residual aprovado |
 | QA-INT-001 | S2 | Testes | Integracao real ampla ainda insuficiente | Suite mockada de runtime existe, mas preview/Auth/RLS real ainda nao tem cobertura fresca | Expandir actions/server/Supabase mockado e, em ambiente aprovado, preview RLS/Auth | Gate inclui integracao relevante por modulo e evidencia fresca de preview |

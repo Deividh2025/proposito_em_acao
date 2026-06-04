@@ -137,5 +137,5 @@ Decisao atualizada pelo fundador:
 
 - Producao aberta bloqueada.
 - Primeiro passo recomendado e escolhido: preview controlado em VPS Hostinger com Coolify.
-- OpenAI API e DeepSeek API serao providers reais planejados, com DeepSeek `deepseek-v4-flash` e `deepseek-v4-pro`.
+- OpenAI API e DeepSeek API serao providers reais planejados, com DeepSeek configuravel por ambiente (`deepseek-chat` e `deepseek-reasoner` como placeholders atuais).
 - Documentos operacionais criados: `PRODUCTION_DEPLOYMENT.md`, `PRODUCTION_ENVIRONMENT.md`, `SMOKE_TEST_REPORT.md`, `ROLLBACK_PLAN.md`, `OPERATIONS_RUNBOOK.md` e `BETA_CHECKLIST.md`.

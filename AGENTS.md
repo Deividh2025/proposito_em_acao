@@ -71,7 +71,7 @@ SQL versionado, scripts preparados ou migrations locais nao sao prova de validac
 - `src/domain/`: regras de dominio, tipos e persistencia/fallbacks.
 - `src/ai/`: agentes, schemas, prompts, guardrails e evals.
 - `src/lib/supabase/`: clients separados para browser, server e admin server-only.
-- `src/lib/openai/` e `src/lib/email/`: providers reais/mockados e barreiras server-side.
+- `src/lib/ai/`, `src/lib/openai/`, `src/lib/deepseek/` e `src/lib/email/`: roteamento de IA, providers reais/mockados e barreiras server-side.
 - `src/tests/unit`, `src/tests/integration`, `src/tests/e2e`: testes.
 - `supabase/migrations/`: migrations versionadas.
 - `scripts/`: harnesses de E2E, smoke externo e Supabase preview.
@@ -138,6 +138,8 @@ SQL versionado, scripts preparados ou migrations locais nao sao prova de validac
 - Fluxos com risco emocional grave devem orientar ajuda humana adequada, nao tratar crise como produtividade comum.
 - Mudancas em Chamado, Metacognicao, Desbloqueador, Revisao Semanal, Atalaia, analytics ou feedback exigem revisao de guardrails.
 - Prompt bruto, resposta bruta e conteudo intimo nao devem ser armazenados por padrao.
+- IA real nunca roda sem kill switch explicito, secrets server-side, consentimento versionado por provider e guardrails antes/depois do provider.
+- Fallback automatico entre OpenAI e DeepSeek e proibido; escolha/falha de provider deve ir para fallback local seguro ou fluxo manual.
 
 ## Metacognicao e Atalaia
 

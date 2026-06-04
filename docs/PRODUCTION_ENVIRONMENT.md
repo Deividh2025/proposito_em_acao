@@ -81,8 +81,8 @@ Nao registrar valores reais neste documento.
 | `OPENAI_MODEL` | vazio ate aprovar IA real | server-side se aprovado | server-side se aprovado | Config |
 | `DEEPSEEK_API_KEY` | vazio ate aprovar IA real | server-side se aprovado | server-side se aprovado | Secret |
 | `DEEPSEEK_BASE_URL` | opcional | `https://api.deepseek.com` se aprovado | `https://api.deepseek.com` se aprovado | Config |
-| `DEEPSEEK_MODEL_FLASH` | opcional | `deepseek-v4-flash` se aprovado | `deepseek-v4-flash` se aprovado | Config |
-| `DEEPSEEK_MODEL_PRO` | opcional | `deepseek-v4-pro` se aprovado | `deepseek-v4-pro` se aprovado | Config |
+| `DEEPSEEK_MODEL_FLASH` | opcional | `deepseek-chat` se aprovado | `deepseek-chat` se aprovado | Config |
+| `DEEPSEEK_MODEL_PRO` | opcional | `deepseek-reasoner` se aprovado | `deepseek-reasoner` se aprovado | Config |
 | `EMAIL_PROVIDER` | vazio | vazio ou provider aprovado | provider aprovado | Server-side/config |
 | `EMAIL_FROM` | vazio | vazio ou remetente aprovado | remetente aprovado | Config |
 | `NODE_ENV` | `development` | `production` | `production` | Config |
@@ -106,8 +106,8 @@ OpenAI e DeepSeek foram escolhidos como providers reais planejados. Ambos perman
 
 Modelos DeepSeek informados:
 
-- `deepseek-v4-flash`
-- `deepseek-v4-pro`
+- `deepseek-chat`
+- `deepseek-reasoner`
 
 ## E-mail
 

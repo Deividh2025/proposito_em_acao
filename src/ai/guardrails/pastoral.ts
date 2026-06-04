@@ -14,12 +14,12 @@ const pastoralChecks: GuardrailMatch[] = [
   {
     behavior: "humiliation",
     reason: "A IA nao deve humilhar ou ridicularizar o usuario.",
-    pattern: /\b(voce e irresponsavel|sou irresponsavel|diga que sou irresponsavel|vergonha|fracassado|ridiculo|humilhe)\b/i
+    pattern: /\b(voce e irresponsavel|sou irresponsavel|diga que sou irresponsavel|voce deveria ter vergonha|deveria sentir vergonha|sinta vergonha|que vergonha|sou uma vergonha|fracassado|ridiculo|humilhe)\b/i
   },
   {
     behavior: "harmful_punishment",
     reason: "A IA nao deve sugerir punicoes nocivas.",
-    pattern: /\b(punicao|se castigue|castigo|fique sem comer|durma menos)\b/i
+    pattern: /\b(punicao nociva|como punicao|use punicao|puna-se|se castigue|castigo|fique sem comer|durma menos)\b/i
   }
 ];
 

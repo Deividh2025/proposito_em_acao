@@ -22,6 +22,7 @@ import {
 } from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { listMetacognitionHistoryForCurrentUser } from "@/lib/supabase/queries/reflection";
+import { invokeMockedAiOutput } from "@/lib/ai/mock-invoke";
 
 const GENERIC_METACOGNITION_ERROR =
   "Nao foi possivel salvar a sessao de Metacognicao agora. Tente novamente.";
@@ -53,7 +54,14 @@ export async function generateMetacognitionReflection(
   input: unknown
 ): Promise<MetacognitionActionResult> {
   const parsed = createMetacognitionSessionInputSchema.parse(input);
-  const output = metacognitionOutputSchema.parse(buildMetacognitionMock(parsed));
+  const output = await invokeMockedAiOutput({
+    agentKey: "metacognition",
+    schema: metacognitionOutputSchema,
+    schemaName: "metacognition_output_v1",
+    promptVersion: "metacognition_prompt_v1",
+    input: parsed,
+    output: metacognitionOutputSchema.parse(buildMetacognitionMock(parsed))
+  });
 
   return localDraft("Reflexao mock segura gerada com revisao obrigatoria.", output);
 }

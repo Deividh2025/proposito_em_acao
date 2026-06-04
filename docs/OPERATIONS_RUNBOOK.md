@@ -102,7 +102,7 @@ Acao imediata:
 Providers planejados:
 
 - OpenAI API.
-- DeepSeek API com `deepseek-v4-flash` e `deepseek-v4-pro`.
+- DeepSeek API com `deepseek-chat` e `deepseek-reasoner` como placeholders configuraveis por ambiente.
 
 Manter IA real desativada ate aprovar:
 

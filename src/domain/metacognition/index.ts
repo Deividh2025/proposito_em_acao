@@ -84,8 +84,8 @@ export function buildMetacognitionMock(input: MetacognitionInput): Metacognition
       fact: "O relato indica possivel risco imediato ou perda de seguranca.",
       interpretation: "Este nao e um momento para resolver produtividade nem analisar profundamente pensamentos.",
       feeling: "angustia intensa",
-      impulse: input.impulse.length >= 10 ? input.impulse : "sumir ou se afastar de tudo",
-      dominant_automatic_thought: input.automaticThought || "Nao ha saida segura agora.",
+      impulse: "interromper a rotina e buscar presenca humana segura",
+      dominant_automatic_thought: "Preciso priorizar seguranca e ajuda humana agora.",
       cognitive_patterns: ["crise fora de fluxo produtivo"],
       logical_deconstruction:
         "A prioridade agora nao e provar ou desmontar uma ideia; e reduzir risco e aproximar ajuda humana.",

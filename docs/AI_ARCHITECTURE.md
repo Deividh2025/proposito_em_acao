@@ -117,15 +117,19 @@ Fluxo previsto:
 
 OpenAI real nao foi ativada em fluxo de produto nesta etapa.
 
-## Estado atual verificado em 2026-06-03
+## Estado atual verificado em 2026-06-04 - Etapa 5
 
-- OpenAI e DeepSeek seguem como providers reais planejados, mas desativados em fluxos de produto.
-- O seletor planejado de configuracoes sera `automatic`, `openai` ou `deepseek`, com padrao `automatic`.
-- `automatic` ainda precisa de regras de roteamento por agente, custo, latencia, qualidade, consentimento e rate limit.
-- Nao havera fallback automatico entre providers; falha usa fallback local seguro ou fluxo manual.
-- Consentimento de IA deve ser separado, versionado e revogavel por provider.
-- DeepSeek ainda nao tem adapter no codigo; tipos atuais aceitam apenas `mock | openai`.
-- Metadados de auditoria de IA terao retencao operacional de 90 dias antes de IA real.
+- OpenAI e DeepSeek estao representados como providers server-side, mas chamadas reais continuam bloqueadas por `AI_REAL_ENABLED=false` por padrao.
+- O seletor server-side aceita `automatic`, `openai` ou `deepseek`, com padrao `automatic`.
+- `automatic` roteia fluxos sensiveis/complexos para OpenAI e fluxos operacionais de menor risco para DeepSeek quando houver consentimento valido do provider.
+- Nao ha fallback automatico entre OpenAI e DeepSeek; falha de provider usa fallback local seguro ou fluxo manual.
+- Consentimento de IA e verificado por provider e versao antes de qualquer rota real; a camada nao cria consentimento automaticamente.
+- DeepSeek possui adapter server-only em `src/lib/deepseek/` usando API compativel com OpenAI quando aplicavel, sempre com validacao Zod porque JSON mode nao e tratado como schema estrito.
+- `src/lib/ai/invoke.ts` unifica roteamento, provider real/mock, consentimento, kill switch e chamada segura.
+- A chamada segura minimiza chaves sensiveis antes do provider, propaga `AbortSignal` para OpenAI/DeepSeek e aplica limite diario quando o contador do usuario e informado.
+- Saidas de Atalaia/Documento de Compromisso recebem guardrail adicional de compartilhamento para impedir vazamento sem consentimento granular.
+- Auditoria minima registra provider, modelo, agente, prompt/schema version, modo de invocacao, status de guardrail, latencia, motivo de fallback, consentimento e timestamp, sem prompt bruto ou resposta bruta.
+- Metadados de auditoria de IA devem aplicar retencao operacional de 90 dias quando houver persistencia real.
 
 ## Prompt 16 - Providers de producao planejados
 
@@ -133,18 +137,19 @@ Decisao do fundador:
 
 - Usar OpenAI API.
 - Usar DeepSeek API.
-- Modelos DeepSeek planejados: `deepseek-v4-flash` e `deepseek-v4-pro`.
+- Modelos DeepSeek configuraveis na Etapa 5: `deepseek-chat` e `deepseek-reasoner`.
 - Permitir selecao futura entre `automatic`, `openai` e `deepseek`, com `automatic` como padrao.
 - Manter fallback entre providers desabilitado; usar fallback local/manual por fluxo.
 
 Diretriz tecnica:
 
 - DeepSeek deve entrar como provider server-side, nunca client-side.
-- `deepseek-v4-flash` e candidato para fluxos de menor custo/latencia depois de evals.
-- `deepseek-v4-pro` e candidato para fluxos de maior complexidade depois de evals.
+- DeepSeek Chat e candidato para fluxos de menor custo/latencia depois de evals.
+- DeepSeek Reasoner e candidato para fluxos de maior complexidade depois de evals.
 - OpenAI permanece provider candidato para fluxos que exigirem melhor aderencia a schemas, guardrails e qualidade avaliada.
 - O roteamento por agente deve ser explicito e versionado antes de ativar IA real.
 - Todos os providers seguem as mesmas regras: schema estruturado, Zod/server validation, guardrails, minimizacao de contexto, sem prompt/resposta bruta em logs e fallback seguro.
+- Timeouts devem abortar a requisicao remota quando o SDK/provider suportar sinal de cancelamento; fallback local nao autoriza fallback cruzado entre providers.
 - Chamado, Metacognicao, Atalaia, Revisao Semanal e dados sensiveis nao podem ir a provider real sem aprovacao de privacidade, consentimento quando aplicavel e evals negativos.
 
 ## Prompt 8 - SMART-E e Planejador

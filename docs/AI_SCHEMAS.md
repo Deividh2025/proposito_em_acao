@@ -31,6 +31,8 @@ Tudo que virar dado do produto deve usar structured output, validacao local com 
 - Campos sensiveis nao devem ir para logs.
 - Atalaia nunca recebe Metacognicao, Chamado completo, saude, familia, financas, emocoes ou revisoes privadas por padrao.
 - Para compatibilidade futura com Structured Outputs, evitar schema raiz com union e tratar opcionais com cuidado.
+- `ai_run_audit_v1` aceita provider `mock`, `openai` ou `deepseek`, registra `invocation_mode` (`mock`, `real` ou `fallback`) e usa `guardrail_status` apenas como `passed`, `blocked` ou `failed`.
+- `ai_run_audit_v1` deve manter `contains_raw_prompt=false` e `contains_raw_response=false`.
 
 ## Prompt 8 - Execucao
 

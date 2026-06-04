@@ -2,8 +2,12 @@ import type { ZodType } from "zod";
 
 import type { AiAgentKey } from "@/ai/agents";
 import type { AiRunAudit } from "@/ai/schemas";
+import type { OpenAIErrorCategory } from "./errors";
 
-export type AiProviderName = "mock" | "openai";
+export type AiProviderName = "mock" | "openai" | "deepseek";
+export type AiProviderPreference = "automatic" | "openai" | "deepseek";
+export type AiInvocationMode = "mock" | "real" | "fallback";
+export type GuardrailStatus = "passed" | "blocked" | "failed";
 
 export type AiProviderRequest<TOutput> = {
   agentKey: AiAgentKey;
@@ -13,6 +17,7 @@ export type AiProviderRequest<TOutput> = {
   input: unknown;
   instructions?: string;
   model?: string;
+  signal?: AbortSignal;
 };
 
 export type AiProvider = {
@@ -23,6 +28,11 @@ export type AiProvider = {
 export type SafeInvokeAiInput<TOutput> = AiProviderRequest<TOutput> & {
   provider: AiProvider;
   fallback?: unknown;
+  timeoutMs?: number;
+  fallbackReason?: string | null;
+  consentVersion?: string | null;
+  realProviderAuthorized?: boolean;
+  authorizationFailureReason?: OpenAIErrorCategory;
 };
 
 export type SafeInvokeAiResult<TOutput> = {

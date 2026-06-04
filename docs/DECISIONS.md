@@ -96,7 +96,7 @@ Registro das decisoes de produto, arquitetura e governanca.
 - Decisao final do fundador apos a avaliacao do Prompt 16: usar VPS Hostinger com Coolify como plataforma principal de deploy; Vercel fica como alternativa de contingencia.
 - Dono da plataforma: Deividh de Sa; e-mail operacional informado: `deividhvianei@gmail.com`.
 - Providers de IA planejados para producao: OpenAI API e DeepSeek API.
-- Modelos DeepSeek planejados: `deepseek-v4-flash` para fluxos mais rapidos/custo menor e `deepseek-v4-pro` para fluxos mais complexos, ambos dependentes de evals, rate limit e roteamento por agente.
+- Modelos DeepSeek configuraveis: `deepseek-chat` para fluxos mais rapidos/custo menor e `deepseek-reasoner` para fluxos mais complexos, ambos dependentes de evals, rate limit e roteamento por agente.
 - Prompt 16 bloqueia producao aberta porque o Supabase remoto `bceumcfmjftoukzrfthe` segue desalinhado das migrations locais da V1 e ainda nao houve matriz RLS/Auth dinamica publicada.
 - Prompt 16 mantem IA real e e-mail real desativados ate decisao explicita de modelo, custo, rate limit, provider, remetente, templates e guardrails.
 - Prompt 16 adiciona headers minimos de seguranca no `next.config.ts` e cria runbook, rollback, smoke report, ambiente de producao e checklist beta.

@@ -1,5 +1,6 @@
 "use server";
 
+import { gardenStateOutputSchema, weeklyReviewOutputSchema } from "@/ai/schemas";
 import {
   buildGardenStateFromWeeklyReview,
   buildWeeklyReviewMock,
@@ -20,6 +21,7 @@ import {
 } from "@/domain/execution/action-results";
 import { gardenEventInputSchema } from "@/domain/garden";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { invokeMockedAiOutput } from "@/lib/ai/mock-invoke";
 
 function errorDraft(message: string): BasicWeeklyReviewActionResult {
   return realServiceErrorResult(executionActionResultSchema, message);
@@ -27,8 +29,22 @@ function errorDraft(message: string): BasicWeeklyReviewActionResult {
 
 export async function generateWeeklyReviewDraft(input: unknown): Promise<WeeklyReviewActionResult> {
   const parsed = createWeeklyReviewInputSchema.parse(input);
-  const output = buildWeeklyReviewMock(parsed);
-  const garden = buildGardenStateFromWeeklyReview(output);
+  const output = await invokeMockedAiOutput({
+    agentKey: "weeklyReview",
+    schema: weeklyReviewOutputSchema,
+    schemaName: "weekly_review_output_v1",
+    promptVersion: "weekly_review_prompt_v1",
+    input: parsed,
+    output: buildWeeklyReviewMock(parsed)
+  });
+  const garden = await invokeMockedAiOutput({
+    agentKey: "weeklyReview",
+    schema: gardenStateOutputSchema,
+    schemaName: "garden_state_output_v1",
+    promptVersion: "weekly_review_prompt_v1",
+    input: { weeklyReview: output },
+    output: buildGardenStateFromWeeklyReview(output)
+  });
 
   return weeklyReviewActionResultSchema.parse({
     mode: "local-draft",

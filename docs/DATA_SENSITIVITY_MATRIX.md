@@ -34,6 +34,7 @@
 | Logs tecnicos | Observabilidade | Media | Nao | Politica clara | Sem prompt bruto, pensamento ou dado intimo | Operacional minimo; retencao definida |
 | Eventos de analytics | Beta/Observabilidade | Media/Alta | Nao | Sim | Apenas eventos/metadados minimos; sem conteudo sensivel | Consentimento especifico; retencao curta; agregacao |
 | Feedback beta | Beta/Feedback | Alta | Nao | Sim | Campo livre pode conter dado intimo; redigir antes de compartilhar | Rascunho local ate formulario/canal aprovado |
+| Auditoria de IA | IA/Observabilidade | Media/Alta | Nao | Sim, por provider quando houver chamada real | Somente metadados: provider, modelo, agente, schema/prompt version, guardrail, latencia, fallback e consentimento; sem prompt/resposta bruta | Backend owner/operacional minimo; retencao futura de 90 dias |
 | Anexos de usuario | Storage | Alta | Nao por padrao | Sim | Bucket privado e path por usuario | Dono; signed URL server-side se autorizado |
 | Documento anexado de compromisso | Storage/Compromisso | Alta | Sim, se usuario escolher | Sim, por alvo/escopo | Nunca publico; previa antes de compartilhar | Dono; Atalaia via signed URL curta e grant ativo |
 | Check-in de energia | Mobile/PWA | Alta/Critica | Nao por padrao | Sim | Pode revelar saude, sono, rotina e emocao | Dono por RLS; sem cache/offline sensivel |
@@ -86,3 +87,9 @@ Desbloqueador e Metacognicao entram como dados de autorregulacao sensiveis. `act
 
 - Eventos de analytics futuros devem registrar somente evento, modulo, status, contagens, buckets e consentimento. Sem texto de usuario, titulos, notas, prompts ou respostas.
 - Feedback beta futuro deve ser minimizado, redigido quando sensivel e protegido por consentimento/retencao. Nao compartilhar com Atalaia ou terceiros por padrao.
+
+## Etapa 5 - IA real preparada
+
+- OpenAI/DeepSeek reais nao podem receber dados sensiveis sem minimizacao, consentimento versionado do provider e guardrails.
+- Auditoria de IA deve permanecer como metadado tecnico redigido, sem prompt bruto, resposta bruta, conteudo intimo, tokens, API keys, e-mail com contexto sensivel ou payload de Atalaia.
+- DeepSeek JSON mode nao e considerado schema estrito; toda saida que vira dado continua validada por Zod.

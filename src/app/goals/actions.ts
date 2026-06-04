@@ -1,5 +1,6 @@
 "use server";
 
+import { smartGoalOutputSchema } from "@/ai/schemas";
 import { buildSmartGoalMockDraft } from "@/domain/goals";
 import {
   createManualGoalInputSchema,
@@ -17,10 +18,20 @@ import {
   supabaseSuccessResult
 } from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { invokeMockedAiOutput } from "@/lib/ai/mock-invoke";
 
 export async function generateSmartGoalDraft(input: unknown) {
   const parsed = createSmartGoalDraftInputSchema.parse(input);
-  return buildSmartGoalMockDraft(parsed);
+  const output = smartGoalOutputSchema.parse(buildSmartGoalMockDraft(parsed));
+
+  return invokeMockedAiOutput({
+    agentKey: "smartGoal",
+    schema: smartGoalOutputSchema,
+    schemaName: "smart_goal_output_v1",
+    promptVersion: "smart_goal_prompt_v1",
+    input: parsed,
+    output
+  });
 }
 
 export async function createManualGoal(input: unknown): Promise<ExecutionActionResult> {

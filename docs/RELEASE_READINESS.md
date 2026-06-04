@@ -98,6 +98,45 @@ Executado localmente em 2026-06-04 na branch `codex/real-authenticated-data-ui`:
 
 Limitacao: smoke externo, `supabase:types:preview` e `supabase:validate:preview` nao foram executados porque nao ha URL HTTPS/ambiente preview aprovado para Auth/RLS real neste momento. A validacao autenticada externa segue bloqueada por essa ausencia.
 
+## Evidencia da Etapa 5 - IA real preparada com roteamento seguro
+
+Executado localmente em 2026-06-04 na branch `codex/real-ai-provider-routing`:
+
+- PR #6 da Etapa 4 foi marcado pronto e mergeado antes do inicio da Etapa 5.
+- Branch criada de `main`: `codex/real-ai-provider-routing`.
+- Gate de entrada confirmou PRs #1 a #6 mergeados na `main`.
+- OpenAI e DeepSeek foram modelados como providers server-side, com DeepSeek adapter mockado/testado e chamadas reais bloqueadas por default.
+- Roteamento `automatic|openai|deepseek`, consentimento versionado por provider, kill switch, timeout, redaction e auditoria minima foram implementados localmente.
+- Evals/testes focados cobrem provider routing, consentimento ausente/revogado, kill switch, falha sem fallback cruzado, schema invalido, timeout, redaction e guardrails IO.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 32 arquivos e 190 testes.
+- `npm.cmd run build`: passou, 44 paginas/rotas geradas.
+- `npm.cmd run test:e2e`: passou, build + 33 testes.
+- `git diff --check`: passou, apenas avisos CRLF do Windows.
+- Secret scan do diff: nenhum padrao sensivel real encontrado.
+
+Limitacao: nenhuma chamada real a OpenAI/DeepSeek foi executada. Consentimento persistido, auditoria persistida, rate limit persistente e evals contra modelos reais seguem pendentes de etapa/aprovacao propria. Esta etapa nao libera IA real, beta real ou producao.
+
+## Auditoria transversal do PR #7
+
+Executado localmente em 2026-06-04 na branch `codex/real-ai-provider-routing`:
+
+- PR #7 estava aberto em draft, base `main`, head `codex/real-ai-provider-routing`, `MERGEABLE` e sem checks remotos configurados.
+- Subagentes revisaram bugs/regressoes, testes/cobertura, performance/UX, seguranca/Auth/RLS/privacidade e IA/e-mail/analytics/integracoes.
+- Achados de IA no PR foram corrigidos antes do merge: sanitizacao de chaves sensiveis antes de provider, timeout abortavel, limite diario stub antes de chamada real, guardrail de saida para Atalaia e fallback de crise sem eco de pensamento/impulso bruto.
+- `npm.cmd run test -- src/tests/unit/ai-provider-routing.test.ts`: passou, 20 testes.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 32 arquivos e 194 testes.
+- `npm.cmd run build`: passou, 44 rotas.
+- `npm.cmd run test:e2e`: passou, build + 33 testes.
+- Timings locais com `next start`: `/api/health` 19 ms, `/api/ready` 24 ms, rotas principais 72-685 ms em medicao local.
+- Console/pageerror check local em rotas principais: 0 erros/0 warnings.
+- Secret scan por `git grep` encontrou apenas placeholders/documentacao/testes; nenhuma chave real foi identificada no diff.
+
+Veredito desta auditoria: PR #7 fica aprovado com restricoes para merge preparatorio porque IA real continua desligada por default e os achados de fronteira foram corrigidos/testados. Beta real continua bloqueado pelos S1/S2 abertos em `docs/BUG_TRIAGE.md`, especialmente Auth/RLS externo, tipos Supabase reais, CI/release, IA com consentimento/auditoria persistidos, Resend, analytics/feedback consentidos e smoke HTTPS.
+
 ## Decisoes atuais de release
 
 - Plataforma: Hostinger VPS KVM 1 com Coolify.
@@ -105,6 +144,7 @@ Limitacao: smoke externo, `supabase:types:preview` e `supabase:validate:preview`
 - Dominio: sera adquirido na Hostinger; dominio exato ainda e gate manual.
 - Supabase: projeto principal somente apos cutover validado e aprovado.
 - IA: provider selecionavel planejado `automatic`, `openai` ou `deepseek`, padrao `automatic`, sem fallback automatico entre providers.
+- IA Etapa 5: camada server-side de roteamento existe localmente, mas `AI_REAL_ENABLED=false` continua default e provider real exige secrets, consentimento, evals aprovados e kill switch explicito.
 - Consentimento de IA: separado, versionado e revogavel por provider.
 - E-mail: Resend para transacional e SMTP customizado do Supabase Auth.
 - Analytics: first-party no Supabase, opt-in desligado por padrao.
@@ -112,7 +152,7 @@ Limitacao: smoke externo, `supabase:types:preview` e `supabase:validate:preview`
 
 ## Bloqueadores antes do beta real
 
-- Corrigir/validar S0/S1 do `docs/BUG_TRIAGE.md`, especialmente Atalaia, Auth SSR, tipos Supabase, health/readiness, CI/release, guardrails de IA, consentimento, dados demonstrativos e integracoes reais.
+- Corrigir/validar S0/S1 do `docs/BUG_TRIAGE.md`, especialmente Auth SSR, tipos Supabase, health/readiness, CI/release, consentimento persistido, dados demonstrativos e integracoes reais.
 - Confirmar por smoke autenticado que a Etapa 4 nao mostra amostras fora de `local-demo`.
 - Publicar URL HTTPS de preview.
 - Configurar secrets no provedor, sem commitar `.env` real.

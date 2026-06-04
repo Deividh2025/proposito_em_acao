@@ -23,6 +23,7 @@ import {
   supabaseSuccessResult
 } from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { invokeMockedAiOutput } from "@/lib/ai/mock-invoke";
 
 function errorDraft(message: string): BasicInboxActionResult {
   return realServiceErrorResult(executionActionResultSchema, message);
@@ -154,7 +155,14 @@ export async function classifyInboxItem(input: unknown): Promise<InboxActionResu
   }
 
   const parsed = inputResult.data;
-  const classification = inboxClassificationOutputSchema.parse(buildInboxClassificationMock(parsed.content));
+  const classification = await invokeMockedAiOutput({
+    agentKey: "inboxClassifier",
+    schema: inboxClassificationOutputSchema,
+    schemaName: "inbox_classification_output_v1",
+    promptVersion: "inbox_classifier_prompt_v1",
+    input: { content: parsed.content },
+    output: inboxClassificationOutputSchema.parse(buildInboxClassificationMock(parsed.content))
+  });
 
   return inboxActionResultSchema.parse({
     mode: "local-draft",
@@ -224,7 +232,14 @@ export async function processInboxItem(input: unknown): Promise<BasicInboxAction
       return errorDraft("Escolha um destino existente para concluir este processamento nesta etapa.");
     }
 
-    const classification = inboxClassificationOutputSchema.parse(buildInboxClassificationMock(inboxItem.content));
+    const classification = await invokeMockedAiOutput({
+      agentKey: "inboxClassifier",
+      schema: inboxClassificationOutputSchema,
+      schemaName: "inbox_classification_output_v1",
+      promptVersion: "inbox_classifier_prompt_v1",
+      input: { content: inboxItem.content },
+      output: inboxClassificationOutputSchema.parse(buildInboxClassificationMock(inboxItem.content))
+    });
     let destinationId = parsed.destinationId;
 
     if (parsed.destinationType === "task" && !destinationId) {

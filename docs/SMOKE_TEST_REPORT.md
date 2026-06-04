@@ -1,6 +1,6 @@
 # Smoke Test Report
 
-Data de sincronizacao: 2026-06-03.
+Data de sincronizacao: 2026-06-04.
 
 ## Veredito
 
@@ -8,15 +8,31 @@ Smoke externo publicado: nao executado. Ainda nao existe URL HTTPS publicada em 
 
 Smoke local: gates locais cobrem fallback local/dev e renderizacao, nao comprovam Auth real, Supabase principal, RLS completa, Resend, IA real, analytics real ou deploy.
 
-## Evidencia atual desta auditoria
+## Evidencia atual desta auditoria transversal
 
 Agente principal:
 
 - `npm.cmd run lint`: passou.
 - `npm.cmd run typecheck`: passou.
-- `npm.cmd run test`: passou, 14 arquivos e 81 testes.
-- `npm.cmd run build`: passou, 39 paginas.
-- `npm.cmd run test:e2e`: passou, 29 testes.
+- `npm.cmd run test`: passou, 32 arquivos e 194 testes.
+- `npm.cmd run build`: passou, 44 rotas.
+- `npm.cmd run test:e2e`: passou, build + 33 testes.
+- `git diff --check`: passou.
+
+Medições locais com `next start` em `http://127.0.0.1:3000`:
+
+| Rota | Status | Tempo local |
+|---|---:|---:|
+| `/` | 200 | 108 ms |
+| `/dashboard` | 200 | 369 ms |
+| `/metacognition` | 200 | 100 ms |
+| `/review` | 200 | 685 ms |
+| `/mobile` | 200 | 73 ms |
+| `/settings` | 200 | 72 ms |
+| `/api/health` | 200 | 19 ms |
+| `/api/ready` | 200 | 24 ms |
+
+Console/pageerror check com Playwright em `/`, `/dashboard`, `/metacognition`, `/review`, `/mobile` e `/settings`: 0 erros/0 warnings coletados.
 
 Limitacao: estes gates sao locais. Eles nao substituem smoke externo contra URL HTTPS publicada, Auth real, Supabase/RLS remoto, Resend, IA real, analytics real ou deploy.
 

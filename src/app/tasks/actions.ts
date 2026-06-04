@@ -1,5 +1,6 @@
 "use server";
 
+import { taskBreakdownOutputSchema } from "@/ai/schemas";
 import { breakTaskIntoMicrotasks } from "@/domain/tasks";
 import {
   createTaskInputSchema,
@@ -18,6 +19,7 @@ import {
   supabaseSuccessResult
 } from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { invokeMockedAiOutput } from "@/lib/ai/mock-invoke";
 
 function mapTaskType(type: string) {
   const map: Record<string, string> = {
@@ -34,11 +36,20 @@ function mapTaskType(type: string) {
 export async function generateTaskBreakdownDraft(input: unknown) {
   const parsed = createTaskInputSchema.parse(input);
 
-  return breakTaskIntoMicrotasks({
+  const output = taskBreakdownOutputSchema.parse(breakTaskIntoMicrotasks({
     title: parsed.title,
     reason: parsed.reason ?? parsed.nextAction,
     estimatedMinutes: parsed.estimatedMinutes,
     energyLevel: parsed.energyLevel
+  }));
+
+  return invokeMockedAiOutput({
+    agentKey: "taskBreakdown",
+    schema: taskBreakdownOutputSchema,
+    schemaName: "task_breakdown_output_v1",
+    promptVersion: "planner_prompt_v1",
+    input: parsed,
+    output
   });
 }
 

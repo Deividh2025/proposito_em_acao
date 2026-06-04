@@ -31,7 +31,16 @@ A IA do Proposito em Acao e uma rede de agentes internos especializados. Nenhum 
 - Entrypoints por agente: `src/ai/agents/*/index.ts`.
 - Prompts: `src/ai/prompts/*.md`.
 - Schemas: `src/ai/schemas/*.ts`.
-- Providers: `src/lib/openai/`.
+- Providers, roteamento e invocacao segura: `src/lib/openai/`, `src/lib/deepseek/` e `src/lib/ai/`.
+
+## Etapa 5 - roteamento server-side
+
+- `automatic`: OpenAI para fluxos sensiveis/complexos e DeepSeek para fluxos operacionais de menor risco, sempre com consentimento do provider escolhido.
+- `openai`: usa modelo rapido ou pro conforme agente, sem tentar DeepSeek se falhar.
+- `deepseek`: usa chat ou reasoner conforme agente, sem tentar OpenAI se falhar.
+- `mock`: continua sendo o default local e fallback seguro quando `AI_REAL_ENABLED=false`, consentimento falta/revoga ou provider falha.
+- Guardrails rodam antes do provider e depois da validacao de schema; auditoria usa `passed`, `blocked` ou `failed`, nunca `not_run`.
+- Fluxos conectados ao safe invoke nesta etapa: SMART-E, planejamento de projeto, microtarefas, inbox, Desbloqueador, Metacognicao, Revisao Semanal/Jardim, previa Atalaia e Documento de Compromisso.
 
 ## Prompt 13
 
@@ -39,8 +48,8 @@ A IA do Proposito em Acao e uma rede de agentes internos especializados. Nenhum 
 - `accountability_message_output_v1` exige `privacy_check`, `consent_required = true` e `user_review_required = true`.
 - `commitment_document_output_v1` cria documento revisavel com alavancas saudaveis e permissoes de compartilhamento.
 - Contexto proibido: Chamado completo, Metacognicao, saude, familia, financas, emocoes, Revisao Semanal privada, inbox bruto, calendario completo, distracoes e logs brutos.
-- OpenAI real permanece server-side e nao e acionada por UI nesta etapa. O provider mock permite testar contratos sem enviar dados sensiveis a terceiros.
+- OpenAI/DeepSeek reais permanecem server-side e nao sao acionados por UI sem kill switch, consentimento versionado, secrets e evals aprovados. O provider mock permite testar contratos sem enviar dados sensiveis a terceiros.
 
 ## Limites
 
-OpenAI real permanece server-side e nao e acionada por UI nesta etapa. O provider mock permite testar contratos sem enviar dados sensiveis a terceiros.
+OpenAI/DeepSeek reais permanecem server-side e nao sao acionados por UI nesta etapa operacional. O provider mock permite testar contratos sem enviar dados sensiveis a terceiros.

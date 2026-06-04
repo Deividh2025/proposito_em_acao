@@ -147,6 +147,20 @@ O Prompt 7 adiciona guardrails deterministas iniciais em `src/ai/guardrails/`:
 
 Estes guardrails nao substituem revisao humana. Eles sao a primeira barreira tecnica para schemas, providers e evals.
 
+## Etapa 5 - guardrails no safe invoke
+
+- `safeInvokeAi` executa guardrails de entrada antes do provider real/mock.
+- `safeInvokeAi` tambem bloqueia chamada direta a provider real quando a rota nao trouxe autorizacao explicita de kill switch/consentimento/limite.
+- Antes de chamar provider real autorizado, a camada remove chaves sensiveis como `token`, `secret`, `api_key`, `authorization`, `raw_prompt` e `raw_response` do input enviado ao provider.
+- Saida do provider e validada por Zod e revisada por guardrail de persistencia owner-only antes de retornar dado utilizavel.
+- Saidas de agentes de Atalaia/Documento de Compromisso recebem revisao adicional de compartilhamento para bloquear Metacognicao, Chamado, saude, familia, financas, emocoes, inbox, calendario completo e outros dados privados.
+- Fallback local tambem precisa passar por schema e guardrail de saida; fallback inseguro nao deve ser tratado como recuperacao valida.
+- `guardrail_status` agora usa somente `passed`, `blocked` ou `failed`; o caminho provider/mock nao registra mais `not_run`.
+- Entrada com crise, diagnostico, substituicao de ajuda humana, culpa espiritual, vontade divina especifica ou compartilhamento indevido com Atalaia bloqueia antes de provider real.
+- Saida estruturada que inclua conteudo inseguro bloqueia antes de persistir, enviar ou compartilhar.
+- Timeout de provider aciona fallback local seguro e aborta a requisicao remota quando o provider/SDK suporta `AbortSignal`.
+- Auditoria minima registra metadados tecnicos e nunca prompt bruto, resposta bruta, conteudo intimo ou secrets.
+
 ## Prompt 10 - Guardrails especificos
 
 ### Desbloqueador

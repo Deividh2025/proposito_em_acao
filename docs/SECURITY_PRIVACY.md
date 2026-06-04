@@ -2,12 +2,14 @@
 
 Este documento e fonte de verdade para seguranca, privacidade, consentimento, Atalaia, Metacognicao, IA, logs e preparacao futura de Supabase/RLS. Ele nao substitui revisao juridica LGPD antes de producao.
 
-## Estado atual verificado em 2026-06-03
+## Estado atual verificado em 2026-06-04
 
 - Estado do produto: V1 local ampla / pre-beta real; beta real segue bloqueado.
 - Retencao decidida: analytics, feedback beta e metadados de auditoria de IA por 90 dias quando houver persistencia real.
 - Consentimento de IA deve ser separado, versionado e revogavel por provider (`openai`, `deepseek` e modo `automatic`).
 - Nao havera fallback automatico entre providers de IA; falha usa fallback local seguro ou fluxo manual.
+- Etapa 5 implementou roteamento server-side OpenAI/DeepSeek, mas chamada real segue desligada por `AI_REAL_ENABLED=false` por padrao e sem secrets reais.
+- Auditoria de IA registra metadados minimos com redaction recursiva; prompt bruto, resposta bruta, conteudo intimo, tokens e chaves continuam proibidos.
 - Resend foi decidido para e-mail transacional e SMTP customizado do Supabase Auth, mas ainda nao esta implementado/configurado.
 - Analytics sera first-party no Supabase, opt-in desligado por padrao, mas coleta real ainda nao existe.
 - Atalaia/consentimento/Auth/escritas reais possuem S0/S1 registrados em `docs/BUG_TRIAGE.md` e bloqueiam beta real ate validacao remota/externa proporcional.
@@ -149,18 +151,24 @@ A camada central de IA registra somente metadados por `ai_run_audit_v1`:
 - agente;
 - provider;
 - modelo;
+- modo de invocacao (`mock`, `real` ou `fallback`);
 - prompt version;
 - output schema;
 - status;
 - latencia;
 - erro categorizado;
-- status de guardrail.
+- status de guardrail;
+- motivo de fallback;
+- versao de consentimento quando aplicavel;
+- timestamp.
 
-`contains_raw_prompt` e `contains_raw_response` devem permanecer `false`. O helper `redactAiLogMetadata` remove chaves como `prompt`, `raw_prompt`, `response`, `raw_response`, `input` e `output`.
+`contains_raw_prompt` e `contains_raw_response` devem permanecer `false`. O helper de redaction remove chaves sensiveis de forma recursiva e case-insensitive, incluindo `prompt`, `raw_prompt`, `response`, `raw_response`, `input`, `output`, `content`, `messages`, `api_key`, `token` e variantes.
 
 OpenAI real fica isolada em modulo server-only. `OPENAI_API_KEY` nao pode ser exposta em `NEXT_PUBLIC_*`, client components, browser, mobile ou logs.
 
-DeepSeek real, aprovado como provider planejado no Prompt 16, segue a mesma regra: `DEEPSEEK_API_KEY` fica apenas server-side, sem `NEXT_PUBLIC_*`, sem browser/mobile/logs e sem envio de dados sensiveis antes de minimizacao, guardrails, evals, consentimento por provider e aprovacao operacional.
+DeepSeek real segue a mesma regra: `DEEPSEEK_API_KEY` fica apenas server-side, sem `NEXT_PUBLIC_*`, sem browser/mobile/logs e sem envio de dados sensiveis antes de minimizacao, guardrails, evals, consentimento por provider e aprovacao operacional.
+
+Na Etapa 5, consentimento por provider e versao e checado antes de qualquer rota real. `safeInvokeAi` tambem bloqueia uso direto de provider real sem autorizacao explicita da rota. Ausencia, revogacao ou consentimento de outro provider deve manter fallback local seguro sem criar consentimento automatico.
 
 ## Prompt 8 - Execucao e dados sensiveis
 

@@ -4,16 +4,16 @@
 
 IA e camada operacional integrada, nao chatbot solto. Toda resposta que vira dado deve usar schema estruturado, validacao e revisao do usuario quando afetar agenda, alvos, tarefas, Metacognicao ou Atalaia.
 
-## Estado atual verificado em 2026-06-03
+## Estado atual verificado em 2026-06-04 - Etapa 5
 
-- OpenAI real e DeepSeek real continuam desativados em fluxos de produto.
-- Codigo atual possui provider mock e provider OpenAI server-only; DeepSeek ainda nao possui adapter, resolver ou uso em fluxo.
-- Tipos atuais aceitam `mock | openai`; o seletor `automatic | openai | deepseek` e decisao atual, mas ainda pendente de implementacao.
-- `safeInvoke` valida schema e pode usar fallback local, mas registra `guardrail_status: "not_run"`; isso bloqueia IA real em fluxos sensiveis.
-- `ai_run_audit_v1` existe como contrato/metadado, mas auditoria persistida em `ai_run_audits` ainda nao esta comprovada no codigo de produto.
-- Consentimento de IA devera ser separado, versionado e revogavel por provider.
-- Nao havera fallback automatico entre providers. Em falha de provider, usar fallback local seguro ou fluxo manual.
-- Metadados de auditoria de IA terao retencao operacional de 90 dias antes de IA real.
+- OpenAI real e DeepSeek real continuam desativados em fluxos de produto por `AI_REAL_ENABLED=false` por default.
+- Codigo atual possui provider mock, provider OpenAI server-only e adapter DeepSeek server-only.
+- Tipos aceitam `mock | openai | deepseek`; o seletor aceita `automatic | openai | deepseek`.
+- `safeInvoke` valida schema, executa guardrails de entrada/saida, bloqueia provider real sem autorizacao explicita da rota, registra `guardrail_status` real e usa fallback local seguro sem fallback cruzado entre providers.
+- `safeInvoke` remove chaves sensiveis do input antes do provider, propaga `AbortSignal` para timeout abortavel e aplica guardrail adicional em outputs de Atalaia/Documento de Compromisso.
+- `ai_run_audit_v1` registra metadados minimos, `invocation_mode`, consentimento e motivo de fallback, mas persistencia real de auditoria ainda depende de etapa de banco/LGPD.
+- Consentimento de IA e checado por provider e versao antes da rota real; a camada nao cria consentimento automaticamente.
+- Metadados de auditoria de IA terao retencao operacional de 90 dias quando houver persistencia real.
 
 ## Agentes internos
 
@@ -63,7 +63,7 @@ Futura base deve conter materiais aprovados sobre Chamado, mordomia do tempo, do
 
 ## Evals
 
-Diretorio preparado: `src/ai/evals` com casos locais. Evals locais nao validam provider real, custo, latencia, rate limit ou aderencia de modelo em producao.
+Diretorio preparado: `src/ai/evals` com casos locais. Evals locais cobrem roteamento/consentimento/guardrails com mocks, sanitizacao de input, timeout abortavel e limite diario local, mas nao validam provider real, custo, latencia, rate limit persistente ou aderencia de modelo em producao.
 
 Casos minimos futuros:
 
@@ -83,7 +83,7 @@ Casos minimos futuros:
 
 ## Limites desta etapa
 
-- Nenhuma chamada real a OpenAI API e acionada por fluxo de produto.
+- Nenhuma chamada real a OpenAI ou DeepSeek e acionada por fluxo de produto.
 - Prompts internos foram versionados como contratos iniciais, nao como prompts finais de producao.
 - Agentes foram estruturados no catalogo e em entrypoints, mas fluxos completos ainda serao integrados em etapas proprias.
 - Provider mock permite testar outputs sem enviar dados sensiveis.
@@ -104,6 +104,10 @@ Arquivos:
 - `src/lib/openai/mockProvider.ts`
 - `src/lib/openai/safeInvoke.ts`
 - `src/lib/openai/provider.ts`
+- `src/lib/deepseek/provider.ts`
+- `src/lib/ai/invoke.ts`
+- `src/lib/ai/index.ts`
+- `src/lib/ai/redaction.ts`
 
 Logs de IA devem usar `ai_run_audit_v1`, sem prompt bruto e sem resposta bruta.
 
@@ -115,7 +119,7 @@ Decisao do fundador:
 - DeepSeek API sera usada como provider real planejado.
 - Configuracoes futuras devem permitir `automatic`, `openai` e `deepseek`, com `automatic` como padrao.
 - OpenAI e DeepSeek permanecem configuraveis por variaveis de ambiente.
-- Modelos DeepSeek planejados: `deepseek-v4-flash` e `deepseek-v4-pro`.
+- Modelos DeepSeek configuraveis nesta etapa: `deepseek-chat` e `deepseek-reasoner`.
 
 DeepSeek deve seguir o mesmo padrao de seguranca do OpenAI provider:
 
@@ -128,11 +132,11 @@ DeepSeek deve seguir o mesmo padrao de seguranca do OpenAI provider:
 - fallback local seguro ou fluxo manual quando provider falhar, sem fallback automatico para outro provider;
 - evals antes de ativar fluxo real.
 
-Antes de ativar IA real, ainda falta decidir:
+Antes de ativar IA real, ainda falta aprovar:
 
-- modelo OpenAI padrao;
-- quais agentes usam OpenAI, DeepSeek Flash ou DeepSeek Pro;
-- limites de custo por usuario/ambiente;
-- rate limit e timeout;
-- regras de fallback local/manual por fluxo;
+- secrets por ambiente;
+- consentimento persistido por provider;
+- evals reais/custo por usuario/ambiente;
+- rate limit persistente;
+- readiness/smoke de provider real com chaves/modelos configurados em ambiente isolado;
 - se algum fluxo sensivel ficara apenas mock/manual no beta.

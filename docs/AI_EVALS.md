@@ -26,6 +26,13 @@ Evals de IA existem para impedir regressao de seguranca antes de ativar fluxos r
 - Schema valido/invalido.
 - Mock provider e fallback seguro.
 - Logs sem prompt bruto ou resposta bruta.
+- OpenAI mockado e DeepSeek mockado sem chamada real.
+- Roteamento `automatic`, `openai` e `deepseek`.
+- Kill switch `AI_REAL_ENABLED=false` bloqueando provider real.
+- Consentimento ausente, revogado e de outro provider bloqueando rota real.
+- Falha/timeout de provider usando fallback local sem fallback cruzado entre OpenAI e DeepSeek.
+- Redaction recursiva case-insensitive de metadados sensiveis.
+- Guardrail de entrada antes do provider e guardrail de saida depois do schema.
 
 ## Prompt 10
 
@@ -37,3 +44,10 @@ Evals de IA existem para impedir regressao de seguranca antes de ativar fluxos r
 ## Pendencias
 
 Antes de producao, ampliar evals com exemplos reais aprovados, red teaming de prompt injection, casos por agente e execucao contra modelo real em ambiente controlado.
+
+## Etapa 5
+
+- `src/ai/evals/provider-runtime.cases.ts` registra cenarios positivos e negativos de roteamento por provider.
+- `src/ai/evals/consent.cases.ts` registra consentimento ausente, revogado e restrito ao provider correto.
+- `src/ai/evals/guardrail-io.cases.ts` registra bloqueios antes do provider e depois da validacao de schema.
+- `src/tests/unit/ai-provider-routing.test.ts` executa contratos de roteamento, consentimento, guardrails, timeout, redaction, schema invalido e DeepSeek mockado.

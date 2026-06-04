@@ -52,6 +52,18 @@ Testes adicionados:
 
 Esses testes nao validam Supabase remoto, Auth publicado, RLS dinamico, Resend, IA real, analytics real ou smoke externo.
 
+## Auth readiness e SSR
+
+Antes de beta real, a suite publicada deve cobrir:
+
+- Proxy/middleware SSR renovando/propagando cookies e validando claims em ambiente configurado.
+- Signup, confirmacao de e-mail, login, rota protegida, logout, recovery/update de senha e expiracao/refresh de sessao.
+- Redirects aceitando apenas destinos internos/allowlist e rejeitando URL externa arbitraria.
+- Falha fechada fora de `local-demo` quando Supabase/Auth/redirect/SMTP obrigatorio estiver ausente ou falhar.
+- Smoke externo em URL HTTPS real com Site URL/Redirect URLs do Supabase alinhados.
+- PWA/service worker sem cache de `/auth`, callbacks, recovery, APIs autenticadas, server actions ou respostas privadas.
+- Typegen real com `npm.cmd run supabase:types:preview` em preview aprovado antes de tratar `src/types/database.ts` como contrato do banco.
+
 ## Testes E2E
 
 Fluxos minimos:

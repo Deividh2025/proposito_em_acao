@@ -128,6 +128,7 @@ SQL versionado, scripts preparados ou migrations locais nao sao prova de validac
 - Views expostas devem respeitar RLS; em Postgres 15+, preferir `security_invoker = true`.
 - Funcoes `security definer` nao devem ficar em schema exposto.
 - `SUPABASE_SERVICE_ROLE_KEY` e somente server/operador autorizado; nunca browser, mobile, logs ou docs.
+- Auth SSR deve renovar sessao no proxy com claims validadas, nunca usar `getSession()` como autorizacao server-side, falhar fechado fora de `local-demo` quando Auth essencial estiver ausente e aceitar `next` apenas como caminho interno seguro.
 
 ## IA
 

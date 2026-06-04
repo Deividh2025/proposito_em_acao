@@ -1,4 +1,7 @@
+import "server-only";
+
 import type { User } from "@supabase/supabase-js";
+import { getAppRuntimeMode, getPublicEnv } from "@/lib/config";
 
 export function assertServerOnlySupabasePath() {
   if (typeof window !== "undefined") {
@@ -20,4 +23,23 @@ export function assertOwnUserId(user: User, userId: string) {
   if (!isOwnUserId(user, userId)) {
     throw new Error("User is not allowed to access this resource.");
   }
+}
+
+export function hasEssentialSupabaseConfig() {
+  const env = getPublicEnv();
+
+  return Boolean(
+    env.NEXT_PUBLIC_SUPABASE_URL &&
+      (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  );
+}
+
+export function requireEssentialSupabaseConfig() {
+  if (!hasEssentialSupabaseConfig()) {
+    throw new Error("Supabase public environment variables are required.");
+  }
+}
+
+export function shouldFailClosedForMissingSupabase() {
+  return getAppRuntimeMode() !== "local-demo";
 }

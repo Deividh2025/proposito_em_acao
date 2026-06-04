@@ -36,6 +36,8 @@ Chaves publicaveis devem usar `NEXT_PUBLIC_SUPABASE_ANON_KEY` para compatibilida
 
 Semantica obrigatoria: `local-draft ok:true` so pode representar modo `local-demo` sem configuracao/sessao ou fluxo local/mock sem persistencia real aplicavel. Em `preview`, `beta` e `production`, ausencia de configuracao obrigatoria, ausencia de sessao para escrita real ou falha real de Supabase/Auth/provider/e-mail/analytics/feedback deve retornar `ok:false` ou bloquear o fluxo. As flags acima nao ativam integracoes reais nesta etapa; elas apenas definem o contrato server-side.
 
+Para Auth SSR, `preview`, `beta` e `production` tambem devem falhar fechado quando `NEXT_PUBLIC_APP_URL`, Redirect URLs/Site URL do Supabase, cookies de sessao, callback/recovery ou SMTP Auth exigido nao estiverem configurados/validados. `local-demo` pode mostrar fallback local/dev, mas nao deve declarar persistencia, Auth externo ou e-mail real.
+
 ## OpenAI
 
 - `OPENAI_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
@@ -97,6 +99,13 @@ Manter vazias/desativadas ate aprovacao explicita:
 - `DEEPSEEK_API_KEY`, ate aprovar custo, rate limit, evals ampliados e roteamento por agente.
 - `EMAIL_PROVIDER`, `EMAIL_FROM` e futura `RESEND_API_KEY`, ate aprovar dominio, remetente, templates e SMTP Auth.
 
+Auth externo ainda pendente:
+
+- URL HTTPS publicada e dominio real ainda nao existem.
+- Site URL/Redirect URLs do Supabase ainda precisam ser preenchidos com URL real por ambiente.
+- SMTP customizado do Supabase Auth via Resend ainda precisa de dominio/remetente verificado.
+- Recovery, confirmacao e callback reais so podem ser validados apos esses itens.
+
 Gates manuais:
 
 - Dominio exato de preview/producao ainda nao definido.
@@ -123,3 +132,5 @@ Scripts:
 npm.cmd run supabase:types:preview
 npm.cmd run supabase:validate:preview
 ```
+
+Enquanto `npm.cmd run supabase:types:preview` nao rodar contra preview aprovado, `DB-TYPES-001` permanece aberto e `src/types/database.ts` nao deve ser tratado como schema real validado.

@@ -5,6 +5,7 @@ const publicEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   NEXT_PUBLIC_BETA_FEEDBACK_URL: z.string().url().optional().or(z.literal("")),
   NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional().or(z.literal("")),
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().optional().or(z.literal("")),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional().or(z.literal(""))
 });
 
@@ -42,6 +43,7 @@ export function getPublicEnv(): PublicEnv {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_BETA_FEEDBACK_URL: process.env.NEXT_PUBLIC_BETA_FEEDBACK_URL,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   });
 }
@@ -52,6 +54,7 @@ export function getServerEnv(): ServerEnv {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_BETA_FEEDBACK_URL: process.env.NEXT_PUBLIC_BETA_FEEDBACK_URL,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     APP_RUNTIME_MODE: process.env.APP_RUNTIME_MODE,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,

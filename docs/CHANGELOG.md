@@ -10,6 +10,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 - Etapa 2 adiciona migration local `20260603211654_accountability_acceptance_rls_hardening.sql` para hardening de aceite do Atalaia, com `invite_token_hash` no grant, triggers de imutabilidade e `search_path` seguro.
 - Harness Supabase preview passa a cobrir `atalia_invited`, tentativa de escalada de escopo, aceite de grant especifico e revogacao cortando leituras futuras.
+- Etapa 3 adiciona fundacao local de Auth SSR com `proxy.ts`, `src/lib/supabase/proxy.ts`, rotas `/auth/callback`, `/auth/confirm`, `/auth/error`, `/auth/forgot-password`, `/auth/update-password`, helpers server-only de sessao, queries minimas autenticadas e `/api/ready`.
 
 ### Changed
 
@@ -21,13 +22,15 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 - Etapa 2 remove policies diretas de update do convidado no aceite do Atalaia e concentra ativacao/revogacao em action server-side auditavel.
 - Nenhuma migration remota foi aplicada no Supabase principal; validacao preview da Etapa 2 segue pendente.
+- Etapa 3 usa `auth.getClaims()` no proxy SSR, `next` seguro apenas para paths internos, falha fechada fora de `local-demo` quando Supabase/Auth essencial falta e mantem `service_role` fora do barrel publico.
 
 ### Docs
 
 - Sincroniza fontes de verdade para o estado V1 local ampla / pre-beta real em 2026-06-03.
 - Registra decisoes atuais: Hostinger VPS KVM 1 com gate de upgrade, dominio Hostinger pendente, Supabase principal apos cutover validado, IA selecionavel `automatic`/`openai`/`deepseek`, consentimento por provider, sem fallback automatico entre providers, Resend transacional/SMTP Auth, analytics first-party Supabase opt-in off e retencao de 90 dias.
-- Formaliza bloqueadores de beta real: Auth SSR incompleto, tipos Supabase genericos, Atalaia/consentimento/auditoria, escrita sem confirmacao, health check liveness-only, CSP permissiva, ausencia de CI/branch protection/releases, Docker/rollback nao ensaiados e dados demonstrativos em rotas principais.
+- Formaliza bloqueadores de beta real: Auth externo ainda sem URL HTTPS/smoke, tipos Supabase genericos, Atalaia/consentimento/auditoria remotos, escrita sem confirmacao, readiness externo, CSP permissiva, ausencia de CI/branch protection/releases, Docker/rollback nao ensaiados e dados demonstrativos em rotas principais.
 - Separa evidencia historica de Supabase preview de evidencia fresca exigida antes de beta com usuarios reais.
+- Etapa 3 Subagente 5 detalha readiness documental de Auth/seguranca: SSR proxy/getClaims, falha fechada fora de `local-demo`, redirects seguros, Auth externo pendente sem URL HTTPS/SMTP/redirect real, typegen preview pendente e PWA/cache sem rotas Auth.
 
 ### Fixed
 

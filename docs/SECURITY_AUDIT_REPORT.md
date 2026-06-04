@@ -9,7 +9,7 @@ Veredito: seguranca ainda bloqueia beta real. A evidencia local e historica nao 
 Achados bloqueantes atuais:
 
 - S1 `SEC-CONSENT-001` residual: consentimento/auditoria do Atalaia foi reduzido na Etapa 2, mas consentimentos amplos de IA/analytics/feedback e validacao remota ainda nao foram fechados.
-- S1 `AUTH-SSR-001`: Auth SSR incompleto; faltam refresh centralizado, callback, confirmacao e recuperacao validados.
+- S1 `AUTH-SSR-001`: fundacao local de Auth SSR foi implementada, mas ainda falta validacao externa em URL HTTPS publicada com redirects reais, SMTP/Resend decidido e cookies reais.
 - S1 `DB-TYPES-001`: tipos reais Supabase ainda nao foram gerados a partir de preview aprovado.
 - S2 residual `SEC-CSP-001`: CSP de producao nao usa mais `unsafe-eval`, mas ainda permite `unsafe-inline` ate etapa de nonce/hash.
 - S1 `AI-GUARD-001`: path de provider de IA registra guardrails como `not_run`.
@@ -36,7 +36,7 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 | Atalaia com grant granular | Etapa 2 impede escalada local no aceite por action server-side, token hash no grant, triggers defensivas e testes negativos. |
 | Revogacao Atalaia | Actions cancelam pendentes, registram auditoria e revogam consentimento do grant; harness preview foi expandido, mas rerun remoto segue pendente. |
 | Logs sensiveis | IA audita metadados, sem prompt/resposta bruta por padrao. |
-| PWA/cache | Service worker cacheia apenas assets estaticos seguros e pagina offline. |
+| PWA/cache | Service worker cacheia apenas assets estaticos seguros e pagina offline; rotas Auth/callback/recovery e respostas autenticadas continuam proibidas para cache. |
 | Storage | Privado por padrao nas migrations locais. |
 
 ## Achados corrigidos
@@ -53,6 +53,7 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Etapa 2 removeu update direto do convidado em policies de aceite e adicionou triggers de imutabilidade em `app_private`.
 - Persistencia owner-only de Desbloqueador e Metacognicao passou a rodar guardrails antes de salvar structured output enviado pelo cliente.
 - Auth visual basico foi adicionado com server actions, sem service role e sem OAuth prematuro.
+- Etapa 3 adicionou proxy SSR com `auth.getClaims()`, rotas de callback/confirmacao/recuperacao, redirects seguros, protecao de rotas por runtime e `/api/ready`, sem expor `service_role`.
 
 ## Supabase remoto
 
@@ -65,7 +66,7 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 
 ## Riscos pendentes
 
-- Validar Supabase Auth real: signup, login, confirmacao de e-mail, logout, redirect e expiracao de sessao.
+- Validar Supabase Auth real: signup, login, confirmacao de e-mail, callback, recovery/update de senha, logout, redirect seguro, refresh/getClaims e expiracao de sessao.
 - Consentimentos de IA, analytics e feedback precisam ficar granulares, versionados, revogaveis e auditaveis antes do beta real.
 - Implementar retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA quando houver persistencia real.
 - Definir/exportar/excluir dados reflexivos, Chamado, revisoes e energia antes da primeira coleta real.

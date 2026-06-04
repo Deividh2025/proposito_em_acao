@@ -1,27 +1,26 @@
 # Supabase Auth
 
-## Estado atual verificado em 2026-06-03
+## Estado atual verificado em 2026-06-04
 
 - `/auth` existe como superficie basica para email/senha.
-- Auth SSR ainda esta incompleto: faltam refresh centralizado via middleware/proxy/route handler, callback, confirmacao de email e recuperacao completos.
-- Auth real nao foi validado em URL HTTPS publicada.
+- Fundacao local de Auth SSR foi implementada: `proxy.ts`, `src/lib/supabase/proxy.ts`, refresh/claims via `auth.getClaims()`, rotas de callback/confirmacao/recuperacao, `next` seguro, rotas protegidas e `/api/ready`.
+- Auth real nao foi validado em URL HTTPS publicada com redirects reais, SMTP real e cookies de ambiente final.
 - Resend foi decidido como SMTP customizado do Supabase Auth, mas ainda nao esta configurado.
+- `src/types/database.ts` permanece generico ate typegen real em preview aprovado.
 - Esse estado bloqueia beta real.
 
 ## Fluxo V1
 
 Auth inicial por email/senha, com confirmacao de email. OAuth fica para etapa futura.
 
-## Rotas futuras
+## Rotas Auth implementadas localmente
 
-- `/auth/sign-up`
-- `/auth/sign-in`
+- `/auth`
 - `/auth/callback`
+- `/auth/confirm`
+- `/auth/error`
 - `/auth/forgot-password`
 - `/auth/update-password`
-- `/auth/sign-out`
-- `/onboarding`
-- `/dashboard`
 
 ## Profile
 
@@ -39,6 +38,34 @@ O app usa `@supabase/ssr`:
 
 `src/lib/supabase/index.ts` nao reexporta o admin client.
 
+Contrato local implementado para SSR Auth:
+
+- `proxy.ts` chama `src/lib/supabase/proxy.ts`, que cria client por request, le cookies da request, escreve cookies na response e aplica headers retornados pelo `@supabase/ssr`.
+- Usar `auth.getClaims()` ou mecanismo equivalente de validacao local de JWT quando o ambiente estiver configurado para validar claims sem depender de metadata editavel pelo usuario; em acoes sensiveis, confirmar usuario no servidor com chamada apropriada antes de gravar ou compartilhar dados.
+- Tratar sessao ausente, token expirado, cookie invalido, erro de refresh e falha de Supabase como `ok:false`, redirect seguro ou bloqueio de fluxo em `preview`, `beta` e `production`.
+- Permitir fallback positivo `local-draft` apenas em `APP_RUNTIME_MODE=local-demo` quando a ausencia de configuracao/sessao for esperada e explicitamente comunicada ao usuario.
+- Nao confiar em `user_metadata` para roles, Atalaia, consentimentos, grants ou autorizacao sensivel.
+- Nao ler, registrar ou expor access token, refresh token, invite token, recovery token, magic link ou querystring sensivel em logs, analytics, feedback, PWA cache ou URLs de terceiros.
+
+Rotas/handlers locais:
+
+- Callback de confirmacao/login/recovery com allowlist de destinos internos.
+- Recuperacao e update de senha com token consumido apenas no servidor/SSR seguro.
+- Logout que limpa cookies de sessao e nao deixa estado autenticado em cache.
+- Redirecionamento pos-login para destino relativo aprovado, nunca URL arbitraria recebida do cliente.
+
+Pendencia externa antes de beta real: validar esses fluxos em URL HTTPS publicada com Site URL/Redirect URLs configurados no Supabase, SMTP/Resend definido ou explicitamente desativado no beta, cookies reais e smoke externo fresco.
+
+## Redirects seguros
+
+Regras obrigatorias:
+
+- `next`/`redirectTo` deve aceitar apenas path relativo interno ou item de allowlist por ambiente.
+- Nao usar wildcard amplo em producao; preferir URL exata do dominio aprovado.
+- Preview deve usar URL HTTPS exata publicada pelo provedor aprovado; localhost so vale para desenvolvimento local.
+- Querystrings com tokens de confirmacao, recovery, convite ou callback nao devem ser propagadas para analytics, feedback, logs ou links externos.
+- PWA/service worker nao deve interceptar nem cachear rotas `/auth`, callbacks, recovery, API auth, server actions ou respostas autenticadas.
+
 ## Redirects manuais no dashboard
 
 Configurar no Supabase:
@@ -49,6 +76,15 @@ Configurar no Supabase:
 - Producao: URL exata do dominio final aprovado, preferencialmente sem wildcard.
 
 O `NEXT_PUBLIC_APP_URL` do ambiente deve corresponder ao Site URL/redirect permitido. Confirmacao de e-mail, login, logout e expiracao de sessao devem ser validados por smoke test publicado antes de beta.
+
+Checklist minimo de readiness para beta:
+
+- URL HTTPS publicada e configurada em `NEXT_PUBLIC_APP_URL`, Site URL e Redirect URLs do Supabase.
+- SMTP customizado do Supabase Auth via Resend configurado com dominio/remetente verificado, ou e-mail real explicitamente mantido fora do beta.
+- Smoke externo cobre signup, confirmacao de e-mail, login, refresh/claims, rota protegida, logout, recovery/update de senha e redirects seguros.
+- `npm.cmd run supabase:types:preview` gera tipos reais a partir de preview aprovado e o diff de `src/types/database.ts` e revisado.
+- `npm.cmd run supabase:validate:preview` roda em branch/preview aprovado, com fixtures ficticios e evidencia fresca.
+- PWA validado em HTTPS sem cache de rotas Auth, cookies, tokens ou respostas autenticadas.
 
 ## Regras
 

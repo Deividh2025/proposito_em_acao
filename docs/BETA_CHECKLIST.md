@@ -38,15 +38,16 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [x] Pack de cutover Supabase preview existe em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 - [x] Scripts preparados: `supabase:types:preview` e `supabase:validate:preview`.
 - [x] Atalaia/RLS endurecido localmente contra escalada no aceite, com harness preview expandido para `atalia_invited`.
+- [x] Fundacao local de Auth SSR implementada com proxy/getClaims, callback, confirmacao, recovery, logout, redirects seguros, rotas protegidas por runtime e `/api/ready`.
 - [ ] Corrigir/validar bugs S0/S1 do `docs/BUG_TRIAGE.md`.
 - [ ] Publicar preview HTTPS em Hostinger/Coolify.
 - [ ] Configurar secrets de preview no provedor.
 - [ ] Validar Hostinger KVM 1 ou executar upgrade.
 - [ ] Aplicar migration de hardening do Atalaia em branch preview aprovada e repetir cutover/harness Supabase com evidencia fresca.
 - [ ] Gerar tipos Supabase reais e revisar diff.
-- [ ] Implementar/validar Auth SSR completo em URL publicada.
+- [ ] Validar Auth SSR completo em URL publicada, incluindo proxy/middleware, refresh/getClaims, callback, confirmacao, recovery, logout, cookies reais e redirects seguros.
 - [ ] Rodar smoke externo em URL HTTPS.
-- [ ] Validar PWA install/offline via HTTPS.
+- [ ] Validar PWA install/offline via HTTPS sem cache de rotas Auth, callback, recovery, API autenticada, server actions ou payloads privados.
 - [ ] Criar CI ou registrar alternativa de governanca antes de release publica.
 - [ ] Ensaiar rollback com release/tag/deployment conhecido.
 
@@ -64,6 +65,7 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [ ] Metacognicao, Chamado e Revisao privados por padrao.
 - [ ] Logs sem conteudo intimo.
 - [ ] PWA sem cache sensivel.
+- [ ] Auth externo com URL HTTPS, Site URL/Redirect URLs, SMTP Auth/Resend e recovery validados.
 - [ ] CSP endurecida ou risco formalmente aceito antes de producao.
 
 ## Produto/UX

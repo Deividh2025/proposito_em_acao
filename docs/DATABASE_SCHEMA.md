@@ -49,6 +49,8 @@ Schema implementado em:
 - Jardim: `garden_states`, `garden_events`.
 - Auditoria minima: `audit_events`, `ai_run_audits`.
 
+`ai_run_audits` deve guardar apenas metadados tecnicos: provider, modelo, `invocation_mode`, agente, prompt/schema version, status, `guardrail_status`, latencia, erro categorizado, fallback reason, consent version e timestamp. Prompt bruto, resposta bruta, conteudo intimo, tokens e secrets permanecem fora.
+
 ## Dados sensiveis
 
 Campos como `raw_thought`, `fact`, `interpretation`, `feeling`, `impulse`, `answers`, `ai_summary`, `ecological_analysis`, `content`, `completion_note`, `metadata_minimal` e `preview_payload` devem ser tratados com minimizacao e sem log bruto.

@@ -75,10 +75,16 @@ Salvar metadados, nao prompts brutos:
 - `schema_name`
 - `schema_version`
 - `agent_name`
+- `provider`
+- `model`
+- `invocation_mode`
 - `status`
 - `guardrail_status`
 - `latency_ms`
 - `error_code`
+- `fallback_reason`
+- `consent_version`
+- `created_at`/timestamp
 
 ## RLS planejada/aplicavel
 

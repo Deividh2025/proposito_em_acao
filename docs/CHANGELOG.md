@@ -12,6 +12,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Harness Supabase preview passa a cobrir `atalia_invited`, tentativa de escalada de escopo, aceite de grant especifico e revogacao cortando leituras futuras.
 - Etapa 3 adiciona fundacao local de Auth SSR com `proxy.ts`, `src/lib/supabase/proxy.ts`, rotas `/auth/callback`, `/auth/confirm`, `/auth/error`, `/auth/forgot-password`, `/auth/update-password`, helpers server-only de sessao, queries minimas autenticadas e `/api/ready`.
 - Etapa 4 adiciona queries server-only por dominio para carregar dados autenticados ou empty states reais nas principais interfaces.
+- Etapa 5 adiciona camada server-side de IA com providers `mock`, `openai` e `deepseek`, roteamento `automatic|openai|deepseek`, adapter DeepSeek, consentimento por provider, redaction recursiva e evals de runtime/guardrails.
 
 ### Changed
 
@@ -19,6 +20,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Permissoes do Atalaia passam a persistir exatamente a selecao revisada pelo dono, sem reintroduzir defaults do nivel automaticamente.
 - Criacao, aceite e revogacao do Atalaia passam a exigir consentimento/auditoria/notificacao obrigatoria ou retornar `ok:false`.
 - Rotas principais deixam de importar amostras diretamente em `src/app`/`src/components`; `local-demo` continua rotulado e separado de dados reais.
+- Actions elegiveis de IA passam pela camada `safeInvokeAi` com mock deterministico/fallback seguro para SMART-E, projetos, microtarefas, inbox, Desbloqueador, Metacognicao, Revisao Semanal/Jardim, Atalaia e Documento de Compromisso.
 
 ### Security
 
@@ -26,6 +28,8 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Nenhuma migration remota foi aplicada no Supabase principal; validacao preview da Etapa 2 segue pendente.
 - Etapa 3 usa `auth.getClaims()` no proxy SSR, `next` seguro apenas para paths internos, falha fechada fora de `local-demo` quando Supabase/Auth essencial falta e mantem `service_role` fora do barrel publico.
 - Etapa 4 usa usuario autenticado + RLS para leituras normais de UI, sem `service_role`, e mantem Atalaia limitado a grants sanitizados.
+- Etapa 5 mantem `AI_REAL_ENABLED=false` por default, bloqueia provider real sem consentimento versionado e remove `guardrail_status: not_run` dos caminhos provider/mock.
+- Etapa 5 proibe fallback automatico entre OpenAI e DeepSeek; falha usa fallback local seguro ou fluxo manual.
 
 ### Docs
 
@@ -34,6 +38,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Formaliza bloqueadores de beta real: Auth externo ainda sem URL HTTPS/smoke, tipos Supabase genericos, Atalaia/consentimento/auditoria remotos, escrita sem confirmacao, readiness externo, CSP permissiva, ausencia de CI/branch protection/releases, Docker/rollback nao ensaiados e dados demonstrativos em rotas principais.
 - Separa evidencia historica de Supabase preview de evidencia fresca exigida antes de beta com usuarios reais.
 - Etapa 3 Subagente 5 detalha readiness documental de Auth/seguranca: SSR proxy/getClaims, falha fechada fora de `local-demo`, redirects seguros, Auth externo pendente sem URL HTTPS/SMTP/redirect real, typegen preview pendente e PWA/cache sem rotas Auth.
+- Etapa 5 sincroniza docs de IA, guardrails, evals, seguranca, ambiente, bug triage, release e beta com OpenAI/DeepSeek server-side ainda desativados para chamadas reais.
 
 ### Fixed
 
@@ -121,7 +126,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Skills locais novas: `qa-final-v1-skill`, `release-readiness-skill`, `security-audit-skill` e `regression-testing-skill`.
 - Documentacao operacional do Prompt 16: `PRODUCTION_DEPLOYMENT.md`, `PRODUCTION_ENVIRONMENT.md`, `SMOKE_TEST_REPORT.md`, `ROLLBACK_PLAN.md`, `OPERATIONS_RUNBOOK.md` e `BETA_CHECKLIST.md`.
 - Skills locais novas: `production-deploy-skill`, `hostinger-deploy-skill`, `production-secrets-skill`, `smoke-test-skill` e `rollback-skill`.
-- Decisoes operacionais registradas: VPS Hostinger, Coolify, dono Deividh de Sa, e-mail operacional `deividhvianei@gmail.com`, OpenAI API e DeepSeek API com `deepseek-v4-flash` e `deepseek-v4-pro`.
+- Decisoes operacionais registradas: VPS Hostinger, Coolify, dono Deividh de Sa, e-mail operacional `deividhvianei@gmail.com`, OpenAI API e DeepSeek API com modelos configuraveis por ambiente.
 - Documentacao do Prompt 17 para beta fechado, metricas, analytics seguro, feedback, bug triage, feedback triage, suporte, incident response, monitoramento pos-deploy e roadmap V1.1.
 - Dominios `src/domain/analytics` e `src/domain/feedback` com allowlist/sanitizacao de eventos e rascunho local de feedback beta.
 - Componentes `src/components/feedback/FeedbackButton.tsx` e `src/components/feedback/FeedbackForm.tsx`, expostos no painel desktop e hub mobile.

@@ -15,22 +15,44 @@ const disabledByDefaultFlagSchema = z
   .preprocess((value) => (value === true || value === "true" ? "true" : "false"), z.enum(["true", "false"]))
   .transform((value) => value === "true");
 
+const aiProviderDefaultSchema = z.enum(["automatic", "openai", "deepseek"]).default("automatic");
+
+const positiveIntegerEnvSchema = (defaultValue: number) =>
+  z
+    .preprocess((value) => {
+      if (value === undefined || value === null || value === "") {
+        return undefined;
+      }
+
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : value;
+    }, z.number().int().positive().optional())
+    .transform((value) => value ?? defaultValue);
+
+const optionalStringEnvSchema = z.string().optional().or(z.literal(""));
+
 const serverEnvSchema = publicEnvSchema.extend({
   APP_RUNTIME_MODE: runtimeModeSchema.default("local-demo"),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().optional().or(z.literal("")),
-  SUPABASE_PROJECT_ID: z.string().optional().or(z.literal("")),
+  SUPABASE_SERVICE_ROLE_KEY: optionalStringEnvSchema,
+  SUPABASE_PROJECT_ID: optionalStringEnvSchema,
   AI_REAL_ENABLED: disabledByDefaultFlagSchema.default(false),
   EMAIL_REAL_ENABLED: disabledByDefaultFlagSchema.default(false),
   ANALYTICS_REAL_ENABLED: disabledByDefaultFlagSchema.default(false),
   FEEDBACK_REAL_ENABLED: disabledByDefaultFlagSchema.default(false),
-  OPENAI_API_KEY: z.string().optional().or(z.literal("")),
-  OPENAI_MODEL: z.string().optional().or(z.literal("")),
-  DEEPSEEK_API_KEY: z.string().optional().or(z.literal("")),
-  DEEPSEEK_BASE_URL: z.string().url().optional().or(z.literal("")),
-  DEEPSEEK_MODEL_FLASH: z.string().optional().or(z.literal("")),
-  DEEPSEEK_MODEL_PRO: z.string().optional().or(z.literal("")),
-  EMAIL_PROVIDER: z.string().optional().or(z.literal("")),
-  EMAIL_FROM: z.string().optional().or(z.literal(""))
+  AI_PROVIDER_DEFAULT: aiProviderDefaultSchema,
+  AI_REQUEST_TIMEOUT_MS: positiveIntegerEnvSchema(20_000),
+  AI_DAILY_USER_LIMIT: positiveIntegerEnvSchema(50),
+  AI_AUDIT_RETENTION_DAYS: positiveIntegerEnvSchema(90),
+  OPENAI_API_KEY: optionalStringEnvSchema,
+  OPENAI_MODEL: optionalStringEnvSchema,
+  OPENAI_MODEL_FAST: optionalStringEnvSchema.default("gpt-5.4-mini"),
+  OPENAI_MODEL_PRO: optionalStringEnvSchema.default("gpt-5.5"),
+  DEEPSEEK_API_KEY: optionalStringEnvSchema,
+  DEEPSEEK_BASE_URL: z.string().url().optional().or(z.literal("")).default("https://api.deepseek.com"),
+  DEEPSEEK_MODEL_FLASH: optionalStringEnvSchema.default("deepseek-chat"),
+  DEEPSEEK_MODEL_PRO: optionalStringEnvSchema.default("deepseek-reasoner"),
+  EMAIL_PROVIDER: optionalStringEnvSchema,
+  EMAIL_FROM: optionalStringEnvSchema
 });
 
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
@@ -63,8 +85,14 @@ export function getServerEnv(): ServerEnv {
     EMAIL_REAL_ENABLED: process.env.EMAIL_REAL_ENABLED,
     ANALYTICS_REAL_ENABLED: process.env.ANALYTICS_REAL_ENABLED,
     FEEDBACK_REAL_ENABLED: process.env.FEEDBACK_REAL_ENABLED,
+    AI_PROVIDER_DEFAULT: process.env.AI_PROVIDER_DEFAULT,
+    AI_REQUEST_TIMEOUT_MS: process.env.AI_REQUEST_TIMEOUT_MS,
+    AI_DAILY_USER_LIMIT: process.env.AI_DAILY_USER_LIMIT,
+    AI_AUDIT_RETENTION_DAYS: process.env.AI_AUDIT_RETENTION_DAYS,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     OPENAI_MODEL: process.env.OPENAI_MODEL,
+    OPENAI_MODEL_FAST: process.env.OPENAI_MODEL_FAST,
+    OPENAI_MODEL_PRO: process.env.OPENAI_MODEL_PRO,
     DEEPSEEK_API_KEY: process.env.DEEPSEEK_API_KEY,
     DEEPSEEK_BASE_URL: process.env.DEEPSEEK_BASE_URL,
     DEEPSEEK_MODEL_FLASH: process.env.DEEPSEEK_MODEL_FLASH,

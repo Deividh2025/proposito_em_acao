@@ -500,12 +500,39 @@ describe("AI deterministic guardrails", () => {
     expect(review.blocked_behaviors).toContain("therapy_replacement");
   });
 
+  it("blocks diagnosis requests without blocking anti-diagnosis language", () => {
+    const unsafeReview = reviewClinicalGuardrails("Me diagnostique com TDAH agora.");
+    const safeReview = reviewClinicalGuardrails("Sem diagnostico, somente uma revisao segura.");
+
+    expect(unsafeReview.allowed).toBe(false);
+    expect(unsafeReview.blocked_behaviors).toContain("diagnosis");
+    expect(safeReview.allowed).toBe(true);
+  });
+
   it("blocks pastoral determinism and spiritual guilt", () => {
     const review = reviewPastoralGuardrails("Deus mandou voce fazer isso; se voce nao fizer e falta de fe.");
 
     expect(review.allowed).toBe(false);
     expect(review.blocked_behaviors).toContain("specific_divine_will_claim");
     expect(review.blocked_behaviors).toContain("spiritual_guilt");
+  });
+
+  it("blocks humiliating shame without blocking shame-prevention language", () => {
+    const unsafeReview = reviewPastoralGuardrails("Que vergonha, voce e um fracassado.");
+    const safeReview = reviewPastoralGuardrails("Dar o primeiro passo sem transformar isso em vergonha.");
+
+    expect(unsafeReview.allowed).toBe(false);
+    expect(unsafeReview.blocked_behaviors).toContain("humiliation");
+    expect(safeReview.allowed).toBe(true);
+  });
+
+  it("blocks harmful punishment without blocking anti-punishment language", () => {
+    const unsafeReview = reviewPastoralGuardrails("Use punicao e fique sem comer se falhar.");
+    const safeReview = reviewPastoralGuardrails("Convite de cuidado, nao punicao.");
+
+    expect(unsafeReview.allowed).toBe(false);
+    expect(unsafeReview.blocked_behaviors).toContain("harmful_punishment");
+    expect(safeReview.allowed).toBe(true);
   });
 
   it("blocks private data sharing with accountability without consent", () => {

@@ -92,3 +92,25 @@ Data: 2026-06-04.
 | `QA-INT-001` | Cobertura local ampliada para mappers, contrato de runtime de dados autenticados, queries de execucao, rotina diaria, mobile e Atalaia. | `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test` (31 arquivos/170 testes), `npm.cmd run build`, `npm.cmd run test:e2e` (33 testes), `git diff --check` e secret scan do diff passaram localmente. |
 
 Pendencia: smoke autenticado externo, typegen real e `supabase:validate:preview` nao foram executados nesta etapa local.
+
+## Etapa 5 - IA real preparada com roteamento seguro
+
+Data: 2026-06-04.
+
+| Bug | Correcao | Evidencia |
+|---|---|---|
+| `AI-GUARD-001` | `safeInvokeAi` passa a executar guardrails antes do provider e depois da validacao Zod; auditoria remove `not_run` e usa `passed`, `blocked` ou `failed`, com `invocation_mode`, consentimento e fallback reason. | `src/lib/openai/safeInvoke.ts`, `src/ai/schemas/base.ts`, `src/tests/unit/ai-provider-routing.test.ts`, `src/ai/evals/guardrail-io.cases.ts`. |
+| `AI-DEEPSEEK-001` | DeepSeek ganhou adapter server-only em `src/lib/deepseek/provider.ts`, usando API compativel OpenAI quando aplicavel e validando JSON com Zod. | `src/lib/deepseek/provider.ts`, `src/tests/unit/ai-provider-routing.test.ts`. |
+| `SEC-CONSENT-001` | Roteamento/invoker real de IA checa consentimento versionado por provider antes de liberar rota real; ausencia, revogacao ou consentimento de outro provider retorna fallback local seguro. | `src/lib/ai/routing.ts`, `src/lib/ai/invoke.ts`, `src/ai/evals/consent.cases.ts`, `src/tests/unit/ai-provider-routing.test.ts`. |
+| `QA-INT-001` | Evals/testes locais ampliados para provider routing, kill switch, falha sem fallback cruzado, schema invalido, timeout, redaction e guardrails IO. | `src/ai/evals/provider-runtime.cases.ts`, `src/ai/evals/consent.cases.ts`, `src/ai/evals/guardrail-io.cases.ts`, `src/tests/unit/ai-provider-routing.test.ts`. |
+
+Nenhuma chamada real a OpenAI ou DeepSeek foi executada. Ativacao real continua bloqueada por secrets server-side, consentimento persistido, evals reais aprovados, custos/rate limits e kill switch explicitamente ligado.
+
+Testes executados nesta etapa:
+
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 32 arquivos e 190 testes.
+- `npm.cmd run build`: passou, 44 paginas/rotas geradas.
+- `npm.cmd run test:e2e`: passou, 33 testes.
+- `git diff --check`: passou, apenas avisos CRLF do Windows.

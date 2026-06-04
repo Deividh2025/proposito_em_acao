@@ -112,14 +112,14 @@ Server-side, somente quando aprovadas:
 Decisao do fundador:
 
 - Usar OpenAI API.
-- Usar DeepSeek API com os modelos `deepseek-v4-flash` e `deepseek-v4-pro`.
+- Usar DeepSeek API com modelos configuraveis por ambiente, inicialmente `deepseek-chat` e `deepseek-reasoner`.
 
 Regra operacional:
 
 - Chaves ficam apenas server-side no Coolify.
 - Provider e modelo precisam ser escolhidos por agente/fluxo antes de ativar.
-- `deepseek-v4-flash` deve ser considerado candidato para fluxos de menor custo/latencia.
-- `deepseek-v4-pro` deve ser considerado candidato para fluxos de maior complexidade, apos evals.
+- `deepseek-chat` deve ser considerado candidato para fluxos de menor custo/latencia.
+- `deepseek-reasoner` deve ser considerado candidato para fluxos de maior complexidade, apos evals.
 - OpenAI permanece candidato para fluxos que exigirem melhor aderencia a structured outputs/evals.
 - Nenhum provider real deve receber Metacognicao, Chamado, Atalaia ou revisoes privadas sem minimizacao, guardrail, logs seguros e aprovacao.
 

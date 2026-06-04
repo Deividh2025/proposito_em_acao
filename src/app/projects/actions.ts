@@ -1,5 +1,6 @@
 "use server";
 
+import { projectPlanOutputSchema } from "@/ai/schemas";
 import { buildProjectPlanMock } from "@/domain/projects";
 import {
   createProjectFromGoalInputSchema,
@@ -17,10 +18,20 @@ import {
   validationErrorResult
 } from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { invokeMockedAiOutput } from "@/lib/ai/mock-invoke";
 
 export async function generateProjectPlanDraft(input: unknown) {
   const parsed = createProjectFromGoalInputSchema.parse(input);
-  return buildProjectPlanMock(parsed);
+  const output = projectPlanOutputSchema.parse(buildProjectPlanMock(parsed));
+
+  return invokeMockedAiOutput({
+    agentKey: "planner",
+    schema: projectPlanOutputSchema,
+    schemaName: "project_plan_output_v1",
+    promptVersion: "planner_prompt_v1",
+    input: parsed,
+    output
+  });
 }
 
 export async function persistProjectPlan(input: unknown): Promise<ExecutionActionResult> {

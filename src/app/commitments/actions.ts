@@ -1,5 +1,6 @@
 "use server";
 
+import { commitmentDocumentOutputSchema } from "@/ai/schemas";
 import {
   buildCommitmentDocumentDraft,
   commitmentDocumentActionResultSchema,
@@ -16,6 +17,7 @@ import {
   safeParseActionInput,
   supabaseSuccessResult
 } from "@/domain/execution/action-results";
+import { invokeMockedAiOutput } from "@/lib/ai/mock-invoke";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function errorDraft(message: string): BasicCommitmentDocumentActionResult {
@@ -25,9 +27,17 @@ function errorDraft(message: string): BasicCommitmentDocumentActionResult {
 export async function generateCommitmentDocumentDraft(input: unknown): Promise<CommitmentDocumentActionResult> {
   const parsed = createCommitmentDocumentInputSchema.parse(input);
   const draft = buildCommitmentDocumentDraft(parsed);
+  const document = await invokeMockedAiOutput({
+    agentKey: "commitmentDocument",
+    schema: commitmentDocumentOutputSchema,
+    schemaName: "commitment_document_output_v1",
+    promptVersion: "commitment_document_prompt_v1",
+    input: parsed,
+    output: draft.document
+  });
 
   return commitmentDocumentActionResultSchema.parse({
-    draft,
+    draft: { ...draft, document },
     message: "Mock seguro gerou Documento de Compromisso revisavel. Nenhuma chamada OpenAI real foi feita.",
     mode: "local-draft",
     ok: true

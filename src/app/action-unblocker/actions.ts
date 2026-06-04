@@ -21,6 +21,7 @@ import {
   supabaseSuccessResult
 } from "@/domain/execution/action-results";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { invokeMockedAiOutput } from "@/lib/ai/mock-invoke";
 
 const GENERIC_ACTION_UNBLOCKER_ERROR =
   "Nao foi possivel salvar a sessao do Desbloqueador agora. Tente novamente.";
@@ -51,7 +52,14 @@ async function belongsToUser(
 
 export async function generateActionUnblockerPlan(input: unknown): Promise<ActionUnblockerActionResult> {
   const parsed = createActionUnblockerSessionInputSchema.parse(input);
-  const output = actionUnblockerOutputSchema.parse(buildActionUnblockerMock(parsed));
+  const output = await invokeMockedAiOutput({
+    agentKey: "actionUnblocker",
+    schema: actionUnblockerOutputSchema,
+    schemaName: "action_unblocker_output_v1",
+    promptVersion: "action_unblocker_prompt_v1",
+    input: parsed,
+    output: actionUnblockerOutputSchema.parse(buildActionUnblockerMock(parsed))
+  });
 
   return localDraft("Plano mock seguro gerado com revisao obrigatoria.", output);
 }

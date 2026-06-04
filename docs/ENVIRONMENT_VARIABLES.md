@@ -41,18 +41,27 @@ Para Auth SSR, `preview`, `beta` e `production` tambem devem falhar fechado quan
 ## OpenAI
 
 - `OPENAI_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
-- `OPENAI_MODEL`: modelo OpenAI aprovado por ambiente/fluxo; nao e secret, mas deve ser controlado por ambiente.
+- `OPENAI_MODEL_FAST`: modelo rapido aprovado por ambiente/fluxo. Placeholder atual: `gpt-5.4-mini`.
+- `OPENAI_MODEL_PRO`: modelo pro aprovado por ambiente/fluxo. Placeholder atual: `gpt-5.5`.
+- `OPENAI_MODEL`: legado/fallback de compatibilidade quando `OPENAI_MODEL_FAST` ou `OPENAI_MODEL_PRO` nao estiverem definidos.
 
-O seletor de provider planejado aceitara `automatic`, `openai` e `deepseek`, com padrao `automatic`. A variavel de selecao ainda nao foi implementada no codigo; quando for adicionada, deve ser server-side/configuracao segura e respeitar consentimento por provider.
+O seletor server-side de provider aceita `automatic`, `openai` e `deepseek`, com padrao `automatic`. A rota real continua bloqueada por `AI_REAL_ENABLED=false` ate secrets, consentimento versionado, evals aprovados e kill switch explicitamente ligado.
 
 ## DeepSeek
 
 - `DEEPSEEK_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
 - `DEEPSEEK_BASE_URL`: base URL server-side. Valor planejado: `https://api.deepseek.com`.
-- `DEEPSEEK_MODEL_FLASH`: modelo DeepSeek rapido/custo menor. Valor planejado: `deepseek-v4-flash`.
-- `DEEPSEEK_MODEL_PRO`: modelo DeepSeek de maior capacidade. Valor planejado: `deepseek-v4-pro`.
+- `DEEPSEEK_MODEL_FLASH`: modelo DeepSeek rapido/custo menor. Placeholder atual: `deepseek-chat`.
+- `DEEPSEEK_MODEL_PRO`: modelo DeepSeek de maior capacidade. Placeholder atual: `deepseek-reasoner`.
 
-DeepSeek foi aprovado como provider planejado pelo fundador, junto com OpenAI. Ativacao real ainda exige guardrails, evals, custos, rate limit e roteamento por agente.
+DeepSeek foi aprovado como provider pelo fundador, junto com OpenAI, e possui adapter server-only. Ativacao real ainda exige guardrails/evals reais, custos, rate limit persistente, consentimento por provider e kill switch.
+
+## IA operacional
+
+- `AI_PROVIDER_DEFAULT`: preferencia server-side default. Valores aceitos: `automatic`, `openai`, `deepseek`; default `automatic`.
+- `AI_REQUEST_TIMEOUT_MS`: timeout por chamada de provider; default local `20000`.
+- `AI_DAILY_USER_LIMIT`: limite diario por usuario; default local `50`. Persistencia real de quota ainda depende de etapa propria.
+- `AI_AUDIT_RETENTION_DAYS`: retencao futura dos metadados de auditoria de IA; default `90`.
 
 ## Email
 

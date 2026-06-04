@@ -66,7 +66,7 @@ Tratar como sensiveis desde o modelo de produto:
 - Saidas que viram dados devem ser validadas por schema.
 - Usuario deve revisar mudancas que alterem agenda, alvos, tarefas ou mensagens a Atalaia.
 - Prompt 7 adiciona provider OpenAI server-only, provider mock, safe invoke e metadados `ai_run_audit_v1`.
-- Prompt 16 aprova DeepSeek como provider planejado adicional, tambem server-only, com modelos `deepseek-v4-flash` e `deepseek-v4-pro`; a chave DeepSeek nao pode ir para client, logs ou `NEXT_PUBLIC_*`.
+- Prompt 16 aprova DeepSeek como provider planejado adicional, tambem server-only, com modelos configuraveis (`deepseek-chat` e `deepseek-reasoner` como placeholders atuais); a chave DeepSeek nao pode ir para client, logs ou `NEXT_PUBLIC_*`.
 - Provider real existe como preparacao tecnica; fluxos de produto continuam sem chamada real por padrao.
 - Falhas reais de escrita no Supabase nao devem ser reportadas como persistencia local bem-sucedida; somente ausencia de configuracao pode cair em fallback local/dev positivo.
 - Prompt 8 adiciona alvos/projetos/tarefas/microtarefas com mock seguro; analise ecologica, Chamado e rotina nao devem ir para logs ou Atalaia.

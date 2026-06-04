@@ -51,6 +51,15 @@ Padronizar registro, severidade, reproducao e fechamento de bugs do beta fechado
 | QA-INT-001 | Reduzido | Adicionados testes unitarios de contrato de dados autenticados, mappers Supabase, queries de execucao/rotina/mobile/Atalaia e privacidade de Atalaia; suites locais passaram, mas preview/Auth/RLS real segue pendente. |
 | PWA-AUTH-CACHE-001 | Mantido como pendente | Mobile usa dados minimos autenticados ou vazio real, mas a prova negativa em HTTPS/CacheStorage ainda depende de preview publicado. |
 
+## Fechados ou reduzidos na Etapa 5
+
+| ID | Status | Evidencia |
+|---|---|---|
+| AI-GUARD-001 | Fechado localmente | `safeInvokeAi` executa guardrails de entrada/saida e `ai_run_audit_v1` aceita apenas `passed`, `blocked` ou `failed`; teste focado cobre provider/mock sem `not_run`, crise antes do provider, schema invalido, timeout e fallback seguro. |
+| AI-DEEPSEEK-001 | Fechado localmente | `src/lib/deepseek/provider.ts` implementa adapter server-only com API compativel OpenAI, JSON parse e validacao Zod; teste mockado cobre DeepSeek sem chamada real. Ativacao real segue bloqueada por secrets/evals/consentimento/kill switch. |
+| SEC-CONSENT-001 | Reduzido para IA | Roteamento/invoker real de IA checa consentimento versionado por provider antes da chamada e retorna fallback local seguro quando ausente/revogado; persistencia ampla de consentimentos segue gate de LGPD/banco. |
+| QA-INT-001 | Reduzido | Evals e unit tests de provider routing cobrem OpenAI/DeepSeek mockados, roteamento, consentimento, kill switch, falha sem fallback cruzado, schema invalido, timeout, redaction e guardrails IO. |
+
 ## Ledger aberto
 
 | ID | Sev | Dominio | Titulo | Evidencia | Proximo passo | Criterio de fechamento |
@@ -60,8 +69,6 @@ Padronizar registro, severidade, reproducao e fechamento de bugs do beta fechado
 | OPS-HEALTH-001 | S1 | Operacao | Readiness externo nao validado | `/api/ready` existe localmente, mas ainda nao foi validado em preview/deploy aprovado | Rodar smoke externo em URL HTTPS e confirmar falha fechada quando config essencial faltar | Smoke externo usa endpoint que detecta Supabase/Auth/config ausente |
 | OPS-GH-001 | S1 | GitHub/release | Sem CI, branch protection efetiva ou releases | API GitHub: `main` protected false, zero workflows, zero releases | Criar workflow/gates, tags/release process ou registrar limitacao operacional aceita | PR/release exige CI verde e rollback referenciavel |
 | OPS-DOCKER-001 | S1 | Deploy | Docker/rollback nao ensaiados | Dockerfile sem `HEALTHCHECK`; imagem nao validada nesta auditoria; sem releases/deployments | Validar build da imagem, healthcheck e rollback Coolify | Smoke de container e rollback rehearsal documentados |
-| AI-GUARD-001 | S1 | IA | Provider path registra guardrails como `not_run` | `src/lib/openai/safeInvoke.ts` retorna auditoria com `guardrail_status: "not_run"` | Integrar guardrail reviewer antes/depois do provider | Evals negativos e teste do provider comprovam guardrails executados |
-| AI-DEEPSEEK-001 | S1 | IA | DeepSeek decidido, mas nao implementado | Variaveis existem; tipos aceitam apenas `mock`/`openai` | Implementar adapter DeepSeek server-only ou manter desativado no beta | Provider `deepseek` testado ou explicitamente bloqueado por feature flag |
 | ANALYTICS-001 | S1 | Analytics/LGPD | Analytics nao bloqueia coleta sem consentimento | Contrato local ainda aceita evento sem persistencia; docs exigem bloqueio | Implementar opt-in off, revogacao e retencao 90 dias antes de persistir | Teste confirma ausencia/revogacao de consentimento bloqueia evento |
 | EMAIL-RESEND-001 | S1 | Email/Auth | Resend decidido, mas nao implementado/configurado | Docs atualizados; codigo ainda sem adapter Resend/SMTP Auth | Implementar adapter server-only, dominio, SMTP Auth e templates seguros | E-mail real passa smoke com dominio verificado e sem dados sensiveis |
 | PROD-DEMO-001 | S1 | Produto/dados | Smoke autenticado externo ainda nao comprovou ausencia de demo | Etapa 4 removeu `sample*` direto de `src/app`/`src/components` e usa empty states/queries, mas faltam URL HTTPS, Auth real e RLS remoto fresco | Rodar smoke autenticado contra preview aprovado cobrindo dashboard, goals/tasks, calendar/inbox, accountability e mobile | Smoke autenticado mostra dados do usuario ou vazio real; nenhuma amostra aparece fora de `local-demo` |

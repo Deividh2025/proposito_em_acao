@@ -40,6 +40,7 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [x] Atalaia/RLS endurecido localmente contra escalada no aceite, com harness preview expandido para `atalia_invited`.
 - [x] Fundacao local de Auth SSR implementada com proxy/getClaims, callback, confirmacao, recovery, logout, redirects seguros, rotas protegidas por runtime e `/api/ready`.
 - [x] Etapa 4 preparada localmente para substituir dados demonstrativos por queries autenticadas/empty states, mantendo amostras apenas em `local-demo`.
+- [x] Etapa 5 preparada localmente para roteamento seguro OpenAI/DeepSeek, consentimento por provider, guardrails executados e fallback local sem fallback cruzado.
 - [ ] Corrigir/validar bugs S0/S1 do `docs/BUG_TRIAGE.md`.
 - [ ] Publicar preview HTTPS em Hostinger/Coolify.
 - [ ] Configurar secrets de preview no provedor.
@@ -58,6 +59,8 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [ ] Service role somente server-side.
 - [ ] OpenAI/DeepSeek keys somente server-side, se ativadas.
 - [ ] Consentimento especifico por provider de IA antes de IA real.
+- [x] Kill switch `AI_REAL_ENABLED=false` permanece default e bloqueia provider real localmente.
+- [x] Roteamento local de IA nao faz fallback automatico entre OpenAI e DeepSeek.
 - [ ] Consentimento de analytics/feedback antes de coleta real.
 - [ ] Retencao de 90 dias implementada quando houver persistencia de analytics/feedback/auditoria de IA.
 - [ ] `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se usada, sem tokens, query sensivel ou dados pessoais.

@@ -2,7 +2,7 @@
 
 Data: 2026-06-02.
 
-## Estado atual verificado em 2026-06-03
+## Estado atual verificado em 2026-06-04
 
 Veredito: seguranca ainda bloqueia beta real. A evidencia local e historica nao deve ser usada para declarar producao pronta.
 
@@ -12,7 +12,6 @@ Achados bloqueantes atuais:
 - S1 `AUTH-SSR-001`: fundacao local de Auth SSR foi implementada, mas ainda falta validacao externa em URL HTTPS publicada com redirects reais, SMTP/Resend decidido e cookies reais.
 - S1 `DB-TYPES-001`: tipos reais Supabase ainda nao foram gerados a partir de preview aprovado.
 - S2 residual `SEC-CSP-001`: CSP de producao nao usa mais `unsafe-eval`, mas ainda permite `unsafe-inline` ate etapa de nonce/hash.
-- S1 `AI-GUARD-001`: path de provider de IA registra guardrails como `not_run`.
 
 Ver `docs/BUG_TRIAGE.md` para IDs, evidencias e criterios de fechamento.
 
@@ -56,6 +55,7 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Etapa 3 adicionou proxy SSR com `auth.getClaims()`, rotas de callback/confirmacao/recuperacao, redirects seguros, protecao de rotas por runtime e `/api/ready`, sem expor `service_role`.
 - Etapa 4 moveu leituras de UI para queries server-only por usuario autenticado, sem `service_role`, e impediu amostras de parecerem dados reais fora de `local-demo`.
 - Etapa 4 manteve Metacognicao, Inbox, Calendario, Revisao, Jardim e Atalaia como privados/owner-only na UI, com Atalaia lendo apenas grants compartilhados e sanitizados.
+- Etapa 5 removeu `guardrail_status: not_run` da auditoria de IA, adicionou roteamento server-side OpenAI/DeepSeek com kill switch default off, consentimento por provider e redaction recursiva de metadados.
 
 ## Supabase remoto
 

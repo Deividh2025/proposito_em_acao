@@ -157,6 +157,83 @@ Reverter o commit/PR da Etapa 4. Como nao ha migrations nem policies novas, roll
 
 `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/FRONTEND_ARCHITECTURE.md`, `docs/BACKEND_ARCHITECTURE.md`, `docs/TESTING_STRATEGY.md`, `docs/SECURITY_AUDIT_REPORT.md`, `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md`, `docs/CHANGELOG.md` e docs especificas de modulo quando comportamento mudar.
 
+## Plano - Etapa 5 IA real com OpenAI/DeepSeek, consentimento, roteamento e guardrails
+
+## Objetivo
+
+Implementar a camada server-side de providers OpenAI/DeepSeek com roteamento por preferencia, kill switch, consentimento por provider, guardrails antes/depois do provider, schema validation, fallback local seguro e auditoria minima sem prompt/resposta bruta.
+
+## Contexto
+
+Lidos `AGENTS.md`, `PLANS.md`, `docs/AI_ARCHITECTURE.md`, `docs/AI_AGENTS.md`, `docs/AI_GUARDRAILS.md`, `docs/AI_EVALS.md`, `docs/OPENAI_INTEGRATION_PLAN.md`, `docs/SECURITY_PRIVACY.md`, `docs/DATA_SENSITIVITY_MATRIX.md`, `docs/ENVIRONMENT_VARIABLES.md`, `docs/BUG_TRIAGE.md` e `docs/RELEASE_READINESS.md`. PRs #1 a #6 foram confirmados mergeados na `main` em 2026-06-04; a `main` local esta em `ab238cf`. Docs oficiais consultadas: OpenAI Responses API/Structured Outputs/modelos atuais e DeepSeek API/JSON Output. Decisoes fixas: `automatic|openai|deepseek`, default `automatic`, sem fallback automatico entre providers, IA real bloqueada por `AI_REAL_ENABLED=false` ate aprovacao operacional.
+
+## Arquivos envolvidos
+
+- Criar: `src/lib/deepseek/**` ou helpers em `src/lib/ai/**`, testes focados de provider/routing/consentimento/evals.
+- Modificar: `src/lib/openai/**`, `src/ai/**`, actions elegiveis que hoje usam mocks, `.env.example`, `src/lib/config/env.ts`, docs obrigatorias da etapa.
+- Nao tocar: migrations/RLS/Auth/roles/grants, Resend/e-mail real, analytics/feedback real, deploy/Coolify, CI/CD, chaves reais e qualquer ativacao de provider real por padrao.
+
+## Subagentes necessarios
+
+- Subagente 1: Providers e roteamento, sem UI.
+- Subagente 2: Guardrails e structured outputs.
+- Subagente 3: Consentimento, privacidade, redaction e auditoria.
+- Subagente 4: Evals e testes negativos/positivos.
+- Subagente 5: Docs e release readiness.
+
+## Skills necessarias
+
+`execution-plan-skill`, `openai-integration-skill`, `ai-guardrails-skill`, `ai-evals-skill`, `ai-structured-output-skill`, `prompt-versioning-skill`, `security-privacy-skill`, `pastoral-safety-skill`, `metacognition-skill`, `testing-architecture-skill`, `docs-sync-skill`, `github:github`, `github:yeet`, `superpowers:test-driven-development` e `superpowers:verification-before-completion`.
+
+## Riscos
+
+- Chamar OpenAI/DeepSeek real sem kill switch, consentimento, secrets e autorizacao.
+- Tratar JSON Output do DeepSeek como schema estrito.
+- Fazer fallback automatico entre providers e mascarar falha real.
+- Registrar prompt bruto, resposta bruta, conteudo intimo ou secrets em auditoria/logs.
+- Registrar `guardrail_status` incorreto ou deixar guardrails como `not_run`.
+- Enviar Metacognicao, Chamado, Revisao Semanal, Atalaia ou dados sensiveis sem minimizacao e consentimento.
+
+## Estrategia
+
+1. Escrever testes RED para tipos, env, roteamento, consentimento, kill switch, DeepSeek mockado, OpenAI mockado, falhas sem cross-provider fallback, timeout, schema invalido, redaction recursiva e guardrails.
+2. Criar camada server-side unificada para resolver provider/modelo por agente e preferencia, mantendo `mock` como padrao local.
+3. Adicionar DeepSeek adapter server-only usando API compativel com OpenAI, validando sempre com Zod e tratando JSON Output apenas como auxilio de formato.
+4. Corrigir `safeInvokeAi` para rodar guardrail de entrada, provider/mock, schema validation, guardrail de saida e auditoria minima com `guardrail_status` real.
+5. Implementar checagem preparada de consentimento por provider, versionada/revogavel, sem criar consentimento automaticamente.
+6. Conectar fluxos elegiveis a camada segura mantendo mocks deterministas/fallback local seguro; nenhuma chamada real acontece com `AI_REAL_ENABLED=false`.
+7. Atualizar docs e bug triage com bugs fechados/reduzidos e pendencias externas.
+
+## Criterios de aceite
+
+- Tipos incluem `mock|openai|deepseek`, preferencia `automatic|openai|deepseek`, modos `mock|real|fallback` e guardrails `passed|blocked|failed`.
+- OpenAI e DeepSeek ficam representados como providers server-side e bloqueados por default.
+- Roteador respeita preferencia, agente, consentimento, kill switch e nunca troca automaticamente entre OpenAI e DeepSeek apos falha.
+- Falta/revogacao de consentimento bloqueia chamada real e retorna fallback seguro/estado de revisao.
+- `guardrail_status` deixa de ser `not_run` em provider/mock/fallback executado.
+- Zod bloqueia saida invalida antes de persistir/usar.
+- Redaction recursiva remove chaves sensiveis case-insensitive.
+- Evals negativos cobrem Metacognicao, Atalaia, pastoral safety, crise, schema invalido, timeout e provider failure.
+
+## Testes e verificacoes
+
+- RED/GREEN focado com `npm.cmd run test -- <arquivos de teste da camada IA>`.
+- `npm.cmd run lint`
+- `npm.cmd run typecheck`
+- `npm.cmd run test`
+- `npm.cmd run build`
+- `npm.cmd run test:e2e`
+- `git diff --check`
+- Sem chamadas reais a OpenAI/DeepSeek; qualquer teste de provider usa mock/stub.
+
+## Rollback
+
+Reverter o commit/PR da Etapa 5. Como nao ha migrations, deploy, secrets ou provider real ativado por default, rollback fica limitado a codigo/docs/testes/env placeholders.
+
+## Documentacao a atualizar
+
+`docs/AI_ARCHITECTURE.md`, `docs/AI_AGENTS.md`, `docs/AI_GUARDRAILS.md`, `docs/AI_EVALS.md`, `docs/AI_EVALS_REPORT.md`, `docs/OPENAI_INTEGRATION_PLAN.md`, `docs/SECURITY_PRIVACY.md`, `docs/DATA_SENSITIVITY_MATRIX.md`, `docs/ENVIRONMENT_VARIABLES.md`, `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md`, `docs/CHANGELOG.md` e `AGENTS.md` se a regra duravel nova precisar ser reforcada.
+
 ## Regras de execucao
 
 - Nao avancar fase sem criterio de aceite verificavel.

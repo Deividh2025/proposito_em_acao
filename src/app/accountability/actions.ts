@@ -2,6 +2,7 @@
 
 import { createHash } from "node:crypto";
 
+import { accountabilityMessageOutputSchema } from "@/ai/schemas";
 import {
   ACCOUNTABILITY_PRIVATE_SCOPE_MESSAGE,
   accountabilityActionResultSchema,
@@ -34,6 +35,7 @@ import {
 } from "@/domain/execution/action-results";
 import { buildAccountabilityEmailTemplate } from "@/lib/email/templates/accountability";
 import { createEmailProvider } from "@/lib/email/provider";
+import { invokeMockedAiOutput } from "@/lib/ai/mock-invoke";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -162,6 +164,17 @@ export async function generateAccountabilityInviteDraft(input: unknown): Promise
 
   try {
     draft = buildAccountabilityInviteDraft(inputResult.data);
+    draft = {
+      ...draft,
+      preview: await invokeMockedAiOutput({
+        agentKey: "accountability",
+        schema: accountabilityMessageOutputSchema,
+        schemaName: "accountability_message_output_v1",
+        promptVersion: "accountability_prompt_v1",
+        input: inputResult.data,
+        output: draft.preview
+      })
+    };
   } catch (error) {
     if (isPrivateScopeError(error)) {
       return validationErrorResult(accountabilityActionResultSchema, ACCOUNTABILITY_PRIVATE_SCOPE_MESSAGE);
@@ -958,7 +971,14 @@ export async function previewAccountabilityMessage(input: unknown): Promise<Acco
   let preview;
 
   try {
-    preview = buildAccountabilityMessagePreview(inputResult.data);
+    preview = await invokeMockedAiOutput({
+      agentKey: "accountability",
+      schema: accountabilityMessageOutputSchema,
+      schemaName: "accountability_message_output_v1",
+      promptVersion: "accountability_prompt_v1",
+      input: inputResult.data,
+      output: buildAccountabilityMessagePreview(inputResult.data)
+    });
   } catch (error) {
     if (isPrivateScopeError(error)) {
       return validationErrorResult(accountabilityActionResultSchema, ACCOUNTABILITY_PRIVATE_SCOPE_MESSAGE);

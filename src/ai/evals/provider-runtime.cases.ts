@@ -1,0 +1,102 @@
+import type { AiProviderRuntimeEvalCase } from "./types";
+
+export const providerRuntimeEvalCases: AiProviderRuntimeEvalCase[] = [
+  {
+    id: "provider-runtime-automatic-sensitive-openai",
+    agentKey: "metacognition",
+    category: "provider",
+    preference: "automatic",
+    expectedProvider: "openai",
+    realEnabled: true,
+    consentState: "granted",
+    providerCanBeCalled: true,
+    expectedSchema: "metacognition_reflection_output_v1",
+    shouldBlock: false,
+    expectedFallbackReason: null,
+    safeExpectation: "Automatico deve preferir OpenAI em fluxo sensivel e complexo quando houver consentimento valido."
+  },
+  {
+    id: "provider-runtime-automatic-operational-deepseek",
+    agentKey: "taskBreakdown",
+    category: "provider",
+    preference: "automatic",
+    expectedProvider: "deepseek",
+    realEnabled: true,
+    consentState: "granted",
+    providerCanBeCalled: true,
+    expectedSchema: "task_breakdown_output_v1",
+    shouldBlock: false,
+    expectedFallbackReason: null,
+    safeExpectation: "Automatico pode rotear fluxo operacional de menor risco para DeepSeek autorizado."
+  },
+  {
+    id: "provider-runtime-openai-explicit",
+    agentKey: "smartGoal",
+    category: "provider",
+    preference: "openai",
+    expectedProvider: "openai",
+    realEnabled: true,
+    consentState: "granted",
+    providerCanBeCalled: true,
+    expectedSchema: "smart_goal_output_v1",
+    shouldBlock: false,
+    expectedFallbackReason: null,
+    safeExpectation: "Preferencia explicita OpenAI deve respeitar o provider escolhido sem fallback cruzado."
+  },
+  {
+    id: "provider-runtime-deepseek-explicit",
+    agentKey: "inboxClassifier",
+    category: "provider",
+    preference: "deepseek",
+    expectedProvider: "deepseek",
+    realEnabled: true,
+    consentState: "granted",
+    providerCanBeCalled: true,
+    expectedSchema: "inbox_classification_output_v1",
+    shouldBlock: false,
+    expectedFallbackReason: null,
+    safeExpectation: "Preferencia explicita DeepSeek deve usar DeepSeek autorizado e saida validada por schema."
+  },
+  {
+    id: "provider-runtime-kill-switch-mock",
+    agentKey: "taskBreakdown",
+    category: "runtime",
+    preference: "deepseek",
+    expectedProvider: "mock",
+    realEnabled: false,
+    consentState: "granted",
+    providerCanBeCalled: false,
+    expectedSchema: "task_breakdown_output_v1",
+    shouldBlock: false,
+    expectedFallbackReason: "ai_real_disabled",
+    safeExpectation: "Kill switch global desligado deve impedir provider real mesmo com consentimento presente."
+  },
+  {
+    id: "provider-runtime-timeout-safe-fallback",
+    agentKey: "smartGoal",
+    category: "timeout",
+    preference: "openai",
+    expectedProvider: "openai",
+    realEnabled: true,
+    consentState: "granted",
+    providerCanBeCalled: true,
+    expectedSchema: "smart_goal_output_v1",
+    shouldBlock: false,
+    expectedFallbackReason: "provider_timeout",
+    safeExpectation: "Timeout deve retornar fallback local seguro e registrar motivo sem tentar outro provider."
+  },
+  {
+    id: "provider-runtime-provider-failure-no-cross-fallback",
+    agentKey: "taskBreakdown",
+    category: "runtime",
+    preference: "deepseek",
+    expectedProvider: "deepseek",
+    realEnabled: true,
+    consentState: "granted",
+    providerCanBeCalled: true,
+    expectedSchema: "task_breakdown_output_v1",
+    shouldBlock: false,
+    expectedFallbackReason: "provider_unavailable",
+    safeExpectation: "Falha DeepSeek deve usar fallback local seguro e nunca chamar OpenAI automaticamente."
+  }
+];

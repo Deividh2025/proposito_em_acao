@@ -1,6 +1,6 @@
 # Bug Triage
 
-Data de sincronizacao: 2026-06-03.
+Data de sincronizacao: 2026-06-04.
 
 ## Objetivo
 
@@ -43,6 +43,14 @@ Padronizar registro, severidade, reproducao e fechamento de bugs do beta fechado
 | OPS-HEALTH-001 | Reduzido localmente | `/api/ready` foi criado separado de `/api/health`, com falha fechada fora de `local-demo` quando Supabase/Auth essencial esta ausente. Fechamento completo exige smoke externo em preview/deploy aprovado. |
 | QA-INT-001 | Reduzido | Suites Auth SSR/unit/integration/E2E foram adicionadas; ainda falta cobertura Auth/RLS real em preview aprovado. |
 
+## Fechados ou reduzidos na Etapa 4
+
+| ID | Status | Evidencia |
+|---|---|---|
+| PROD-DEMO-001 | Reduzido fortemente localmente | Dashboard, goals, projects, tasks, calendar, inbox, focus, habits, scoreboard, review history, garden, metacognition history, accountability, commitments e mobile/today passam a usar queries server-only autenticadas ou empty states reais; amostras ficam encapsuladas e rotuladas apenas em `local-demo`. Fechamento completo exige smoke autenticado em preview HTTPS com Supabase/Auth/RLS real. |
+| QA-INT-001 | Reduzido | Adicionados testes unitarios de contrato de dados autenticados, mappers Supabase, queries de execucao/rotina/mobile/Atalaia e privacidade de Atalaia; suites locais passaram, mas preview/Auth/RLS real segue pendente. |
+| PWA-AUTH-CACHE-001 | Mantido como pendente | Mobile usa dados minimos autenticados ou vazio real, mas a prova negativa em HTTPS/CacheStorage ainda depende de preview publicado. |
+
 ## Ledger aberto
 
 | ID | Sev | Dominio | Titulo | Evidencia | Proximo passo | Criterio de fechamento |
@@ -56,7 +64,7 @@ Padronizar registro, severidade, reproducao e fechamento de bugs do beta fechado
 | AI-DEEPSEEK-001 | S1 | IA | DeepSeek decidido, mas nao implementado | Variaveis existem; tipos aceitam apenas `mock`/`openai` | Implementar adapter DeepSeek server-only ou manter desativado no beta | Provider `deepseek` testado ou explicitamente bloqueado por feature flag |
 | ANALYTICS-001 | S1 | Analytics/LGPD | Analytics nao bloqueia coleta sem consentimento | Contrato local ainda aceita evento sem persistencia; docs exigem bloqueio | Implementar opt-in off, revogacao e retencao 90 dias antes de persistir | Teste confirma ausencia/revogacao de consentimento bloqueia evento |
 | EMAIL-RESEND-001 | S1 | Email/Auth | Resend decidido, mas nao implementado/configurado | Docs atualizados; codigo ainda sem adapter Resend/SMTP Auth | Implementar adapter server-only, dominio, SMTP Auth e templates seguros | E-mail real passa smoke com dominio verificado e sem dados sensiveis |
-| PROD-DEMO-001 | S1 | Produto/dados | Paginas principais usam dados demonstrativos | Goals/projects/tasks/habits/scoreboard/garden/accountability usam `sample*` | Substituir por dados reais do usuario ou rotular claramente no beta | Smoke autenticado mostra dados do usuario ou vazio real |
+| PROD-DEMO-001 | S1 | Produto/dados | Smoke autenticado externo ainda nao comprovou ausencia de demo | Etapa 4 removeu `sample*` direto de `src/app`/`src/components` e usa empty states/queries, mas faltam URL HTTPS, Auth real e RLS remoto fresco | Rodar smoke autenticado contra preview aprovado cobrindo dashboard, goals/tasks, calendar/inbox, accountability e mobile | Smoke autenticado mostra dados do usuario ou vazio real; nenhuma amostra aparece fora de `local-demo` |
 | SEC-CSP-001 | S2 | Seguranca | CSP ainda permite `unsafe-inline` | `unsafe-eval` saiu de producao, mas `script-src`/`style-src` ainda mantem `unsafe-inline` | Implementar nonce/hash ou decisao formal de risco antes de deploy publico | Build/E2E passam com nonce/hash ou risco residual aprovado |
 | QA-INT-001 | S2 | Testes | Integracao real ampla ainda insuficiente | Suite mockada de runtime existe, mas preview/Auth/RLS real ainda nao tem cobertura fresca | Expandir actions/server/Supabase mockado e, em ambiente aprovado, preview RLS/Auth | Gate inclui integracao relevante por modulo e evidencia fresca de preview |
 | PWA-AUTH-CACHE-001 | S2 | PWA/Auth | Cache PWA precisa de prova negativa para Auth | Docs exigem cache apenas de assets seguros, mas smoke publicado ainda nao provou que `/auth`, callbacks, recovery, APIs autenticadas, server actions e payloads privados ficam fora do cache | Validar service worker em HTTPS e adicionar smoke/regressao quando houver preview | Evidencia mostra que rotas Auth e respostas privadas nao entram em CacheStorage/offline |

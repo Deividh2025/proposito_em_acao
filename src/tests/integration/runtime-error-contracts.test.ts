@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+
 type SupabaseMock = {
   auth: {
     getUser: ReturnType<typeof vi.fn>;
@@ -89,6 +91,18 @@ describe("server action runtime error contracts", () => {
 
     expect(result.ok).toBe(false);
     expect(result.mode).toBe("local-draft");
+  });
+
+  test("metacognition history returns an empty private state without a session outside local-demo", async () => {
+    setRuntime("preview");
+    supabaseMock.auth.getUser.mockResolvedValue({ data: { user: null } });
+
+    const { listMetacognitionHistory } = await import("@/app/metacognition/actions");
+    const result = await listMetacognitionHistory({ limit: 6 });
+
+    expect(result.mode).toBe("blocked");
+    expect(result.items).toEqual([]);
+    expect(result.message).toContain("Entre");
   });
 
   test("returns ok:false when update affects no rows", async () => {

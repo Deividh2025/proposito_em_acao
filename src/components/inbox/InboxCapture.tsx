@@ -12,16 +12,25 @@ import { Select } from "@/components/ui/Select";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
 import { SuccessState } from "@/components/ui/SuccessState";
 import { Textarea } from "@/components/ui/Textarea";
-import { sampleInboxItems } from "@/domain/inbox";
 import type { InboxItem, InboxDestinationType } from "@/domain/inbox";
 import { InboxItemCard } from "./InboxItemCard";
 import { InboxList } from "./InboxList";
 import { InboxProcessPanel } from "./InboxProcessPanel";
 
-export function InboxCapture() {
-  const [content, setContent] = useState("Agendar revisão financeira sexta às 9h por 25 minutos");
+type InboxCaptureProps = {
+  canUseSampleData?: boolean;
+  dataMessage: string;
+  initialItems: InboxItem[];
+};
+
+export function InboxCapture({
+  canUseSampleData = false,
+  dataMessage = "Nenhum dado real carregado ainda.",
+  initialItems = []
+}: InboxCaptureProps) {
+  const [content, setContent] = useState("");
   const [contentType, setContentType] = useState("text");
-  const [items, setItems] = useState<InboxItem[]>(sampleInboxItems);
+  const [items, setItems] = useState<InboxItem[]>(initialItems);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [classification, setClassification] = useState<InboxClassificationOutput | null>(null);
   const [feedback, setFeedback] = useState<{ message: string; tone: "error" | "success" } | null>(null);
@@ -162,6 +171,11 @@ export function InboxCapture() {
             </Button>
           </div>
         </Card>
+
+        <SuccessState
+          description={dataMessage}
+          title={canUseSampleData ? "Amostra local-demo" : "Dados reais ou vazio real"}
+        />
 
         {feedback?.tone === "success" ? (
           <SuccessState description={feedback.message} title="Atualizacao concluida" />

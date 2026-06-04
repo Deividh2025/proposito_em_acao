@@ -1,15 +1,18 @@
 import { PageHeader } from "@/components/layout/PageHeader";
 import { InitialJourneyDashboard } from "@/components/dashboard/InitialJourneyDashboard";
+import { loadExecutionOverview } from "@/lib/supabase/queries/execution";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const executionData = await loadExecutionOverview();
+
   return (
     <div className="space-y-6">
       <PageHeader
-        description="Estado inicial da jornada: direção, próxima microação e módulos limitados até existir hipótese de Chamado."
-        status="Dashboard inicial"
+        description="Direcao, proximas acoes e dados de execucao carregados com Supabase/RLS quando ha usuario autenticado."
+        status={executionData.mode === "local-demo" ? "Amostra local-demo" : "Dados autenticados"}
         title="Sua direção agora"
       />
-      <InitialJourneyDashboard />
+      <InitialJourneyDashboard executionData={executionData} />
     </div>
   );
 }

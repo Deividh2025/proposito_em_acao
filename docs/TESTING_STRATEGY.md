@@ -8,9 +8,11 @@ Gates atuais desta auditoria:
 
 - `npm.cmd run lint`: passou.
 - `npm.cmd run typecheck`: passou.
-- `npm.cmd run test`: passou, 17 arquivos e 94 testes.
-- `npm.cmd run build`: passou, 39 paginas.
-- `npm.cmd run test:e2e`: passou, 30 testes.
+- `npm.cmd run test`: passou, 31 arquivos e 170 testes.
+- `npm.cmd run build`: passou, 44 paginas/rotas geradas.
+- `npm.cmd run test:e2e`: passou, build + 33 testes.
+- `git diff --check`: passou, apenas avisos CRLF do Windows.
+- Secret scan do diff: nenhum padrao sensivel real encontrado.
 
 Observacao historica: secoes antigas por prompt podem registrar RLS como pendente no momento da implementacao daquele prompt. O status atual consolidado e o do preview Supabase documentado em `docs/RLS_TEST_REPORT.md` e `docs/RELEASE_READINESS.md`.
 
@@ -63,6 +65,17 @@ Antes de beta real, a suite publicada deve cobrir:
 - Smoke externo em URL HTTPS real com Site URL/Redirect URLs do Supabase alinhados.
 - PWA/service worker sem cache de `/auth`, callbacks, recovery, APIs autenticadas, server actions ou respostas privadas.
 - Typegen real com `npm.cmd run supabase:types:preview` em preview aprovado antes de tratar `src/types/database.ts` como contrato do banco.
+
+## Etapa 4 - dados autenticados nas interfaces
+
+Testes adicionados/ajustados:
+
+- Contrato de runtime para dados autenticados: amostras apenas em `local-demo`, falha fechada/empty state fora dele.
+- Mappers defensivos para linhas Supabase enquanto os tipos reais continuam genericos.
+- Queries de execucao, rotina diaria, Atalaia e mobile com mocks de Supabase.
+- Regressao de Inbox com fixture explicita em vez de amostra interna do componente.
+
+Gates locais executados na etapa: `lint`, `typecheck`, `test`, `build`, `test:e2e`, `git diff --check` e secret scan do diff. Preview/Auth/RLS real exige `supabase:validate:preview` e smoke externo apenas quando houver ambiente aprovado.
 
 ## Testes E2E
 

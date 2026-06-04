@@ -5,7 +5,7 @@ import { ExecutionStatusBadge } from "@/components/execution/ExecutionStatus";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Tag } from "@/components/ui/Tag";
-import { sampleSmartGoal } from "@/domain/execution/sample-data";
+import { loadGoalDetail, type ExecutionGoalSummary } from "@/lib/supabase/queries/execution";
 
 type GoalDetailPageProps = {
   params: Promise<{ goalId: string }>;
@@ -13,6 +13,30 @@ type GoalDetailPageProps = {
 
 export default async function GoalDetailPage({ params }: GoalDetailPageProps) {
   const { goalId } = await params;
+  const goalData = await loadGoalDetail(goalId);
+  const goal = goalData.item;
+
+  if (!goal) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          description={goalData.message}
+          status="Detalhe de alvo"
+          title="Alvo nao carregado"
+        />
+        <Card as="section">
+          <h2 className="font-bold text-ink-900">Nenhum alvo real encontrado</h2>
+          <p className="mt-2 text-sm leading-6 text-ink-600">
+            Este detalhe so mostra dados do usuario autenticado. Em preview, beta e producao,
+            samples nao substituem a leitura via Supabase/RLS.
+          </p>
+          <Link className="mt-4 inline-flex" href="/goals">
+            <Button variant="outline">Voltar para alvos</Button>
+          </Link>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -22,40 +46,49 @@ export default async function GoalDetailPage({ params }: GoalDetailPageProps) {
             <Button>Gerar projeto</Button>
           </Link>
         }
-        description={`Detalhe revisavel do alvo ${goalId}. Dados reais usam Supabase/RLS quando Auth estiver ativo.`}
-        status="Detalhe de alvo"
-        title={sampleSmartGoal.title}
+        description={goalData.isSample ? "Amostra local-demo rotulada; nao representa persistencia real." : goalData.message}
+        status={goalData.mode === "local-demo" ? "Amostra local-demo" : "Detalhe autenticado"}
+        title={goal.title}
       />
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <Card as="section" className="space-y-4">
-          <ExecutionStatusBadge status={sampleSmartGoal.status} />
-          <dl className="grid gap-4 md:grid-cols-2">
-            <Detail title="Especifico" value={sampleSmartGoal.specific} />
-            <Detail title="Mensuravel" value={sampleSmartGoal.measurable} />
-            <Detail title="Atingivel" value={sampleSmartGoal.achievable} />
-            <Detail title="Relevante" value={sampleSmartGoal.relevant} />
-            <Detail title="Temporal" value={sampleSmartGoal.timebound} />
-            <Detail title="Alinhamento" value={sampleSmartGoal.calling_alignment.explanation} />
-          </dl>
+      <GoalDetail goal={goal} />
+    </div>
+  );
+}
+
+function GoalDetail({ goal }: { goal: ExecutionGoalSummary }) {
+  return (
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <Card as="section" className="space-y-4">
+        <ExecutionStatusBadge status={goal.status} />
+        <dl className="grid gap-4 md:grid-cols-2">
+          <Detail title="Especifico" value={goal.specific} />
+          <Detail title="Mensuravel" value={goal.measurable} />
+          <Detail title="Atingivel" value={goal.achievable} />
+          <Detail title="Relevante" value={goal.relevant} />
+          <Detail title="Temporal" value={goal.timebound} />
+          <Detail title="Alinhamento" value={goal.callingAlignment} />
+        </dl>
+      </Card>
+      <aside className="space-y-4">
+        <Card className="border-purpose-100 bg-purpose-50">
+          <p className="text-xs font-semibold uppercase tracking-wide text-purpose-700">Proxima acao</p>
+          <p className="mt-2 text-base font-bold text-purpose-900">{goal.firstAction}</p>
         </Card>
-        <aside className="space-y-4">
-          <Card className="border-purpose-100 bg-purpose-50">
-            <p className="text-xs font-semibold uppercase tracking-wide text-purpose-700">Proxima acao</p>
-            <p className="mt-2 text-base font-bold text-purpose-900">{sampleSmartGoal.first_action}</p>
-          </Card>
-          <Card>
-            <h2 className="font-bold text-ink-900">Analise ecologica</h2>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {sampleSmartGoal.ecological_analysis.protected_areas.map((area) => (
-                <Tag key={area}>{area}</Tag>
-              ))}
-            </div>
-            <p className="mt-3 text-sm leading-6 text-ink-600">
-              {sampleSmartGoal.ecological_analysis.adjustments.join(" ")}
-            </p>
-          </Card>
-        </aside>
-      </div>
+        <Card>
+          <h2 className="font-bold text-ink-900">Analise ecologica</h2>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {goal.protectedAreas.length > 0 ? (
+              goal.protectedAreas.map((area) => <Tag key={area}>{area}</Tag>)
+            ) : (
+              <Tag>revisar areas protegidas</Tag>
+            )}
+            {goal.isSample ? <Tag>Amostra local-demo</Tag> : null}
+          </div>
+          <p className="mt-3 text-sm leading-6 text-ink-600">
+            {goal.ecologicalAdjustments.join(" ") || "Revise impactos antes de aprofundar este alvo."}
+          </p>
+        </Card>
+      </aside>
     </div>
   );
 }

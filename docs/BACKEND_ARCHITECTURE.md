@@ -56,6 +56,14 @@ Rotas server-side ou server actions devem proteger:
 - DeepSeek foi decidido como provider planejado junto com OpenAI, mas o codigo ainda aceita apenas provider `mock`/`openai`.
 - Analytics planejado sera first-party no Supabase, opt-in desligado por padrao e retencao de 90 dias; ainda nao ha persistencia real.
 
+## Etapa 4 - queries autenticadas server-only
+
+- Leitura normal de dados do app usa `src/lib/supabase/queries/**` com usuario validado e cliente server-side anon/publishable, deixando RLS aplicar owner-only.
+- `service_role` nao e usado nas queries normais de UI.
+- Erros de query sao sanitizados para componentes; detalhes tecnicos nao devem aparecer na UI.
+- `local-demo` e o unico runtime que pode retornar amostras rotuladas; demais runtimes retornam bloqueio/empty state quando Auth/config/sessao real falta.
+- `src/types/database.ts` continua generico; mappers defensivos convertem linhas `snake_case` para modelos de UI ate typegen real em preview aprovado.
+
 ## Readiness server-side
 
 Antes de beta real, o backend precisa separar claramente liveness e readiness:

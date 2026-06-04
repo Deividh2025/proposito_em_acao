@@ -1,6 +1,9 @@
 import { CommitmentDocumentPreview } from "@/components/commitments/CommitmentDocumentPreview";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { buildCommitmentDocumentDraft } from "@/domain/commitments";
+import { Card } from "@/components/ui/Card";
+import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
+import { getAuthenticatedDataContext } from "@/lib/supabase/queries/authenticated-data";
+import { getCommitmentDocumentDetail } from "@/lib/supabase/queries/commitments";
 
 type CommitmentDetailPageProps = {
   params: Promise<{ documentId: string }>;
@@ -8,32 +11,34 @@ type CommitmentDetailPageProps = {
 
 export default async function CommitmentDetailPage({ params }: CommitmentDetailPageProps) {
   const { documentId } = await params;
-  const draft = buildCommitmentDocumentDraft({
-    callingSummary: "",
-    callingSummaryAuthorized: false,
-    deadline: "2026-07-31",
-    firstAction: "Executar o primeiro passo combinado.",
-    goalId: "goal-exemplo",
-    goalTitle: "Concluir primeiro marco do alvo",
-    linkedProjects: ["Preparar ambiente", "Executar primeiro passo"],
-    partnerEmail: "atalia@example.com",
-    partnerName: "Pessoa de confianca",
-    restorativeConsequence: "Fazer uma revisao curta e reduzir escopo.",
-    reward: "Pausa curta planejada.",
-    scoreboardItems: ["Primeiro passo concluido"],
-    sharingPermissions: ["goal_name", "deadline", "status", "commitment_document"],
-    supportingHabits: ["Revisao de 10 minutos"],
-    userName: "Usuario"
-  });
+  const context = await getAuthenticatedDataContext();
+  const detail =
+    context.kind === "authenticated" ? await getCommitmentDocumentDetail(context.supabase, context.user, documentId) : null;
+  const message =
+    context.kind === "authenticated"
+      ? null
+      : context.kind === "local-demo"
+        ? "Nenhum documento real carregado no modo local-demo."
+        : context.userMessage;
 
   return (
     <div className="space-y-6">
       <PageHeader
-        description={`Documento ${documentId}. Exemplo local/dev; compartilhar exige permissao e nova previa.`}
+        description={`Documento ${documentId}. Leitura real respeita privacidade, RLS e permissao de compartilhamento.`}
         status="Prompt 13"
         title="Compromisso"
       />
-      <CommitmentDocumentPreview draft={draft} />
+      {message ? <SensitiveDataNotice title="Dados reais indisponiveis">{message}</SensitiveDataNotice> : null}
+      {detail ? (
+        <CommitmentDocumentPreview draft={detail.draft} />
+      ) : (
+        <Card as="section" className="space-y-2">
+          <h2 className="font-bold text-ink-900">Documento indisponivel</h2>
+          <p className="text-sm leading-6 text-ink-600">
+            Documento inexistente, privado para outro usuario, nao compartilhado ou sem grant ativo nao e exibido.
+          </p>
+        </Card>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { accountabilitySharedFieldSchema } from "@/ai/schemas";
 import { buildAccountabilityInviteDraft, normalizePermissions } from "@/domain/accountability";
 import { buildCommitmentDocumentDraft, validateCommitmentLever } from "@/domain/commitments";
 
@@ -74,6 +75,23 @@ describe("Prompt 13 accountability domain", () => {
         progressPercentage: 30
       })
     ).toThrow(/dado privado fora do escopo/i);
+  });
+
+  it("does not allow private Metacognition, Inbox, or Calendar scopes as Atalaia shared fields", () => {
+    for (const forbiddenField of [
+      "metacognition",
+      "raw_metacognition",
+      "metacognition_sessions",
+      "inbox",
+      "raw_inbox",
+      "inbox_items",
+      "calendar",
+      "calendar_blocks",
+      "full_calendar",
+      "weekly_review_private"
+    ]) {
+      expect(accountabilitySharedFieldSchema.safeParse(forbiddenField).success).toBe(false);
+    }
   });
 });
 

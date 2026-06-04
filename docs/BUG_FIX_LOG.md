@@ -81,3 +81,14 @@ Data: 2026-06-04.
 | `AUTH-SSR-001` | Fundacao local de Auth SSR adicionada com `proxy.ts`, helper `src/lib/supabase/proxy.ts`, `auth.getClaims()`, rotas `/auth/callback`, `/auth/confirm`, `/auth/error`, `/auth/forgot-password`, `/auth/update-password`, redirects `next` seguros, logout e falha fechada fora de `local-demo`. | `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test`, `npm.cmd run build`, `npm.cmd run test:e2e`; testes Auth SSR unit/integration/E2E. Fechamento completo continua pendente de URL HTTPS, redirects Supabase, SMTP/Resend ou decisao operacional e smoke externo. |
 | `OPS-HEALTH-001` | `/api/ready` criado separado de `/api/health`, sem expor secrets e com falha fechada em `preview`, `beta` e `production` quando Supabase/Auth essencial estiver ausente. | Build e E2E locais passaram; smoke externo ainda pendente. |
 | `PWA-AUTH-CACHE-001` | Teste estatico confirma que o service worker nao lista rotas autenticadas nem faz `cache.put`; navegação segue network-first com fallback apenas para `/offline`. | `src/tests/unit/auth-ssr-safety-contracts.test.ts` passou dentro de `npm.cmd run test`. |
+
+## Etapa 4 - Dados autenticados nas interfaces
+
+Data: 2026-06-04.
+
+| Bug | Correcao | Evidencia |
+|---|---|---|
+| `PROD-DEMO-001` | Rotas principais deixam de importar `sample*` diretamente em `src/app`/`src/components`; queries server-only carregam dados owner-only pelo usuario autenticado ou retornam empty states reais. `local-demo` continua podendo mostrar amostras rotuladas. | `src/lib/supabase/queries/**`, paginas de dashboard/execucao/rotina/reflexao/Atalaia/mobile e testes novos de contratos/mappers/queries. |
+| `QA-INT-001` | Cobertura local ampliada para mappers, contrato de runtime de dados autenticados, queries de execucao, rotina diaria, mobile e Atalaia. | `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test` (31 arquivos/170 testes), `npm.cmd run build`, `npm.cmd run test:e2e` (33 testes), `git diff --check` e secret scan do diff passaram localmente. |
+
+Pendencia: smoke autenticado externo, typegen real e `supabase:validate:preview` nao foram executados nesta etapa local.

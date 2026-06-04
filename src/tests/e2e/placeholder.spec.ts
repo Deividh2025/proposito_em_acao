@@ -13,7 +13,7 @@ test("dashboard initial journey renders without final product flow", async ({ pa
 
   await expect(page.getByRole("heading", { name: "Sua direção agora" })).toBeVisible();
   await expect(page.getByRole("main").getByText("Direção antes de agenda")).toBeVisible();
-  await expect(page.getByRole("main").getByText("Módulos limitados por enquanto")).toBeVisible();
+  await expect(page.getByRole("main").getByText("Dados demonstrativos apenas neste ambiente.")).toBeVisible();
 });
 
 test("Prompt 10 metacognition renders private reflection flow", async ({ page }) => {

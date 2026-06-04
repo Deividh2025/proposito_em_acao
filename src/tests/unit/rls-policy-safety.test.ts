@@ -20,6 +20,10 @@ describe("RLS policy safety", () => {
     ),
     "utf8"
   );
+  const rlsBaselineSql = readFileSync(
+    join(migrationsPath, migrationFileNames.find((fileName) => fileName.includes("rls_policies")) ?? ""),
+    "utf8"
+  );
 
   test("binds Atalaia access to the specific partner and grant rows", () => {
     expect(sql).toContain("partners.id = accountability_grants.accountability_partner_id");
@@ -104,5 +108,28 @@ describe("RLS policy safety", () => {
 
       expect(policyText).not.toMatch(/partner|atalia|atalaia|accountability_/i);
     }
+  });
+
+  test("keeps sensitive tables owner-only in policy text when Atalaia exists elsewhere", () => {
+    const ownerPolicyLoop =
+      rlsBaselineSql.match(
+        /foreach target_table in array array\[[\s\S]*?'garden_events'[\s\S]*?target_table \|\| '_owner_select'[\s\S]*?end loop;/i
+      )?.[0] ?? "";
+
+    expect(ownerPolicyLoop).toContain(
+      "create policy %I on public.%I for select to authenticated using (user_id = (select auth.uid()))"
+    );
+
+    for (const tableName of ["metacognition_sessions", "inbox_items", "calendar_blocks"]) {
+      const tablePolicyBlocks = policyBlocks.filter((block) =>
+        new RegExp(`on\\s+public\\.${tableName}\\b`, "i").test(block)
+      );
+      const policyText = tablePolicyBlocks.join("\n");
+
+      expect(ownerPolicyLoop).toContain(`'${tableName}'`);
+      expect(policyText).not.toMatch(/has_active_accountability_grant|accountability_partner_id|partner_user_id/i);
+    }
+
+    expect(ownerPolicyLoop).not.toMatch(/has_active_accountability_grant|accountability_partner_id|partner_user_id/i);
   });
 });

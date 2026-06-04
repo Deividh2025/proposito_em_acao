@@ -894,22 +894,28 @@ export async function getAccountabilityInvitePreview(input: unknown): Promise<Ac
       });
     }
 
-    const { data: goal } = await admin
-      .from("goals")
-      .select("title")
-      .eq("id", goalId)
-      .eq("user_id", ownerUserId)
-      .maybeSingle();
+    const permissions = permissionsFromGrant(grant?.permissions);
+    let goalTitle = "Alvo autorizado";
+
+    if (permissions.includes("goal_name")) {
+      const { data: goal } = await admin
+        .from("goals")
+        .select("title")
+        .eq("id", goalId)
+        .eq("user_id", ownerUserId)
+        .maybeSingle();
+      goalTitle = jsonString(goal?.title) ?? "Alvo autorizado";
+    }
 
     const grantDraft: AccountabilityGrantPreview = {
       goalId,
-      goalTitle: jsonString(goal?.title) ?? "Alvo autorizado",
+      goalTitle,
       id: grantId,
       level: accountabilityLevelSchema.catch("balanced").parse(grant?.tracking_level),
       notificationFrequency: accountabilityNotificationFrequencySchema.catch("weekly").parse(
         grant?.notification_frequency
       ),
-      permissions: permissionsFromGrant(grant?.permissions),
+      permissions,
       reviewedAt: jsonString(grant?.last_previewed_at) ?? null,
       revokedAt: null,
       status: "invited"

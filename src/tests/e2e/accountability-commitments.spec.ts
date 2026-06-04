@@ -1,11 +1,12 @@
 import { expect, test } from "@playwright/test";
 
-test("Prompt 13 accountability flow renders preview and limited panel", async ({ page }) => {
+test("Prompt 13 accountability flow renders empty real-data states and invite preview", async ({ page }) => {
   await page.goto("/accountability");
 
-  await expect(page.getByRole("heading", { name: "Atalaia" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Proxima acao" })).toBeVisible();
-  await expect(page.getByText("Painel limitado do Atalaia", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Atalaia", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Proxima acao", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Nenhum Atalaia encontrado", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Nenhum acesso autorizado", exact: true })).toBeVisible();
 
   await page.getByRole("link", { name: "Novo Atalaia" }).click();
 

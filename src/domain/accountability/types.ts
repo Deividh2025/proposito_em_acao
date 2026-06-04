@@ -44,6 +44,23 @@ export type AccountabilityGrantDraft = {
 
 export type AccountabilityGrantPreview = Omit<AccountabilityGrantDraft, "inviteToken">;
 
+export type AccountabilityGrantSharedData = {
+  completedMilestones: string[];
+  deadline: string | null;
+  goalStatus: string | null;
+  goalTitle: string | null;
+  progressPercentage: number | null;
+};
+
+export type AccountabilityGrantAccessView = AccountabilityGrantPreview & {
+  acceptedAt: string | null;
+  expiresAt: string | null;
+  partnerEmail: string | null;
+  partnerName: string | null;
+  sharedData: AccountabilityGrantSharedData;
+  viewerRole: "owner" | "partner";
+};
+
 export const accountabilityPermissionLabels: Record<AccountabilityPermission, string> = {
   goal_name: "Ver nome do alvo",
   deadline: "Ver prazo",

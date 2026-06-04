@@ -1,8 +1,8 @@
 import type { GardenAreaState, GardenStateOutput } from "@/ai/schemas";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { Progress } from "@/components/ui/Progress";
-import { lifeGardenAreas } from "@/domain/garden";
 
 export function LifeGardenPreview() {
   return (
@@ -24,37 +24,32 @@ const visualStateLabel: Record<GardenAreaState["visual_state"], string> = {
   needs_care: "pede cuidado"
 };
 
-export const sampleGardenState: GardenStateOutput = {
-  schema_version: "garden_state_output_v1",
-  garden_state: {
-    life_areas: lifeGardenAreas.map((area, index) => ({
-      area,
-      growth_level: index % 4 === 0 ? 1 : index % 3 === 0 ? 4 : 2,
-      recent_events: index % 4 === 0 ? ["Convite de cuidado"] : ["Passo pequeno registrado"],
-      care_needed: index % 4 === 0,
-      care_message:
-        index % 4 === 0
-          ? `${area} pede cuidado simples nesta semana, sem culpa.`
-          : `${area} segue sendo cultivada com passos pequenos.`,
-      visual_state: index % 4 === 0 ? "needs_care" : index % 3 === 0 ? "fruitful" : "sprout"
-    })),
-    unlocked_items: ["Retomada visivel", "Cuidado sem punicao"],
-    weekly_growth_summary:
-      "O Jardim mostra progresso pequeno e areas que pedem cuidado. Nenhuma area morre por uma semana dificil."
-  }
-};
-
 type LifeGardenProps = {
-  state?: GardenStateOutput;
+  message?: string;
+  mode?: "blocked" | "local-demo" | "supabase";
+  state: GardenStateOutput | null;
 };
 
-export function LifeGarden({ state = sampleGardenState }: LifeGardenProps) {
+export function LifeGarden({ message, mode = "supabase", state }: LifeGardenProps) {
+  if (!state) {
+    return (
+      <EmptyState
+        description={message ?? "Salve uma Revisao Semanal para gerar um snapshot privado do Jardim."}
+        title="Sem snapshot privado do Jardim"
+      />
+    );
+  }
+
   return (
     <div className="space-y-5">
       <Card as="section" className="space-y-3 border-purpose-100 bg-purpose-50">
-        <Badge intent="purpose">Jardim da Vida</Badge>
+        <div className="flex flex-wrap gap-2">
+          <Badge intent="purpose">Jardim da Vida</Badge>
+          {mode === "local-demo" ? <Badge intent="warning">demonstrativo local/dev</Badge> : null}
+        </div>
         <h2 className="text-xl font-bold text-purpose-900">Progresso visual sem vergonha</h2>
         <p className="text-sm leading-6 text-purpose-900">{state.garden_state.weekly_growth_summary}</p>
+        {message ? <p className="text-xs font-semibold uppercase tracking-wide text-purpose-700">{message}</p> : null}
         <div className="flex flex-wrap gap-2">
           {state.garden_state.unlocked_items.map((item) => (
             <Badge intent="restart" key={item}>{item}</Badge>
@@ -75,7 +70,11 @@ type GardenAreaTileProps = {
   area?: GardenAreaState;
 };
 
-export function GardenAreaTile({ area = sampleGardenState.garden_state.life_areas[0]! }: GardenAreaTileProps) {
+export function GardenAreaTile({ area }: GardenAreaTileProps) {
+  if (!area) {
+    return null;
+  }
+
   const progressValue = area.growth_level * 20;
 
   return (

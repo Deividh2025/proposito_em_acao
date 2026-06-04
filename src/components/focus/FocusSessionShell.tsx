@@ -29,25 +29,27 @@ import { FocusTimer } from "./FocusTimer";
 type SessionStatus = "setup" | "running" | "paused" | "completed";
 
 type FocusSessionShellProps = {
+  dataMessage?: string;
   initialDurationMinutes?: number;
+  initialNextStep?: string;
+  initialReason?: string;
   initialSessionId?: string;
   initialTaskId?: string;
-};
-
-const defaultSession = {
-  taskTitle: "Organizar documentos da semana",
-  nextStep: "Abrir a pasta e separar apenas o primeiro documento",
-  reason: "Reduzir peso mental e liberar a proxima decisao financeira."
+  initialTaskTitle?: string;
 };
 
 export function FocusSessionShell({
+  dataMessage,
   initialDurationMinutes = 25,
+  initialNextStep = "",
+  initialReason = "",
   initialSessionId,
-  initialTaskId
+  initialTaskId,
+  initialTaskTitle = ""
 }: FocusSessionShellProps) {
-  const [taskTitle, setTaskTitle] = useState(defaultSession.taskTitle);
-  const [nextStep, setNextStep] = useState(defaultSession.nextStep);
-  const [reason, setReason] = useState(defaultSession.reason);
+  const [taskTitle, setTaskTitle] = useState(initialTaskTitle);
+  const [nextStep, setNextStep] = useState(initialNextStep);
+  const [reason, setReason] = useState(initialReason);
   const [durationMinutes, setDurationMinutes] = useState(initialDurationMinutes);
   const [customMinutes, setCustomMinutes] = useState(initialDurationMinutes.toString());
   const [remainingSeconds, setRemainingSeconds] = useState(initialDurationMinutes * 60);
@@ -223,16 +225,17 @@ export function FocusSessionShell({
           </div>
           <label className="grid gap-2 text-sm font-semibold text-ink-900">
             Tarefa atual
-            <Input disabled={status !== "setup"} onChange={(event) => setTaskTitle(event.target.value)} value={taskTitle} />
+            <Input disabled={status !== "setup"} onChange={(event) => setTaskTitle(event.target.value)} placeholder="Escolha uma tarefa real ou descreva manualmente" value={taskTitle} />
           </label>
           <label className="grid gap-2 text-sm font-semibold text-ink-900">
             Proximo passo
-            <Input disabled={status !== "setup"} onChange={(event) => setNextStep(event.target.value)} value={nextStep} />
+            <Input disabled={status !== "setup"} onChange={(event) => setNextStep(event.target.value)} placeholder="Primeiro passo pequeno" value={nextStep} />
           </label>
           <label className="grid gap-2 text-sm font-semibold text-ink-900">
             Motivo
-            <Textarea disabled={status !== "setup"} onChange={(event) => setReason(event.target.value)} value={reason} />
+            <Textarea disabled={status !== "setup"} onChange={(event) => setReason(event.target.value)} placeholder="Por que este foco importa agora?" value={reason} />
           </label>
+          {dataMessage ? <p className="text-sm leading-6 text-ink-600">{dataMessage}</p> : null}
           <FocusPauseControls
             canComplete={Boolean(sessionId) || status !== "setup"}
             isPending={isPending}

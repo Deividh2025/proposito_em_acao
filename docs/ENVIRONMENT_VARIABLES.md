@@ -31,6 +31,7 @@ Chaves publicaveis devem usar `NEXT_PUBLIC_SUPABASE_ANON_KEY` para compatibilida
 - `APP_RUNTIME_MODE`: modo server-side do runtime. Valores aceitos: `local-demo`, `preview`, `beta` e `production`. O default local seguro e `local-demo`.
 - `AI_REAL_ENABLED`: habilita chamadas reais de IA somente quando `true`; default efetivo `false`.
 - `EMAIL_REAL_ENABLED`: habilita envio real de e-mail somente quando `true`; default efetivo `false`.
+- `EMAIL_DOMAIN_VERIFIED`: confirma operacionalmente que o dominio/remetente transacional foi verificado no provider; default efetivo `false`.
 - `ANALYTICS_REAL_ENABLED`: habilita coleta/persistencia real de analytics somente quando `true`; default efetivo `false`.
 - `FEEDBACK_REAL_ENABLED`: habilita feedback real externo/persistido somente quando `true`; default efetivo `false`.
 
@@ -65,10 +66,16 @@ DeepSeek foi aprovado como provider pelo fundador, junto com OpenAI, e possui ad
 
 ## Email
 
-- `EMAIL_PROVIDER`: provedor futuro. Vazio significa nenhum envio real e status `pending_provider_config`.
-- `EMAIL_FROM`: remetente futuro. Deve ficar vazio ate haver dominio/remetente aprovado.
+- `EMAIL_PROVIDER`: provedor de e-mail transacional. Valor planejado/implementado: `resend`.
+- `EMAIL_FROM`: remetente legado/fallback. Deve ficar vazio ou apontar para remetente aprovado; prefira os campos especificos abaixo.
+- `EMAIL_FROM_AUTH`: remetente planejado do Supabase Auth, por exemplo `acesso@notify.example.com` enquanto o dominio real nao existir.
+- `EMAIL_FROM_NOTIFICATIONS`: remetente planejado de notificacoes transacionais, por exemplo `notificacoes@notify.example.com` enquanto o dominio real nao existir.
+- `EMAIL_DOMAIN_VERIFIED`: deve ser `true` somente apos dominio/remetente verificado no Resend. Com `false`, o provider bloqueia envio real.
+- `RESEND_API_KEY`: chave server-side do Resend. Nunca usar `NEXT_PUBLIC_*`, docs, logs ou cliente.
+- `RESEND_WEBHOOK_SECRET`: signing secret do webhook Resend. Nunca usar `NEXT_PUBLIC_*`, docs, logs ou cliente.
+- `RESEND_TEST_RECIPIENT`: destinatario unico aprovado para smoke manual quando envio real for explicitamente autorizado.
 
-Decisao atual: `EMAIL_PROVIDER` deve usar Resend quando o adapter for implementado, com dominio verificado. O Supabase Auth tambem deve usar Resend como SMTP customizado. Uma futura `RESEND_API_KEY` deve ser server-side, nunca `NEXT_PUBLIC_*`, e adicionada como placeholder somente quando a implementacao for aprovada.
+Decisao atual: `EMAIL_PROVIDER=resend` usa adapter server-only com `fetch`. Envio real exige `EMAIL_REAL_ENABLED=true`, `EMAIL_DOMAIN_VERIFIED=true`, `RESEND_API_KEY`, remetente `notify.<dominio>` aprovado e autorizacao operacional. Sem qualquer gate, o provider retorna `pending_provider_config` ou `blocked`.
 
 No Prompt 13, notificacoes do Atalaia sao preparadas no backend, mas nao enviam e-mail real sem provider configurado e revisao de seguranca.
 
@@ -102,11 +109,11 @@ Obrigatorias em preview/producao:
 
 Manter vazias/desativadas ate aprovacao explicita:
 
-- `AI_REAL_ENABLED`, `EMAIL_REAL_ENABLED`, `ANALYTICS_REAL_ENABLED` e `FEEDBACK_REAL_ENABLED`, salvo etapa propria aprovada.
+- `AI_REAL_ENABLED`, `EMAIL_REAL_ENABLED`, `EMAIL_DOMAIN_VERIFIED`, `ANALYTICS_REAL_ENABLED` e `FEEDBACK_REAL_ENABLED`, salvo etapa propria aprovada.
 - `SUPABASE_SERVICE_ROLE_KEY`, salvo necessidade server-side controlada.
 - `OPENAI_API_KEY`, ate aprovar modelo, custo, rate limit e evals ampliados.
 - `DEEPSEEK_API_KEY`, ate aprovar custo, rate limit, evals ampliados e roteamento por agente.
-- `EMAIL_PROVIDER`, `EMAIL_FROM` e futura `RESEND_API_KEY`, ate aprovar dominio, remetente, templates e SMTP Auth.
+- `EMAIL_PROVIDER`, `EMAIL_FROM`, `EMAIL_FROM_AUTH`, `EMAIL_FROM_NOTIFICATIONS`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET` e `RESEND_TEST_RECIPIENT`, ate aprovar dominio, remetente, templates e SMTP Auth.
 
 Auth externo ainda pendente:
 
@@ -123,6 +130,7 @@ Gates manuais:
 
 Nunca usar `NEXT_PUBLIC_` para OpenAI, service role, provider secrets, webhook secrets ou tokens.
 Nunca usar `NEXT_PUBLIC_` para DeepSeek.
+Nunca usar `NEXT_PUBLIC_` para Resend, SMTP password, webhook secret ou remetente com token/query sensivel.
 
 ## Cutover Supabase preview
 

@@ -234,6 +234,77 @@ Reverter o commit/PR da Etapa 5. Como nao ha migrations, deploy, secrets ou prov
 
 `docs/AI_ARCHITECTURE.md`, `docs/AI_AGENTS.md`, `docs/AI_GUARDRAILS.md`, `docs/AI_EVALS.md`, `docs/AI_EVALS_REPORT.md`, `docs/OPENAI_INTEGRATION_PLAN.md`, `docs/SECURITY_PRIVACY.md`, `docs/DATA_SENSITIVITY_MATRIX.md`, `docs/ENVIRONMENT_VARIABLES.md`, `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md`, `docs/CHANGELOG.md` e `AGENTS.md` se a regra duravel nova precisar ser reforcada.
 
+## Plano - Etapa 6 Resend, SMTP Auth e e-mails transacionais seguros
+
+## Objetivo
+
+Implementar provider Resend server-only, templates transacionais neutros, trilha minima de status/webhook e documentacao de SMTP Auth sem ativar envio real por padrao.
+
+## Contexto
+
+Lidos `AGENTS.md`, `PLANS.md`, `docs/EMAIL_NOTIFICATIONS.md`, `docs/SUPABASE_AUTH.md`, `docs/SECURITY_PRIVACY.md`, `docs/DATA_SENSITIVITY_MATRIX.md`, `docs/ENVIRONMENT_VARIABLES.md`, `docs/BUG_TRIAGE.md`, `docs/RELEASE_READINESS.md` e `docs/BETA_CHECKLIST.md`. GitHub confirmou PRs #1 a #7 mergeados na `main`, incluindo a Etapa 5 em PR #7. `main` local foi atualizada por `git pull --ff-only origin main` e a branch `codex/resend-transactional-email` foi criada. Estado atual: e-mail real decidido como Resend, mas adapter real, SMTP Auth, webhook e dominio/remetente verificado ainda nao existem; `EMAIL_REAL_ENABLED=false` permanece default.
+
+## Arquivos envolvidos
+
+- Criar: `src/lib/email/resendProvider.ts`, `src/lib/email/redaction.ts`, `src/app/api/email/resend/webhook/route.ts` e testes focados de provider/templates/webhook/Atalaia.
+- Modificar: `src/lib/config/env.ts`, `src/lib/email/provider.ts`, `src/lib/email/mockProvider.ts`, `src/lib/email/templates/accountability.ts`, `src/domain/notifications/types.ts`, `src/app/accountability/actions.ts`, `.env.example`, `AGENTS.md` se regra duravel precisar ser reforcada, docs obrigatorias da etapa e testes existentes.
+- Nao tocar: migrations/RLS/Auth roles/grants/policies, deploy Hostinger/Coolify, dominio real, producao aberta, analytics/feedback, provider IA real, secrets reais e envio real para usuarios beta.
+
+## Subagentes necessarios
+
+- Subagente 1: Provider Resend, envs, timeout e bloqueios de configuracao.
+- Subagente 2: Templates, privacidade, linguagem neutra e redaction de tokens/links.
+- Subagente 3: Atalaia/notificacoes, ordem persistir-depois-tentar-provider, falha honesta e revogacao.
+- Subagente 4: Webhook Resend e delivery status com assinatura valida e payload minimo.
+- Subagente 5: Supabase Auth SMTP, secrets, release readiness e docs.
+
+## Skills necessarias
+
+`execution-plan-skill`, `email-notifications-skill`, `auth-security-skill`, `accountability-skill`, `accountability-permission-skill`, `security-privacy-skill`, `production-secrets-skill`, `testing-architecture-skill` e `docs-sync-skill`.
+
+## Riscos
+
+- Envio real acidental sem dominio/remetente verificado, `RESEND_API_KEY` e aprovacao operacional.
+- Vazamento de invite token, webhook secret, API key, conteudo privado de Atalaia ou payload bruto em logs/docs/testes.
+- Marcar notificacao como enviada antes de registrar auditoria ou apos falha de provider.
+- Aceitar webhook falso ou payload invalido e atualizar status indevido.
+- Criar dependencia nova desnecessaria ou tocar migrations/RLS sem aprovacao.
+- Declarar SMTP Auth/Supabase externo validado sem dominio, dashboard e smoke HTTPS.
+
+## Estrategia
+
+1. Manter `fetch` direto para Resend, sem instalar SDK novo.
+2. Expandir env server-only com `EMAIL_FROM_AUTH`, `EMAIL_FROM_NOTIFICATIONS`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `RESEND_TEST_RECIPIENT`, timeout e verificacao conservadora de dominio `notify.example.com` como bloqueado.
+3. Implementar adapter Resend com kill switch, provider `resend`, timeout via `AbortController`, erros sanitizados e status normalizado `blocked|pending_provider_config|queued|sent|failed`.
+4. Endurecer templates para assunto/corpo neutros, sem dados sensiveis e com link autenticado/expiravel; redigir tokens em logs/metadados.
+5. Ajustar Atalaia para criar auditoria/notificacao primeiro, tentar provider depois, atualizar status honestamente e cancelar pendentes na revogacao.
+6. Criar webhook Resend validado por HMAC quando houver secret, rejeitando sem secret fora de `local-demo`, sem armazenar payload bruto e atualizando status por referencia interna.
+7. Atualizar docs de e-mail, SMTP Auth manual, envs, seguranca, release, beta, bug triage/fix log e changelog sem fechar dominios/SMTP real.
+
+## Criterios de aceite
+
+- Adapter Resend server-only existe e bloqueia envio real por default.
+- Ausencia de `EMAIL_REAL_ENABLED`, API key, provider, remetente de dominio aprovado ou dominio verificado retorna status honesto.
+- Templates minimos de convite Atalaia, aceite, revogacao e documento de compromisso/status autorizado sao neutros e testados contra termos sensiveis.
+- Atalaia respeita consentimento/revogacao antes de envio; falha de provider nao marca como enviado.
+- Webhook rejeita assinatura invalida e aceita evento valido com status normalizado.
+- Supabase Auth SMTP fica documentado como configuracao manual pendente de dominio/remetente verificado.
+- Nenhum secret real aparece no diff.
+
+## Testes e verificacoes
+
+- Focados durante implementacao: `npm.cmd run test -- <arquivos de email/accountability/webhook>`.
+- Gates finais: `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test`, `npm.cmd run build`, `npm.cmd run test:e2e` e `git diff --check`.
+- Smoke externo, SMTP Auth real e envio para `RESEND_TEST_RECIPIENT`: N/A nesta etapa sem dominio/aprovacao explicita.
+
+## Rollback
+
+Reverter o commit/PR da Etapa 6. Como nao ha migrations, deploy, secrets reais nem configuracao remota, rollback fica limitado a codigo/docs/testes/env placeholders. Se algum secret for acidentalmente exposto, rotacionar imediatamente e registrar incidente antes de qualquer novo push.
+
+## Documentacao a atualizar
+
+`docs/EMAIL_NOTIFICATIONS.md`, `docs/SUPABASE_AUTH.md`, `docs/ENVIRONMENT_VARIABLES.md`, `docs/SECURITY_PRIVACY.md`, `docs/SECURITY_AUDIT_REPORT.md`, `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md`, `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/CHANGELOG.md` e `AGENTS.md` se regra duravel nova precisar ser reforcada.
+
 ## Regras de execucao
 
 - Nao avancar fase sem criterio de aceite verificavel.

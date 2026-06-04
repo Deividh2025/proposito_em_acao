@@ -1,11 +1,14 @@
 export type AccountabilityNotificationEvent =
   | "invite"
   | "invite_accepted"
+  | "grant_revoked"
+  | "commitment_document_shared"
   | "milestone_completed"
   | "delay_alert"
   | "help_request"
   | "goal_completed"
-  | "abandonment_risk";
+  | "abandonment_risk"
+  | "important_status_authorized";
 
 export type NotificationQueueStatus =
   | "draft"

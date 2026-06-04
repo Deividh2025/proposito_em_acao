@@ -12,6 +12,7 @@ Achados bloqueantes atuais:
 - S1 `AUTH-SSR-001`: fundacao local de Auth SSR foi implementada, mas ainda falta validacao externa em URL HTTPS publicada com redirects reais, SMTP/Resend decidido e cookies reais.
 - S1 `DB-TYPES-001`: tipos reais Supabase ainda nao foram gerados a partir de preview aprovado.
 - S1 `AI-CONSENT-AUDIT-001`: IA real possui rota segura local, mas consentimento/auditoria ainda nao sao persistidos em banco aprovado.
+- S1 `EMAIL-RESEND-001` reduzido localmente: adapter Resend, templates neutros e webhook assinado foram preparados, mas envio real, dominio verificado, SMTP Auth e smoke externo seguem pendentes.
 - S2 residual `SEC-CSP-001`: CSP de producao nao usa mais `unsafe-eval`, mas ainda permite `unsafe-inline` ate etapa de nonce/hash.
 
 Ver `docs/BUG_TRIAGE.md` para IDs, evidencias e criterios de fechamento.
@@ -59,6 +60,7 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Etapa 5 removeu `guardrail_status: not_run` da auditoria de IA, adicionou roteamento server-side OpenAI/DeepSeek com kill switch default off, consentimento por provider e redaction recursiva de metadados.
 - Auditoria transversal do PR #7 reforcou `safeInvokeAi` com minimizacao de chaves sensiveis antes de provider, timeout abortavel por `AbortSignal`, limite diario stub antes de chamada real e guardrail de saida especifico para impedir vazamento de Metacognicao ao Atalaia.
 - Fallback de crise de Metacognicao deixou de reecoar impulso/pensamento bruto do usuario bloqueado.
+- Etapa 6 adicionou provider Resend server-only bloqueado por default, templates de e-mail sem conteudo sensivel, webhook com assinatura Svix, redaction de tokens/secrets e regressao para provider falho nao marcar notificacao como enviada.
 
 ## Supabase remoto
 
@@ -86,4 +88,4 @@ Data: 2026-06-02.
 - Headers minimos de seguranca foram adicionados em `next.config.ts`: CSP, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` e HSTS em producao.
 - Supabase preview foi criado, migrations locais foram aplicadas e matriz RLS dinamica passou historicamente ate `20260602214345`.
 - Producao aberta segue bloqueada ate validar Auth real, configurar secrets fora do Git, publicar preview/deploy, rodar smoke externo e aprovar LGPD minima.
-- OpenAI/DeepSeek reais e e-mail real seguem desativados por padrao. Resend foi decidido, mas ainda nao implementado/configurado.
+- OpenAI/DeepSeek reais e e-mail real seguem desativados por padrao. Resend foi implementado localmente como provider server-only, mas continua bloqueado por dominio/secrets/smoke.

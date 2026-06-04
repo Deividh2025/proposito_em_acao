@@ -15,16 +15,53 @@ export type AccountabilityEmailTemplate = {
 };
 
 const fallbackLink = "link seguro pendente de configuracao";
+const footer =
+  "Proposito em Acao envia apenas avisos transacionais. Dados sensiveis nao sao enviados por e-mail. Se voce nao reconhece este aviso, ignore esta mensagem.";
+
+function withFooter(lines: string[]) {
+  return [...lines, "", footer].join("\n");
+}
 
 export function buildAccountabilityEmailTemplate({
   event,
-  safeSummary,
   secureLink = fallbackLink,
   userName
 }: AccountabilityEmailTemplateInput): AccountabilityEmailTemplate {
+  void userName;
+
+  if (event === "grant_revoked") {
+    return {
+      body: withFooter([
+        "Um acesso de acompanhamento foi encerrado.",
+        "Nenhum detalhe privado foi incluido nesta mensagem.",
+        `Acesse o app pelo link seguro: ${secureLink}.`
+      ]),
+      subject: "Atualizacao de acesso",
+      templateKey: "accountability_grant_revoked",
+      templateVersion: "accountability_email_v1"
+    };
+  }
+
+  if (event === "commitment_document_shared") {
+    return {
+      body: withFooter([
+        "Um documento foi disponibilizado para revisao dentro do escopo autorizado.",
+        "O conteudo fica protegido no app e nao e enviado por e-mail.",
+        `Acesse pelo link seguro: ${secureLink}.`
+      ]),
+      subject: "Documento disponivel para revisao",
+      templateKey: "commitment_document_shared",
+      templateVersion: "accountability_email_v1"
+    };
+  }
+
   if (event === "help_request") {
     return {
-      body: `${userName} pediu apoio em um alvo autorizado. Pedido: ${safeSummary ?? "resumo autorizado pendente"}. Responda com cuidado e sem cobranca. Acesse: ${secureLink}.`,
+      body: withFooter([
+        "Ha um pedido de apoio dentro de um acompanhamento autorizado.",
+        "Veja o contexto somente no app, dentro do escopo permitido.",
+        `Acesse pelo link seguro: ${secureLink}.`
+      ]),
       subject: "Pedido de apoio autorizado",
       templateKey: "accountability_help_request",
       templateVersion: "accountability_email_v1"
@@ -33,34 +70,49 @@ export function buildAccountabilityEmailTemplate({
 
   if (event === "invite_accepted") {
     return {
-      body: "O convite de acompanhamento foi aceito. O acesso continua limitado ao alvo e as permissoes autorizadas.",
-      subject: "Convite de Atalaia aceito",
+      body: withFooter([
+        "Um convite de acompanhamento foi aceito.",
+        "O acesso continua limitado ao escopo autorizado."
+      ]),
+      subject: "Convite de acompanhamento aceito",
       templateKey: "accountability_invite_accepted",
       templateVersion: "accountability_email_v1"
     };
   }
 
-  if (event === "delay_alert" || event === "abandonment_risk") {
+  if (event === "delay_alert" || event === "abandonment_risk" || event === "important_status_authorized") {
     return {
-      body: `Ha um sinal autorizado de atraso em um alvo acompanhado. Resumo seguro: ${safeSummary ?? "revisao pendente"}. Detalhes sensiveis nao sao enviados por e-mail. Acesse: ${secureLink}.`,
-      subject: "Atualizacao de alvo autorizado",
-      templateKey: "accountability_delay_alert",
+      body: withFooter([
+        "Ha uma atualizacao importante em um acompanhamento autorizado.",
+        "Detalhes ficam disponiveis apenas no app.",
+        `Acesse pelo link seguro: ${secureLink}.`
+      ]),
+      subject: "Atualizacao de acompanhamento",
+      templateKey: event === "important_status_authorized" ? "accountability_status_update" : "accountability_delay_alert",
       templateVersion: "accountability_email_v1"
     };
   }
 
-  if (event === "goal_completed") {
+  if (event === "goal_completed" || event === "milestone_completed") {
     return {
-      body: `Um alvo acompanhado foi concluido. Resumo autorizado: ${safeSummary ?? "conclusao registrada"}. Acesse: ${secureLink}.`,
-      subject: "Alvo autorizado concluido",
-      templateKey: "accountability_goal_completed",
+      body: withFooter([
+        "Um progresso autorizado foi registrado.",
+        "Detalhes ficam disponiveis apenas no app.",
+        `Acesse pelo link seguro: ${secureLink}.`
+      ]),
+      subject: "Progresso registrado",
+      templateKey: event === "milestone_completed" ? "accountability_milestone_completed" : "accountability_goal_completed",
       templateVersion: "accountability_email_v1"
     };
   }
 
   return {
-    body: `${userName} convidou voce para acompanhar um alvo especifico. Voce vera apenas o escopo autorizado. Revise o convite pelo link seguro: ${secureLink}.`,
-    subject: "Convite para acompanhar um alvo no Proposito em Acao",
+    body: withFooter([
+      "Voce recebeu um convite para um acompanhamento limitado.",
+      "Revise o escopo autorizado antes de aceitar. Dados privados nao sao enviados por e-mail.",
+      `Acesse pelo link seguro: ${secureLink}.`
+    ]),
+    subject: "Convite de acompanhamento",
     templateKey: "accountability_invite",
     templateVersion: "accountability_email_v1"
   };

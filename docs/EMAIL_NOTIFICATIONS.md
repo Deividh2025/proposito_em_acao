@@ -1,16 +1,27 @@
 # Email Notifications
 
-## Estado atual verificado em 2026-06-03
+## Estado atual verificado em 2026-06-04
 
-- E-mail real ainda nao esta configurado.
-- Resend foi decidido como provider transacional, com dominio verificado antes de envio real.
-- Resend tambem sera usado como SMTP customizado do Supabase Auth.
-- `.env.example` tem `EMAIL_PROVIDER` e `EMAIL_FROM`, mas ainda nao ha adapter real, `RESEND_API_KEY` documentada no exemplo ou dependencia de provedor.
-- Notificacoes do Atalaia continuam em fallback `pending_provider_config` ate adapter, secrets, dominio/remetente, templates, consentimento e logs seguros serem aprovados.
+- Adapter Resend server-only foi implementado com `fetch`, sem SDK novo.
+- E-mail real continua bloqueado por padrao por `EMAIL_REAL_ENABLED=false`, `EMAIL_DOMAIN_VERIFIED=false`, ausencia de `RESEND_API_KEY` real e dominio/remetente ainda nao verificado.
+- Resend continua planejado como SMTP customizado do Supabase Auth, mas a configuracao no dashboard permanece manual e pendente de dominio.
+- `.env.example` contem apenas placeholders para `EMAIL_PROVIDER=resend`, remetentes planejados, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET` e `RESEND_TEST_RECIPIENT`.
+- Notificacoes do Atalaia persistem auditoria/notificacao antes de tentar provider e atualizam status honesto depois da tentativa.
 
 ## Regra
 
-Sem provider configurado, nenhuma mensagem externa e enviada. O sistema cria template seguro, previa e status `pending_provider_config`.
+Sem provider configurado, dominio verificado, API key server-side e `EMAIL_REAL_ENABLED=true`, nenhuma mensagem externa e enviada. O sistema cria template seguro, previa e status `pending_provider_config` ou `blocked`.
+
+O provider real so pode enviar quando todos os gates abaixo estiverem verdadeiros:
+
+- `EMAIL_PROVIDER=resend`.
+- `EMAIL_REAL_ENABLED=true`.
+- `EMAIL_DOMAIN_VERIFIED=true`.
+- `EMAIL_FROM_NOTIFICATIONS` usa remetente aprovado em `notify.<dominio>`.
+- `RESEND_API_KEY` existe apenas em secret server-side.
+- Usuario revisou a previa e a action server-side persistiu consentimento, evento, grant e notificacao.
+
+`local-demo` usa mock/pending config e nunca envia.
 
 ## Eventos previstos
 
@@ -24,7 +35,7 @@ Sem provider configurado, nenhuma mensagem externa e enviada. O sistema cria tem
 
 ## Templates seguros
 
-E-mails devem conter assunto neutro, resumo minimo autorizado e link seguro. Dados sensiveis nao entram no corpo:
+E-mails devem conter assunto neutro, texto minimo e link seguro/autenticado/expiravel. Dados sensiveis nao entram no assunto ou corpo:
 
 - Metacognicao.
 - Chamado completo.
@@ -36,16 +47,53 @@ E-mails devem conter assunto neutro, resumo minimo autorizado e link seguro. Dad
 - Inbox bruto.
 - Agenda completa.
 
+Templates locais minimos:
+
+- Convite de acompanhamento.
+- Convite aceito.
+- Acesso revogado.
+- Pedido de apoio autorizado.
+- Atualizacao de acompanhamento.
+- Progresso registrado.
+- Documento de compromisso compartilhado, quando o fluxo seguro ja existir.
+
+O e-mail nao inclui titulo do alvo, tarefa, calendario, Metacognicao, Chamado, financas, familia, saude, emocoes, inbox bruto, revisoes privadas ou corpo completo da mensagem ao Atalaia.
+
 ## Fila e revogacao
 
 Notificacoes pendentes devem ser canceladas quando o grant for revogado. `queued` so deve ser usado quando houver provider real, consentimento ativo e payload sanitizado.
 
+Fluxo de criacao do convite:
+
+1. Validar entrada, previa e escopo.
+2. Persistir consentimento, parceiro, grant fechado, evento e notificacao `draft/pending_provider_config`.
+3. Persistir token hash e ativar convite/grant como `invited`.
+4. Tentar provider.
+5. Atualizar `provider_status`, `status`, `blocked_reason` e `sent_payload_redacted` sem armazenar corpo bruto, e-mail de destino ou token.
+
+Falha de provider nao desfaz automaticamente o grant ja persistido, mas tambem nao marca notificacao como enviada.
+
+## Webhook Resend
+
+Rota preparada:
+
+- `POST /api/email/resend/webhook`.
+
+Regras:
+
+- Le o corpo cru com `request.text()` antes de validar assinatura.
+- Valida headers Svix (`svix-id`, `svix-timestamp`, `svix-signature`) com `RESEND_WEBHOOK_SECRET`.
+- Rejeita assinatura invalida e payload invalido.
+- Atualiza apenas metadados redigidos em `accountability_notifications`.
+- Mapeia `delivered` para `sent`, `bounced`/`complained`/`delivery_failed` para `blocked` com `blocked_reason`, e `cancelled` para `cancelled`.
+- Nao armazena payload bruto do webhook.
+
 ## Pendencias
 
-- Implementar adapter Resend server-only.
-- Adicionar placeholders documentais de Resend sem secrets quando a implementacao for aprovada.
+- Comprar/configurar dominio real.
 - Verificar dominio/remetente Resend.
 - Configurar Resend como SMTP customizado do Supabase Auth.
 - Definir secrets server-side.
-- Testar cancelamento por revogacao.
+- Enviar teste real somente para `RESEND_TEST_RECIPIENT` apos aprovacao explicita.
+- Confirmar delivered/bounced via webhook ou painel Resend.
 - Validar RLS real com Supabase CLI/MCP.

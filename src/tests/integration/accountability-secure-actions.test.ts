@@ -219,6 +219,7 @@ describe("secure accountability actions", () => {
     queueTableResult("accountability_notifications", { data: { id: "00000000-0000-4000-8000-000000000014" }, error: null });
     queueTableResult("accountability_grants", { data: { id: grantId }, error: null });
     queueTableResult("accountability_partners", { data: { id: partnerId }, error: null });
+    queueTableResult("accountability_notifications", { data: { id: "00000000-0000-4000-8000-000000000014" }, error: null });
     const { persistAccountabilityInvite } = await import("@/app/accountability/actions");
 
     const result = await persistAccountabilityInvite({
@@ -229,6 +230,7 @@ describe("secure accountability actions", () => {
     expect(result.ok).toBe(true);
     const grantQueries = createdQueryMocksByTable.get("accountability_grants") ?? [];
     const partnerQueries = createdQueryMocksByTable.get("accountability_partners") ?? [];
+    const notificationQueries = createdQueryMocksByTable.get("accountability_notifications") ?? [];
     expect(grantQueries[0]?.insert).toHaveBeenCalledWith(
       expect.objectContaining({ invite_token_hash: null, status: "expired" })
     );
@@ -240,6 +242,59 @@ describe("secure accountability actions", () => {
     );
     expect(partnerQueries[1]?.update).toHaveBeenCalledWith(
       expect.objectContaining({ invite_token_hash: expect.any(String), status: "invited" })
+    );
+    expect(notificationQueries[0]?.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ provider_status: "pending_provider_config", status: "draft" })
+    );
+    expect(notificationQueries[1]?.update).toHaveBeenCalledWith(
+      expect.objectContaining({ provider_status: "pending_provider_config", status: "draft" })
+    );
+  });
+
+  test("does not mark an accountability notification as sent when Resend fails", async () => {
+    vi.stubEnv("EMAIL_PROVIDER", "resend");
+    vi.stubEnv("EMAIL_FROM_NOTIFICATIONS", "notificacoes@notify.example.org");
+    vi.stubEnv("EMAIL_REAL_ENABLED", "true");
+    vi.stubEnv("EMAIL_DOMAIN_VERIFIED", "true");
+    vi.stubEnv("RESEND_API_KEY", "re_placeholder");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        json: async () => ({ message: "provider unavailable" }),
+        ok: false,
+        status: 500
+      }))
+    );
+    const partnerId = "00000000-0000-4000-8000-000000000010";
+    const grantId = "00000000-0000-4000-8000-000000000011";
+    const consentId = "00000000-0000-4000-8000-000000000012";
+    const notificationId = "00000000-0000-4000-8000-000000000014";
+    queueTableResult("goals", { data: { id: "00000000-0000-4000-8000-000000000001" }, error: null });
+    queueTableResult("consent_records", { data: { id: consentId }, error: null });
+    queueTableResult("accountability_partners", { data: { id: partnerId }, error: null });
+    queueTableResult("accountability_grants", { data: { id: grantId }, error: null });
+    queueTableResult("accountability_events", { data: { id: "00000000-0000-4000-8000-000000000013" }, error: null });
+    queueTableResult("accountability_notifications", { data: { id: notificationId }, error: null });
+    queueTableResult("accountability_grants", { data: { id: grantId }, error: null });
+    queueTableResult("accountability_partners", { data: { id: partnerId }, error: null });
+    queueTableResult("accountability_notifications", { data: { id: notificationId }, error: null });
+    const { persistAccountabilityInvite } = await import("@/app/accountability/actions");
+
+    const result = await persistAccountabilityInvite({
+      ...inviteInput(),
+      preview: buildAccountabilityMessagePreview(inviteInput())
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.message).toContain("nao foi marcada como enviada");
+    const notificationQueries = createdQueryMocksByTable.get("accountability_notifications") ?? [];
+    expect(notificationQueries[1]?.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        provider_status: "blocked",
+        sent_at: null,
+        sent_payload_redacted: expect.objectContaining({ provider: "resend", status: "failed" }),
+        status: "blocked"
+      })
     );
   });
 

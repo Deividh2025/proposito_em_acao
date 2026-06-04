@@ -15,6 +15,8 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 5 adiciona camada server-side de IA com providers `mock`, `openai` e `deepseek`, roteamento `automatic|openai|deepseek`, adapter DeepSeek, consentimento por provider, redaction recursiva e evals de runtime/guardrails.
 - Auditoria transversal do PR #7 adiciona regressões de IA para rate limit local, sanitizacao de input de provider, timeout abortavel e bloqueio de output de Atalaia com Metacognicao privada.
 
+- Etapa 6 adiciona adapter Resend server-only com `fetch`, webhook assinado, templates transacionais neutros e testes focados de e-mail.
+
 ### Changed
 
 - Aceite do Atalaia passa a buscar preview real sanitizada quando Supabase/Auth estao configurados, sem grant demonstrativo.
@@ -23,6 +25,8 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Rotas principais deixam de importar amostras diretamente em `src/app`/`src/components`; `local-demo` continua rotulado e separado de dados reais.
 - Actions elegiveis de IA passam pela camada `safeInvokeAi` com mock deterministico/fallback seguro para SMART-E, projetos, microtarefas, inbox, Desbloqueador, Metacognicao, Revisao Semanal/Jardim, Atalaia e Documento de Compromisso.
 - Providers OpenAI/DeepSeek passam a receber `AbortSignal` e input minimizado antes de qualquer chamada real autorizada.
+
+- Persistencia de convites do Atalaia passa a registrar notificacao antes da tentativa de provider e atualizar `provider_status` depois, sem marcar provider falho como enviado.
 
 ### Security
 
@@ -34,6 +38,9 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 5 proibe fallback automatico entre OpenAI e DeepSeek; falha usa fallback local seguro ou fluxo manual.
 - Auditoria transversal do PR #7 reforca que output de Atalaia nao pode incluir Metacognicao/contexto privado, que timeout aborta a chamada quando suportado e que fallback de crise nao reecoa pensamento/impulso bruto.
 
+- Etapa 6 mantem `EMAIL_REAL_ENABLED=false` e `EMAIL_DOMAIN_VERIFIED=false` por default, exige Resend server-side, remetente `notify.<dominio>` aprovado e bloqueia corpo sensivel nos templates de e-mail.
+- Webhook Resend valida assinatura Svix pelo corpo cru e grava apenas metadados redigidos de entrega.
+
 ### Docs
 
 - Sincroniza fontes de verdade para o estado V1 local ampla / pre-beta real em 2026-06-03.
@@ -43,6 +50,8 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 3 Subagente 5 detalha readiness documental de Auth/seguranca: SSR proxy/getClaims, falha fechada fora de `local-demo`, redirects seguros, Auth externo pendente sem URL HTTPS/SMTP/redirect real, typegen preview pendente e PWA/cache sem rotas Auth.
 - Etapa 5 sincroniza docs de IA, guardrails, evals, seguranca, ambiente, bug triage, release e beta com OpenAI/DeepSeek server-side ainda desativados para chamadas reais.
 - Auditoria transversal do PR #7 registra gates locais finais, performance local, console/pageerror check, riscos residuais e bloqueios de beta/release.
+
+- Etapa 6 sincroniza docs de e-mail, SMTP Auth Supabase, variaveis, seguranca, bug triage, beta e release com Resend preparado localmente e envio real ainda pendente de dominio/secrets/smoke.
 
 ### Fixed
 

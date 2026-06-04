@@ -10,7 +10,7 @@ Este documento e fonte de verdade para seguranca, privacidade, consentimento, At
 - Nao havera fallback automatico entre providers de IA; falha usa fallback local seguro ou fluxo manual.
 - Etapa 5 implementou roteamento server-side OpenAI/DeepSeek, mas chamada real segue desligada por `AI_REAL_ENABLED=false` por padrao e sem secrets reais.
 - Auditoria de IA registra metadados minimos com redaction recursiva; prompt bruto, resposta bruta, conteudo intimo, tokens e chaves continuam proibidos.
-- Resend foi decidido para e-mail transacional e SMTP customizado do Supabase Auth, mas ainda nao esta implementado/configurado.
+- Etapa 6 implementou adapter Resend server-only, templates neutros e webhook assinado, mas envio real segue desligado por `EMAIL_REAL_ENABLED=false`, `EMAIL_DOMAIN_VERIFIED=false`, ausencia de secrets reais e dominio/remetente ainda nao verificado.
 - Analytics sera first-party no Supabase, opt-in desligado por padrao, mas coleta real ainda nao existe.
 - Atalaia/consentimento/Auth/escritas reais possuem S0/S1 registrados em `docs/BUG_TRIAGE.md` e bloqueiam beta real ate validacao remota/externa proporcional.
 - Etapa 2 reduziu Atalaia localmente: aceite nao usa grant demonstrativo, nao permite escalada de escopo, e criacao/aceite/revogacao exigem auditoria/consentimento minimo ou retornam `ok:false`.
@@ -143,6 +143,7 @@ Logs proibidos por padrao:
 - Chamado completo.
 - Saude, familia, financas, fe e emocoes.
 - Mensagens completas ao Atalaia.
+- Corpos de e-mail, invite tokens, URLs com token, `RESEND_API_KEY`, SMTP password e `RESEND_WEBHOOK_SECRET`.
 
 ## Prompt 7 - IA e logs seguros
 
@@ -247,7 +248,10 @@ Regras especificas:
 - `accountability_notifications.preview_payload` guarda metadados estruturados, nao corpo intimo da mensagem.
 - Documento de Compromisso nasce privado e so pode ser compartilhado com permissao `commitment_document`, revisao e consentimento.
 - Alavancas de Compromisso bloqueiam humilhacao, exposicao publica, castigo fisico, castigo espiritual, jejum como punicao, vergonha publica e consequencia financeira desproporcional.
-- Sem provider de e-mail configurado, notificacoes ficam em `pending_provider_config` e nenhum e-mail real e enviado.
+- Sem provider de e-mail configurado, dominio verificado, `EMAIL_REAL_ENABLED=true` e secrets server-side, notificacoes ficam em `pending_provider_config` ou `blocked` e nenhum e-mail real e enviado.
+- A Etapa 6 passa a persistir notificacao antes da tentativa de provider, ativa o token apenas depois das escritas obrigatorias e registra `provider_status` sem corpo bruto, e-mail de destino ou token.
+- Templates de e-mail do Atalaia sao neutros e apontam para link seguro/autenticado/expiravel; titulo do alvo, tarefa, calendario, Metacognicao, Chamado, saude, familia, financas, emocoes, inbox bruto e revisoes privadas ficam fora do assunto/corpo.
+- Webhook Resend valida assinatura Svix usando corpo cru, atualiza somente metadados redigidos e nao armazena payload bruto.
 - OpenAI real nao e acionada pela UI do Prompt 13; mensagens e documentos usam mock/contrato estruturado.
 
 ## Retencao

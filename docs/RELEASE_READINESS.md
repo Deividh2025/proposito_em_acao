@@ -137,6 +137,28 @@ Executado localmente em 2026-06-04 na branch `codex/real-ai-provider-routing`:
 
 Veredito desta auditoria: PR #7 fica aprovado com restricoes para merge preparatorio porque IA real continua desligada por default e os achados de fronteira foram corrigidos/testados. Beta real continua bloqueado pelos S1/S2 abertos em `docs/BUG_TRIAGE.md`, especialmente Auth/RLS externo, tipos Supabase reais, CI/release, IA com consentimento/auditoria persistidos, Resend, analytics/feedback consentidos e smoke HTTPS.
 
+## Evidencia da Etapa 6 - Resend transacional seguro
+
+Executado localmente em 2026-06-04 na branch `codex/resend-transactional-email`:
+
+- Gate de entrada confirmou PRs #1 a #7 mergeados na `main`.
+- `git pull --ff-only origin main`: `Already up to date`.
+- Branch criada de `main`: `codex/resend-transactional-email`.
+- Adapter Resend server-only foi criado com `fetch`, sem SDK novo.
+- `EMAIL_REAL_ENABLED=false` e `EMAIL_DOMAIN_VERIFIED=false` seguem default e bloqueiam envio real.
+- Templates transacionais de Atalaia foram reduzidos para linguagem neutra, sem titulo do alvo, tarefa, calendario, Metacognicao, Chamado, saude, familia, financas, emocoes ou corpo privado.
+- Webhook Resend foi criado em `/api/email/resend/webhook`, validando assinatura Svix com corpo cru e persistindo somente metadados redigidos.
+- Teste focado: `npm.cmd run test -- src/tests/unit/email-provider.test.ts src/tests/unit/email-templates.test.ts src/tests/integration/resend-webhook.test.ts src/tests/integration/accountability-secure-actions.test.ts` passou, 4 arquivos e 33 testes.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 35 arquivos e 215 testes.
+- `npm.cmd run build`: passou, 44 rotas, incluindo `/api/email/resend/webhook`.
+- `npm.cmd run test:e2e`: primeira tentativa falhou por concorrencia com `next build`; rerun isolado passou, 33 testes.
+- `git diff --check`: passou, apenas avisos CRLF do Windows.
+- Secret scan estrito do diff: nenhum formato real de API key/webhook secret encontrado; somente placeholders vazios e nomes de variaveis aparecem no diff.
+
+Limitacao: nenhum e-mail real foi enviado. SMTP Auth do Supabase nao foi configurado no dashboard. Dominio/remetente Resend, secrets no provedor, smoke externo e webhook real delivered/bounced seguem pendentes.
+
 ## Decisoes atuais de release
 
 - Plataforma: Hostinger VPS KVM 1 com Coolify.
@@ -146,7 +168,7 @@ Veredito desta auditoria: PR #7 fica aprovado com restricoes para merge preparat
 - IA: provider selecionavel planejado `automatic`, `openai` ou `deepseek`, padrao `automatic`, sem fallback automatico entre providers.
 - IA Etapa 5: camada server-side de roteamento existe localmente, mas `AI_REAL_ENABLED=false` continua default e provider real exige secrets, consentimento, evals aprovados e kill switch explicito.
 - Consentimento de IA: separado, versionado e revogavel por provider.
-- E-mail: Resend para transacional e SMTP customizado do Supabase Auth.
+- E-mail: Resend para transacional e SMTP customizado do Supabase Auth; adapter local preparado, envio real bloqueado ate dominio/secrets/smoke.
 - Analytics: first-party no Supabase, opt-in desligado por padrao.
 - Retencao: 90 dias para analytics, feedback beta e metadados de auditoria de IA.
 
@@ -184,7 +206,7 @@ Veredito desta auditoria: PR #7 fica aprovado com restricoes para merge preparat
 - Tipos reais gerados.
 - Atalaia seguro em ambiente remoto.
 - IA real segura.
-- Resend configurado.
+- Resend real configurado com dominio/remetente, SMTP Auth e smoke de entrega.
 - Analytics real consentido.
 - Health/readiness produtivo.
 - Docker/Coolify validado.

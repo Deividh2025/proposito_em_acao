@@ -10,6 +10,7 @@ IA e camada operacional integrada, nao chatbot solto. Toda resposta que vira dad
 - Codigo atual possui provider mock, provider OpenAI server-only e adapter DeepSeek server-only.
 - Tipos aceitam `mock | openai | deepseek`; o seletor aceita `automatic | openai | deepseek`.
 - `safeInvoke` valida schema, executa guardrails de entrada/saida, bloqueia provider real sem autorizacao explicita da rota, registra `guardrail_status` real e usa fallback local seguro sem fallback cruzado entre providers.
+- `safeInvoke` remove chaves sensiveis do input antes do provider, propaga `AbortSignal` para timeout abortavel e aplica guardrail adicional em outputs de Atalaia/Documento de Compromisso.
 - `ai_run_audit_v1` registra metadados minimos, `invocation_mode`, consentimento e motivo de fallback, mas persistencia real de auditoria ainda depende de etapa de banco/LGPD.
 - Consentimento de IA e checado por provider e versao antes da rota real; a camada nao cria consentimento automaticamente.
 - Metadados de auditoria de IA terao retencao operacional de 90 dias quando houver persistencia real.
@@ -62,7 +63,7 @@ Futura base deve conter materiais aprovados sobre Chamado, mordomia do tempo, do
 
 ## Evals
 
-Diretorio preparado: `src/ai/evals` com casos locais. Evals locais cobrem roteamento/consentimento/guardrails com mocks, mas nao validam provider real, custo, latencia, rate limit ou aderencia de modelo em producao.
+Diretorio preparado: `src/ai/evals` com casos locais. Evals locais cobrem roteamento/consentimento/guardrails com mocks, sanitizacao de input, timeout abortavel e limite diario local, mas nao validam provider real, custo, latencia, rate limit persistente ou aderencia de modelo em producao.
 
 Casos minimos futuros:
 
@@ -137,4 +138,5 @@ Antes de ativar IA real, ainda falta aprovar:
 - consentimento persistido por provider;
 - evals reais/custo por usuario/ambiente;
 - rate limit persistente;
+- readiness/smoke de provider real com chaves/modelos configurados em ambiente isolado;
 - se algum fluxo sensivel ficara apenas mock/manual no beta.

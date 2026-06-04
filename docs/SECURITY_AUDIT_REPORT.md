@@ -11,6 +11,7 @@ Achados bloqueantes atuais:
 - S1 `SEC-CONSENT-001` residual: consentimento/auditoria do Atalaia foi reduzido na Etapa 2, mas consentimentos amplos de IA/analytics/feedback e validacao remota ainda nao foram fechados.
 - S1 `AUTH-SSR-001`: fundacao local de Auth SSR foi implementada, mas ainda falta validacao externa em URL HTTPS publicada com redirects reais, SMTP/Resend decidido e cookies reais.
 - S1 `DB-TYPES-001`: tipos reais Supabase ainda nao foram gerados a partir de preview aprovado.
+- S1 `AI-CONSENT-AUDIT-001`: IA real possui rota segura local, mas consentimento/auditoria ainda nao sao persistidos em banco aprovado.
 - S2 residual `SEC-CSP-001`: CSP de producao nao usa mais `unsafe-eval`, mas ainda permite `unsafe-inline` ate etapa de nonce/hash.
 
 Ver `docs/BUG_TRIAGE.md` para IDs, evidencias e criterios de fechamento.
@@ -56,6 +57,8 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Etapa 4 moveu leituras de UI para queries server-only por usuario autenticado, sem `service_role`, e impediu amostras de parecerem dados reais fora de `local-demo`.
 - Etapa 4 manteve Metacognicao, Inbox, Calendario, Revisao, Jardim e Atalaia como privados/owner-only na UI, com Atalaia lendo apenas grants compartilhados e sanitizados.
 - Etapa 5 removeu `guardrail_status: not_run` da auditoria de IA, adicionou roteamento server-side OpenAI/DeepSeek com kill switch default off, consentimento por provider e redaction recursiva de metadados.
+- Auditoria transversal do PR #7 reforcou `safeInvokeAi` com minimizacao de chaves sensiveis antes de provider, timeout abortavel por `AbortSignal`, limite diario stub antes de chamada real e guardrail de saida especifico para impedir vazamento de Metacognicao ao Atalaia.
+- Fallback de crise de Metacognicao deixou de reecoar impulso/pensamento bruto do usuario bloqueado.
 
 ## Supabase remoto
 
@@ -71,6 +74,7 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Validar Etapa 4 em preview HTTPS com Auth real, RLS remoto e fixtures de usuario antes de chamar `PROD-DEMO-001` de fechado para beta.
 - Validar Supabase Auth real: signup, login, confirmacao de e-mail, callback, recovery/update de senha, logout, redirect seguro, refresh/getClaims e expiracao de sessao.
 - Consentimentos de IA, analytics e feedback precisam ficar granulares, versionados, revogaveis e auditaveis antes do beta real.
+- IA real ainda precisa de consentimento/auditoria persistidos, contador diario por usuario, readiness/smoke de provider real e evals reais autorizados antes de qualquer ativacao.
 - Implementar retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA quando houver persistencia real.
 - Definir/exportar/excluir dados reflexivos, Chamado, revisoes e energia antes da primeira coleta real.
 - Validar convites do Atalaia em preview real com Auth SSR, expiracao, e-mail autenticado e trilha de auditoria.

@@ -17,6 +17,7 @@ export type AiProviderRequest<TOutput> = {
   input: unknown;
   instructions?: string;
   model?: string;
+  signal?: AbortSignal;
 };
 
 export type AiProvider = {

@@ -1,11 +1,21 @@
 import { reviewAccountabilityGuardrails, reviewClinicalGuardrails, reviewMetacognitionGuardrails, reviewOwnerPersistenceSafety, reviewPastoralGuardrails } from "@/ai/guardrails";
-import { aiRunAuditSchema, type BlockedBehavior } from "@/ai/schemas";
+import { aiRunAuditSchema, type BlockedBehavior, type GuardrailReviewOutput } from "@/ai/schemas";
 import { redactAiAuditMetadata } from "@/lib/ai/redaction";
 
 import { getOpenAIErrorCategory, OpenAIProviderError } from "./errors";
 import type { SafeInvokeAiInput, SafeInvokeAiResult } from "./types";
 
 const DEFAULT_AI_TIMEOUT_MS = 20_000;
+const providerInputSensitiveKeys = new Set([
+  "api_key",
+  "apikey",
+  "authorization",
+  "raw_prompt",
+  "raw_response",
+  "secret",
+  "token"
+]);
+const accountabilityOutputAgents = new Set(["accountability", "commitmentDocument"]);
 
 export async function safeInvokeAi<TOutput>({
   agentKey,
@@ -83,6 +93,8 @@ export async function safeInvokeAi<TOutput>({
   }
 
   try {
+    const abortController = typeof AbortController !== "undefined" ? new AbortController() : null;
+    const minimizedInput = minimizeProviderInput(input);
     const output = schema.parse(
       await withTimeout(
         provider.invoke({
@@ -90,14 +102,17 @@ export async function safeInvokeAi<TOutput>({
           schema,
           schemaName,
           promptVersion,
-          input,
+          input: minimizedInput,
           instructions,
-          model
+          model,
+          signal: abortController?.signal
         }),
-        timeoutMs
+        timeoutMs,
+        () => abortController?.abort()
       )
     );
-    const outputReview = reviewOwnerPersistenceSafety({
+    const outputReview = reviewProviderOutputSafety({
+      agentKey,
       reviewedSchemaVersion: schemaName,
       value: output
     });
@@ -231,6 +246,92 @@ function toGuardrailText(value: unknown) {
   return typeof value === "string" ? value : JSON.stringify(value);
 }
 
+function minimizeProviderInput(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(minimizeProviderInput);
+  }
+
+  if (!isPlainObject(value)) {
+    return value;
+  }
+
+  const safe: Record<string, unknown> = {};
+
+  for (const [key, nestedValue] of Object.entries(value)) {
+    if (providerInputSensitiveKeys.has(key.toLowerCase())) {
+      continue;
+    }
+
+    safe[key] = minimizeProviderInput(nestedValue);
+  }
+
+  return safe;
+}
+
+function reviewProviderOutputSafety({
+  agentKey,
+  reviewedSchemaVersion,
+  value
+}: {
+  agentKey: string;
+  reviewedSchemaVersion: string;
+  value: unknown;
+}): GuardrailReviewOutput {
+  const ownerReview = reviewOwnerPersistenceSafety({
+    reviewedSchemaVersion,
+    value
+  });
+
+  if (!accountabilityOutputAgents.has(agentKey)) {
+    return ownerReview;
+  }
+
+  const accountabilityReview = reviewAccountabilityGuardrails({
+    text: toGuardrailText(value),
+    hasExplicitConsent: false,
+    allowedScopes: []
+  });
+
+  return combineOutputReviews(reviewedSchemaVersion, [ownerReview, accountabilityReview]);
+}
+
+function combineOutputReviews(
+  reviewedSchemaVersion: string,
+  reviews: GuardrailReviewOutput[]
+): GuardrailReviewOutput {
+  const blockedBehaviors = unique(reviews.flatMap((review) => review.blocked_behaviors));
+  const redactedFields = unique(reviews.flatMap((review) => review.redacted_fields));
+  const crisisDetected = reviews.some((review) => review.crisis_detected);
+  const requiresHumanHelp = reviews.some((review) => review.requires_human_help);
+  const safeToPersist =
+    blockedBehaviors.length === 0 && !crisisDetected && reviews.every((review) => review.safe_to_persist);
+
+  return {
+    schema_version: "guardrail_review_output_v1",
+    allowed: safeToPersist,
+    severity: highestSeverity(reviews),
+    blocked_behaviors: blockedBehaviors,
+    reasons: unique(reviews.flatMap((review) => review.reasons)),
+    requires_human_help: requiresHumanHelp,
+    crisis_detected: crisisDetected,
+    redacted_fields: redactedFields,
+    safe_to_persist: safeToPersist,
+    safe_to_share_with_accountability: false,
+    next_safe_step: safeToPersist
+      ? "Permitir persistencia owner-only apos revisao humana do usuario."
+      : "Bloquear output antes de persistir ou compartilhar com Atalaia.",
+    reviewed_schema_version: reviewedSchemaVersion
+  };
+}
+
+function highestSeverity(reviews: GuardrailReviewOutput[]): GuardrailReviewOutput["severity"] {
+  const order: GuardrailReviewOutput["severity"][] = ["none", "low", "medium", "high", "critical"];
+
+  return reviews.reduce<GuardrailReviewOutput["severity"]>((highest, review) => {
+    return order.indexOf(review.severity) > order.indexOf(highest) ? review.severity : highest;
+  }, "none");
+}
+
 function reviewProviderBoundaryText(text: string, isMockProvider: boolean) {
   const reviews = [
     reviewClinicalGuardrails(text),
@@ -253,10 +354,11 @@ function reviewProviderBoundaryText(text: string, isMockProvider: boolean) {
   };
 }
 
-async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, onTimeout?: () => void) {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
     timeoutId = setTimeout(() => {
+      onTimeout?.();
       reject(new OpenAIProviderError("provider_timeout", "AI provider request timed out."));
     }, timeoutMs);
   });
@@ -268,4 +370,12 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
       clearTimeout(timeoutId);
     }
   }
+}
+
+function unique<T>(items: T[]): T[] {
+  return [...new Set(items)];
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

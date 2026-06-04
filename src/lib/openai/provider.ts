@@ -9,7 +9,7 @@ import type { AiProvider } from "./types";
 export function createOpenAIProvider(): AiProvider {
   return {
     name: "openai",
-    async invoke({ schema, schemaName, input, instructions, model }) {
+    async invoke({ schema, schemaName, input, instructions, model, signal }) {
       if (!model) {
         throw new OpenAIProviderError(
           "missing_api_key",
@@ -18,15 +18,20 @@ export function createOpenAIProvider(): AiProvider {
       }
 
       const client = createOpenAIClient();
-      const response = await client.responses.parse({
-        model,
-        instructions,
-        input: typeof input === "string" ? input : JSON.stringify(input),
-        store: false,
-        text: {
-          format: zodTextFormat(schema, schemaName)
+      const response = await client.responses.parse(
+        {
+          model,
+          instructions,
+          input: typeof input === "string" ? input : JSON.stringify(input),
+          store: false,
+          text: {
+            format: zodTextFormat(schema, schemaName)
+          }
+        },
+        {
+          signal
         }
-      });
+      );
 
       if (!response.output_parsed) {
         throw new OpenAIProviderError("schema_validation", "OpenAI response did not include parsed output.");

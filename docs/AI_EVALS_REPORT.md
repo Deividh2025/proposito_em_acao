@@ -18,7 +18,7 @@ Revisao da camada central de IA, guardrails, schemas estruturados, evals locais 
 
 - Testes locais de IA passaram no suite geral.
 - Evals e unit tests cobrem guardrails clinicos, pastorais, crise, Metacognicao e Atalaia.
-- Evals e unit tests cobrem roteamento de provider, kill switch, consentimento ausente/revogado, falha sem fallback cruzado, timeout, schema invalido e redaction recursiva.
+- Evals e unit tests cobrem roteamento de provider, kill switch, consentimento ausente/revogado, falha sem fallback cruzado, timeout abortavel, schema invalido, redaction recursiva, minimizacao de input de provider, limite diario local e output de Atalaia sem vazamento.
 - Structured outputs seguem validados por Zod antes de virar dado.
 - Prompts permanecem versionados por agente, sem prompt gigante unico.
 - Verificacao final da Etapa 5: `npm.cmd run test` passou com 32 arquivos/190 testes e `npm.cmd run test:e2e` passou com 33 testes.
@@ -30,6 +30,7 @@ Revisao da camada central de IA, guardrails, schemas estruturados, evals locais 
 - Adicionado teste que bloqueia output malicioso com vontade divina especifica/culpa espiritual em persistencia de Metacognicao.
 - Etapa 5 adicionou `src/lib/ai/`, `src/lib/deepseek/`, roteamento `automatic|openai|deepseek`, consentimento versionado por provider, `invocation_mode` e auditoria sem prompt/resposta bruta.
 - Etapa 5 adicionou evals declarativos de runtime/consentimento/guardrails IO e testes unitarios de OpenAI/DeepSeek mockados.
+- Auditoria transversal do PR #7 adicionou testes para limite diario antes da chamada externa, sanitizacao de chaves sensiveis no input do provider, abort de timeout por `AbortSignal` e bloqueio de output de Atalaia com Metacognicao privada.
 
 ## Checklist IA
 
@@ -52,5 +53,6 @@ Revisao da camada central de IA, guardrails, schemas estruturados, evals locais 
 
 - Ampliar fixtures positivas por agente antes de ativar OpenAI real.
 - Persistir consentimento real por provider e auditoria minima quando etapa de banco/LGPD aprovar.
+- Persistir contador diario por usuario para `AI_DAILY_USER_LIMIT` antes de ativar IA real.
 - Executar evals contra modelos reais em ambiente isolado com custo autorizado antes de beta.
 - Aprovar base de conhecimento real e politica de versionamento.

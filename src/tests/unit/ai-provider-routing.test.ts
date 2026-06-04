@@ -22,7 +22,7 @@ import {
   resolveAiProviderRoute
 } from "@/lib/ai";
 import { OpenAIProviderError, safeInvokeAi } from "@/lib/openai";
-import type { AiProvider } from "@/lib/openai";
+import type { AiProvider, AiProviderRequest } from "@/lib/openai";
 
 const tinyOutputSchema = z
   .object({
@@ -248,6 +248,35 @@ describe("AI provider routing and consent", () => {
     expect(result.audit.provider).toBe("openai");
     expect(result.audit.fallback_reason).toBe("provider_unavailable");
   });
+
+  test("daily user limit blocks real provider invocation before any external call", async () => {
+    const openaiProvider: AiProvider = {
+      name: "openai",
+      invoke: vi.fn().mockResolvedValue(safeOutput)
+    };
+
+    const result = await invokeAiWithSafeRouting({
+      agentKey: "smartGoal",
+      preference: "openai",
+      realEnabled: true,
+      consentRecords,
+      models: providerModels,
+      providers: { openai: openaiProvider },
+      schema: tinyOutputSchema,
+      schemaName: "tiny_output_v1",
+      promptVersion: "smart_goal_prompt_v1",
+      input: { desire: "focar" },
+      fallback: safeOutput,
+      usedToday: 50
+    });
+
+    expect(openaiProvider.invoke).not.toHaveBeenCalled();
+    expect(result.source).toBe("fallback");
+    expect(result.audit.provider).toBe("openai");
+    expect(result.audit.invocation_mode).toBe("fallback");
+    expect(result.audit.error_category).toBe("daily_user_limit_reached");
+    expect(result.audit.fallback_reason).toBe("daily_user_limit_reached");
+  });
 });
 
 describe("safe AI invocation guardrails and audit", () => {
@@ -358,6 +387,95 @@ describe("safe AI invocation guardrails and audit", () => {
     expect(result.audit.invocation_mode).toBe("fallback");
     expect(result.audit.error_category).toBe("provider_unavailable");
     expect(result.audit.fallback_reason).toBe("provider_unavailable");
+  });
+
+  test("removes sensitive provider input keys before a real provider call", async () => {
+    const provider: AiProvider = {
+      name: "openai",
+      invoke: vi.fn().mockResolvedValue(safeOutput)
+    };
+
+    await safeInvokeAi({
+      agentKey: "smartGoal",
+      provider,
+      schema: tinyOutputSchema,
+      schemaName: "tiny_output_v1",
+      promptVersion: "smart_goal_prompt_v1",
+      input: {
+        desire: "focar",
+        token: "secret-token",
+        nested: {
+          Raw_Prompt: "redacted-test-value",
+          content: "conteudo minimo permitido para o agente"
+        }
+      },
+      fallback: safeOutput,
+      model: "gpt-5.4-mini",
+      realProviderAuthorized: true
+    });
+
+    const request = vi.mocked(provider.invoke).mock.calls[0][0];
+
+    expect(request.input).toEqual({
+      desire: "focar",
+      nested: {
+        content: "conteudo minimo permitido para o agente"
+      }
+    });
+    expect(request.signal).toBeDefined();
+  });
+
+  test("aborts provider signal when timeout returns local fallback", async () => {
+    let signal: AbortSignal | undefined;
+    const provider: AiProvider = {
+      name: "openai",
+      invoke<TOutput>(request: AiProviderRequest<TOutput>) {
+        signal = request.signal;
+        return new Promise<TOutput>(() => undefined);
+      }
+    };
+
+    const result = await safeInvokeAi({
+      agentKey: "smartGoal",
+      provider,
+      schema: tinyOutputSchema,
+      schemaName: "tiny_output_v1",
+      promptVersion: "smart_goal_prompt_v1",
+      input: { desire: "focar" },
+      fallback: safeOutput,
+      model: "gpt-5.4-mini",
+      timeoutMs: 1,
+      realProviderAuthorized: true
+    });
+
+    expect(result.source).toBe("fallback");
+    expect(result.audit.error_category).toBe("provider_timeout");
+    expect(signal?.aborted).toBe(true);
+  });
+
+  test("blocks accountability output that tries to include private metacognition context", async () => {
+    const provider: AiProvider = {
+      name: "mock",
+      invoke: vi.fn().mockResolvedValue({
+        message: "Vou enviar sua Metacognicao completa ao Atalaia.",
+        user_review_required: true
+      })
+    };
+
+    const result = await safeInvokeAi({
+      agentKey: "accountability",
+      provider,
+      schema: tinyOutputSchema,
+      schemaName: "tiny_output_v1",
+      promptVersion: "accountability_prompt_v1",
+      input: { approvedGoal: "Retomar com cuidado" },
+      fallback: safeOutput
+    });
+
+    expect(result.source).toBe("fallback");
+    expect(result.audit.status).toBe("blocked");
+    expect(result.audit.guardrail_status).toBe("blocked");
+    expect(result.audit.blocked_behaviors).toContain("unconsented_private_sharing");
   });
 
   test("invalid provider schema and timeout return safe fallback metadata", async () => {
@@ -514,6 +632,9 @@ describe("OpenAI provider adapter", () => {
         model: "gpt-5.4-mini",
         store: false,
         input: JSON.stringify({ desire: "focar" })
+      }),
+      expect.objectContaining({
+        signal: undefined
       })
     );
   });

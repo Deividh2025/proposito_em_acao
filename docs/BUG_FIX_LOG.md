@@ -114,3 +114,22 @@ Testes executados nesta etapa:
 - `npm.cmd run build`: passou, 44 paginas/rotas geradas.
 - `npm.cmd run test:e2e`: passou, 33 testes.
 - `git diff --check`: passou, apenas avisos CRLF do Windows.
+
+## Auditoria transversal do PR #7 - IA e regressao
+
+Data: 2026-06-04.
+
+| Bug | Correcao | Evidencia |
+|---|---|---|
+| `AI-GUARD-001` reauditado | `safeInvokeAi` passou a minimizar chaves sensiveis recursivas antes de chamar provider real, aplicar `AbortSignal` no timeout e bloquear output de agentes de Atalaia que tente incluir Metacognicao/contexto privado. | `src/lib/openai/safeInvoke.ts`, `src/lib/openai/types.ts`, `src/lib/openai/provider.ts`, `src/lib/deepseek/provider.ts`, `src/tests/unit/ai-provider-routing.test.ts`. |
+| `AI-RATE-PERSIST-001` reduzido | Invoker de roteamento agora consulta `AI_DAILY_USER_LIMIT`/`checkAiDailyLimit` antes da chamada real quando `usedToday` e informado, retornando fallback sem acionar provider. Persistencia do contador segue pendente. | `src/lib/ai/invoke.ts`, `src/lib/ai/routing.ts`, teste `daily user limit blocks real provider invocation before any external call`. |
+| `AI-CRISIS-001` | Fallback deterministico de crise em Metacognicao deixou de reecoar `impulse` e `automaticThought` brutos do usuario quando o texto foi classificado como crise. | `src/domain/metacognition/index.ts`, gates completos locais. |
+
+Testes executados apos as correcoes:
+
+- `npm.cmd run test -- src/tests/unit/ai-provider-routing.test.ts`: passou, 20 testes.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 32 arquivos e 194 testes.
+- `npm.cmd run build`: passou, 44 rotas.
+- `npm.cmd run test:e2e`: passou, 33 testes.

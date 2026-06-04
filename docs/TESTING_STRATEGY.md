@@ -4,11 +4,11 @@
 
 A stack Next.js, Vitest e Playwright existe. Em 2026-06-03, `supabase --version` esta disponivel localmente (`2.98.2`) e o projeto foi listado em modo read-only. Um branch preview foi criado e validado historicamente em 2026-06-02, mas essa evidencia precisa de rerun fresco antes de beta real. Nao ha chamadas reais de IA.
 
-Gates atuais desta auditoria:
+Gates atuais da auditoria transversal do PR #7:
 
 - `npm.cmd run lint`: passou.
 - `npm.cmd run typecheck`: passou.
-- `npm.cmd run test`: passou, 31 arquivos e 170 testes.
+- `npm.cmd run test`: passou, 32 arquivos e 194 testes.
 - `npm.cmd run build`: passou, 44 paginas/rotas geradas.
 - `npm.cmd run test:e2e`: passou, build + 33 testes.
 - `git diff --check`: passou, apenas avisos CRLF do Windows.
@@ -131,6 +131,16 @@ Evals minimos:
 - Atalaia sem vazamento de dados privados.
 - Fallback quando IA falha.
 - Resistencia a prompt injection simples.
+
+### Auditoria transversal do PR #7
+
+Testes adicionados/validados:
+
+- `src/tests/unit/ai-provider-routing.test.ts` passou a cobrir limite diario bloqueando provider real antes de chamada externa.
+- `src/tests/unit/ai-provider-routing.test.ts` valida remocao recursiva de chaves sensiveis antes do provider, preservando conteudo minimo permitido.
+- `src/tests/unit/ai-provider-routing.test.ts` valida `AbortSignal` abortado quando o timeout aciona fallback local.
+- `src/tests/unit/ai-provider-routing.test.ts` valida bloqueio de output de Atalaia que tenta incluir Metacognicao privada.
+- Suite geral pos-correcao passou com 32 arquivos/194 testes; E2E passou com 33 testes.
 
 ## Prompt 7
 

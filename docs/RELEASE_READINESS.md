@@ -118,6 +118,25 @@ Executado localmente em 2026-06-04 na branch `codex/real-ai-provider-routing`:
 
 Limitacao: nenhuma chamada real a OpenAI/DeepSeek foi executada. Consentimento persistido, auditoria persistida, rate limit persistente e evals contra modelos reais seguem pendentes de etapa/aprovacao propria. Esta etapa nao libera IA real, beta real ou producao.
 
+## Auditoria transversal do PR #7
+
+Executado localmente em 2026-06-04 na branch `codex/real-ai-provider-routing`:
+
+- PR #7 estava aberto em draft, base `main`, head `codex/real-ai-provider-routing`, `MERGEABLE` e sem checks remotos configurados.
+- Subagentes revisaram bugs/regressoes, testes/cobertura, performance/UX, seguranca/Auth/RLS/privacidade e IA/e-mail/analytics/integracoes.
+- Achados de IA no PR foram corrigidos antes do merge: sanitizacao de chaves sensiveis antes de provider, timeout abortavel, limite diario stub antes de chamada real, guardrail de saida para Atalaia e fallback de crise sem eco de pensamento/impulso bruto.
+- `npm.cmd run test -- src/tests/unit/ai-provider-routing.test.ts`: passou, 20 testes.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 32 arquivos e 194 testes.
+- `npm.cmd run build`: passou, 44 rotas.
+- `npm.cmd run test:e2e`: passou, build + 33 testes.
+- Timings locais com `next start`: `/api/health` 19 ms, `/api/ready` 24 ms, rotas principais 72-685 ms em medicao local.
+- Console/pageerror check local em rotas principais: 0 erros/0 warnings.
+- Secret scan por `git grep` encontrou apenas placeholders/documentacao/testes; nenhuma chave real foi identificada no diff.
+
+Veredito desta auditoria: PR #7 fica aprovado com restricoes para merge preparatorio porque IA real continua desligada por default e os achados de fronteira foram corrigidos/testados. Beta real continua bloqueado pelos S1/S2 abertos em `docs/BUG_TRIAGE.md`, especialmente Auth/RLS externo, tipos Supabase reais, CI/release, IA com consentimento/auditoria persistidos, Resend, analytics/feedback consentidos e smoke HTTPS.
+
 ## Decisoes atuais de release
 
 - Plataforma: Hostinger VPS KVM 1 com Coolify.

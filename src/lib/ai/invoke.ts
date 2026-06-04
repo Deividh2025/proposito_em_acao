@@ -15,6 +15,7 @@ import {
 
 import {
   AI_PROVIDER_CONSENT_VERSION,
+  checkAiDailyLimit,
   resolveAiProviderRoute,
   type AiProviderConsentRecord,
   type AiProviderModels,
@@ -39,6 +40,7 @@ export type InvokeAiWithSafeRoutingInput<TOutput> = {
   models?: AiProviderModels;
   timeoutMs?: number;
   providers?: AiProviderOverrides;
+  usedToday?: number;
 };
 
 export async function invokeAiWithSafeRouting<TOutput>({
@@ -56,7 +58,8 @@ export async function invokeAiWithSafeRouting<TOutput>({
   realEnabled,
   models,
   timeoutMs,
-  providers
+  providers,
+  usedToday = 0
 }: InvokeAiWithSafeRoutingInput<TOutput>): Promise<SafeInvokeAiResult<TOutput>> {
   const env = getAiInvocationEnv();
   const route = resolveAiProviderRoute({
@@ -76,10 +79,18 @@ export async function invokeAiWithSafeRouting<TOutput>({
       }
   });
 
+  const limit =
+    route.mode === "real"
+      ? checkAiDailyLimit({
+          usedToday,
+          dailyLimit: env.AI_DAILY_USER_LIMIT
+        })
+      : { allowed: true as const, remaining: null, reason: null };
   const provider =
     route.providerName === "mock"
       ? createMockAiProvider({ [agentKey]: mockOutput })
       : resolveRealProvider(route.providerName, providers);
+  const fallbackReason = limit.allowed ? route.fallbackReason : limit.reason;
 
   return safeInvokeAi({
     agentKey,
@@ -92,9 +103,10 @@ export async function invokeAiWithSafeRouting<TOutput>({
     fallback,
     model: route.model,
     timeoutMs: timeoutMs ?? env.AI_REQUEST_TIMEOUT_MS,
-    fallbackReason: route.fallbackReason,
+    fallbackReason,
     consentVersion: route.consentVersion,
-    realProviderAuthorized: route.mode === "real"
+    realProviderAuthorized: route.mode === "real" && limit.allowed,
+    authorizationFailureReason: fallbackReason ?? "missing_provider_consent"
   });
 }
 
@@ -111,6 +123,7 @@ function getAiInvocationEnv() {
     AI_PROVIDER_DEFAULT: parseProviderPreference(process.env.AI_PROVIDER_DEFAULT),
     AI_REAL_ENABLED: process.env.AI_REAL_ENABLED === "true",
     AI_REQUEST_TIMEOUT_MS: parsePositiveInteger(process.env.AI_REQUEST_TIMEOUT_MS, 20_000),
+    AI_DAILY_USER_LIMIT: parsePositiveInteger(process.env.AI_DAILY_USER_LIMIT, 50),
     OPENAI_MODEL: process.env.OPENAI_MODEL || "",
     OPENAI_MODEL_FAST: process.env.OPENAI_MODEL_FAST || "gpt-5.4-mini",
     OPENAI_MODEL_PRO: process.env.OPENAI_MODEL_PRO || "gpt-5.5",

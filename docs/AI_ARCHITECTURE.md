@@ -126,6 +126,8 @@ OpenAI real nao foi ativada em fluxo de produto nesta etapa.
 - Consentimento de IA e verificado por provider e versao antes de qualquer rota real; a camada nao cria consentimento automaticamente.
 - DeepSeek possui adapter server-only em `src/lib/deepseek/` usando API compativel com OpenAI quando aplicavel, sempre com validacao Zod porque JSON mode nao e tratado como schema estrito.
 - `src/lib/ai/invoke.ts` unifica roteamento, provider real/mock, consentimento, kill switch e chamada segura.
+- A chamada segura minimiza chaves sensiveis antes do provider, propaga `AbortSignal` para OpenAI/DeepSeek e aplica limite diario quando o contador do usuario e informado.
+- Saidas de Atalaia/Documento de Compromisso recebem guardrail adicional de compartilhamento para impedir vazamento sem consentimento granular.
 - Auditoria minima registra provider, modelo, agente, prompt/schema version, modo de invocacao, status de guardrail, latencia, motivo de fallback, consentimento e timestamp, sem prompt bruto ou resposta bruta.
 - Metadados de auditoria de IA devem aplicar retencao operacional de 90 dias quando houver persistencia real.
 
@@ -147,6 +149,7 @@ Diretriz tecnica:
 - OpenAI permanece provider candidato para fluxos que exigirem melhor aderencia a schemas, guardrails e qualidade avaliada.
 - O roteamento por agente deve ser explicito e versionado antes de ativar IA real.
 - Todos os providers seguem as mesmas regras: schema estruturado, Zod/server validation, guardrails, minimizacao de contexto, sem prompt/resposta bruta em logs e fallback seguro.
+- Timeouts devem abortar a requisicao remota quando o SDK/provider suportar sinal de cancelamento; fallback local nao autoriza fallback cruzado entre providers.
 - Chamado, Metacognicao, Atalaia, Revisao Semanal e dados sensiveis nao podem ir a provider real sem aprovacao de privacidade, consentimento quando aplicavel e evals negativos.
 
 ## Prompt 8 - SMART-E e Planejador

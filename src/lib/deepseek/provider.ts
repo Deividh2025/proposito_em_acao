@@ -10,7 +10,7 @@ type DeepSeekCompletionFactory = (request: {
   messages: Array<{ role: "system" | "user"; content: string }>;
   response_format: { type: "json_object" };
   stream: false;
-}) => Promise<unknown>;
+}, options?: { signal?: AbortSignal }) => Promise<unknown>;
 
 export type DeepSeekProviderOptions = {
   apiKey?: string;
@@ -21,7 +21,7 @@ export type DeepSeekProviderOptions = {
 export function createDeepSeekProvider(options: DeepSeekProviderOptions = {}): AiProvider {
   return {
     name: "deepseek",
-    async invoke({ schema, input, instructions, model }) {
+    async invoke({ schema, input, instructions, model, signal }) {
       if (!model) {
         throw new OpenAIProviderError(
           "missing_api_key",
@@ -30,23 +30,26 @@ export function createDeepSeekProvider(options: DeepSeekProviderOptions = {}): A
       }
 
       const createCompletion = options.createCompletion ?? createDefaultDeepSeekCompletion(options);
-      const response = await createCompletion({
-        model,
-        messages: [
-          {
-            role: "system",
-            content:
-              `${instructions ?? "Return only valid JSON."}\n` +
-              "The answer must be valid json and will be validated by a server-side Zod schema."
-          },
-          {
-            role: "user",
-            content: typeof input === "string" ? input : JSON.stringify(input)
-          }
-        ],
-        response_format: { type: "json_object" },
-        stream: false
-      });
+      const response = await createCompletion(
+        {
+          model,
+          messages: [
+            {
+              role: "system",
+              content:
+                `${instructions ?? "Return only valid JSON."}\n` +
+                "The answer must be valid json and will be validated by a server-side Zod schema."
+            },
+            {
+              role: "user",
+              content: typeof input === "string" ? input : JSON.stringify(input)
+            }
+          ],
+          response_format: { type: "json_object" },
+          stream: false
+        },
+        { signal }
+      );
 
       const content = extractDeepSeekContent(response);
 
@@ -80,7 +83,7 @@ function createDefaultDeepSeekCompletion(options: DeepSeekProviderOptions): Deep
     baseURL: baseURL || "https://api.deepseek.com"
   });
 
-  return (request) => client.chat.completions.create(request);
+  return (request, options) => client.chat.completions.create(request, { signal: options?.signal });
 }
 
 function extractDeepSeekContent(response: unknown) {

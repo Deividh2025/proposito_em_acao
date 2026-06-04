@@ -1,5 +1,5 @@
 import type { AiAgentKey } from "@/ai/agents";
-import type { AiProviderName, AiProviderPreference, AiInvocationMode } from "@/lib/openai";
+import type { AiProviderName, AiProviderPreference, AiInvocationMode, OpenAIErrorCategory } from "@/lib/openai";
 
 export const AI_PROVIDER_CONSENT_VERSION = "ai-provider-consent-v1";
 
@@ -26,7 +26,7 @@ export type AiProviderRoute = {
   providerName: AiProviderName;
   mode: AiInvocationMode;
   model: string;
-  fallbackReason: string | null;
+  fallbackReason: OpenAIErrorCategory | null;
   consentVersion: string | null;
 };
 
@@ -153,7 +153,7 @@ function resolveProviderModel(agentKey: AiAgentKey, providerName: RealAiProvider
 
 function mockRoute(
   requestedPreference: AiProviderPreference,
-  fallbackReason: string,
+  fallbackReason: OpenAIErrorCategory,
   consentVersion: string | null,
   mode: AiInvocationMode = "mock"
 ): AiProviderRoute {

@@ -13,6 +13,14 @@ Este documento e fonte de verdade para seguranca, privacidade, consentimento, At
 - Atalaia/consentimento/Auth/escritas reais possuem S0/S1 registrados em `docs/BUG_TRIAGE.md` e bloqueiam beta real ate validacao remota/externa proporcional.
 - Etapa 2 reduziu Atalaia localmente: aceite nao usa grant demonstrativo, nao permite escalada de escopo, e criacao/aceite/revogacao exigem auditoria/consentimento minimo ou retornam `ok:false`.
 
+## Auth, sessao e redirects
+
+- Auth SSR completo ainda e bloqueador de beta real.
+- O proxy/middleware de SSR deve renovar/propagar cookies de sessao e validar claims sem usar metadata editavel pelo usuario para autorizacao.
+- Em `preview`, `beta` e `production`, sessao ausente, refresh falho, token invalido, callback/recovery invalido ou falha real de Supabase/Auth deve bloquear o fluxo ou retornar `ok:false`; somente `local-demo` pode usar fallback local/dev honesto.
+- Redirects de Auth devem aceitar apenas destinos relativos internos ou allowlist por ambiente; URLs externas arbitrarias, wildcards amplos em producao e propagacao de tokens em querystring ficam proibidos.
+- Logs, analytics, feedback e suporte nao devem registrar access token, refresh token, callback token, invite token, recovery token ou URL com query sensivel.
+
 ## Dados sensiveis
 
 Devem ser tratados como sensiveis desde a concepcao: fe, saude, sono, energia, familia, relacionamentos, financas, emocoes, pensamentos, impulsos, Chamado, Metacognicao, calendario, habitos, Placar, Revisao Semanal, Atalaia e Documento de Compromisso.
@@ -269,7 +277,7 @@ A arquitetura futura deve prever:
 PWA/mobile e superficie complementar para acoes rapidas. Regras especificas:
 
 - `public/sw.js` cacheia apenas assets estaticos declarados e pagina offline segura.
-- Metacognicao, Inbox bruta, calendario, Atalaia, notificacoes, tokens, respostas de server actions e conteudo sensivel nao devem ser cacheados.
+- Metacognicao, Inbox bruta, calendario, Atalaia, notificacoes, tokens, respostas de server actions, rotas `/auth`, callbacks, recovery, APIs autenticadas e conteudo sensivel nao devem ser cacheados.
 - Nao usar `localStorage`, `sessionStorage`, IndexedDB ou CacheStorage para dados sensiveis nesta etapa.
 - `energy_checkins` e dado sensivel e permanece owner-only.
 - Migration remota de `energy_checkins` aplicada em 2026-06-02 no Supabase `proposito_em_acao`; testes RLS por persona ainda dependem de validacao automatizada completa.

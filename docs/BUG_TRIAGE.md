@@ -35,13 +35,21 @@ Padronizar registro, severidade, reproducao e fechamento de bugs do beta fechado
 | SEC-CONSENT-001 | Reduzido | Criacao, aceite e revogacao do Atalaia passam a registrar consentimento/evento/notificacao obrigatoria ou retornar `ok:false`; consentimentos amplos de IA/analytics/feedback seguem fora desta etapa. |
 | QA-INT-001 | Reduzido | Harness preview inclui `atalia_invited`, tentativa de escalada, aceite especifico e revogacao cortando leituras futuras. Execucao remota fresca continua pendente. |
 
+## Fechados ou reduzidos na Etapa 3
+
+| ID | Status | Evidencia |
+|---|---|---|
+| AUTH-SSR-001 | Reduzido localmente | `proxy.ts`, `src/lib/supabase/proxy.ts`, rotas `/auth/callback`, `/auth/confirm`, `/auth/error`, `/auth/forgot-password`, `/auth/update-password`, redirects seguros e testes Auth SSR foram implementados. Fechamento completo exige URL HTTPS publicada, redirects Supabase configurados, smoke Auth externo e evidencia de cookies reais. |
+| OPS-HEALTH-001 | Reduzido localmente | `/api/ready` foi criado separado de `/api/health`, com falha fechada fora de `local-demo` quando Supabase/Auth essencial esta ausente. Fechamento completo exige smoke externo em preview/deploy aprovado. |
+| QA-INT-001 | Reduzido | Suites Auth SSR/unit/integration/E2E foram adicionadas; ainda falta cobertura Auth/RLS real em preview aprovado. |
+
 ## Ledger aberto
 
 | ID | Sev | Dominio | Titulo | Evidencia | Proximo passo | Criterio de fechamento |
 |---|---|---|---|---|---|---|
-| AUTH-SSR-001 | S1 | Auth | Auth SSR incompleto | Ausencia de proxy/middleware, callback, confirmacao e recuperacao; `server.ts` menciona refresh externo | Implementar fluxo SSR completo conforme Supabase Auth | Smoke Auth em URL HTTPS cobre signup, confirmacao, login, logout, recovery e refresh |
+| AUTH-SSR-001 | S1 | Auth | Auth SSR local implementado, externo nao validado | Fundacao local existe e gates locais passaram, mas nao houve URL HTTPS, Site URL/Redirect URLs Supabase, SMTP/Resend nem smoke externo de cookies reais | Publicar preview aprovado, configurar redirects Auth e validar fluxo real completo | Smoke Auth em URL HTTPS cobre signup, confirmacao, login, rota protegida, logout, recovery, redirects seguros e refresh/getClaims |
 | DB-TYPES-001 | S1 | Supabase | Tipos de banco continuam genericos | `src/types/database.ts` usa `Record<string, ...>` | Gerar tipos reais apos cutover preview aprovado | Diff de tipos reais revisado e typecheck passa com schema concreto |
-| OPS-HEALTH-001 | S1 | Operacao | Health check nao valida dependencias | `/api/health` retorna sempre `ok:true` | Separar liveness/readiness e validar dependencias no readiness | Smoke externo usa endpoint que detecta Supabase/Auth/config ausente |
+| OPS-HEALTH-001 | S1 | Operacao | Readiness externo nao validado | `/api/ready` existe localmente, mas ainda nao foi validado em preview/deploy aprovado | Rodar smoke externo em URL HTTPS e confirmar falha fechada quando config essencial faltar | Smoke externo usa endpoint que detecta Supabase/Auth/config ausente |
 | OPS-GH-001 | S1 | GitHub/release | Sem CI, branch protection efetiva ou releases | API GitHub: `main` protected false, zero workflows, zero releases | Criar workflow/gates, tags/release process ou registrar limitacao operacional aceita | PR/release exige CI verde e rollback referenciavel |
 | OPS-DOCKER-001 | S1 | Deploy | Docker/rollback nao ensaiados | Dockerfile sem `HEALTHCHECK`; imagem nao validada nesta auditoria; sem releases/deployments | Validar build da imagem, healthcheck e rollback Coolify | Smoke de container e rollback rehearsal documentados |
 | AI-GUARD-001 | S1 | IA | Provider path registra guardrails como `not_run` | `src/lib/openai/safeInvoke.ts` retorna auditoria com `guardrail_status: "not_run"` | Integrar guardrail reviewer antes/depois do provider | Evals negativos e teste do provider comprovam guardrails executados |
@@ -51,6 +59,7 @@ Padronizar registro, severidade, reproducao e fechamento de bugs do beta fechado
 | PROD-DEMO-001 | S1 | Produto/dados | Paginas principais usam dados demonstrativos | Goals/projects/tasks/habits/scoreboard/garden/accountability usam `sample*` | Substituir por dados reais do usuario ou rotular claramente no beta | Smoke autenticado mostra dados do usuario ou vazio real |
 | SEC-CSP-001 | S2 | Seguranca | CSP ainda permite `unsafe-inline` | `unsafe-eval` saiu de producao, mas `script-src`/`style-src` ainda mantem `unsafe-inline` | Implementar nonce/hash ou decisao formal de risco antes de deploy publico | Build/E2E passam com nonce/hash ou risco residual aprovado |
 | QA-INT-001 | S2 | Testes | Integracao real ampla ainda insuficiente | Suite mockada de runtime existe, mas preview/Auth/RLS real ainda nao tem cobertura fresca | Expandir actions/server/Supabase mockado e, em ambiente aprovado, preview RLS/Auth | Gate inclui integracao relevante por modulo e evidencia fresca de preview |
+| PWA-AUTH-CACHE-001 | S2 | PWA/Auth | Cache PWA precisa de prova negativa para Auth | Docs exigem cache apenas de assets seguros, mas smoke publicado ainda nao provou que `/auth`, callbacks, recovery, APIs autenticadas, server actions e payloads privados ficam fora do cache | Validar service worker em HTTPS e adicionar smoke/regressao quando houver preview | Evidencia mostra que rotas Auth e respostas privadas nao entram em CacheStorage/offline |
 
 ## Regras de fechamento
 

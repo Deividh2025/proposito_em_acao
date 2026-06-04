@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { SuccessState } from "@/components/ui/SuccessState";
+import { sanitizeAuthNext } from "@/lib/auth/redirects";
 import { getPublicEnv } from "@/lib/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -33,12 +34,19 @@ const statusMessages: Record<string, { title: string; description: string }> = {
   "signup-sent": {
     title: "Conta criada ou aguardando confirmacao",
     description: "Se confirmacao de e-mail estiver ativa no Supabase, confirme o link antes de entrar."
+  },
+  "password-updated": {
+    title: "Senha atualizada",
+    description: "Entre novamente se a sessao pedir uma confirmacao adicional."
   }
 };
 
 async function getAuthSnapshot() {
   const env = getPublicEnv();
-  const configured = Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  const configured = Boolean(
+    env.NEXT_PUBLIC_SUPABASE_URL &&
+      (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  );
 
   if (!configured) {
     return { configured, signedIn: false };
@@ -56,7 +64,7 @@ async function getAuthSnapshot() {
   }
 }
 
-function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
+function AuthForm({ mode, next }: { mode: "sign-in" | "sign-up"; next: string }) {
   const isSignUp = mode === "sign-up";
   const Icon = isSignUp ? UserPlus : LogIn;
 
@@ -78,6 +86,7 @@ function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 
       <form action={submitAuthAction} className="space-y-3">
         <input name="mode" type="hidden" value={mode} />
+        <input name="next" type="hidden" value={next} />
         <label className="block text-sm font-semibold text-ink-800">
           E-mail
           <Input autoComplete="email" className="mt-1" name="email" required type="email" />
@@ -104,6 +113,9 @@ function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 export default async function AuthPage({ searchParams }: AuthPageProps) {
   const params = (await searchParams) ?? {};
   const rawStatus = Array.isArray(params.status) ? params.status[0] : params.status;
+  const rawNext = Array.isArray(params.next) ? params.next[0] : params.next;
+  const next = sanitizeAuthNext(rawNext);
+  const formNext = next === "/auth" ? "/dashboard" : next;
   const status = rawStatus ? statusMessages[rawStatus] : null;
   const snapshot = await getAuthSnapshot();
 
@@ -140,6 +152,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             Seus fluxos podem persistir no Supabase quando as migrations e policies estiverem aplicadas.
           </p>
           <form action={signOutAction}>
+            <input name="next" type="hidden" value="/auth" />
             <Button intent="neutral" type="submit" variant="outline">
               Sair
             </Button>
@@ -147,8 +160,8 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         </Card>
       ) : (
         <section className="grid gap-4 lg:grid-cols-2" aria-label="Autenticacao">
-          <AuthForm mode="sign-in" />
-          <AuthForm mode="sign-up" />
+          <AuthForm mode="sign-in" next={formNext} />
+          <AuthForm mode="sign-up" next={formNext} />
         </section>
       )}
     </div>

@@ -65,3 +65,19 @@ Testes focados executados nesta etapa antes dos gates completos:
 Pendencia: migration e harness nao foram aplicados em Supabase remoto/principal nesta etapa. Preview deve ser validado somente em branch/ambiente aprovado.
 
 Risco residual: fluxo ainda nao usa RPC transacional em `app_private`; a Etapa 2 evita token/ativacao utilizavel antes das escritas obrigatorias e implementa compensacao local, mas ainda registra a pendencia de validar/aprimorar em preview.
+
+## Etapa 3 - Subagente 5 - Auth readiness documental
+
+Data: 2026-06-03.
+
+Esta etapa nao fechou bugs por codigo ou smoke externo. Ela reduziu ambiguidade documental dos bloqueadores `AUTH-SSR-001`, `DB-TYPES-001`, `OPS-HEALTH-001` e `PWA-AUTH-CACHE-001` ao registrar criterios minimos de SSR proxy/getClaims, falha fechada fora de `local-demo`, redirects seguros, Auth externo pendente sem URL HTTPS/SMTP/redirect real, typegen preview pendente e PWA/cache sem rotas Auth.
+
+## Etapa 3 - Auth SSR, rotas protegidas e readiness local
+
+Data: 2026-06-04.
+
+| Bug | Correcao | Evidencia |
+|---|---|---|
+| `AUTH-SSR-001` | Fundacao local de Auth SSR adicionada com `proxy.ts`, helper `src/lib/supabase/proxy.ts`, `auth.getClaims()`, rotas `/auth/callback`, `/auth/confirm`, `/auth/error`, `/auth/forgot-password`, `/auth/update-password`, redirects `next` seguros, logout e falha fechada fora de `local-demo`. | `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test`, `npm.cmd run build`, `npm.cmd run test:e2e`; testes Auth SSR unit/integration/E2E. Fechamento completo continua pendente de URL HTTPS, redirects Supabase, SMTP/Resend ou decisao operacional e smoke externo. |
+| `OPS-HEALTH-001` | `/api/ready` criado separado de `/api/health`, sem expor secrets e com falha fechada em `preview`, `beta` e `production` quando Supabase/Auth essencial estiver ausente. | Build e E2E locais passaram; smoke externo ainda pendente. |
+| `PWA-AUTH-CACHE-001` | Teste estatico confirma que o service worker nao lista rotas autenticadas nem faz `cache.put`; navegação segue network-first com fallback apenas para `/offline`. | `src/tests/unit/auth-ssr-safety-contracts.test.ts` passou dentro de `npm.cmd run test`. |

@@ -2,21 +2,27 @@ import "server-only";
 
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { getPublicEnv } from "@/lib/config";
+
+import { getServerEnv } from "@/lib/config";
 import type { Database } from "@/types/database";
 
 export async function createSupabaseServerClient() {
-  const env = getPublicEnv();
+  const env = getServerEnv();
+  const supabasePublicKey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!env.NEXT_PUBLIC_SUPABASE_URL || !env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-    throw new Error("Supabase public environment variables are not configured.");
+  if (!env.NEXT_PUBLIC_SUPABASE_URL || !supabasePublicKey) {
+    if (env.APP_RUNTIME_MODE === "local-demo") {
+      throw new Error("Supabase public environment variables are not configured for local demo.");
+    }
+
+    throw new Error("Supabase Auth is required but public environment variables are not configured.");
   }
 
   const cookieStore = await cookies();
 
   return createServerClient<Database>(
     env.NEXT_PUBLIC_SUPABASE_URL,
-    env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    supabasePublicKey,
     {
       cookies: {
         getAll() {

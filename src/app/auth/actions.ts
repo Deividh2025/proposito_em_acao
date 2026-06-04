@@ -2,7 +2,8 @@
 
 import { redirect } from "next/navigation";
 
-import { getPublicEnv } from "@/lib/config";
+import { getAppRuntimeMode, getPublicEnv } from "@/lib/config";
+import { appendSafeNext, sanitizeAuthNext } from "@/lib/auth/redirects";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type AuthMode = "sign-in" | "sign-up";
@@ -19,27 +20,53 @@ function readMode(formData: FormData): AuthMode {
 function hasSupabasePublicEnv() {
   const env = getPublicEnv();
 
-  return Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  return Boolean(
+    env.NEXT_PUBLIC_SUPABASE_URL &&
+      (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  );
 }
 
-function redirectToAuthStatus(status: string): never {
-  redirect(`/auth?status=${encodeURIComponent(status)}`);
+function isLocalDemoRuntime() {
+  try {
+    return getAppRuntimeMode() === "local-demo";
+  } catch {
+    return false;
+  }
+}
+
+function redirectToAuthStatus(status: string, next?: unknown): never {
+  redirect(appendSafeNext(`/auth?status=${encodeURIComponent(status)}`, next));
+}
+
+function redirectToAuthError(status = "unavailable"): never {
+  redirect(`/auth/error?status=${encodeURIComponent(status)}`);
+}
+
+function buildAppUrl(path: string) {
+  const env = getPublicEnv();
+  const baseUrl = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
+
+  return `${baseUrl}${path}`;
 }
 
 export async function submitAuthAction(formData: FormData) {
   const mode = readMode(formData);
   const email = readText(formData, "email").toLowerCase();
   const password = readText(formData, "password");
+  const next = sanitizeAuthNext(readText(formData, "next"));
 
   if (!email.includes("@") || password.length < 6) {
-    redirectToAuthStatus("invalid");
+    redirectToAuthStatus("invalid", next);
   }
 
   if (!hasSupabasePublicEnv()) {
-    redirectToAuthStatus("local");
+    if (isLocalDemoRuntime()) {
+      redirectToAuthStatus("local", next);
+    }
+
+    redirectToAuthError("config");
   }
 
-  const env = getPublicEnv();
   const supabase = await createSupabaseServerClient();
 
   if (mode === "sign-up") {
@@ -47,31 +74,96 @@ export async function submitAuthAction(formData: FormData) {
       email,
       password,
       options: {
-        emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}/dashboard`
+        emailRedirectTo: buildAppUrl(appendSafeNext("/auth/confirm", next))
       }
     });
 
     if (error) {
-      redirectToAuthStatus("auth-error");
+      redirectToAuthStatus("auth-error", next);
     }
 
-    redirectToAuthStatus("signup-sent");
+    redirectToAuthStatus("signup-sent", next);
   }
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirectToAuthStatus("auth-error");
+    redirectToAuthStatus("auth-error", next);
   }
 
-  redirect("/dashboard");
+  redirect(next);
 }
 
-export async function signOutAction() {
-  if (hasSupabasePublicEnv()) {
-    const supabase = await createSupabaseServerClient();
-    await supabase.auth.signOut();
+export async function requestPasswordResetAction(formData: FormData) {
+  const email = readText(formData, "email").toLowerCase();
+
+  if (!email.includes("@")) {
+    redirect("/auth/forgot-password?status=sent");
   }
 
-  redirectToAuthStatus("signed-out");
+  if (!hasSupabasePublicEnv()) {
+    if (isLocalDemoRuntime()) {
+      redirect("/auth/forgot-password?status=local");
+    }
+
+    redirectToAuthError("config");
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: buildAppUrl("/auth/update-password")
+  });
+
+  if (error) {
+    redirectToAuthError("unavailable");
+  }
+
+  redirect("/auth/forgot-password?status=sent");
+}
+
+export async function updatePasswordAction(formData: FormData) {
+  const password = readText(formData, "password");
+  const confirmPassword = readText(formData, "confirmPassword");
+
+  if (password.length < 6 || password !== confirmPassword) {
+    redirect("/auth/update-password?status=invalid");
+  }
+
+  if (!hasSupabasePublicEnv()) {
+    if (isLocalDemoRuntime()) {
+      redirect("/auth/update-password?status=local");
+    }
+
+    redirectToAuthError("config");
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) {
+    redirectToAuthError("session");
+  }
+
+  redirectToAuthStatus("password-updated");
+}
+
+export async function signOutAction(formData?: FormData) {
+  const next = sanitizeAuthNext(formData ? readText(formData, "next") : undefined, "/auth");
+
+  if (!hasSupabasePublicEnv()) {
+    if (isLocalDemoRuntime()) {
+      redirectToAuthStatus("signed-out", next);
+    }
+
+    redirectToAuthError("config");
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    redirectToAuthError("unavailable");
+  }
+
+  redirectToAuthStatus("signed-out", next);
 }

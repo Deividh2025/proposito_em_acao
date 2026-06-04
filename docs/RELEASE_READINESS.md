@@ -66,6 +66,22 @@ Limitacao: nesta etapa nao houve `db push`, typegen real nem `supabase:validate:
 - Em 2026-06-02, docs registram branch preview Supabase `preview-release-readiness`, migrations locais alinhadas e matriz RLS dinamica minima aprovada.
 - Essa evidencia e util como historico, mas deve ser repetida antes de beta real porque o projeto principal, Auth publicado, secrets e smoke externo ainda nao foram validados.
 
+## Evidencia da Etapa 3 - Auth SSR local
+
+Executado localmente em 2026-06-04 na branch `codex/auth-ssr-data-foundation`:
+
+- PR #4 da Etapa 2 foi marcado pronto e mergeado antes do inicio da Etapa 3.
+- `git pull --ff-only`: `main` atualizada ate `6200fce` antes da branch da Etapa 3.
+- Branch criada de `main`: `codex/auth-ssr-data-foundation`.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 23 arquivos e 135 testes.
+- `npm.cmd run build`: passou, 44 paginas/rotas geradas.
+- `npm.cmd run test:e2e`: passou, build + 33 testes.
+- `git diff --check`: passou, apenas avisos CRLF do Windows.
+
+Limitacao: estes gates sao locais. `npm.cmd run supabase:types:preview` e `npm.cmd run supabase:validate:preview` nao foram executados porque `SUPABASE_PREVIEW_DB_URL`, `SUPABASE_PROJECT_ID`, anon/publishable URL e confirmacao de preview nao estavam disponiveis no processo. Auth externo real segue pendente sem URL HTTPS publicada, Site URL/Redirect URLs Supabase, SMTP/Resend operacional e smoke de cookies reais.
+
 ## Decisoes atuais de release
 
 - Plataforma: Hostinger VPS KVM 1 com Coolify.
@@ -83,11 +99,13 @@ Limitacao: nesta etapa nao houve `db push`, typegen real nem `supabase:validate:
 - Corrigir/validar S0/S1 do `docs/BUG_TRIAGE.md`, especialmente Atalaia, Auth SSR, tipos Supabase, health/readiness, CI/release, guardrails de IA, consentimento, dados demonstrativos e integracoes reais.
 - Publicar URL HTTPS de preview.
 - Configurar secrets no provedor, sem commitar `.env` real.
-- Validar Auth real publicado: signup, login, confirmacao, callback, recuperacao, logout, redirects e refresh centralizado.
+- Validar Auth real publicado: signup, login, confirmacao, callback, recuperacao, logout, redirects, refresh/getClaims e cookies reais.
+- Validar proxy/middleware SSR em URL HTTPS com falha fechada fora de `local-demo`.
 - Repetir cutover/harness Supabase em branch/preview ou ambiente aprovado e anexar evidencia fresca.
 - Aplicar e validar a migration de hardening do Atalaia em branch preview aprovada antes de beta real.
 - Gerar tipos reais do Supabase e revisar diff.
 - Rodar smoke externo contra URL HTTPS.
+- Confirmar que PWA/service worker nao cacheia `/auth`, callback, recovery, APIs autenticadas, server actions ou payloads privados.
 - Aprovar LGPD minima: termos, privacidade, consentimentos, revogacao, exportacao, exclusao e retencao.
 - Ensaiar Docker/Coolify/rollback com release/tag ou deployment anterior conhecido.
 - Configurar CI ou registrar limitacao operacional aceita antes de qualquer release publica.
@@ -102,7 +120,8 @@ Limitacao: nesta etapa nao houve `db push`, typegen real nem `supabase:validate:
 
 ## Nao declarar como pronto
 
-- Auth SSR completo.
+- Auth SSR externo completo.
+- Auth externo com URL HTTPS, redirects reais, SMTP Auth/Resend e recovery validado.
 - Supabase principal alinhado.
 - RLS completa no ambiente atual.
 - Tipos reais gerados.

@@ -36,7 +36,20 @@ describe("InboxCapture UI action results", () => {
 
     await act(async () => {
       root = createRoot(host);
-      root.render(React.createElement(InboxCapture));
+      root.render(
+        React.createElement(InboxCapture, {
+          dataMessage: "Fixture de teste",
+          initialItems: [
+            {
+              content: "Captura de teste",
+              contentType: "text",
+              createdAt: "2026-06-04T00:00:00.000Z",
+              id: "inbox-test-1",
+              status: "captured"
+            }
+          ]
+        })
+      );
     });
 
     const button = [...host.querySelectorAll("button")].find((item) =>

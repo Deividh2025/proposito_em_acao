@@ -1,6 +1,6 @@
 # Beta Checklist
 
-Data de sincronizacao: 2026-06-03.
+Data de sincronizacao: 2026-06-04.
 
 ## Status
 
@@ -39,6 +39,7 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [x] Scripts preparados: `supabase:types:preview` e `supabase:validate:preview`.
 - [x] Atalaia/RLS endurecido localmente contra escalada no aceite, com harness preview expandido para `atalia_invited`.
 - [x] Fundacao local de Auth SSR implementada com proxy/getClaims, callback, confirmacao, recovery, logout, redirects seguros, rotas protegidas por runtime e `/api/ready`.
+- [x] Etapa 4 preparada localmente para substituir dados demonstrativos por queries autenticadas/empty states, mantendo amostras apenas em `local-demo`.
 - [ ] Corrigir/validar bugs S0/S1 do `docs/BUG_TRIAGE.md`.
 - [ ] Publicar preview HTTPS em Hostinger/Coolify.
 - [ ] Configurar secrets de preview no provedor.
@@ -70,7 +71,7 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 
 ## Produto/UX
 
-- [ ] Fluxos principais usam dados reais do usuario ou estados vazios reais no smoke; dados demonstrativos nao podem parecer persistencia.
+- [ ] Fluxos principais usam dados reais do usuario ou estados vazios reais no smoke; Etapa 4 local preparada, mas falta smoke autenticado externo.
 - [ ] Usuario entende fallback local/dev versus persistencia real.
 - [ ] Inbox nao marca sucesso local quando `result.ok` falha.
 - [ ] Mobile nao possui `<main>` aninhado.

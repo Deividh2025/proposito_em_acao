@@ -428,6 +428,41 @@ describe("secure accountability actions", () => {
     expect(JSON.stringify(result.grant)).not.toContain(rawInviteToken);
   });
 
+  test("does not expose the goal title in invite preview without goal_name permission", async () => {
+    const rawInviteToken = "token-sem-nome-do-alvo-1234";
+    const partnerId = "00000000-0000-4000-8000-000000000010";
+    const grantId = "00000000-0000-4000-8000-000000000011";
+    queueTableResult("accountability_partners", {
+      data: {
+        email: "atalia@example.com",
+        id: partnerId,
+        user_id: "user-1"
+      },
+      error: null
+    });
+    queueTableResult("accountability_grants", {
+      data: {
+        goal_id: "00000000-0000-4000-8000-000000000001",
+        id: grantId,
+        last_previewed_at: "2026-06-03T12:00:00.000Z",
+        notification_frequency: "weekly",
+        permissions: { status: true },
+        tracking_level: "balanced"
+      },
+      error: null
+    });
+    serverSupabaseMock.auth.getUser.mockResolvedValue({
+      data: { user: { email: "atalia@example.com", id: "partner-user-1" } }
+    });
+
+    const { getAccountabilityInvitePreview } = await import("@/app/accountability/actions");
+    const result = await getAccountabilityInvitePreview({ inviteToken: rawInviteToken });
+
+    expect(result.ok).toBe(true);
+    expect(result.grant?.goalTitle).toBe("Alvo autorizado");
+    expect(adminSupabaseMock.from).not.toHaveBeenCalledWith("goals");
+  });
+
   test("revocation cuts access before returning ok false when final audit persistence fails", async () => {
     const grantId = "00000000-0000-4000-8000-000000000011";
     const partnerId = "00000000-0000-4000-8000-000000000010";

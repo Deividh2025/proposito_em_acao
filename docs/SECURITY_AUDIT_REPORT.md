@@ -54,6 +54,8 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Persistencia owner-only de Desbloqueador e Metacognicao passou a rodar guardrails antes de salvar structured output enviado pelo cliente.
 - Auth visual basico foi adicionado com server actions, sem service role e sem OAuth prematuro.
 - Etapa 3 adicionou proxy SSR com `auth.getClaims()`, rotas de callback/confirmacao/recuperacao, redirects seguros, protecao de rotas por runtime e `/api/ready`, sem expor `service_role`.
+- Etapa 4 moveu leituras de UI para queries server-only por usuario autenticado, sem `service_role`, e impediu amostras de parecerem dados reais fora de `local-demo`.
+- Etapa 4 manteve Metacognicao, Inbox, Calendario, Revisao, Jardim e Atalaia como privados/owner-only na UI, com Atalaia lendo apenas grants compartilhados e sanitizados.
 
 ## Supabase remoto
 
@@ -66,6 +68,7 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 
 ## Riscos pendentes
 
+- Validar Etapa 4 em preview HTTPS com Auth real, RLS remoto e fixtures de usuario antes de chamar `PROD-DEMO-001` de fechado para beta.
 - Validar Supabase Auth real: signup, login, confirmacao de e-mail, callback, recovery/update de senha, logout, redirect seguro, refresh/getClaims e expiracao de sessao.
 - Consentimentos de IA, analytics e feedback precisam ficar granulares, versionados, revogaveis e auditaveis antes do beta real.
 - Implementar retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA quando houver persistencia real.

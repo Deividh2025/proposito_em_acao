@@ -11,18 +11,21 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 2 adiciona migration local `20260603211654_accountability_acceptance_rls_hardening.sql` para hardening de aceite do Atalaia, com `invite_token_hash` no grant, triggers de imutabilidade e `search_path` seguro.
 - Harness Supabase preview passa a cobrir `atalia_invited`, tentativa de escalada de escopo, aceite de grant especifico e revogacao cortando leituras futuras.
 - Etapa 3 adiciona fundacao local de Auth SSR com `proxy.ts`, `src/lib/supabase/proxy.ts`, rotas `/auth/callback`, `/auth/confirm`, `/auth/error`, `/auth/forgot-password`, `/auth/update-password`, helpers server-only de sessao, queries minimas autenticadas e `/api/ready`.
+- Etapa 4 adiciona queries server-only por dominio para carregar dados autenticados ou empty states reais nas principais interfaces.
 
 ### Changed
 
 - Aceite do Atalaia passa a buscar preview real sanitizada quando Supabase/Auth estao configurados, sem grant demonstrativo.
 - Permissoes do Atalaia passam a persistir exatamente a selecao revisada pelo dono, sem reintroduzir defaults do nivel automaticamente.
 - Criacao, aceite e revogacao do Atalaia passam a exigir consentimento/auditoria/notificacao obrigatoria ou retornar `ok:false`.
+- Rotas principais deixam de importar amostras diretamente em `src/app`/`src/components`; `local-demo` continua rotulado e separado de dados reais.
 
 ### Security
 
 - Etapa 2 remove policies diretas de update do convidado no aceite do Atalaia e concentra ativacao/revogacao em action server-side auditavel.
 - Nenhuma migration remota foi aplicada no Supabase principal; validacao preview da Etapa 2 segue pendente.
 - Etapa 3 usa `auth.getClaims()` no proxy SSR, `next` seguro apenas para paths internos, falha fechada fora de `local-demo` quando Supabase/Auth essencial falta e mantem `service_role` fora do barrel publico.
+- Etapa 4 usa usuario autenticado + RLS para leituras normais de UI, sem `service_role`, e mantem Atalaia limitado a grants sanitizados.
 
 ### Docs
 

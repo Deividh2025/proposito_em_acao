@@ -33,10 +33,10 @@ test("execution routes keep newer modules explicit about their prompt status", a
 
   await page.goto("/focus");
   await expect(page.getByRole("heading", { name: "Modo Foco" })).toBeVisible();
-  await expect(page.getByText("Status: Prompt 11")).toBeVisible();
+  await expect(page.getByText("Status: Amostra local-demo")).toBeVisible();
 
   await page.goto("/accountability");
-  await expect(page.getByRole("heading", { name: "Atalaia" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Atalaia", exact: true })).toBeVisible();
   await expect(page.getByText("Prompt 13")).toBeVisible();
   await expect(page.getByText("Criar convite com previa")).toBeVisible();
 });

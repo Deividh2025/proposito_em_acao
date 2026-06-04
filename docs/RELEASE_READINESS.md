@@ -1,6 +1,6 @@
 # Release Readiness
 
-Data de sincronizacao: 2026-06-03.
+Data de sincronizacao: 2026-06-04.
 
 ## Veredito
 
@@ -82,6 +82,22 @@ Executado localmente em 2026-06-04 na branch `codex/auth-ssr-data-foundation`:
 
 Limitacao: estes gates sao locais. `npm.cmd run supabase:types:preview` e `npm.cmd run supabase:validate:preview` nao foram executados porque `SUPABASE_PREVIEW_DB_URL`, `SUPABASE_PROJECT_ID`, anon/publishable URL e confirmacao de preview nao estavam disponiveis no processo. Auth externo real segue pendente sem URL HTTPS publicada, Site URL/Redirect URLs Supabase, SMTP/Resend operacional e smoke de cookies reais.
 
+## Evidencia da Etapa 4 - dados autenticados nas interfaces
+
+Executado localmente em 2026-06-04 na branch `codex/real-authenticated-data-ui`:
+
+- PR #5 da Etapa 3 foi marcado pronto e mergeado antes do inicio da Etapa 4.
+- Branch criada de `main`: `codex/real-authenticated-data-ui`.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 31 arquivos e 170 testes.
+- `npm.cmd run build`: passou, 44 paginas/rotas geradas.
+- `npm.cmd run test:e2e`: passou, build + 33 testes.
+- `git diff --check`: passou, apenas avisos CRLF do Windows.
+- Secret scan do diff: nenhum padrao sensivel real encontrado.
+
+Limitacao: smoke externo, `supabase:types:preview` e `supabase:validate:preview` nao foram executados porque nao ha URL HTTPS/ambiente preview aprovado para Auth/RLS real neste momento. A validacao autenticada externa segue bloqueada por essa ausencia.
+
 ## Decisoes atuais de release
 
 - Plataforma: Hostinger VPS KVM 1 com Coolify.
@@ -97,6 +113,7 @@ Limitacao: estes gates sao locais. `npm.cmd run supabase:types:preview` e `npm.c
 ## Bloqueadores antes do beta real
 
 - Corrigir/validar S0/S1 do `docs/BUG_TRIAGE.md`, especialmente Atalaia, Auth SSR, tipos Supabase, health/readiness, CI/release, guardrails de IA, consentimento, dados demonstrativos e integracoes reais.
+- Confirmar por smoke autenticado que a Etapa 4 nao mostra amostras fora de `local-demo`.
 - Publicar URL HTTPS de preview.
 - Configurar secrets no provedor, sem commitar `.env` real.
 - Validar Auth real publicado: signup, login, confirmacao, callback, recuperacao, logout, redirects, refresh/getClaims e cookies reais.

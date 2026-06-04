@@ -21,36 +21,33 @@ import { ScoreboardItem } from "./ScoreboardItem";
 import { ScoreboardTrend } from "./ScoreboardTrend";
 import { StreakSoftIndicator } from "./StreakSoftIndicator";
 
-const sampleScoreboard: DisciplineScoreboard = {
-  id: "local-scoreboard-default",
-  title: "Placar leve da semana",
-  period: "weekly",
-  visibility: "private",
-  items: [
-    {
-      id: "local-scoreboard-focus",
-      title: "Sessao de foco honesta",
-      type: "focus",
-      targetFrequency: "3 vezes na semana",
-      minimumSuccess: "5 minutos com distracoes capturadas"
-    },
-    {
-      id: "local-scoreboard-restart",
-      title: "Retomada sem culpa",
-      type: "restart",
-      targetFrequency: "quando houver queda",
-      minimumSuccess: "voltar com uma microacao"
-    }
-  ]
+type ScoreboardCardProps = {
+  canUseSampleData?: boolean;
+  dataMessage: string;
+  initialRestartCount: number;
+  initialScoreboard: DisciplineScoreboard | null;
 };
 
-export function ScoreboardCard() {
-  const [scoreboard, setScoreboard] = useState(sampleScoreboard);
+export function ScoreboardCard({
+  canUseSampleData = false,
+  dataMessage,
+  initialRestartCount,
+  initialScoreboard
+}: ScoreboardCardProps) {
+  const [scoreboard, setScoreboard] = useState<DisciplineScoreboard>(
+    initialScoreboard ?? {
+      id: "unsaved-scoreboard",
+      title: "Meu Placar leve",
+      period: "weekly",
+      visibility: "private",
+      items: []
+    }
+  );
   const [focus, setFocus] = useState("execucao diaria");
   const [period, setPeriod] = useState<"daily" | "weekly" | "custom">("weekly");
   const [plan, setPlan] = useState<ScoreboardPlanOutput | null>(null);
   const [message, setMessage] = useState("");
-  const [restartCount, setRestartCount] = useState(2);
+  const [restartCount, setRestartCount] = useState(initialRestartCount);
   const [isPending, startTransition] = useTransition();
 
   function createLocalScoreboard() {
@@ -148,6 +145,9 @@ export function ScoreboardCard() {
               Sugerir por mock
             </Button>
           </div>
+          <p className="text-sm leading-6 text-ink-600">
+            {canUseSampleData ? "Amostra local-demo: " : ""}{dataMessage}
+          </p>
           {message ? <p className="text-sm leading-6 text-ink-600">{message}</p> : null}
         </Card>
 
@@ -174,11 +174,17 @@ export function ScoreboardCard() {
             </div>
             <RestartCountBadge count={restartCount} />
           </div>
+          {scoreboard.items.length === 0 ? (
+            <p className="rounded-card border border-dashed border-ink-200 bg-ink-50 p-4 text-sm leading-6 text-ink-600">
+              Nenhum item real no Placar ainda. Crie ou salve um plano revisado para comecar.
+            </p>
+          ) : (
           <div className="space-y-3">
             {scoreboard.items.map((item) => (
               <ScoreboardItem disabled={isPending} item={item} key={item.id} onMark={mark} />
             ))}
           </div>
+          )}
         </Card>
       </div>
 

@@ -1,8 +1,11 @@
 import { LifeGarden } from "@/components/garden/GardenComponents";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
+import { getGardenStateForCurrentUser } from "@/lib/supabase/queries/reflection";
 
-export default function GardenPage() {
+export default async function GardenPage() {
+  const garden = await getGardenStateForCurrentUser();
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -13,7 +16,7 @@ export default function GardenPage() {
       <SensitiveDataNotice title="Jardim privado e derivado">
         O Jardim usa snapshots e eventos minimos. Ele nao substitui os dados originais nem e compartilhado com Atalaia.
       </SensitiveDataNotice>
-      <LifeGarden />
+      <LifeGarden message={garden.message} mode={garden.mode} state={garden.data} />
     </div>
   );
 }

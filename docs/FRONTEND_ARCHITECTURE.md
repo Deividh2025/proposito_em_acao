@@ -27,7 +27,7 @@ Rotas existentes:
 - `/accountability`
 - `/settings`
 
-Essas rotas validam shell, navegacao e cobertura ampla da V1 local. Elas nao devem ser confundidas com prontidao de beta real: parte das telas ainda usa dados demonstrativos, mocks ou fallback local/dev, e a persistencia real depende de Auth/Supabase/RLS em ambiente validado.
+Essas rotas validam shell, navegacao e cobertura ampla da V1 local. Elas nao devem ser confundidas com prontidao de beta real: apos a Etapa 4, listagens e detalhes principais usam queries autenticadas ou empty states reais, enquanto `local-demo` pode exibir amostras rotuladas e mocks de IA continuam apenas para geracao revisavel/local-dev. A prova de dados reais ainda depende de Auth/Supabase/RLS em ambiente validado.
 
 Excecao do Prompt 6:
 
@@ -37,13 +37,21 @@ Excecao do Prompt 6:
 - `/calendar` e `/inbox` implementam o centro operacional do Prompt 9 com calendario semana/dia, blocos, agendamento, captura, classificacao mockada e processamento.
 - Prompt 10 a 14 adicionaram Desbloqueador, Metacognicao, Foco, Habitos, Placar, Revisao, Jardim, Atalaia, Compromissos e rotas mobile/PWA em profundidade controlada.
 
-## Estado atual verificado em 2026-06-03
+## Estado anterior verificado em 2026-06-03
 
 - Varias paginas principais ainda exibem amostras locais: alvos, projetos, tarefas, calendario/inbox, habitos, Placar, Jardim e Atalaia possuem componentes com `sample*`, mocks ou paineis demonstrativos.
 - A Inbox atualiza estado local em captura/conversao sem checar `result.ok`; antes do beta real, a UI deve diferenciar falha real de rascunho local.
 - Rotas mobile usam `MobileShell` com `<main>` dentro do `<main>` global do AppShell; corrigir antes de tratar mobile/PWA como pronto.
 - `/settings` ainda nao implementa seletor real de provider de IA (`automatic`, `openai`, `deepseek`) nem consentimento por provider.
 - E2E local valida navegacao e fallback, nao prova dados reais do usuario nem Auth real publicado.
+
+## Estado atual verificado em 2026-06-04 - Etapa 4
+
+- Rotas principais passam a decidir fonte de dados por runtime: `local-demo` pode exibir amostras rotuladas; `preview`, `beta` e `production` devem exibir dados autenticados via server queries ou empty states reais.
+- `src/app` e `src/components` nao devem importar `sample*` para listagens/detalhes reais; amostras ficam encapsuladas em queries de `local-demo`, fixtures ou testes.
+- Dashboard, execucao, calendario/inbox, foco, habitos, Placar, historicos privados, Jardim, Atalaia, Compromissos e mobile/today receberam superfícies de dados reais ou vazios reais.
+- Mocks de IA permanecem apenas em geracao revisavel/local-dev; eles nao substituem dados persistidos em listagens.
+- E2E local ainda valida fallback/renderizacao; dados reais autenticados continuam dependentes de preview HTTPS/Auth/RLS.
 
 ## App Router
 

@@ -12,11 +12,11 @@ import {
   accountabilityLevelLabels,
   accountabilityNotificationFrequencyLabels,
   accountabilityPermissionLabels,
-  type AccountabilityGrantDraft
+  type AccountabilityGrantPreview
 } from "@/domain/accountability";
 
 type AccountabilityGrantCardProps = {
-  grant: AccountabilityGrantDraft;
+  grant: AccountabilityGrantPreview;
 };
 
 export function AccountabilityGrantCard({ grant }: AccountabilityGrantCardProps) {

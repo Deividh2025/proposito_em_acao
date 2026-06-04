@@ -1,7 +1,10 @@
 import { CalendarShell } from "@/components/calendar/CalendarShell";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { getDailyRoutineData } from "@/lib/supabase/queries/daily";
 
-export default function CalendarPage() {
+export default async function CalendarPage() {
+  const dailyData = await getDailyRoutineData();
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -9,7 +12,14 @@ export default function CalendarPage() {
         status="Prompt 9"
         title="Calendário de execução"
       />
-      <CalendarShell />
+      <CalendarShell
+        canUseSampleData={dailyData.canUseSampleData}
+        dataMessage={dailyData.message}
+        dataSource={dailyData.source}
+        initialBlocks={dailyData.calendarBlocks}
+        recentInboxItems={dailyData.recentInboxItems}
+        weekStart={dailyData.weekStart}
+      />
     </div>
   );
 }

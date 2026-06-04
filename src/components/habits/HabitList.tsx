@@ -8,30 +8,14 @@ import { Card } from "@/components/ui/Card";
 import type { Habit, HabitLogStatus } from "@/domain/habits";
 import { HabitLogButton } from "./HabitLogButton";
 
-const sampleHabits: Habit[] = [
-  {
-    id: "local-habit-prayer",
-    title: "Leitura breve pela manha",
-    status: "active",
-    identityStatement: "Sou alguem que volta ao essencial antes da pressa.",
-    whyItMatters: "Comecar pequeno protege direcao antes de agenda.",
-    lifeArea: "Espiritualidade",
-    trigger: "Depois de beber agua pela manha",
-    minimumVersion: "Ler por 2 minutos",
-    idealVersion: "Ler e anotar uma frase",
-    frequency: "daily",
-    scheduleSuggestion: "Antes do primeiro bloco de trabalho",
-    reward: "Marcar minimo feito",
-    likelyObstacle: "pressa",
-    ifThenPlan: "Se houver pressa, ler uma frase e marcar minimo.",
-    environmentDesign: "Livro ou nota aberta na mesa.",
-    metric: "minimo/ideal/retomada",
-    restartPlan: "Voltar no proximo contexto sem compensar com excesso."
-  }
-];
+type HabitListProps = {
+  canUseSampleData?: boolean;
+  dataMessage: string;
+  initialHabits: Habit[];
+};
 
-export function HabitList() {
-  const [habits] = useState(sampleHabits);
+export function HabitList({ canUseSampleData = false, dataMessage, initialHabits }: HabitListProps) {
+  const [habits] = useState(initialHabits);
   const [lastStatus, setLastStatus] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -49,7 +33,15 @@ export function HabitList() {
         <p className="mt-1 text-sm leading-6 text-ink-600">
           Marque o minimo antes do ideal. Pausa consciente tambem e escolha registrada.
         </p>
+        <p className="mt-2 text-sm leading-6 text-ink-600">
+          {canUseSampleData ? "Amostra local-demo: " : ""}{dataMessage}
+        </p>
       </div>
+      {habits.length === 0 ? (
+        <p className="rounded-card border border-dashed border-ink-200 bg-ink-50 p-4 text-sm leading-6 text-ink-600">
+          Nenhum habito real salvo ainda. Crie um habito revisavel para marcar a versao minima.
+        </p>
+      ) : (
       <div className="space-y-3">
         {habits.map((habit) => (
           <div className="rounded-card border border-ink-100 bg-ink-50 p-4" key={habit.id}>
@@ -69,6 +61,7 @@ export function HabitList() {
           </div>
         ))}
       </div>
+      )}
       {lastStatus ? <p className="text-sm leading-6 text-ink-600">{lastStatus}</p> : null}
     </Card>
   );

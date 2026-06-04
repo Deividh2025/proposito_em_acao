@@ -6,14 +6,15 @@ import { useMemo, useState } from "react";
 import {
   buildCalendarWeekModel,
   detectScheduleOverload,
-  getNextCalendarAction,
-  sampleCalendarBlocks
+  getNextCalendarAction
 } from "@/domain/calendar";
 import type { CalendarBlock } from "@/domain/calendar";
-import { sampleInboxItems } from "@/domain/inbox";
+import type { InboxItem } from "@/domain/inbox";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
 import { SuccessState } from "@/components/ui/SuccessState";
 import { Tag } from "@/components/ui/Tag";
@@ -25,14 +26,34 @@ import { WeekView } from "./WeekView";
 
 type CalendarMode = "week" | "day";
 
-export function CalendarShell() {
-  const [blocks, setBlocks] = useState<CalendarBlock[]>(sampleCalendarBlocks);
+type CalendarShellProps = {
+  canUseSampleData: boolean;
+  dataMessage: string;
+  dataSource: "authenticated" | "blocked" | "error" | "local-demo";
+  initialBlocks: CalendarBlock[];
+  recentInboxItems: InboxItem[];
+  weekStart: string;
+};
+
+export function CalendarShell({
+  canUseSampleData,
+  dataMessage,
+  dataSource,
+  initialBlocks,
+  recentInboxItems,
+  weekStart
+}: CalendarShellProps) {
+  const [blocks, setBlocks] = useState<CalendarBlock[]>(initialBlocks);
   const [mode, setMode] = useState<CalendarMode>("week");
   const [message, setMessage] = useState("");
-  const week = useMemo(() => buildCalendarWeekModel(blocks, "2026-06-01"), [blocks]);
+  const week = useMemo(() => buildCalendarWeekModel(blocks, weekStart), [blocks, weekStart]);
   const selectedDay = week.days[0]!;
-  const nextAction = getNextCalendarAction(blocks);
+  const nextAction = getNextCalendarAction(
+    blocks,
+    canUseSampleData ? "2026-06-01T08:00:00-03:00" : new Date().toISOString()
+  );
   const overloadAlert = detectScheduleOverload(blocks);
+  const hasDataWarning = dataSource === "blocked" || dataSource === "error";
 
   function upsertBlock(block: CalendarBlock, nextMessage: string) {
     setBlocks((current) => {
@@ -69,7 +90,8 @@ export function CalendarShell() {
       <div className="flex flex-col gap-3 rounded-panel border border-ink-100 bg-white p-3 shadow-sm md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-2">
           <CalendarDays aria-hidden className="h-5 w-5 text-purpose-700" />
-          <span className="font-bold text-ink-900">Semana de 01/06</span>
+          <span className="font-bold text-ink-900">Semana de {week.weekStart.slice(5)}</span>
+          {canUseSampleData ? <Tag>local-demo</Tag> : null}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => setMode("week")} variant={mode === "week" ? "solid" : "outline"}>
@@ -83,6 +105,12 @@ export function CalendarShell() {
           </Button>
         </div>
       </div>
+
+      {hasDataWarning ? (
+        <ErrorState description={dataMessage} title="Dados reais indisponiveis" />
+      ) : (
+        <SuccessState description={dataMessage} title={canUseSampleData ? "Amostra local-demo" : "Dados reais"} />
+      )}
 
       {message ? <SuccessState description={message} title="Atualização local/dev" /> : null}
 
@@ -103,12 +131,18 @@ export function CalendarShell() {
               <h2 className="font-bold text-ink-900">Inbox recente</h2>
             </div>
             <div className="mt-4 space-y-3">
-              {sampleInboxItems.slice(0, 2).map((item) => (
+              {recentInboxItems.slice(0, 2).map((item) => (
                 <article className="rounded-card border border-ink-100 bg-ink-50 p-3" key={item.id}>
                   <p className="text-sm leading-6 text-ink-700">{item.content}</p>
                   <Tag>{item.status}</Tag>
                 </article>
               ))}
+              {recentInboxItems.length === 0 ? (
+                <EmptyState
+                  description="Capture uma pendencia ou preocupacao na Inbox para conectar agenda e proxima acao."
+                  title="Sem inbox recente"
+                />
+              ) : null}
             </div>
           </Card>
           <SensitiveDataNotice>

@@ -159,6 +159,41 @@ Executado localmente em 2026-06-04 na branch `codex/resend-transactional-email`:
 
 Limitacao: nenhum e-mail real foi enviado. SMTP Auth do Supabase nao foi configurado no dashboard. Dominio/remetente Resend, secrets no provedor, smoke externo e webhook real delivered/bounced seguem pendentes.
 
+## Auditoria transversal do PR #8
+
+Executado localmente em 2026-06-04 na branch `codex/resend-transactional-email`:
+
+- PR #7 foi confirmado como mergeado em `main` em 2026-06-04T18:23:45Z.
+- PR #8 estava aberto em draft, base `main`, head `codex/resend-transactional-email`, `MERGEABLE` e sem checks remotos configurados.
+- Subagentes foram tentados para bugs/regressoes, testes/CI, performance/UX, seguranca/Auth/RLS e IA/e-mail/analytics, mas todos falharam por erro externo de sessao encerrada do conector. A auditoria foi concluida pelo agente principal com evidencias locais.
+- Gates locais frescos da Etapa 6: `npm.cmd run lint` passou; `npm.cmd run typecheck` passou; `npm.cmd run test` passou com 35 arquivos/215 testes; `npm.cmd run build` passou com 44 rotas; `npm.cmd run test:e2e` passou com 33 testes; `git diff --check` passou.
+- `PREVIEW_URL` e `PLAYWRIGHT_BASE_URL` nao estavam definidos; `npm.cmd run test:e2e:external` ficou N/A.
+- Secret scan do diff e varredura em `src`, `docs`, `.env.example` e `public` encontraram apenas placeholders, documentacao e fixtures de teste; nenhum secret real foi identificado.
+- Varredura de `service_role` confirmou uso server-only em `src/lib/supabase/admin.ts` e referencias em docs/testes; nenhum uso client-side novo foi identificado.
+- Varredura CSP confirmou risco residual `SEC-CSP-001`: `unsafe-inline` continua em scripts/estilos; `unsafe-eval` fica limitado a ambiente nao-producao.
+- Smoke local com `next start` em `http://127.0.0.1:3000` e Playwright desktop/mobile retornou 200 para `/`, `/auth`, `/dashboard`, `/metacognition`, `/accountability`, `/api/health` e `/api/ready`, sem console warnings/errors ou pageerrors capturados.
+
+Tempos locais observados no smoke do PR #8:
+
+| Viewport | Rota | Status | Tempo |
+|---|---|---:|---:|
+| desktop | `/` | 200 | 3296 ms |
+| desktop | `/auth` | 200 | 1248 ms |
+| desktop | `/dashboard` | 200 | 745 ms |
+| desktop | `/metacognition` | 200 | 1018 ms |
+| desktop | `/accountability` | 200 | 1358 ms |
+| desktop | `/api/health` | 200 | 628 ms |
+| desktop | `/api/ready` | 200 | 549 ms |
+| mobile | `/` | 200 | 1150 ms |
+| mobile | `/auth` | 200 | 687 ms |
+| mobile | `/dashboard` | 200 | 673 ms |
+| mobile | `/metacognition` | 200 | 655 ms |
+| mobile | `/accountability` | 200 | 681 ms |
+| mobile | `/api/health` | 200 | 526 ms |
+| mobile | `/api/ready` | 200 | 523 ms |
+
+Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparatorio. Beta real e release continuam bloqueados pelos S1/S2 abertos em `docs/BUG_TRIAGE.md`, especialmente Auth/RLS externo, CI/release, Docker/rollback, tipos Supabase reais, Resend/SMTP real, analytics/feedback consentidos, LGPD/exportacao/exclusao e smoke HTTPS.
+
 ## Decisoes atuais de release
 
 - Plataforma: Hostinger VPS KVM 1 com Coolify.

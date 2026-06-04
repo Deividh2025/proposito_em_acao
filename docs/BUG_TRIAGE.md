@@ -81,6 +81,21 @@ Status geral: aprovado com restricoes para merge preparatorio; bloqueado para be
 | AUTH-SSR-001 | Reduzido no eixo SMTP | Procedimento manual de SMTP Auth via Resend foi documentado, mas Auth externo continua bloqueado sem URL HTTPS, dashboard Supabase configurado e smoke real de signup/confirm/recovery. |
 | QA-INT-001 | Reduzido | Testes focados cobrem provider bloqueado/mock/Resend, templates sem termos sensiveis, webhook com assinatura invalida/valida e Atalaia nao marcando provider falho como enviado. |
 
+## Auditoria transversal do PR #8
+
+Data: 2026-06-04.
+
+Status geral: aprovado com restricoes para merge preparatorio; bloqueado para beta/release real.
+
+| ID | Status | Evidencia |
+|---|---|---|
+| EMAIL-RESEND-001 | Reauditado e mantido reduzido localmente | PR #8 estava `MERGEABLE`, mas ainda em draft, sem checks remotos. Gates locais passaram com 35 arquivos/215 testes, build e E2E. Nenhum e-mail real foi enviado e o fechamento segue pendente de dominio/remetente verificado, SMTP Auth Supabase, secrets no provedor e smoke com `RESEND_TEST_RECIPIENT`. |
+| QA-INT-001 | Reduzido | `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test`, `npm.cmd run build`, `npm.cmd run test:e2e` e `git diff --check` passaram localmente. Smoke local com `next start` e Playwright desktop/mobile cobriu `/`, `/auth`, `/dashboard`, `/metacognition`, `/accountability`, `/api/health` e `/api/ready`, sem console/pageerror. |
+| SEC-CSP-001 | Mantido como S2 | Varredura confirmou `script-src 'self' 'unsafe-inline'` em producao e `unsafe-eval` apenas fora de producao. Nao bloqueia merge preparatorio, mas permanece risco antes de beta/producao publica. |
+| OPS-GH-001 | Mantido como S1 | PR #8 nao tinha checks remotos configurados no `statusCheckRollup`; CI/branch protection/release continuam bloqueadores de beta/release, nao de merge preparatorio local auditado. |
+
+Subagentes de auditoria foram tentados para cinco recortes, mas todos falharam por erro externo de sessao encerrada do conector. A classificacao acima se baseia em inspecao e comandos locais reproduziveis.
+
 ## Ledger aberto
 
 | ID | Sev | Dominio | Titulo | Evidencia | Proximo passo | Criterio de fechamento |

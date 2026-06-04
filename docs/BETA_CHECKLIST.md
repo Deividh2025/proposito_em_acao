@@ -42,6 +42,7 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [x] Etapa 4 preparada localmente para substituir dados demonstrativos por queries autenticadas/empty states, mantendo amostras apenas em `local-demo`.
 - [x] Etapa 5 preparada localmente para roteamento seguro OpenAI/DeepSeek, consentimento por provider, guardrails executados e fallback local sem fallback cruzado.
 - [x] Etapa 6 preparada localmente com adapter Resend server-only, templates neutros, webhook assinado e envio real bloqueado por default.
+- [x] Auditoria transversal do PR #8 executada localmente: gates completos passaram, smoke local desktop/mobile sem console/pageerror e nenhum secret real identificado no diff.
 - [ ] Corrigir/validar bugs S0/S1 do `docs/BUG_TRIAGE.md`.
 - [ ] Publicar preview HTTPS em Hostinger/Coolify.
 - [ ] Configurar secrets de preview no provedor.
@@ -64,6 +65,7 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [x] Roteamento local de IA nao faz fallback automatico entre OpenAI e DeepSeek.
 - [x] Kill switch `EMAIL_REAL_ENABLED=false` e `EMAIL_DOMAIN_VERIFIED=false` permanecem default e bloqueiam Resend real localmente.
 - [ ] Dominio/remetente Resend, SMTP Auth e smoke de entrega real ainda nao validados.
+- [ ] Smoke externo de Resend/Auth em URL HTTPS ainda nao executado; PR #8 foi apenas merge preparatorio local.
 - [ ] Consentimento de analytics/feedback antes de coleta real.
 - [ ] Retencao de 90 dias implementada quando houver persistencia de analytics/feedback/auditoria de IA.
 - [ ] `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se usada, sem tokens, query sensivel ou dados pessoais.

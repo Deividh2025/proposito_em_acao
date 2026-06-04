@@ -16,6 +16,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Auditoria transversal do PR #7 adiciona regressões de IA para rate limit local, sanitizacao de input de provider, timeout abortavel e bloqueio de output de Atalaia com Metacognicao privada.
 
 - Etapa 6 adiciona adapter Resend server-only com `fetch`, webhook assinado, templates transacionais neutros e testes focados de e-mail.
+- Auditoria transversal do PR #8 adiciona registro documental de gates locais, smoke Playwright desktop/mobile, scans de secrets/CSP e status GitHub antes do merge preparatorio.
 
 ### Changed
 
@@ -40,6 +41,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 - Etapa 6 mantem `EMAIL_REAL_ENABLED=false` e `EMAIL_DOMAIN_VERIFIED=false` por default, exige Resend server-side, remetente `notify.<dominio>` aprovado e bloqueia corpo sensivel nos templates de e-mail.
 - Webhook Resend valida assinatura Svix pelo corpo cru e grava apenas metadados redigidos de entrega.
+- Auditoria transversal do PR #8 confirma ausencia de secret real no diff, service role restrito a server-only/docs/testes e risco residual de CSP `unsafe-inline` ainda aberto.
 
 ### Docs
 
@@ -52,6 +54,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Auditoria transversal do PR #7 registra gates locais finais, performance local, console/pageerror check, riscos residuais e bloqueios de beta/release.
 
 - Etapa 6 sincroniza docs de e-mail, SMTP Auth Supabase, variaveis, seguranca, bug triage, beta e release com Resend preparado localmente e envio real ainda pendente de dominio/secrets/smoke.
+- Auditoria transversal do PR #8 sincroniza bug triage, bug fix log, security audit, smoke, release readiness e beta checklist; subagentes foram tentados, mas falharam por sessao expirada do conector.
 
 ### Fixed
 

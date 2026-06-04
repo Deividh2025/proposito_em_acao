@@ -155,3 +155,17 @@ Testes focados executados durante a implementacao:
 - `git diff --check`: passou, apenas avisos CRLF do Windows.
 
 Pendencia: nenhum envio real foi executado. Fechamento completo depende de dominio/remetente verificado, `EMAIL_REAL_ENABLED=true`, `EMAIL_DOMAIN_VERIFIED=true`, secrets no provedor, SMTP Auth configurado no Supabase e smoke aprovado com `RESEND_TEST_RECIPIENT`.
+
+## Auditoria transversal do PR #8 - sem correcao de codigo
+
+Data: 2026-06-04.
+
+Esta auditoria nao aplicou correcao de codigo. Ela confirmou que os bugs reduzidos pela Etapa 6 permanecem no estado esperado para merge preparatorio e registrou riscos residuais.
+
+| Bug | Resultado | Evidencia |
+|---|---|---|
+| `EMAIL-RESEND-001` | Mantido como reduzido localmente | Gates locais passaram; envio real continua bloqueado por `EMAIL_REAL_ENABLED=false`, `EMAIL_DOMAIN_VERIFIED=false`, ausencia de dominio/remetente verificado e ausencia de SMTP Auth Supabase configurado. |
+| `QA-INT-001` | Mantido como reduzido | Suite local passou com lint, typecheck, 35 arquivos/215 testes, build, E2E e smoke local com Playwright desktop/mobile sem console/pageerror. |
+| `SEC-CSP-001` | Mantido pendente | Varredura confirmou `unsafe-inline` ainda presente na CSP; nao houve mudanca de codigo nesta auditoria. |
+
+Subagentes foram tentados para os cinco recortes da auditoria, mas falharam por sessao expirada do conector. A evidencia registrada foi coletada por comandos locais.

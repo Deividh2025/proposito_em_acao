@@ -17,6 +17,29 @@ Achados bloqueantes atuais:
 
 Ver `docs/BUG_TRIAGE.md` para IDs, evidencias e criterios de fechamento.
 
+## Auditoria transversal do PR #8
+
+Data: 2026-06-04.
+
+Veredito de seguranca: sem S0/S1 novo que bloqueie merge preparatorio do PR #8; beta real segue bloqueado.
+
+Evidencias:
+
+- PR #7 confirmado como mergeado; PR #8 estava `MERGEABLE`, draft e sem checks remotos configurados.
+- Subagentes de seguranca/Auth/RLS e demais recortes foram tentados, mas falharam por sessao expirada do conector; a auditoria seguiu com comandos locais reproduziveis.
+- `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test`, `npm.cmd run build`, `npm.cmd run test:e2e` e `git diff --check` passaram na branch da Etapa 6.
+- Secret scan nao encontrou `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, database URL com senha ou padrao de chave real no diff. Os hits restantes eram placeholders vazios, documentacao e fixtures de teste.
+- `NEXT_PUBLIC_*` sensiveis nao foram adicionados para Resend, OpenAI, DeepSeek, webhook ou service role. As chaves publicas Supabase seguem como anon/publishable.
+- `SUPABASE_SERVICE_ROLE_KEY` aparece em modulo server-only (`src/lib/supabase/admin.ts`), docs e testes; nenhum uso client-side novo foi identificado.
+- Webhook Resend permanece dependente de `RESEND_WEBHOOK_SECRET` e rejeita secret ausente fora de `local-demo`; payload bruto nao e armazenado como trilha de auditoria.
+- Templates/e-mails da Etapa 6 continuam sem conteudo sensivel de Chamado, Metacognicao, saude, familia, financas, emocoes, calendario ou tarefa.
+- PWA/cache nao apresentou inclusao de rotas Auth/API autenticadas em cache estatico nesta auditoria local; prova negativa HTTPS continua pendente.
+
+Riscos residuais:
+
+- `SEC-CSP-001`: CSP ainda usa `unsafe-inline`; endurecer com nonce/hash ou aceitar formalmente antes de beta/producao publica.
+- Auth/RLS externo, SMTP Auth Resend, webhook real delivered/bounced, PWA em HTTPS e Supabase preview com personas reais ainda nao foram validados nesta auditoria.
+
 ## Resultado geral
 
 Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a superficie critica de Atalaia/consentimento. No preview Supabase, migrations e matriz RLS dinamica foram validadas historicamente em 2026-06-02, mas a migration da Etapa 2 ainda nao foi aplicada em preview. Deploy produtivo e beta real ainda devem aguardar rerun fresco, Auth real, secrets/deploy, smoke externo, revisao de LGPD/retencao e correcao dos S1 restantes.

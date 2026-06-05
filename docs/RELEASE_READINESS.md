@@ -314,3 +314,41 @@ Recomendacao:
 
 - Merge preparatorio do PR #10 pode seguir apos atualizar estes registros e CI verde.
 - Nao liberar beta real, preview publico com usuarios ou producao aberta sem URL HTTPS, Docker/Coolify, secrets no provedor, Supabase/Auth/RLS fresco, smoke externo, KVM gate e rollback ensaiado.
+
+## Etapa 9 - gate final do beta fechado
+
+Data: 2026-06-05.
+
+Veredito recomendado: `NO-GO`.
+
+Contexto GitHub:
+
+- PRs #1 a #10 foram confirmadas como mergeadas na `main`.
+- Nao havia PR aberto no inicio da Etapa 9.
+- CI remoto da `main` passou em 2026-06-05 no workflow `CI`.
+- Branch criada para o gate: `codex/final-beta-readiness-gate`.
+
+Gates frescos locais:
+
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou no rerun completo com 39 arquivos e 233 testes; a primeira tentativa teve timeout de worker Vitest e o teste focado passou.
+- `npm.cmd run build`: passou, 45 paginas/rotas.
+- `npm.cmd run test:e2e`: passou, 35 testes e 5 external-smoke pulados por design.
+- `git diff --check`: passou com aviso CRLF em `PLANS.md`.
+- Secret scan do diff: sem padroes reais de secrets.
+
+Gates externos:
+
+- `npm.cmd run test:e2e:external`: bloqueado sem `PLAYWRIGHT_BASE_URL` ou `PREVIEW_URL`.
+- `npm.cmd run supabase:types:preview`: bloqueado sem `SUPABASE_PREVIEW_DB_URL` ou `SUPABASE_PROJECT_ID`.
+- `npm.cmd run supabase:validate:preview`: bloqueado sem `SUPABASE_PREVIEW_CONFIRM=preview`.
+- Docker/Coolify: `docker version` encontrou CLI Docker 29.4.2, mas nao conectou ao daemon `dockerDesktopLinuxEngine`; imagem, container, healthcheck real e rollback Coolify continuam pendentes.
+- Preview HTTPS, dominio, VPS Hostinger, Coolify, secrets de preview, Supabase/Auth/RLS fresco, Resend/SMTP Auth real, IA real, analytics/feedback real e rollback drill nao estavam disponiveis nesta auditoria.
+
+Bugs/gates abertos que bloqueiam beta real:
+
+- `AUTH-SSR-001`, `DB-TYPES-001`, `OPS-HEALTH-001`, `OPS-GH-001`, `OPS-DOCKER-001`, `ANALYTICS-001`, `AI-CONSENT-AUDIT-001`, `EMAIL-RESEND-001` e `PROD-DEMO-001` seguem S1 ate evidencia externa.
+- `SEC-CSP-001`, `QA-INT-001`, `AI-RATE-PERSIST-001`, `AI-READY-001`, `FEEDBACK-REAL-001`, `UX-BOUNDARY-001` e `PWA-AUTH-CACHE-001` seguem riscos S2.
+
+Decisao: nao iniciar beta fechado com usuarios reais. A proxima acao segura e publicar preview HTTPS controlado, configurar secrets/redirects em ambiente aprovado, repetir Supabase/RLS/Auth/typegen, rodar smoke externo e ensaiar rollback antes de nova decisao.

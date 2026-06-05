@@ -76,3 +76,39 @@ Auditoria final da V1 em largura para o Proposito em Acao, cobrindo funcionalida
 ## Resultado
 
 Gates locais ficaram verdes apos correcoes. A liberacao para deploy real continua condicionada ao alinhamento do Supabase remoto, validacao RLS dinamica e configuracao produtiva de Auth/secrets.
+
+## Etapa 9 - QA integrada e gate do beta fechado
+
+Data: 2026-06-05.
+
+Veredito recomendado: `NO-GO` para beta fechado com usuarios reais. A trilha local ficou verde, mas os gates externos essenciais continuam sem evidencia fresca.
+
+Evidencias frescas locais:
+
+- GitHub: PRs #1 a #10 confirmadas mergeadas na `main`; sem PR aberto; CI da `main` passou em 2026-06-05.
+- Branch da auditoria final: `codex/final-beta-readiness-gate`, criada a partir da `main` atualizada.
+- `npm.cmd run lint`: passou em 43s apos uma tentativa inicial expirada que deixou processo de lint preso.
+- `npm.cmd run typecheck`: passou em 71s.
+- `npm.cmd run test`: primeira tentativa teve erro de infraestrutura do worker Vitest; teste focado `src/tests/unit/inbox-capture-ui.test.ts` passou; rerun completo passou com 39 arquivos e 233 testes.
+- `npm.cmd run build`: passou, Next.js 16.2.6, 45 paginas/rotas.
+- `npm.cmd run test:e2e`: passou, build + 35 testes, com 5 external-smoke pulados por design.
+- `git diff --check`: passou, apenas aviso CRLF em `PLANS.md`.
+- Secret scan do diff: nenhum padrao real de secret encontrado.
+
+Bloqueios do gate:
+
+- `npm.cmd run test:e2e:external`: bloqueado sem `PLAYWRIGHT_BASE_URL` ou `PREVIEW_URL`.
+- `npm.cmd run supabase:types:preview`: bloqueado sem `SUPABASE_PREVIEW_DB_URL` ou `SUPABASE_PROJECT_ID`.
+- `npm.cmd run supabase:validate:preview`: bloqueado sem `SUPABASE_PREVIEW_CONFIRM=preview`.
+- `docker version`: CLI presente, mas daemon `dockerDesktopLinuxEngine` indisponivel; imagem/container/rollback Coolify nao foram validados.
+- Variaveis de preview, Supabase, Auth, IA, Resend, analytics e feedback real nao estavam definidas no processo desta auditoria.
+
+Subagentes:
+
+- Codigo/regressao: `GO com restricoes` local; sem S0/S1 funcional novo aparente.
+- Supabase/Auth/RLS: `NO-GO` por falta de preview/RLS/Auth/typegen fresco.
+- IA/e-mail/analytics/privacidade: `NO-GO` para beta real; controles locais existem, mas integracoes reais e validacao remota seguem pendentes.
+- Deploy/smoke/rollback: `NO-GO` por falta de HTTPS/Coolify/Docker/KVM/rollback ensaiado.
+- Operacao beta/docs: `NO-GO`; coorte e suporte estao preparados como runbook, mas aprovacao do fundador e gates externos seguem pendentes.
+
+Conclusao: produto apto para continuar preparacao local/documental de preview controlado. Nao convidar usuarios reais do beta fechado enquanto os bloqueios externos permanecerem abertos.

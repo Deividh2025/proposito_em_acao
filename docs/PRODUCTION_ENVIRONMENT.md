@@ -144,8 +144,27 @@ Modelos DeepSeek informados:
 
 ## E-mail
 
-E-mail real permanece desativado. Resend foi decidido para transacional e SMTP customizado do Supabase Auth, mas ainda exige adapter, dominio verificado, secrets, remetente, templates e smoke. Fluxos de Atalaia usam fallback `pending_provider_config` ate isso existir.
+E-mail real permanece desativado. Resend ja possui adapter server-only e templates locais, mas ainda exige dominio verificado, secrets no provedor, remetente aprovado, SMTP Auth do Supabase e smoke de entrega. Fluxos de Atalaia usam fallback `pending_provider_config` ate isso existir.
 
 ## Feedback beta
 
 `NEXT_PUBLIC_BETA_FEEDBACK_URL` pode apontar para um formulario externo aprovado. Por ser publico no browser, nao deve conter tokens, identificadores pessoais, querystrings sensiveis ou secrets. O feedback in-app permanece rascunho local ate haver politica de coleta, consentimento e retencao de 90 dias implementada.
+
+## Etapa 9 - ambiente externo
+
+Data: 2026-06-05.
+
+Estado verificado no processo local da auditoria final:
+
+- `PREVIEW_URL` e `PLAYWRIGHT_BASE_URL`: ausentes.
+- `NEXT_PUBLIC_APP_URL`, Supabase public URL/anon key, project ref, preview DB URL, preview confirm e service role: ausentes.
+- OpenAI/DeepSeek/Resend/analytics/feedback real: variaveis ausentes.
+- `npm.cmd run test:e2e:external`: bloqueado por falta de URL publicada.
+- `npm.cmd run supabase:types:preview`: bloqueado por falta de preview DB URL/project ref.
+- `npm.cmd run supabase:validate:preview`: bloqueado por falta de `SUPABASE_PREVIEW_CONFIRM=preview`.
+- Docker CLI existe, mas daemon local indisponivel.
+
+Implicacao:
+
+- Preview, beta fechado e producao aberta continuam bloqueados.
+- O proximo ambiente a validar deve ser `APP_RUNTIME_MODE=preview`, URL HTTPS exata em `NEXT_PUBLIC_APP_URL`, redirects Supabase alinhados, secrets no Coolify e harness Supabase em branch preview aprovada.

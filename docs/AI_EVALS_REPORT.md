@@ -56,3 +56,23 @@ Revisao da camada central de IA, guardrails, schemas estruturados, evals locais 
 - Persistir contador diario por usuario para `AI_DAILY_USER_LIMIT` antes de ativar IA real.
 - Executar evals contra modelos reais em ambiente isolado com custo autorizado antes de beta.
 - Aprovar base de conhecimento real e politica de versionamento.
+
+## Etapa 9 - gate final IA
+
+Data: 2026-06-05.
+
+Veredito da trilha: `NO-GO` para IA real no beta, `GO com restricoes` apenas para mocks/fallbacks locais.
+
+Evidencias:
+
+- Variaveis `AI_REAL_ENABLED`, `OPENAI_API_KEY`, `DEEPSEEK_API_KEY` e preferencia de provider nao estavam definidas no processo.
+- Nenhuma chamada real a OpenAI ou DeepSeek foi executada.
+- Subagente de IA/privacidade confirmou que kill switches, roteamento server-only, redaction, guardrails e schema validation existem localmente.
+- `npm.cmd run test` passou no rerun completo com 39 arquivos e 233 testes.
+
+Bloqueios:
+
+- Consentimento e auditoria persistidos de IA real ainda dependem de Supabase preview/typegen/RLS.
+- Contador diario persistido por usuario ainda precisa ser validado antes de ativar IA real.
+- Evals contra modelos reais seguem pendentes de ambiente isolado, custo autorizado, secrets server-side e smoke operacional.
+- IA real nao deve ser ativada no beta enquanto `AI-CONSENT-AUDIT-001`, `AI-RATE-PERSIST-001` e `AI-READY-001` permanecerem abertos.

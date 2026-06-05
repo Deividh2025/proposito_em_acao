@@ -196,3 +196,34 @@ Performance local observada apos warmup:
 | `/api/ready` | 200 | 18 ms |
 
 Nao foram encontrados novos S0/S1 de codigo funcional nesta auditoria. O merge preparatorio pode seguir se o objetivo for incorporar CI/Docker/docs/smoke local; beta real e producao permanecem bloqueados pelos S1 abertos do ledger.
+
+## Etapa 9 - gate final do beta fechado
+
+Data: 2026-06-05.
+
+Status geral: `NO-GO` para beta fechado com usuarios reais. Nenhum S0 novo foi encontrado, mas os S1 externos continuam bloqueando a decisao.
+
+| ID | Status | Evidencia |
+|---|---|---|
+| `AUTH-SSR-001` | Mantido S1 | Auth SSR local passou nos gates, mas nao houve URL HTTPS, redirects Supabase reais, SMTP Auth/Resend, cookies reais nem smoke Auth externo. |
+| `DB-TYPES-001` | Mantido S1 | `npm.cmd run supabase:types:preview` abortou sem `SUPABASE_PREVIEW_DB_URL` ou `SUPABASE_PROJECT_ID`; tipos reais nao foram gerados. |
+| `OPS-HEALTH-001` | Mantido S1 | `/api/ready` passou em E2E local, mas nao houve smoke em HTTPS publicado. |
+| `OPS-GH-001` | Reduzido, ainda S1 | CI remoto da `main` passou, mas faltam branch protection/governanca equivalente, release/tag e deployment anterior conhecido para rollback. |
+| `OPS-DOCKER-001` | Mantido S1 | `docker version` confirmou CLI, mas nao conectou ao daemon `dockerDesktopLinuxEngine`; imagem/container/rollback Coolify nao foram ensaiados. |
+| `ANALYTICS-001` | Mantido S1 | Controles locais existem, mas Supabase preview/RLS/typegen/smoke de analytics e feedback nao foram executados. |
+| `AI-CONSENT-AUDIT-001` | Mantido S1 | IA real segue bloqueada por falta de ambiente, consentimento/auditoria persistidos, secrets e evals reais autorizados. |
+| `EMAIL-RESEND-001` | Mantido S1 | Resend local preparado, mas dominio/remetente verificado, SMTP Auth, secrets de provedor e smoke de entrega real nao foram validados. |
+| `PROD-DEMO-001` | Mantido S1 | E2E local passou; falta smoke autenticado externo para provar dados reais/empty states reais fora de `local-demo`. |
+| `PWA-AUTH-CACHE-001` | Mantido S2 | E2E local cobre SW conservador, mas prova HTTPS/CacheStorage real continua pendente. |
+
+Gates executados nesta etapa:
+
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou no rerun completo com 39 arquivos e 233 testes; tentativa inicial teve erro de worker Vitest.
+- `npm.cmd run build`: passou.
+- `npm.cmd run test:e2e`: passou com 35 testes e 5 external-smoke pulados por design.
+- `npm.cmd run test:e2e:external`: bloqueado sem URL publicada.
+- `npm.cmd run supabase:types:preview`: bloqueado sem variaveis de preview.
+- `npm.cmd run supabase:validate:preview`: bloqueado sem confirmacao de preview.
+- `git diff --check`: passou com aviso CRLF em `PLANS.md`.

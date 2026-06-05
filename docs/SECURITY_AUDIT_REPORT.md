@@ -151,3 +151,26 @@ Riscos residuais:
 - `SEC-CSP-001` segue S2: CSP ainda usa `unsafe-inline` em `next.config.ts`.
 - Auth/RLS/Supabase remoto seguem S1 sem URL HTTPS publicada, redirects Supabase configurados, `supabase:validate:preview` fresco e personas reais.
 - Docker/Coolify/rollback seguem S1 sem daemon/VPS/Coolify operacional.
+
+## Etapa 9 - gate final de seguranca e privacidade
+
+Data: 2026-06-05.
+
+Veredito de seguranca: `NO-GO` para beta real, sem S0 novo identificado. Os controles locais permanecem alinhados, mas seguranca externa nao esta validada.
+
+Evidencias frescas:
+
+- Secret scan do diff da Etapa 9: nenhum padrao real de OpenAI, DeepSeek, Resend, Supabase service role, JWT ou URL Postgres com senha encontrado.
+- Apenas `.env.example` existe no workspace; nenhum `.env` real apareceu no status.
+- Variaveis de preview/secrets/IA/e-mail/analytics estavam ausentes no processo, entao nenhuma chamada real ou envio real foi possivel.
+- `npm.cmd run lint`, `typecheck`, `test`, `build` e `test:e2e` passaram no gate local.
+
+Bloqueios de seguranca:
+
+- Supabase/RLS/Auth remoto nao foi validado porque `supabase:types:preview` e `supabase:validate:preview` abortaram por falta de variaveis/confirmacao de preview.
+- Auth real em HTTPS, redirects Supabase, SMTP Auth, recovery, logout e cookies reais nao foram testados.
+- Docker/Coolify/rollback nao foram ensaiados porque o Docker daemon local nao estava disponivel e nao ha VPS/Coolify publicado.
+- IA real, DeepSeek real, Resend real, analytics real e feedback real seguem bloqueados por kill switches, ausencia de secrets e falta de ambiente aprovado.
+- `SEC-CSP-001` segue S2 por `unsafe-inline`.
+
+Decisao: manter beta fechado bloqueado ate validar Supabase/Auth/RLS em preview correto, smoke externo HTTPS, secrets server-side, PWA/cache em HTTPS, e rollback operacional.

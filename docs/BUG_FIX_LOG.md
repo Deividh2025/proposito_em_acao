@@ -211,3 +211,28 @@ Esta auditoria nao aplicou correcao de codigo funcional. Ela confirmou que a Eta
 | `OPS-START-001` | Registrado S3 | `npm.cmd run start` emite aviso do Next sobre `output: standalone`; Dockerfile usa `node server.js`, entao o risco e operacional/local, nao bloqueio de merge preparatorio. |
 
 Subagentes foram tentados para bugs/regressoes, testes/CI, performance/UX, seguranca/Auth/RLS e IA/e-mail/analytics, mas falharam por sessao expirada do conector. A evidencia registrada foi coletada por comandos locais.
+
+## Etapa 9 - gate final sem correcao de codigo funcional
+
+Data: 2026-06-05.
+
+Esta etapa nao fechou bugs S1 por codigo, deploy, Supabase remoto ou integracoes reais. Ela consolidou evidencia fresca local e confirmou bloqueios externos para decisao `NO-GO`.
+
+| Bug | Resultado | Evidencia |
+|---|---|---|
+| `OPS-GH-001` | Reduzido, ainda aberto | PRs #1 a #10 mergeadas, sem PR aberto e CI remoto da `main` verde. Falta branch protection/governanca equivalente, release/tag e deployment anterior conhecido. |
+| `OPS-DOCKER-001` | Mantido aberto | Docker CLI presente, mas daemon indisponivel; imagem/container/rollback Coolify nao validados. |
+| `OPS-HEALTH-001` | Mantido aberto | Health/ready passaram localmente, mas `test:e2e:external` abortou sem URL HTTPS publicada. |
+| `DB-TYPES-001` | Mantido aberto | Typegen preview abortou sem DB URL/project ref de preview. |
+| `AUTH-SSR-001` | Mantido aberto | Auth local coberto por E2E; Auth real em URL HTTPS, redirects, recovery e cookies reais nao validados. |
+
+Gates locais finais:
+
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou no rerun completo com 39 arquivos e 233 testes.
+- `npm.cmd run build`: passou.
+- `npm.cmd run test:e2e`: passou com 35 testes.
+- `git diff --check`: passou com aviso CRLF em `PLANS.md`.
+
+Nao houve ativacao de IA real, e-mail real, analytics real, feedback externo, migrations remotas, deploy, smoke HTTPS ou rollback real nesta etapa.

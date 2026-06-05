@@ -8,6 +8,8 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 
 Etapa 8 sincronizou rollback/docs para Hostinger/Coolify, mas nao publicou preview. Sem dominio/URL HTTPS, VPS provisionada, Coolify validado, secrets de preview, smoke externo, branch protection/release referenciavel e rehearsal de rollback, beta/producao continuam bloqueados.
 
+Etapa 9 executou gate final integrado local. CI remoto da `main` estava verde e os gates locais passaram, mas a decisao recomendada permanece `NO-GO` porque preview HTTPS, Supabase/Auth/RLS fresco, secrets de preview, smoke externo, Docker/Coolify, KVM gate e rollback drill nao estavam disponiveis.
+
 ## Decisoes fechadas
 
 - [x] Infraestrutura: Hostinger VPS KVM 1 com Coolify.
@@ -56,9 +58,10 @@ Etapa 8 sincronizou rollback/docs para Hostinger/Coolify, mas nao publicou previ
 - [ ] Validar Auth SSR completo em URL publicada, incluindo proxy/middleware, refresh/getClaims, callback, confirmacao, recovery, logout, cookies reais e redirects seguros.
 - [ ] Rodar smoke externo em URL HTTPS.
 - [ ] Validar PWA install/offline via HTTPS sem cache de rotas Auth, callback, recovery, API autenticada, server actions ou payloads privados.
-- [ ] Criar CI ou registrar alternativa de governanca antes de release publica.
+- [x] Confirmar CI remoto verde na `main`.
 - [ ] Ensaiar rollback com release/tag/deployment conhecido.
 - [ ] Confirmar branch protection efetiva ou governanca equivalente para impedir release sem gates.
+- [ ] Criar release/tag ou deployment anterior conhecido como bom para rollback referenciavel.
 - [ ] Validar `/api/ready` em preview HTTPS e provar falha fechada quando config essencial faltar.
 - [ ] Validar imagem Docker/Coolify, healthcheck operacional e rollback/redeploy anterior.
 

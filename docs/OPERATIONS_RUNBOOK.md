@@ -167,3 +167,30 @@ Manter real desativado ate aprovar:
 - templates;
 - unsubscribe/revogacao quando aplicavel;
 - logs minimos sem dados sensiveis.
+
+## Etapa 9 - decisao operacional do beta fechado
+
+Data: 2026-06-05.
+
+Decisao operacional recomendada: `NO-GO` para convidar usuarios reais.
+
+O que esta pronto localmente:
+
+- CI remoto da `main` passou.
+- Gates locais passaram: lint, typecheck, test, build e E2E.
+- Runbooks de suporte, incidentes, feedback, rollback, KVM gate e monitoramento existem.
+- Coorte, rotina diaria, feedback triage e criterio de pausa estao definidos como preparacao.
+
+O que bloqueia operacao real:
+
+- Dominio/URL HTTPS de preview nao existe no processo desta auditoria.
+- VPS Hostinger/Coolify, secrets de preview, logs, health/ready externos e rollback nao foram validados.
+- Supabase/Auth/RLS/typegen fresco nao foi executado em preview aprovado.
+- Resend/SMTP Auth, IA real, analytics/feedback real e exportacao/exclusao em preview nao foram validados.
+- Fundador ainda precisa aprovar dominio, grupo inicial, regra de dados, LGPD minima, IA/e-mail real, canal externo de feedback e rollback ensaiado.
+
+Equivalencia operacional de severidades:
+
+- S0 de bug triage deve ser tratado como P0 de incidente e pausa imediata do beta.
+- S1 bloqueante deve ser tratado como P1 operacional e impede convite/expansao da coorte.
+- S2 pode ir para backlog controlado se nao tocar privacidade, Auth, RLS, Atalaia, IA real, e-mail real ou deploy.

@@ -18,6 +18,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 6 adiciona adapter Resend server-only com `fetch`, webhook assinado, templates transacionais neutros e testes focados de e-mail.
 - Auditoria transversal do PR #8 adiciona registro documental de gates locais, smoke Playwright desktop/mobile, scans de secrets/CSP e status GitHub antes do merge preparatorio.
 - Auditoria transversal do PR #10 adiciona registro documental de gates locais/remotos, smoke local dedicado, tempos de rotas, scans de secrets/PWA/service role e status de merge preparatorio.
+- Etapa 9 adiciona plano e relatorios do gate final integrado do beta fechado, com recomendacao `NO-GO` por ausencia de URL HTTPS, Supabase/Auth/RLS fresco, secrets de preview, smoke externo, Docker/Coolify/KVM e rollback drill.
 
 ### Changed
 
@@ -59,6 +60,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Auditoria transversal do PR #8 sincroniza bug triage, bug fix log, security audit, smoke, release readiness e beta checklist; subagentes foram tentados, mas falharam por sessao expirada do conector.
 - Etapa 8 sincroniza rollback/docs para Hostinger/Coolify, triggers de rollback, gate da KVM 1, limitacao de CI/branch protection/release e preview ainda pendente sem dominio/VPS/URL HTTPS.
 - Auditoria transversal do PR #10 sincroniza bug triage, bug fix log, security audit, smoke report, release readiness e testing strategy antes de merge preparatorio; subagentes foram tentados, mas falharam por sessao expirada do conector.
+- Etapa 9 sincroniza QA final, release readiness, beta checklist, bug triage, bug fix log, security audit, RLS report, AI evals report, smoke report, rollback, operations runbook, production environment e Supabase cutover pack com evidencia local fresca e bloqueios externos.
 
 ### Fixed
 

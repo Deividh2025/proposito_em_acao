@@ -52,6 +52,8 @@ Definir somente no terminal do operador, cofre temporario ou CI seguro. Nao comm
 | 10 | `202606010010_accountability_commitment_prompt13_alignment.sql` | Atalaia, convites, grants, notificacoes e Documento de Compromisso. | Atalaia le somente grants/eventos/notificacoes/documentos autorizados. |
 | 11 | `202606010011_mobile_pwa_prompt14_alignment.sql` | `energy_checkins` owner-only para mobile/PWA. | Tabela tem privilegio/RLS real para authenticated e nega user B/Atalaia. |
 | 12 | `20260602214345_accountability_partner_active_select_policy.sql` | Permite Atalaia ler somente a propria relacao ativa aceita. | Atalaia ativo le propria relacao; Atalaia revogado nao le. |
+| 13 | `20260603211654_accountability_acceptance_rls_hardening.sql` | Endurece aceite do Atalaia com token hash, triggers de imutabilidade e aceite server-side. | `atalia_invited` nao amplia escopo; aceite ativa apenas grant vinculado; revogacao corta leitura futura. |
+| 14 | `202606050001_privacy_settings_analytics_feedback.sql` | Adiciona preferencias, consentimentos ampliados, analytics, feedback, solicitacao de exclusao e retencao 90 dias. | Analytics/feedback exigem consentimento; user B/anon/Atalaia nao acessam; prune remove apenas expirados. |
 
 ## Roteiro de aplicacao em branch preview
 
@@ -106,7 +108,7 @@ npx.cmd -y supabase db lint --db-url "$env:SUPABASE_PREVIEW_DB_URL"
 
 Evidencia minima:
 
-- Lista final de migrations aplicadas ate `20260602214345`.
+- Lista final de migrations aplicadas ate `202606050001_privacy_settings_analytics_feedback.sql`.
 - Resultado de lint/advisors.
 - Confirmacao de RLS habilitado nas tabelas publicas.
 - Confirmacao de buckets privados.
@@ -211,7 +213,7 @@ Decisao:
 ## Checklist de aceite
 
 - [ ] Branch preview confirmada como isolada e sem dados reais.
-- [ ] Migrations locais aplicadas na ordem ate `20260602214345`.
+- [ ] Migrations locais aplicadas na ordem ate `202606050001_privacy_settings_analytics_feedback.sql`.
 - [ ] Divergencia de historico remoto reconciliada ou branch recriada.
 - [ ] Tipos reais gerados em `src/types/database.ts` e revisados.
 - [ ] `npm.cmd run typecheck` passou com os tipos reais.

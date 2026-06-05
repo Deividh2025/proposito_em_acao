@@ -145,3 +145,31 @@ Cobertura local/documental preparada para novos cenarios:
 - Retencao: prune de 90 dias deve apagar apenas `product_analytics_events`, `beta_feedback_items` e `ai_run_audits` expirados.
 
 Status remoto: nao executado contra Supabase preview nesta etapa. Fechamento exige dry-run/push em branch aprovada, typegen, harness atualizado e `npm.cmd run supabase:validate:preview` com evidencia fresca.
+
+## Etapa 9 - gate final Supabase/Auth/RLS
+
+Data: 2026-06-05.
+
+Veredito da trilha: `NO-GO` para beta real.
+
+Evidencia fresca desta etapa:
+
+- `supabase --version`: CLI local `2.98.2`, com aviso de versao nova disponivel.
+- `npm.cmd run supabase:types:preview`: abortou sem `SUPABASE_PREVIEW_DB_URL` ou `SUPABASE_PROJECT_ID`.
+- `npm.cmd run supabase:validate:preview`: abortou sem `SUPABASE_PREVIEW_CONFIRM=preview`.
+- Variaveis `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_PREVIEW_DB_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_PREVIEW_PROJECT_REF` e `SUPABASE_PREVIEW_CONFIRM` nao estavam definidas no processo.
+- Nenhuma migration remota, fixture, Auth user ou harness mutavel foi executado nesta etapa.
+
+Bloqueios:
+
+- RLS/Auth remoto fresco ausente; evidencia de 2026-06-02 permanece historica.
+- Tipos reais de Supabase ainda nao foram gerados.
+- Hardening do Atalaia e tabelas de privacidade/analytics/feedback ainda exigem preview aplicado e harness dinamico.
+- Auth real em URL HTTPS, redirects, recovery, cookies e SMTP Auth/Resend nao foram validados.
+
+Proxima validacao obrigatoria em ambiente aprovado:
+
+1. Atualizar/coferir branch preview Supabase sem dados reais.
+2. Rodar dry-run de migrations ate `202606050001_privacy_settings_analytics_feedback.sql`.
+3. Aplicar em branch preview aprovada, lint/advisors, typegen real e `npm.cmd run supabase:validate:preview`.
+4. Rodar smoke externo em URL HTTPS publicada com Auth real.

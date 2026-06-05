@@ -177,3 +177,28 @@ Tempos locais apos warmup:
 | `/api/ready` | 200 | 18 ms |
 
 Limitacao: smoke local nao substitui URL HTTPS publicada, Auth real, Supabase/RLS remoto, Resend real, IA real, analytics real, Docker/Coolify ou rollback.
+
+## Etapa 9 - smoke final integrado
+
+Data: 2026-06-05.
+
+Smoke externo publicado: nao executado. `PREVIEW_URL` e `PLAYWRIGHT_BASE_URL` nao estavam definidos.
+
+Comandos/resultados:
+
+- `npm.cmd run test:e2e`: passou; 35 testes e 5 external-smoke pulados por design.
+- `npm.cmd run test:e2e:external`: abortou corretamente com `Set PLAYWRIGHT_BASE_URL or PREVIEW_URL to the published preview URL.`
+- `npm.cmd run build`: passou, 45 paginas/rotas.
+
+Cobertura local do E2E:
+
+- Auth surface, callback/confirmacao invalida sem eco de token e dashboard em `local-demo`.
+- Feedback beta local sem envio externo.
+- Calendario, inbox, execucao, foco, habitos, Placar, mobile/PWA, onboarding, Metacognicao, Desbloqueador, revisao, jardim e settings/privacidade.
+- Atalaia e Documento de Compromisso em estados seguros/empty states.
+
+Bloqueios de smoke para beta real:
+
+- Home/Auth/dashboard e demais rotas ainda nao foram validadas em URL HTTPS publicada.
+- Signup, confirmacao, login, recovery, logout, cookies reais e redirects Supabase nao foram testados externamente.
+- Supabase/RLS, Resend/SMTP Auth, IA real, analytics/feedback real, Docker/Coolify, KVM gate, logs e rollback nao foram testados em preview.

@@ -122,3 +122,20 @@ Beta fechado:
 - Fundador: aprovar rollback que toque dados, dominio ou usuarios reais.
 - Engenharia: executar rollback tecnico e registrar evidencias.
 - Seguranca: validar RLS/secrets/logs antes de reabrir acesso.
+
+## Etapa 9 - rollback drill
+
+Data: 2026-06-05.
+
+Status: rollback drill nao executado. Este e bloqueio de beta real.
+
+Evidencia:
+
+- Nao ha URL HTTPS publicada, VPS/Coolify validado, release/tag ou deployment anterior conhecido como bom.
+- `docker version` encontrou Docker CLI 29.4.2, mas nao conectou ao daemon `dockerDesktopLinuxEngine`.
+- Sem container local, sem deploy Coolify e sem deployment anterior, nao ha como ensaiar rollback de app de forma confiavel nesta etapa.
+
+Decisao:
+
+- Manter beta fechado bloqueado ate existir deploy preview com commit/deployment anterior conhecido, smoke externo antes/depois e registro de tempo de recuperacao.
+- Nao substituir rollback drill por plano documental. Plano existe, mas o criterio de GO exige ensaio real.

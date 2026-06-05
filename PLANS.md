@@ -541,3 +541,82 @@ Reverter o commit/PR da Etapa 8. Se o CI quebrar fluxo de PR, desabilitar/remove
 ## Documentacao a atualizar
 
 `docs/DEPLOYMENT_PLAN.md`, `docs/PRODUCTION_DEPLOYMENT.md`, `docs/PRODUCTION_ENVIRONMENT.md`, `docs/ENVIRONMENT_VARIABLES.md`, `docs/OPERATIONS_RUNBOOK.md`, `docs/ROLLBACK_PLAN.md`, `docs/SMOKE_TEST_REPORT.md`, `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md`, `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/SECURITY_AUDIT_REPORT.md`, `docs/TESTING_STRATEGY.md`, `docs/CHANGELOG.md`, `docs/CODEX_WORKFLOW.md`, `docs/PR_CHECKLIST.md` e `AGENTS.md` apenas para regras duraveis novas.
+
+## Plano - Etapa 9 QA integrada, cutover final, rollback drill e gate do beta fechado
+
+## Objetivo
+
+Executar o gate final integrado para recomendar `GO`, `NO-GO` ou `GO com restricoes` para beta fechado, consolidando evidencias frescas locais e externas disponiveis sem liberar producao aberta.
+
+## Contexto
+
+Lidos `AGENTS.md`, `PLANS.md`, `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md`, `docs/QA_FINAL_REPORT.md`, `docs/SECURITY_AUDIT_REPORT.md`, `docs/RLS_TEST_REPORT.md`, `docs/AI_EVALS_REPORT.md`, `docs/SMOKE_TEST_REPORT.md`, `docs/ROLLBACK_PLAN.md`, `docs/OPERATIONS_RUNBOOK.md`, `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/PRODUCTION_ENVIRONMENT.md` e `docs/CHANGELOG.md`. GitHub confirmou PRs #1 a #10 mergeadas na `main`, sem PR aberto, e CI remoto recente verde na `main`. A branch `codex/final-beta-readiness-gate` foi criada de `main` atualizada. Os documentos atuais ainda registram beta real bloqueado sem preview HTTPS, Auth/Supabase/RLS fresco, secrets de provedor, smoke externo, KVM/Coolify e rollback ensaiado.
+
+## Arquivos envolvidos
+
+- Criar: nenhum arquivo de codigo planejado.
+- Modificar: `PLANS.md`, `docs/QA_FINAL_REPORT.md`, `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md`, `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/SECURITY_AUDIT_REPORT.md`, `docs/RLS_TEST_REPORT.md`, `docs/AI_EVALS_REPORT.md`, `docs/SMOKE_TEST_REPORT.md`, `docs/ROLLBACK_PLAN.md`, `docs/OPERATIONS_RUNBOOK.md`, `docs/PRODUCTION_ENVIRONMENT.md` e `docs/CHANGELOG.md`.
+- Nao tocar: migrations remotas, Supabase principal, Auth dashboard, RLS policies novas, secrets reais, `.env*` reais, provedores OpenAI/DeepSeek/Resend reais, dominio, Coolify remoto, beta com usuarios reais e producao aberta.
+
+## Subagentes necessarios
+
+- Subagente 1: Codigo e regressao, com leitura de suites, scripts, rotas principais e resultados locais.
+- Subagente 2: Supabase/Auth/RLS, com leitura de migrations, harness, docs e scripts, sem aplicar remoto.
+- Subagente 3: IA, e-mail, analytics, feedback e privacidade, com foco em kill switches, consentimentos, guardrails e LGPD minima.
+- Subagente 4: Deploy, smoke e rollback, com foco em CI, Docker, Hostinger/Coolify, HTTPS, health/ready, smoke externo e rollback drill.
+- Subagente 5: Operacao beta e docs, com consolidacao de go/no-go, bug ledger e checklist operacional.
+
+## Skills necessarias
+
+`qa-final-v1-skill`, `release-readiness-skill`, `regression-testing-skill`, `security-audit-skill`, `rls-testing-skill`, `smoke-test-skill`, `rollback-skill`, `beta-operations-skill`, `bug-triage-skill`, `testing-architecture-skill`, `frontend-playwright-qa-skill`, `security-privacy-skill`, `production-deploy-skill`, `production-secrets-skill`, `docs-sync-skill`, `auth-security-skill`, `supabase-architecture-skill`, `openai-integration-skill`, `ai-evals-skill`, `email-notifications-skill`, `product-analytics-skill`, `feedback-triage-skill`, `mobile-privacy-skill`, `accountability-skill`, `metacognition-skill`, `github:github`, `github:yeet`, `supabase:supabase`, `build-web-apps:frontend-testing-debugging`, `browser:control-in-app-browser`, `openai-developers` local integration guidance, `superpowers:writing-plans`, `superpowers:dispatching-parallel-agents` e `superpowers:verification-before-completion`.
+
+## Riscos
+
+- Declarar `GO` sem URL HTTPS, smoke externo, Auth/RLS remoto, secrets no provedor ou rollback ensaiado.
+- Confundir CI/local gates com validacao Supabase/Auth/RLS publicada.
+- Rodar harness remoto com service role ou fixtures sem ambiente aprovado.
+- Expor secrets em logs, docs, diff, PR ou comandos.
+- Relaxar seguranca, CSP, RLS, Auth, cache PWA, IA, e-mail ou analytics para passar gate.
+- Atualizar docs como se producao aberta ou beta real estivessem liberados.
+
+## Estrategia
+
+1. Confirmar GitHub/main/CI/PRs, branch local e disponibilidade de variaveis de preview sem imprimir valores.
+2. Despachar cinco subagentes read-only por trilha final e manter o agente principal nos gates locais e consolidacao.
+3. Rodar gates locais obrigatorios: `lint`, `typecheck`, `test`, `build`, `test:e2e` e `git diff --check`.
+4. Rodar validacoes externas somente se `PREVIEW_URL`/`PLAYWRIGHT_BASE_URL`, Supabase preview e confirmacoes exigidas estiverem configurados e aprovados.
+5. Usar Browser/Playwright para smoke renderizado local ou publicado conforme URL disponivel.
+6. Fazer secret scan do diff e varredura de exposicao client/server para keys sensiveis.
+7. Consolidar resultados por gate, registrar bugs abertos/fechados e recomendar decisao.
+8. Atualizar docs obrigatorias sem fechar S0/S1 que dependem de evidencia externa ausente.
+9. Commitar, publicar branch e abrir draft PR de relatorio/correcoes, sem merge.
+
+## Criterios de aceite
+
+- Plano da Etapa 9 registrado antes das validacoes.
+- PRs anteriores confirmadas mergeadas na `main` e CI recente consultado.
+- Gates locais executados e resultados documentados.
+- Supabase/Auth/RLS, smoke externo, Docker/Coolify, KVM e rollback classificados com evidencia fresca ou bloqueio explicito.
+- Nenhum secret real aparece no diff.
+- Docs obrigatorias refletem `GO`, `NO-GO` ou `GO com restricoes` sem superpromessa.
+- Draft PR criado para revisao do fundador, sem liberar beta real automaticamente.
+
+## Testes e verificacoes
+
+- `npm.cmd run lint` esperado: exit 0.
+- `npm.cmd run typecheck` esperado: exit 0.
+- `npm.cmd run test` esperado: exit 0.
+- `npm.cmd run build` esperado: exit 0.
+- `npm.cmd run test:e2e` esperado: exit 0.
+- `npm.cmd run test:e2e:external` esperado: exit 0 somente se URL HTTPS publicada estiver definida; caso contrario, registrar N/A/bloqueio.
+- `npm.cmd run supabase:types:preview` e `npm.cmd run supabase:validate:preview` somente com ambiente preview aprovado e variaveis/confirmacao exigidas; caso contrario, registrar N/A/bloqueio.
+- `git diff --check` esperado: exit 0.
+- Secret scan do diff esperado: nenhum secret real.
+
+## Rollback
+
+Como a Etapa 9 deve ser docs/relatorio e pequenas correcoes bloqueantes, rollback primario e reverter o commit da branch. Se alguma validacao externa for executada em ambiente aprovado, qualquer fixture deve ser removida pelo proprio harness e qualquer falha deve manter beta bloqueado. Nenhuma migration, secret, dominio ou deploy remoto sera alterado nesta etapa sem aprovacao propria.
+
+## Documentacao a atualizar
+
+`docs/QA_FINAL_REPORT.md`, `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md`, `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/SECURITY_AUDIT_REPORT.md`, `docs/RLS_TEST_REPORT.md`, `docs/AI_EVALS_REPORT.md`, `docs/SMOKE_TEST_REPORT.md`, `docs/ROLLBACK_PLAN.md`, `docs/OPERATIONS_RUNBOOK.md`, `docs/PRODUCTION_ENVIRONMENT.md` e `docs/CHANGELOG.md`. `AGENTS.md` nao deve mudar salvo regra duravel nova.

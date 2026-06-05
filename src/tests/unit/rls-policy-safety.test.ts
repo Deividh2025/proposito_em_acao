@@ -31,7 +31,20 @@ describe("RLS policy safety", () => {
     ),
     "utf8"
   );
-
+  const aiAuditPersistenceSql = readFileSync(
+    join(
+      migrationsPath,
+      migrationFileNames.find((fileName) => fileName.includes("ai_audit_persistence_contract")) ?? ""
+    ),
+    "utf8"
+  );
+  const privacyServerOnlySql = readFileSync(
+    join(
+      migrationsPath,
+      migrationFileNames.find((fileName) => fileName.includes("analytics_feedback_server_only_persistence")) ?? ""
+    ),
+    "utf8"
+  );
   test("binds Atalaia access to the specific partner and grant rows", () => {
     expect(sql).toContain("partners.id = accountability_grants.accountability_partner_id");
     expect(sql).toContain("grants.id = accountability_notifications.accountability_grant_id");
@@ -143,7 +156,7 @@ describe("RLS policy safety", () => {
     expect(ownerPolicyLoop).not.toMatch(/has_active_accountability_grant|accountability_partner_id|partner_user_id/i);
   });
 
-  test("adds Etapa 7 privacy tables with owner-only RLS policies", () => {
+  test("adds Etapa 7 privacy tables with owner-only select policies", () => {
     for (const tableName of [
       "product_analytics_events",
       "beta_feedback_items",
@@ -160,7 +173,6 @@ describe("RLS policy safety", () => {
       expect(policyText).toMatch(
         /for select\s+to authenticated\s+using \(user_id = \(select auth\.uid\(\)\)\)/i
       );
-      expect(policyText).toMatch(/for insert\s+to authenticated\s+with check \(/i);
       expect(policyText).toContain("user_id = (select auth.uid())");
       expect(policyText).not.toMatch(/has_active_accountability_grant|partner_user_id|accountability_partner_id/i);
     }
@@ -176,6 +188,23 @@ describe("RLS policy safety", () => {
     );
   });
 
+  test("hardens analytics and feedback to server-only persistence after the Etapa 7 migration", () => {
+    const privacyStageIndex = migrationFileNames.findIndex((fileName) =>
+      fileName.includes("privacy_settings_analytics_feedback")
+    );
+    const serverOnlyIndex = migrationFileNames.findIndex((fileName) =>
+      fileName.includes("analytics_feedback_server_only_persistence")
+    );
+
+    expect(serverOnlyIndex).toBeGreaterThan(privacyStageIndex);
+    expect(privacyServerOnlySql).toMatch(/drop policy if exists product_analytics_events_owner_insert/i);
+    expect(privacyServerOnlySql).toMatch(/drop policy if exists beta_feedback_items_owner_insert/i);
+    expect(privacyServerOnlySql).toMatch(
+      /revoke insert, update, delete on public\.product_analytics_events, public\.beta_feedback_items from anon, authenticated/i
+    );
+    expect(privacyServerOnlySql).not.toMatch(/create policy[\s\S]*for insert\s+to authenticated/i);
+  });
+
   test("keeps operational retention pruning private and service-role only", () => {
     expect(privacyStageSql).toMatch(/create or replace function app_private\.prune_operational_retention/i);
     expect(privacyStageSql).toMatch(/security definer/i);
@@ -188,5 +217,12 @@ describe("RLS policy safety", () => {
     expect(privacyStageSql).toMatch(
       /grant execute on function app_private\.prune_operational_retention\(boolean\) to service_role/i
     );
+  });
+
+  test("aligns AI audit persistence constraints with ai_run_audit_v1 schema", () => {
+    expect(aiAuditPersistenceSql).toContain("public.ai_run_audits");
+    expect(aiAuditPersistenceSql).toMatch(/status in \('success', 'fallback', 'blocked', 'error'\)/i);
+    expect(aiAuditPersistenceSql).toMatch(/guardrail_status in \('passed', 'blocked', 'failed'\)/i);
+    expect(aiAuditPersistenceSql).toMatch(/do not apply remotely without explicit approval/i);
   });
 });

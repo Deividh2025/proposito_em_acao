@@ -126,9 +126,10 @@ OpenAI real nao foi ativada em fluxo de produto nesta etapa.
 - Consentimento de IA e verificado por provider e versao antes de qualquer rota real; a camada nao cria consentimento automaticamente.
 - DeepSeek possui adapter server-only em `src/lib/deepseek/` usando API compativel com OpenAI quando aplicavel, sempre com validacao Zod porque JSON mode nao e tratado como schema estrito.
 - `src/lib/ai/invoke.ts` unifica roteamento, provider real/mock, consentimento, kill switch e chamada segura.
+- `src/lib/ai/persistent-invoke.ts` e o caminho server-only para IA real: carrega preferencia/consentimentos persistidos, bloqueia chamada real sem sessao/auditoria viavel e persiste `ai_run_audits` com metadados redigidos.
 - A chamada segura minimiza chaves sensiveis antes do provider, propaga `AbortSignal` para OpenAI/DeepSeek e aplica limite diario quando o contador do usuario e informado.
 - Saidas de Atalaia/Documento de Compromisso recebem guardrail adicional de compartilhamento para impedir vazamento sem consentimento granular.
-- Auditoria minima registra provider, modelo, agente, prompt/schema version, modo de invocacao, status de guardrail, latencia, motivo de fallback, consentimento e timestamp, sem prompt bruto ou resposta bruta.
+- Auditoria minima registra provider, modelo, agente, prompt/schema version, modo de invocacao, status de guardrail, latencia, motivo de fallback, consentimento e timestamp, sem prompt bruto ou resposta bruta. O banco aceita os estados de `ai_run_audit_v1`: `success`, `fallback`, `blocked` e `error`.
 - Metadados de auditoria de IA devem aplicar retencao operacional de 90 dias quando houver persistencia real.
 
 ## Prompt 16 - Providers de producao planejados

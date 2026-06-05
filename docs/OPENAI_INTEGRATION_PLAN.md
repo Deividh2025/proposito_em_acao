@@ -11,8 +11,8 @@ IA e camada operacional integrada, nao chatbot solto. Toda resposta que vira dad
 - Tipos aceitam `mock | openai | deepseek`; o seletor aceita `automatic | openai | deepseek`.
 - `safeInvoke` valida schema, executa guardrails de entrada/saida, bloqueia provider real sem autorizacao explicita da rota, registra `guardrail_status` real e usa fallback local seguro sem fallback cruzado entre providers.
 - `safeInvoke` remove chaves sensiveis do input antes do provider, propaga `AbortSignal` para timeout abortavel e aplica guardrail adicional em outputs de Atalaia/Documento de Compromisso.
-- `ai_run_audit_v1` registra metadados minimos, `invocation_mode`, consentimento e motivo de fallback, mas persistencia real de auditoria ainda depende de etapa de banco/LGPD.
-- Consentimento de IA e checado por provider e versao antes da rota real; a camada nao cria consentimento automaticamente.
+- `ai_run_audit_v1` registra metadados minimos, `invocation_mode`, consentimento e motivo de fallback; `invokeAiWithPersistentConsentAndAudit` persiste auditoria tecnica minima em `ai_run_audits` via admin server-only.
+- Consentimento de IA e checado por provider e versao (`ai_provider_openai_v1` ou `ai_provider_deepseek_v1`) antes da rota real; a camada nao cria consentimento automaticamente.
 - Metadados de auditoria de IA terao retencao operacional de 90 dias quando houver persistencia real.
 
 ## Agentes internos
@@ -135,7 +135,7 @@ DeepSeek deve seguir o mesmo padrao de seguranca do OpenAI provider:
 Antes de ativar IA real, ainda falta aprovar:
 
 - secrets por ambiente;
-- consentimento persistido por provider;
+- consentimento persistido por provider e auditoria minima validada em preview;
 - evals reais/custo por usuario/ambiente;
 - rate limit persistente;
 - readiness/smoke de provider real com chaves/modelos configurados em ambiente isolado;

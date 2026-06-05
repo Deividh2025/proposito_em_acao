@@ -182,6 +182,31 @@ Data: 2026-06-04.
 
 Pendencias: aplicacao da migration/RLS local, typegen e preview validation da Etapa 7 ainda precisam de ambiente aprovado. Nao houve coleta real com usuarios, smoke externo ou aplicacao remota.
 
+## PR de hardening - Auth proxy e persistencia server-only
+
+Data: 2026-06-05.
+
+| Bug | Correcao | Evidencia |
+|---|---|---|
+| `AUTH-SSR-001` reduzido localmente | Proxy de request foi movido para `src/proxy.ts`, junto de `src/app`, para ser incluido pelo Next; `/onboarding` entrou na lista de rotas protegidas; public routes como `/api/health` e `/api/ready` nao ficam bloqueadas pelo proxy antes do handler. | `src/proxy.ts`, `src/lib/auth/redirects.ts`, `src/lib/supabase/proxy.ts`, `src/tests/integration/auth-ssr-proxy.test.ts`, `src/tests/unit/auth-ssr-safety-contracts.test.ts`. |
+| `AUTH-ONBOARDING-001` reduzido localmente | `saveOnboarding` deixa de retornar `local-draft ok:true` fora de `local-demo` quando nao ha sessao/configuracao Auth real; em `preview`, `beta` e `production`, a action falha fechado. | `src/app/onboarding/actions.ts`, `src/tests/integration/auth-ssr-actions.test.ts`. |
+| `ANALYTICS-001` reduzido localmente | Persistencia de analytics passou a usar client admin server-only apos consentimento ativo, allowlist e metadata minimizada; insert direto por cliente anonimo/autenticado e revogado por migration aditiva. | `src/lib/supabase/queries/privacy-settings.ts`, `src/tests/integration/privacy-persistence-boundary.test.ts`, `supabase/migrations/20260605130314_analytics_feedback_server_only_persistence.sql`, `scripts/validate-supabase-preview.mjs`. |
+| `FEEDBACK-REAL-001` reduzido localmente | Persistencia de feedback beta passou a usar client admin server-only apos aviso/consentimento e bloqueio de indicio sensivel; insert direto por cliente anonimo/autenticado e revogado por migration aditiva. | `src/lib/supabase/queries/privacy-settings.ts`, `src/tests/integration/privacy-persistence-boundary.test.ts`, `supabase/migrations/20260605130314_analytics_feedback_server_only_persistence.sql`, `scripts/validate-supabase-preview.mjs`. |
+
+Pendencia: migration/harness ainda nao foram executados contra Supabase preview aprovado; Auth real em URL HTTPS, redirects Supabase e smoke externo seguem bloqueadores de beta real.
+
+Testes executados neste PR:
+
+- Focado: `npm.cmd run test -- src/tests/integration/auth-ssr-proxy.test.ts src/tests/integration/auth-ssr-actions.test.ts src/tests/unit/auth-ssr-safety-contracts.test.ts src/tests/unit/rls-policy-safety.test.ts src/tests/integration/privacy-persistence-boundary.test.ts`: passou, 5 arquivos e 37 testes.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 40 arquivos e 240 testes.
+- `npm.cmd run build`: passou, com `ƒ Proxy (Middleware)`.
+- `npm.cmd run test:e2e`: passou, 35 testes e 5 external-smoke pulados por design.
+- `git diff --check`: passou.
+- `node --check scripts\validate-supabase-preview.mjs`: passou.
+- Smoke runtime local em `preview` sem Supabase confirmou `/api/health` 200, `/api/ready` 503 estruturado e `/dashboard`, `/onboarding`, `/settings` 503 fail-closed pelo proxy.
+
 ## Etapa 8 - Rollback/docs Hostinger/Coolify
 
 Data: 2026-06-05.

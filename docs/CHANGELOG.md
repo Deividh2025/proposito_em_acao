@@ -19,15 +19,18 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Auditoria transversal do PR #8 adiciona registro documental de gates locais, smoke Playwright desktop/mobile, scans de secrets/CSP e status GitHub antes do merge preparatorio.
 - Auditoria transversal do PR #10 adiciona registro documental de gates locais/remotos, smoke local dedicado, tempos de rotas, scans de secrets/PWA/service role e status de merge preparatorio.
 - PR runner reliability adiciona teste estatico para os contratos dos runners Vitest, E2E local e smoke externo.
+- PR de IA adiciona `invokeAiWithPersistentConsentAndAudit` para carregar consentimentos persistidos por provider e gravar auditoria tecnica minima em `ai_run_audits`.
 
 ### Changed
 
 - Aceite do Atalaia passa a buscar preview real sanitizada quando Supabase/Auth estao configurados, sem grant demonstrativo.
+- Request proxy de Auth passa a viver em `src/proxy.ts`, junto de `src/app`, para ser incluido pelo Next; `/onboarding` passa a respeitar protecao Auth fora de `local-demo`.
 - Permissoes do Atalaia passam a persistir exatamente a selecao revisada pelo dono, sem reintroduzir defaults do nivel automaticamente.
 - Criacao, aceite e revogacao do Atalaia passam a exigir consentimento/auditoria/notificacao obrigatoria ou retornar `ok:false`.
 - Rotas principais deixam de importar amostras diretamente em `src/app`/`src/components`; `local-demo` continua rotulado e separado de dados reais.
 - Actions elegiveis de IA passam pela camada `safeInvokeAi` com mock deterministico/fallback seguro para SMART-E, projetos, microtarefas, inbox, Desbloqueador, Metacognicao, Revisao Semanal/Jardim, Atalaia e Documento de Compromisso.
 - Providers OpenAI/DeepSeek passam a receber `AbortSignal` e input minimizado antes de qualquer chamada real autorizada.
+- Roteamento de IA passa a exigir as versoes persistidas `ai_provider_openai_v1` e `ai_provider_deepseek_v1`, mantendo fallback local seguro sem fallback cruzado.
 
 - Persistencia de convites do Atalaia passa a registrar notificacao antes da tentativa de provider e atualizar `provider_status` depois, sem marcar provider falho como enviado.
 - Runner E2E local passa a sobrescrever `PLAYWRIGHT_BASE_URL` para `http://127.0.0.1:3000`, capturar logs do `next start` e falhar cedo quando o servidor encerra antes da readiness.
@@ -41,6 +44,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 3 usa `auth.getClaims()` no proxy SSR, `next` seguro apenas para paths internos, falha fechada fora de `local-demo` quando Supabase/Auth essencial falta e mantem `service_role` fora do barrel publico.
 - Etapa 4 usa usuario autenticado + RLS para leituras normais de UI, sem `service_role`, e mantem Atalaia limitado a grants sanitizados.
 - Etapa 5 mantem `AI_REAL_ENABLED=false` por default, bloqueia provider real sem consentimento versionado e remove `guardrail_status: not_run` dos caminhos provider/mock.
+- Auditoria de IA passa a ter caminho server-only/admin para persistir `ai_run_audits` com metadados minimos e sem prompt/resposta bruta; validacao remota segue pendente.
 - Etapa 5 proibe fallback automatico entre OpenAI e DeepSeek; falha usa fallback local seguro ou fluxo manual.
 - Auditoria transversal do PR #7 reforca que output de Atalaia nao pode incluir Metacognicao/contexto privado, que timeout aborta a chamada quando suportado e que fallback de crise nao reecoa pensamento/impulso bruto.
 
@@ -48,6 +52,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Webhook Resend valida assinatura Svix pelo corpo cru e grava apenas metadados redigidos de entrega.
 - Auditoria transversal do PR #8 confirma ausencia de secret real no diff, service role restrito a server-only/docs/testes e risco residual de CSP `unsafe-inline` ainda aberto.
 - Auditoria transversal do PR #10 confirma CI remoto verde, smoke local de health/ready/PWA/cache, ausencia de secrets no diff e mantem bloqueios externos de Docker/Coolify/Auth/RLS/HTTPS.
+- Analytics e feedback passam a persistir somente por caminho server-only/admin apos consentimento/sanitizacao; insert direto de anon/autenticado fica revogado por migration aditiva.
 
 ### Docs
 
@@ -63,10 +68,12 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Auditoria transversal do PR #8 sincroniza bug triage, bug fix log, security audit, smoke, release readiness e beta checklist; subagentes foram tentados, mas falharam por sessao expirada do conector.
 - Etapa 8 sincroniza rollback/docs para Hostinger/Coolify, triggers de rollback, gate da KVM 1, limitacao de CI/branch protection/release e preview ainda pendente sem dominio/VPS/URL HTTPS.
 - Auditoria transversal do PR #10 sincroniza bug triage, bug fix log, security audit, smoke report, release readiness e testing strategy antes de merge preparatorio; subagentes foram tentados, mas falharam por sessao expirada do conector.
+- PR de hardening sincroniza release readiness, smoke, bug triage, RLS e seguranca com proxy Auth efetivo e persistencia server-only de analytics/feedback.
 
 ### Fixed
 
 - Etapa 1 adiciona contratos de runtime/fallback para impedir que erro real de Supabase configurado vire `local-draft ok:true`.
+- Onboarding deixa de retornar `local-draft ok:true` em `preview`, `beta` ou `production` quando falta sessao/configuracao Auth real.
 - Etapa 1 confirma linha afetada em updates/deletes priorizados de alvos, projetos, tarefas, habitos, foco e Atalaia.
 - Etapa 1 corrige Inbox para nao alterar estado local quando a action retorna `ok:false`.
 - Etapa 1 corrige validacao do calendario para retornar erro controlado em input invalido.

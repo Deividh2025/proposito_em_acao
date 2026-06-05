@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { describe, expect, test, vi } from "vitest";
@@ -26,11 +26,17 @@ describe("Auth SSR safety contracts", () => {
     const server = readRepoFile("src/lib/supabase/server.ts");
     const guards = readRepoFile("src/lib/supabase/guards.ts");
     const proxy = readRepoFile("src/lib/supabase/proxy.ts");
-    const rootProxy = readRepoFile("proxy.ts");
+    const requestProxy = readRepoFile("src/proxy.ts");
 
-    expect(`${server}\n${guards}\n${proxy}\n${rootProxy}`).not.toContain(".getSession(");
+    expect(`${server}\n${guards}\n${proxy}\n${requestProxy}`).not.toContain(".getSession(");
     expect(guards).toContain("assertAuthenticatedUser");
     expect(proxy).toContain(".getClaims(");
+  });
+
+  test("places the request proxy next to src/app so Next includes it in the build", () => {
+    expect(existsSync(join(root, "src", "app"))).toBe(true);
+    expect(existsSync(join(root, "src", "proxy.ts"))).toBe(true);
+    expect(existsSync(join(root, "proxy.ts"))).toBe(false);
   });
 
   test("sanitizes next redirects to same-origin paths only", async () => {

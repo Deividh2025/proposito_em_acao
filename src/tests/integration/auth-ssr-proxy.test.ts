@@ -52,6 +52,18 @@ describe("Auth SSR proxy contracts", () => {
     expect(getClaimsMock).not.toHaveBeenCalled();
   });
 
+  test("lets public health and readiness routes reach their route handlers without Auth config", async () => {
+    setRuntime("preview", false);
+    const { refreshSupabaseAuth } = await import("@/lib/supabase/proxy");
+
+    const healthResponse = await refreshSupabaseAuth(requestFor("/api/health"));
+    const readyResponse = await refreshSupabaseAuth(requestFor("/api/ready"));
+
+    expect(healthResponse.status).toBe(200);
+    expect(readyResponse.status).toBe(200);
+    expect(getClaimsMock).not.toHaveBeenCalled();
+  });
+
   test("redirects protected routes to Auth when claims are absent", async () => {
     setRuntime("preview", true);
     getClaimsMock.mockResolvedValue({ data: { claims: null }, error: null });
@@ -61,6 +73,17 @@ describe("Auth SSR proxy contracts", () => {
 
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("https://app.example.test/auth?next=%2Fdashboard");
+  });
+
+  test("redirects onboarding to Auth when claims are absent outside local-demo", async () => {
+    setRuntime("preview", true);
+    getClaimsMock.mockResolvedValue({ data: { claims: null }, error: null });
+    const { refreshSupabaseAuth } = await import("@/lib/supabase/proxy");
+
+    const response = await refreshSupabaseAuth(requestFor("/onboarding"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe("https://app.example.test/auth?next=%2Fonboarding");
   });
 
   test("allows public Auth routes without redirect when claims are absent", async () => {

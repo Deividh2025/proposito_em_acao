@@ -1,9 +1,13 @@
 import type { AiAgentKey } from "@/ai/agents";
 import type { AiProviderName, AiProviderPreference, AiInvocationMode, OpenAIErrorCategory } from "@/lib/openai";
 
-export const AI_PROVIDER_CONSENT_VERSION = "ai-provider-consent-v1";
-
 export type RealAiProviderName = Exclude<AiProviderName, "mock">;
+
+export const AI_PROVIDER_CONSENT_VERSIONS = {
+  deepseek: "ai_provider_deepseek_v1",
+  openai: "ai_provider_openai_v1"
+} as const satisfies Record<RealAiProviderName, string>;
+export const AI_PROVIDER_CONSENT_VERSION = AI_PROVIDER_CONSENT_VERSIONS.openai;
 
 export type AiProviderConsentRecord = {
   provider: RealAiProviderName;
@@ -49,19 +53,21 @@ const proAgentKeys = new Set<AiAgentKey>(["calling", "metacognition", "weeklyRev
 
 export function hasRequiredAiProviderConsent({
   provider,
-  requiredVersion = AI_PROVIDER_CONSENT_VERSION,
+  requiredVersion,
   records
 }: {
   provider: RealAiProviderName;
   requiredVersion?: string;
   records: AiProviderConsentRecord[];
 }) {
+  const expectedVersion = requiredVersion ?? AI_PROVIDER_CONSENT_VERSIONS[provider];
+
   return records.some((record) => {
     const grantedAt = record.grantedAt ?? record.acceptedAt;
 
     return (
       record.provider === provider &&
-      record.version === requiredVersion &&
+      record.version === expectedVersion &&
       Boolean(grantedAt) &&
       !record.revokedAt
     );
@@ -74,7 +80,7 @@ export function resolveAiProviderRoute({
   realEnabled,
   consentRecords,
   models,
-  requiredConsentVersion = AI_PROVIDER_CONSENT_VERSION
+  requiredConsentVersion
 }: {
   agentKey: AiAgentKey;
   preference: AiProviderPreference;
@@ -84,25 +90,26 @@ export function resolveAiProviderRoute({
   requiredConsentVersion?: string;
 }): AiProviderRoute {
   if (!realEnabled) {
-    return mockRoute(preference, "ai_real_disabled", requiredConsentVersion);
+    return mockRoute(preference, "ai_real_disabled", requiredConsentVersion ?? null);
   }
 
   const providerName = resolveConcreteProvider(agentKey, preference);
+  const providerConsentVersion = requiredConsentVersion ?? AI_PROVIDER_CONSENT_VERSIONS[providerName];
 
   if (
     !hasRequiredAiProviderConsent({
       provider: providerName,
-      requiredVersion: requiredConsentVersion,
+      requiredVersion: providerConsentVersion,
       records: consentRecords
     })
   ) {
-    return mockRoute(preference, "missing_provider_consent", requiredConsentVersion, "fallback");
+    return fallbackRoute(preference, providerName, "missing_provider_consent", providerConsentVersion);
   }
 
   const model = resolveProviderModel(agentKey, providerName, models);
 
   if (!model) {
-    return mockRoute(preference, "provider_model_missing", requiredConsentVersion, "fallback");
+    return fallbackRoute(preference, providerName, "provider_model_missing", providerConsentVersion);
   }
 
   return {
@@ -111,7 +118,7 @@ export function resolveAiProviderRoute({
     mode: "real",
     model,
     fallbackReason: null,
-    consentVersion: requiredConsentVersion
+    consentVersion: providerConsentVersion
   };
 }
 
@@ -155,13 +162,28 @@ function mockRoute(
   requestedPreference: AiProviderPreference,
   fallbackReason: OpenAIErrorCategory,
   consentVersion: string | null,
-  mode: AiInvocationMode = "mock"
 ): AiProviderRoute {
   return {
     requestedPreference,
     providerName: "mock",
-    mode,
+    mode: "mock",
     model: "mock-safe-v1",
+    fallbackReason,
+    consentVersion
+  };
+}
+
+function fallbackRoute(
+  requestedPreference: AiProviderPreference,
+  providerName: RealAiProviderName,
+  fallbackReason: OpenAIErrorCategory,
+  consentVersion: string
+): AiProviderRoute {
+  return {
+    requestedPreference,
+    providerName,
+    mode: "fallback",
+    model: `${providerName}-safe-v1`,
     fallbackReason,
     consentVersion
   };

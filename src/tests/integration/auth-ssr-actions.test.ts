@@ -206,4 +206,49 @@ describe("Auth SSR action contracts", () => {
     expect(result.message).toContain("Entre na sua conta");
     expect(supabaseMock.from).not.toHaveBeenCalled();
   });
+
+  test("onboarding save requires a session outside local-demo and does not keep a successful local draft", async () => {
+    vi.stubEnv("APP_RUNTIME_MODE", "preview");
+    supabaseMock.auth.getUser.mockResolvedValue({ data: { user: null } });
+    const { buildCallingMockDraft } = await import("@/ai/schemas/calling");
+    const { saveOnboarding } = await import("@/app/onboarding/actions");
+
+    const result = await saveOnboarding({
+      acceptedCallingDraft: true,
+      callingAnswers: {
+        core_values: "Servico e fidelidade",
+        gifts: "Organizacao",
+        people_to_serve: "Familia",
+        recurring_burdens: "Falta de direcao"
+      },
+      callingDraft: buildCallingMockDraft({
+        answers: {
+          core_values: "Servico e fidelidade",
+          gifts: "Organizacao",
+          people_to_serve: "Familia",
+          world_burden: "Falta de direcao"
+        }
+      }),
+      lifeMap: [],
+      profile: {
+        aiSupportTone: "balanced",
+        christianLayerPreference: "balanced",
+        currentRoutine: "Rotina de trabalho e familia com blocos de foco irregulares.",
+        disorderAreas: "Agenda e acompanhamento de projetos.",
+        faithRelationship: "Deseja manter reflexao discreta e opcional.",
+        familyContext: "Contexto familiar estavel para teste.",
+        focusRelationship: "Perde foco quando ha muitas prioridades simultaneas.",
+        habitualEnergy: "medium",
+        mainDifficulty: "Transformar direcao em proximas acoes.",
+        mainResponsibilities: "Trabalho, familia e projetos pessoais.",
+        name: "Usuario Teste",
+        occupation: "Analista",
+        platformExpectation: "Organizar alvos, tarefas e revisoes."
+      }
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.message).toContain("Entre na sua conta");
+    expect(supabaseMock.from).not.toHaveBeenCalled();
+  });
 });

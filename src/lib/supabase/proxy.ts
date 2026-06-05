@@ -53,9 +53,10 @@ function createNextResponse(request: NextRequest, previousResponse?: NextRespons
 export async function refreshSupabaseAuth(request: NextRequest) {
   const config = getSupabasePublicConfig();
   const pathname = request.nextUrl.pathname;
+  const publicRoute = isPublicRoute(pathname);
 
   if (!config) {
-    if (shouldFailClosedWithoutAuthConfig()) {
+    if (!publicRoute && shouldFailClosedWithoutAuthConfig()) {
       return new NextResponse("Auth essencial ausente neste ambiente.", {
         status: 503,
         headers: {
@@ -99,7 +100,7 @@ export async function refreshSupabaseAuth(request: NextRequest) {
   const { data, error } = await supabase.auth.getClaims();
   const claims = error ? null : data?.claims;
 
-  if (!isLocalDemoRuntime() && !isPublicRoute(pathname) && isProtectedRoute(pathname) && !claims) {
+  if (!isLocalDemoRuntime() && !publicRoute && isProtectedRoute(pathname) && !claims) {
     const loginUrl = new URL("/auth", request.url);
     loginUrl.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
 

@@ -352,7 +352,7 @@ async function run() {
       version: "beta_feedback_v1"
     });
 
-    analyticsEvent = await insertOne(userA.client, "product_analytics_events", {
+    analyticsEvent = await insertOne(admin, "product_analytics_events", {
       consent_version: "product_analytics_v1",
       event_name: "module_navigation",
       expires_at: retentionExpiresAt,
@@ -369,7 +369,7 @@ async function run() {
       user_id: userA.id
     });
 
-    betaFeedback = await insertOne(userA.client, "beta_feedback_items", {
+    betaFeedback = await insertOne(admin, "beta_feedback_items", {
       blocked: "Nao travei no fluxo de preview.",
       clarity_score: 4,
       comment: "Fixture segura para validar feedback beta.",
@@ -712,6 +712,49 @@ async function run() {
           confirmation_phrase_matched: true,
           status: "pending_manual_review",
           user_id: userA.id
+        })
+        .select("id")
+    );
+  });
+
+  await step("authenticated clients cannot bypass server-only analytics and feedback persistence", async () => {
+    await expectWriteDenied(
+      "user_a cannot directly insert analytics through anon/authenticated client",
+      userA.client
+        .from("product_analytics_events")
+        .insert({
+          consent_version: "product_analytics_v1",
+          event_name: "module_navigation",
+          expires_at: retentionExpiresAt,
+          metadata: {
+            module: "dashboard",
+            source: "desktop"
+          },
+          occurred_at: now,
+          schema_version: "product_analytics_event_v1",
+          user_id: userA.id
+        })
+        .select("id")
+    );
+
+    await expectWriteDenied(
+      "user_a cannot directly insert feedback through anon/authenticated client",
+      userA.client
+        .from("beta_feedback_items")
+        .insert({
+          blocked: "Direct insert should be denied.",
+          clarity_score: 4,
+          confused: "Direct insert should be denied.",
+          consent_version: "beta_feedback_v1",
+          expires_at: retentionExpiresAt,
+          friction_score: 2,
+          has_sensitive_hint: false,
+          module: "dashboard",
+          status: "submitted",
+          submitted_at: now,
+          usefulness_score: 4,
+          user_id: userA.id,
+          worked: "Direct insert should be denied."
         })
         .select("id")
     );

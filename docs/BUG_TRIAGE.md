@@ -146,3 +146,53 @@ Esta etapa nao fechou bugs S1. Ela sincronizou criterios documentais de operacao
 | OPS-HEALTH-001 | Mantido como S1 | `/api/ready` foi endurecido para URL HTTPS publicada fora de `local-demo`, mas continua sem evidencia em preview real. A Etapa 8 exige smoke externo em URL HTTPS e falha fechada quando configuracao essencial faltar antes de qualquer beta real. |
 
 Preview Hostinger/Coolify segue pendente sem dominio/URL HTTPS, VPS provisionada, secrets no provedor, smoke externo, Supabase/Auth/RLS fresco e KVM gate validado.
+
+## Auditoria transversal do PR #10
+
+Data: 2026-06-05.
+
+Status geral: aprovado com restricoes para merge preparatorio; bloqueado para beta/release real.
+
+PR auditado: `#10` (`codex/ci-docker-hostinger-preview`), commit local `243805c`, CI remoto `Lint, test, build and E2E` concluido com sucesso.
+
+Subagentes: cinco frentes foram solicitadas, mas todas falharam por erro externo de sessao encerrada do conector. A auditoria foi concluida pelo agente principal com comandos locais reproduziveis.
+
+| ID | Status | Evidencia |
+|---|---|---|
+| `OPS-GH-001` | Reduzido, ainda S1 para beta/release | Workflow CI existe e passou no PR #10. Ainda faltam branch protection efetiva ou governanca equivalente, release/tag/deployment anterior conhecido e regra operacional de merge para beta/release. |
+| `OPS-DOCKER-001` | Mantido como S1 | `docker build -t proposito-em-acao:audit-preview .` falhou porque o daemon `dockerDesktopLinuxEngine` nao estava disponivel; imagem/container/rollback Coolify ainda nao foram ensaiados. |
+| `OPS-HEALTH-001` | Reduzido localmente, ainda S1 externo | `/api/health` e `/api/ready` passaram no smoke local dedicado; readiness HTTPS real ainda depende de URL publicada em preview. |
+| `SEC-CSP-001` | Mantido como S2 | `next.config.ts` ainda permite `unsafe-inline` em `script-src` e `style-src`; `unsafe-eval` permanece restrito a ambiente nao produtivo. |
+| `PWA-AUTH-CACHE-001` | Reduzido localmente, ainda S2 externo | Smoke local dedicado validou service worker sem `cache.put` e sem rotas Auth/API/export em precache; prova final em HTTPS/CacheStorage real segue pendente. |
+| `OPS-START-001` | Novo S3 | `npm.cmd run start` ainda usa `next start` e o Next 16 avisa que `output: standalone` deve usar `node .next/standalone/server.js`. Dockerfile ja usa o runtime standalone; ajustar script local/Coolify preset em PR pequeno se o aviso atrapalhar operacao. |
+
+Gates executados nesta auditoria:
+
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 39 arquivos e 233 testes.
+- `npm.cmd run build`: passou; build local total observado ~66s, compilacao 23,4s, TypeScript 14,8s, 45 paginas geradas em 3,2s.
+- `npm.cmd run test:e2e`: passou; 35 testes, 5 external-smoke pulados por design.
+- `git diff --check`: passou.
+- Secret scan do diff: sem padroes reais de OpenAI, Supabase JWT, Resend, URL Postgres com senha, private key ou `.env*` adicionado.
+- Smoke local dedicado com `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000`: passou, 5 testes em 6,5s.
+
+Performance local observada apos warmup:
+
+| Rota | Status | Tempo |
+|---|---:|---:|
+| `/` | 200 | 207 ms |
+| `/auth` | 200 | 173 ms |
+| `/dashboard` | 200 | 101 ms |
+| `/goals` | 200 | 130 ms |
+| `/tasks` | 200 | 159 ms |
+| `/calendar` | 200 | 107 ms |
+| `/inbox` | 200 | 67 ms |
+| `/metacognition` | 200 | 68 ms |
+| `/action-unblocker` | 200 | 80 ms |
+| `/settings` | 200 | 157 ms |
+| `/mobile` | 200 | 92 ms |
+| `/api/health` | 200 | 18 ms |
+| `/api/ready` | 200 | 18 ms |
+
+Nao foram encontrados novos S0/S1 de codigo funcional nesta auditoria. O merge preparatorio pode seguir se o objetivo for incorporar CI/Docker/docs/smoke local; beta real e producao permanecem bloqueados pelos S1 abertos do ledger.

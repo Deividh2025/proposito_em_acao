@@ -195,3 +195,19 @@ Esta etapa nao fechou bugs por codigo, deploy ou smoke externo. Ela reduziu ambi
 | `OPS-HEALTH-001` | Mantido como S1 | `/api/ready` precisa de smoke externo em URL HTTPS e prova de falha fechada quando config essencial faltar. |
 
 Pendencias: nenhum deploy Hostinger/Coolify foi executado; nao ha URL HTTPS publicada, VPS provisionada, secrets de preview, smoke externo, branch protection efetiva, release/tag ou rerun Supabase/Auth/RLS. Beta real e producao continuam bloqueados.
+
+## Auditoria transversal do PR #10 - sem correcao de codigo
+
+Data: 2026-06-05.
+
+Esta auditoria nao aplicou correcao de codigo funcional. Ela confirmou que a Etapa 8 esta apta para merge preparatorio, mantendo bloqueios de beta/release real.
+
+| Bug | Resultado | Evidencia |
+|---|---|---|
+| `OPS-GH-001` | Reduzido | CI remoto do PR #10 passou com lint, typecheck, test, build e Playwright E2E; ainda falta branch protection/release/rollback referenciavel para beta. |
+| `OPS-DOCKER-001` | Mantido pendente | Docker daemon local indisponivel impediu validar build/start da imagem; Coolify/rollback continuam pendentes. |
+| `OPS-HEALTH-001` | Reduzido localmente | Smoke local dedicado validou `/api/health`, `/api/ready`, headers, rotas desktop/mobile e PWA/cache; smoke HTTPS real segue pendente. |
+| `SEC-CSP-001` | Mantido pendente | CSP ainda contem `unsafe-inline`; nao houve alteracao de codigo nesta auditoria. |
+| `OPS-START-001` | Registrado S3 | `npm.cmd run start` emite aviso do Next sobre `output: standalone`; Dockerfile usa `node server.js`, entao o risco e operacional/local, nao bloqueio de merge preparatorio. |
+
+Subagentes foram tentados para bugs/regressoes, testes/CI, performance/UX, seguranca/Auth/RLS e IA/e-mail/analytics, mas falharam por sessao expirada do conector. A evidencia registrada foi coletada por comandos locais.

@@ -130,3 +130,50 @@ Limitacao: esta suite nao substitui validacao manual de signup, confirmacao por 
 - Health/readiness valida dependencias relevantes.
 - Smoke externo passa contra URL publicada.
 - S0/S1 de `docs/BUG_TRIAGE.md` corrigidos ou formalmente bloqueados antes de convite real.
+
+## Auditoria transversal PR #10
+
+Data: 2026-06-05.
+
+URL HTTPS publicada: indisponivel. Smoke externo real: nao executado. Smoke local dedicado: executado contra `http://127.0.0.1:3000`.
+
+Comandos/resultados:
+
+- `npm.cmd run test:e2e`: passou; 35 testes, 5 external-smoke pulados por design.
+- `npm.cmd run test:e2e:external` sem URL: abortou corretamente com `Set PLAYWRIGHT_BASE_URL or PREVIEW_URL to the published preview URL.`
+- `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npm.cmd run test:e2e:external`: passou, 5 testes em 6,5s.
+
+Cobertura do smoke local dedicado:
+
+- `/api/health` e `/api/ready`.
+- Rotas desktop principais e mobile/PWA.
+- Headers basicos de seguranca.
+- Console/pageerror durante renderizacao.
+- Manifest, service worker e pagina offline.
+- Export/Auth callbacks com politica de cache nao armazenavel.
+
+Tempos locais apos warmup:
+
+| Rota | Status | Tempo |
+|---|---:|---:|
+| `/` | 200 | 207 ms |
+| `/auth` | 200 | 173 ms |
+| `/dashboard` | 200 | 101 ms |
+| `/goals` | 200 | 130 ms |
+| `/tasks` | 200 | 159 ms |
+| `/calendar` | 200 | 107 ms |
+| `/inbox` | 200 | 67 ms |
+| `/metacognition` | 200 | 68 ms |
+| `/action-unblocker` | 200 | 80 ms |
+| `/focus` | 200 | 143 ms |
+| `/habits` | 200 | 70 ms |
+| `/scoreboard` | 200 | 75 ms |
+| `/review` | 200 | 83 ms |
+| `/garden` | 200 | 90 ms |
+| `/accountability` | 200 | 73 ms |
+| `/settings` | 200 | 157 ms |
+| `/mobile` | 200 | 92 ms |
+| `/api/health` | 200 | 18 ms |
+| `/api/ready` | 200 | 18 ms |
+
+Limitacao: smoke local nao substitui URL HTTPS publicada, Auth real, Supabase/RLS remoto, Resend real, IA real, analytics real, Docker/Coolify ou rollback.

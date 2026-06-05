@@ -307,6 +307,28 @@ O resultado esperado para beta real e passar esta suite contra uma URL HTTPS pub
 - Evidencia de aceite.
 - `git status --short --branch` revisado.
 
+## Auditoria transversal PR #10
+
+Data: 2026-06-05.
+
+Gates executados:
+
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 39 arquivos e 233 testes.
+- `npm.cmd run build`: passou, 45 rotas/paginas geradas.
+- `npm.cmd run test:e2e`: passou, 35 testes e 5 external-smoke pulados por design.
+- `git diff --check`: passou.
+- `npm.cmd run test:e2e:external` sem URL: abortou corretamente.
+- Smoke local dedicado com `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000`: passou, 5 testes em 6,5s.
+
+Lacunas mantidas:
+
+- O smoke local dedicado nao substitui o smoke externo HTTPS.
+- RLS/Auth/Supabase remoto ainda precisam de `supabase:validate:preview` e personas reais em ambiente aprovado.
+- Docker build/start, Coolify deploy e rollback seguem pendentes por falta de daemon/VPS/Coolify.
+- `npm.cmd run start` gera aviso com `output: standalone`; considerar script de start standalone se o fluxo local/Coolify precisar dele fora do Dockerfile.
+
 ## Cobertura minima futura
 
 - 80%+ em regras de dominio e servicos criticos.

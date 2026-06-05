@@ -266,3 +266,51 @@ Limitacao: nao houve deploy real, URL HTTPS publicada, acesso Hostinger/Coolify,
 - Branch protection/release/rollback referenciavel.
 - Preview HTTPS Hostinger/Coolify publicado.
 - Beta real com usuarios.
+
+## Auditoria transversal PR #10
+
+Data: 2026-06-05.
+
+Status: aprovado com restricoes para merge preparatorio; bloqueado para beta/release real.
+
+Contexto GitHub:
+
+- Branch: `codex/ci-docker-hostinger-preview`.
+- PR: `#10`, draft antes da auditoria, merge state `CLEAN`.
+- Commit auditado antes do registro documental: `243805c`.
+- CI remoto: `Lint, test, build and E2E` passou no GitHub.
+
+Gates frescos locais:
+
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 39 arquivos e 233 testes.
+- `npm.cmd run build`: passou; build local total observado ~66s, compilacao 23,4s, TypeScript 14,8s, 45 paginas em 3,2s.
+- `npm.cmd run test:e2e`: passou, 35 testes e 5 external-smoke pulados por design.
+- `git diff --check`: passou.
+- Secret scan do diff: sem padroes reais de secrets.
+
+Smoke/performance:
+
+- `npm.cmd run test:e2e:external` sem URL abortou corretamente.
+- Smoke local dedicado com `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000` passou 5 testes em 6,5s.
+- Rotas principais apos warmup responderam entre 67 ms e 207 ms; `/api/health` e `/api/ready` responderam em 18 ms.
+
+Achados:
+
+- Nenhum S0 novo encontrado.
+- Nenhum S1 novo de codigo funcional encontrado.
+- `OPS-GH-001` reduziu porque o CI remoto existe e passou, mas segue S1 para beta/release sem branch protection/governanca equivalente, release/tag/deployment anterior e rollback referenciavel.
+- `OPS-DOCKER-001` segue S1 porque Docker daemon local estava indisponivel e Coolify/rollback nao foram ensaiados.
+- `OPS-HEALTH-001` reduziu localmente, mas segue S1 externo sem URL HTTPS publicada.
+- `SEC-CSP-001` segue S2 por `unsafe-inline`.
+- `OPS-START-001` registrado como S3: `npm.cmd run start` avisa que `output: standalone` deve usar `node .next/standalone/server.js`.
+
+Subagentes:
+
+- Foram tentados cinco subagentes conforme a auditoria, mas todos falharam por sessao expirada do conector. A auditoria foi concluida pelo agente principal com evidencias locais.
+
+Recomendacao:
+
+- Merge preparatorio do PR #10 pode seguir apos atualizar estes registros e CI verde.
+- Nao liberar beta real, preview publico com usuarios ou producao aberta sem URL HTTPS, Docker/Coolify, secrets no provedor, Supabase/Auth/RLS fresco, smoke externo, KVM gate e rollback ensaiado.

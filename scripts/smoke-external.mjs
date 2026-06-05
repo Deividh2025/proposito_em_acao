@@ -11,7 +11,21 @@ if (!targetUrl) {
   process.exit(1);
 }
 
-const url = new URL(targetUrl);
+function parseTargetUrl(rawTargetUrl) {
+  try {
+    return new URL(rawTargetUrl);
+  } catch {
+    console.error("PLAYWRIGHT_BASE_URL or PREVIEW_URL must be a valid URL.");
+    process.exit(1);
+  }
+}
+
+const url = parseTargetUrl(targetUrl);
+
+if (url.username || url.password || url.search || url.hash || (url.pathname !== "/" && url.pathname !== "")) {
+  console.error("External smoke URL must be the preview origin only, without credentials, path, query, or hash.");
+  process.exit(1);
+}
 
 if (url.protocol !== "https:" && url.hostname !== "127.0.0.1" && url.hostname !== "localhost") {
   console.error("External smoke tests require HTTPS for non-local URLs.");
@@ -32,6 +46,7 @@ const child = spawn(
     cwd: root,
     env: {
       ...process.env,
+      NEXT_TELEMETRY_DISABLED: "1",
       EXTERNAL_SMOKE: "1",
       PLAYWRIGHT_BASE_URL: url.origin
     },

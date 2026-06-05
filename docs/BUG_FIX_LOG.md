@@ -236,3 +236,28 @@ Esta auditoria nao aplicou correcao de codigo funcional. Ela confirmou que a Eta
 | `OPS-START-001` | Registrado S3 | `npm.cmd run start` emite aviso do Next sobre `output: standalone`; Dockerfile usa `node server.js`, entao o risco e operacional/local, nao bloqueio de merge preparatorio. |
 
 Subagentes foram tentados para bugs/regressoes, testes/CI, performance/UX, seguranca/Auth/RLS e IA/e-mail/analytics, mas falharam por sessao expirada do conector. A evidencia registrada foi coletada por comandos locais.
+
+## PR - Test runner reliability
+
+Data: 2026-06-05.
+
+| Bug | Resultado | Evidencia |
+|---|---|---|
+| `QA-RUNNER-001` | Reduzido | `scripts/run-e2e.mjs` agora forca `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000` no E2E local, espera `/api/health`, captura log recente do `next start`, detecta encerramento precoce e limpa a arvore de processos no Windows. |
+| `QA-SMOKE-URL-001` | Reduzido | `scripts/smoke-external.mjs` rejeita URL externa com credenciais, path, query ou hash e continua exigindo HTTPS fora de localhost. |
+| `QA-VITEST-001` | Reduzido | `vitest.config.ts` isola mocks, envs e globals por teste; `playwright.config.ts` fixa gate serial, `forbidOnly` em CI, retry unico em CI e artefatos em falha. |
+
+Evidencia executada:
+
+- `npm.cmd run test -- src/tests/unit/test-runner-contracts.test.ts`: passou, 1 arquivo e 3 testes.
+- `npm.cmd run test -- src/tests/integration/runtime-error-contracts.test.ts src/tests/unit/test-runner-contracts.test.ts`: passou, 2 arquivos e 9 testes.
+- `node --check scripts\run-e2e.mjs`: passou.
+- `node --check scripts\smoke-external.mjs`: passou.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 40 arquivos e 236 testes.
+- `npm.cmd run build`: passou, 45 rotas.
+- `npm.cmd run test:e2e`: passou, 35 testes e 5 external-smoke pulados por design.
+- `git diff --check`: passou, com avisos CRLF esperados no Windows.
+- `npm.cmd run test:e2e:external` sem URL: abortou corretamente.
+- `npm.cmd run test:e2e:external` com URL contendo path/query/hash: abortou corretamente.

@@ -329,6 +329,20 @@ Lacunas mantidas:
 - Docker build/start, Coolify deploy e rollback seguem pendentes por falta de daemon/VPS/Coolify.
 - `npm.cmd run start` gera aviso com `output: standalone`; considerar script de start standalone se o fluxo local/Coolify precisar dele fora do Dockerfile.
 
+## PR runner reliability
+
+Data: 2026-06-05.
+
+Hardening aplicado aos gates locais:
+
+- `scripts/run-e2e.mjs` passa a sobrescrever `PLAYWRIGHT_BASE_URL` para `http://127.0.0.1:3000` no E2E local, evitando que variaveis de preview vazem para a suite local.
+- O runner local espera `/api/health`, captura log recente do `next start`, detecta encerramento precoce do servidor e mantem `taskkill /T /F` para limpar a arvore de processos no Windows.
+- `scripts/smoke-external.mjs` passa a exigir origem limpa, sem credenciais, path, query ou hash; URL externa nao local continua exigindo HTTPS.
+- `vitest.config.ts` isola mocks/env/globals por teste e `playwright.config.ts` fixa gate serial, `forbidOnly` em CI, retry unico em CI, screenshot/trace em falha.
+- `src/tests/unit/test-runner-contracts.test.ts` registra esses contratos por teste estatico.
+
+Essa alteracao nao substitui smoke HTTPS real, Auth/RLS preview, deploy Coolify ou rollback; ela apenas reduz flakiness e erro de alvo nos runners locais/CI.
+
 ## Cobertura minima futura
 
 - 80%+ em regras de dominio e servicos criticos.

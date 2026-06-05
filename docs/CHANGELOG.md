@@ -18,6 +18,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 6 adiciona adapter Resend server-only com `fetch`, webhook assinado, templates transacionais neutros e testes focados de e-mail.
 - Auditoria transversal do PR #8 adiciona registro documental de gates locais, smoke Playwright desktop/mobile, scans de secrets/CSP e status GitHub antes do merge preparatorio.
 - Auditoria transversal do PR #10 adiciona registro documental de gates locais/remotos, smoke local dedicado, tempos de rotas, scans de secrets/PWA/service role e status de merge preparatorio.
+- PR runner reliability adiciona teste estatico para os contratos dos runners Vitest, E2E local e smoke externo.
 - PR de IA adiciona `invokeAiWithPersistentConsentAndAudit` para carregar consentimentos persistidos por provider e gravar auditoria tecnica minima em `ai_run_audits`.
 
 ### Changed
@@ -32,6 +33,9 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Roteamento de IA passa a exigir as versoes persistidas `ai_provider_openai_v1` e `ai_provider_deepseek_v1`, mantendo fallback local seguro sem fallback cruzado.
 
 - Persistencia de convites do Atalaia passa a registrar notificacao antes da tentativa de provider e atualizar `provider_status` depois, sem marcar provider falho como enviado.
+- Runner E2E local passa a sobrescrever `PLAYWRIGHT_BASE_URL` para `http://127.0.0.1:3000`, capturar logs do `next start` e falhar cedo quando o servidor encerra antes da readiness.
+- Smoke externo passa a exigir origem limpa, sem credenciais, caminho, query ou hash, mantendo HTTPS obrigatorio para URLs nao locais.
+- Configs Vitest/Playwright passam a preferir gates seriais, isolamento de mocks/env/globals e artefatos em falha.
 
 ### Security
 

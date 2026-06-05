@@ -31,6 +31,13 @@ describe("RLS policy safety", () => {
     ),
     "utf8"
   );
+  const aiAuditPersistenceSql = readFileSync(
+    join(
+      migrationsPath,
+      migrationFileNames.find((fileName) => fileName.includes("ai_audit_persistence_contract")) ?? ""
+    ),
+    "utf8"
+  );
 
   test("binds Atalaia access to the specific partner and grant rows", () => {
     expect(sql).toContain("partners.id = accountability_grants.accountability_partner_id");
@@ -188,5 +195,12 @@ describe("RLS policy safety", () => {
     expect(privacyStageSql).toMatch(
       /grant execute on function app_private\.prune_operational_retention\(boolean\) to service_role/i
     );
+  });
+
+  test("aligns AI audit persistence constraints with ai_run_audit_v1 schema", () => {
+    expect(aiAuditPersistenceSql).toContain("public.ai_run_audits");
+    expect(aiAuditPersistenceSql).toMatch(/status in \('success', 'fallback', 'blocked', 'error'\)/i);
+    expect(aiAuditPersistenceSql).toMatch(/guardrail_status in \('passed', 'blocked', 'failed'\)/i);
+    expect(aiAuditPersistenceSql).toMatch(/do not apply remotely without explicit approval/i);
   });
 });

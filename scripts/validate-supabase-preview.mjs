@@ -258,6 +258,9 @@ async function run() {
   let goal;
   let metacognition;
   let energy;
+  let analyticsEvent;
+  let betaFeedback;
+  let deletionRequest;
   let partnerInvited;
   let partnerActive;
   let partnerRevoked;
@@ -272,6 +275,7 @@ async function run() {
   let commitment;
 
   const now = new Date().toISOString();
+  const retentionExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 90).toISOString();
   const inviteExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString();
   const invitedToken = `${fixturePrefix}-atalia-invited`;
   const siblingToken = `${fixturePrefix}-atalia-sibling`;
@@ -321,6 +325,71 @@ async function run() {
       energy_level: "medium",
       note: "Fixture de energia do cutover.",
       source: "mobile",
+      user_id: userA.id
+    });
+
+    await insertOne(admin, "consent_records", {
+      accepted_at: now,
+      consent_type: "product_analytics",
+      metadata: {
+        fixture: "preview_cutover",
+        retention_days: 90
+      },
+      scope: "product",
+      user_id: userA.id,
+      version: "product_analytics_v1"
+    });
+
+    await insertOne(admin, "consent_records", {
+      accepted_at: now,
+      consent_type: "beta_feedback",
+      metadata: {
+        fixture: "preview_cutover",
+        retention_days: 90
+      },
+      scope: "product",
+      user_id: userA.id,
+      version: "beta_feedback_v1"
+    });
+
+    analyticsEvent = await insertOne(userA.client, "product_analytics_events", {
+      consent_version: "product_analytics_v1",
+      event_name: "module_navigation",
+      expires_at: retentionExpiresAt,
+      metadata: {
+        consentVersion: "product_analytics_v1",
+        module: "dashboard",
+        schemaVersion: "product_analytics_event_v1",
+        source: "desktop",
+        status: "success",
+        surface: "app_shell"
+      },
+      occurred_at: now,
+      schema_version: "product_analytics_event_v1",
+      user_id: userA.id
+    });
+
+    betaFeedback = await insertOne(userA.client, "beta_feedback_items", {
+      blocked: "Nao travei no fluxo de preview.",
+      clarity_score: 4,
+      comment: "Fixture segura para validar feedback beta.",
+      confused: "Nada sensivel no formulario.",
+      consent_version: "beta_feedback_v1",
+      expires_at: retentionExpiresAt,
+      friction_score: 2,
+      has_sensitive_hint: false,
+      module: "dashboard",
+      status: "submitted",
+      submitted_at: now,
+      usefulness_score: 4,
+      user_id: userA.id,
+      worked: "A validacao ficou clara."
+    });
+
+    deletionRequest = await insertOne(userA.client, "account_deletion_requests", {
+      confirmation_phrase_matched: true,
+      requested_at: now,
+      status: "pending_manual_review",
       user_id: userA.id
     });
 
@@ -527,6 +596,21 @@ async function run() {
       userA.client.from("energy_checkins").select("id").eq("id", energy.id),
       1
     );
+    await expectRows(
+      "owner reads analytics event",
+      userA.client.from("product_analytics_events").select("id").eq("id", analyticsEvent.id),
+      1
+    );
+    await expectRows(
+      "owner reads beta feedback",
+      userA.client.from("beta_feedback_items").select("id").eq("id", betaFeedback.id),
+      1
+    );
+    await expectRows(
+      "owner reads account deletion request",
+      userA.client.from("account_deletion_requests").select("id").eq("id", deletionRequest.id),
+      1
+    );
   });
 
   await step("user_b and anon cannot read user_a private rows", async () => {
@@ -540,6 +624,22 @@ async function run() {
     await expectDeniedOrNoRows(
       "anon cannot read goal",
       anon.from("goals").select("id").eq("id", goal.id)
+    );
+    await expectDeniedOrNoRows(
+      "user_b cannot read analytics event",
+      userB.client.from("product_analytics_events").select("id").eq("id", analyticsEvent.id)
+    );
+    await expectDeniedOrNoRows(
+      "user_b cannot read beta feedback",
+      userB.client.from("beta_feedback_items").select("id").eq("id", betaFeedback.id)
+    );
+    await expectDeniedOrNoRows(
+      "user_b cannot read account deletion request",
+      userB.client.from("account_deletion_requests").select("id").eq("id", deletionRequest.id)
+    );
+    await expectDeniedOrNoRows(
+      "anon cannot read analytics event",
+      anon.from("product_analytics_events").select("id").eq("id", analyticsEvent.id)
     );
   });
 
@@ -563,6 +663,54 @@ async function run() {
         .insert({
           emotional_state: "fixture",
           raw_thought: "invalid cross-owner write",
+          user_id: userA.id
+        })
+        .select("id")
+    );
+    await expectWriteDenied(
+      "user_b cannot write analytics as user_a",
+      userB.client
+        .from("product_analytics_events")
+        .insert({
+          consent_version: "product_analytics_v1",
+          event_name: "module_navigation",
+          expires_at: retentionExpiresAt,
+          metadata: {
+            module: "dashboard",
+            source: "desktop"
+          },
+          schema_version: "product_analytics_event_v1",
+          user_id: userA.id
+        })
+        .select("id")
+    );
+    await expectWriteDenied(
+      "user_b cannot write feedback as user_a",
+      userB.client
+        .from("beta_feedback_items")
+        .insert({
+          blocked: "Invalid cross-owner write",
+          clarity_score: 4,
+          confused: "Invalid cross-owner write",
+          consent_version: "beta_feedback_v1",
+          expires_at: retentionExpiresAt,
+          friction_score: 2,
+          has_sensitive_hint: false,
+          module: "dashboard",
+          status: "submitted",
+          usefulness_score: 4,
+          user_id: userA.id,
+          worked: "Invalid cross-owner write"
+        })
+        .select("id")
+    );
+    await expectWriteDenied(
+      "user_b cannot request deletion as user_a",
+      userB.client
+        .from("account_deletion_requests")
+        .insert({
+          confirmation_phrase_matched: true,
+          status: "pending_manual_review",
           user_id: userA.id
         })
         .select("id")
@@ -755,6 +903,18 @@ async function run() {
     await expectDeniedOrNoRows(
       "Atalaia cannot read energy check-in",
       atalaiaActive.client.from("energy_checkins").select("id").eq("id", energy.id)
+    );
+    await expectDeniedOrNoRows(
+      "Atalaia cannot read analytics event",
+      atalaiaActive.client.from("product_analytics_events").select("id").eq("id", analyticsEvent.id)
+    );
+    await expectDeniedOrNoRows(
+      "Atalaia cannot read beta feedback",
+      atalaiaActive.client.from("beta_feedback_items").select("id").eq("id", betaFeedback.id)
+    );
+    await expectDeniedOrNoRows(
+      "Atalaia cannot read account deletion request",
+      atalaiaActive.client.from("account_deletion_requests").select("id").eq("id", deletionRequest.id)
     );
   });
 

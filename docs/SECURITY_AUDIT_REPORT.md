@@ -84,6 +84,9 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Auditoria transversal do PR #7 reforcou `safeInvokeAi` com minimizacao de chaves sensiveis antes de provider, timeout abortavel por `AbortSignal`, limite diario stub antes de chamada real e guardrail de saida especifico para impedir vazamento de Metacognicao ao Atalaia.
 - Fallback de crise de Metacognicao deixou de reecoar impulso/pensamento bruto do usuario bloqueado.
 - Etapa 6 adicionou provider Resend server-only bloqueado por default, templates de e-mail sem conteudo sensivel, webhook com assinatura Svix, redaction de tokens/secrets e regressao para provider falho nao marcar notificacao como enviada.
+- Etapa 7 reduziu `ANALYTICS-001` localmente: analytics first-party exige `product_analytics_v1`, evento/metadata allowlisted, opt-in desligado por default e retencao de 90 dias.
+- Etapa 7 reduziu feedback real localmente: `beta_feedback_v1`, aviso aceito, envio explicito e bloqueio de indicio sensivel antes de persistir em `beta_feedback_items`.
+- Etapa 7 preparou export JSON autenticado com `no-store` e redacao de secrets/tokens/hashes/logs internos, alem de solicitacao de exclusao com confirmacao explicita e revogacoes server-side.
 
 ## Supabase remoto
 
@@ -101,7 +104,8 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Consentimentos de IA, analytics e feedback precisam ficar granulares, versionados, revogaveis e auditaveis antes do beta real.
 - IA real ainda precisa de consentimento/auditoria persistidos, contador diario por usuario, readiness/smoke de provider real e evals reais autorizados antes de qualquer ativacao.
 - Implementar retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA quando houver persistencia real.
-- Definir/exportar/excluir dados reflexivos, Chamado, revisoes e energia antes da primeira coleta real.
+- Validar remotamente retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA quando houver persistencia real.
+- Validar exportacao/exclusao em preview aprovado antes da primeira coleta real com usuarios.
 - Validar convites do Atalaia em preview real com Auth SSR, expiracao, e-mail autenticado e trilha de auditoria.
 
 ## Addendum Prompt 16

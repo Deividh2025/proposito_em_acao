@@ -176,6 +176,20 @@ Status remoto: aplicada em 2026-06-02 no projeto Supabase `proposito_em_acao` (`
 
 Rollback local antes de aplicar em preview: remover esta migration do branch. Rollback preview, se aplicada apenas em branch sem dados reais: descartar/recriar a branch preview e remover fixtures do harness.
 
+## Etapa 7 - Configuracoes, privacidade, analytics e feedback
+
+Contrato de schema preparado/em andamento para a etapa:
+
+- `user_preferences` deve incluir preferencia de provider de IA (`automatic`, `openai`, `deepseek`), `analytics_opt_in` desligado por padrao e `low_energy_mode`.
+- `profiles` deve guardar preferencias nao sensiveis de apresentacao, como tom da IA e intensidade da camada crista, sem conteudo de Chamado ou Metacognicao.
+- `consent_records` passa a registrar os tipos/versionamentos `ai_provider_openai_v1`, `ai_provider_deepseek_v1`, `product_analytics_v1` e `beta_feedback_v1`, com `accepted_at`, `revoked_at`, escopo e metadata minima.
+- `product_analytics_events` deve conter `user_id`, `event_name`, `metadata` minimizada, `schema_version`, `consent_version`, `occurred_at` e `expires_at`.
+- `beta_feedback_items` deve conter modulo, campos curtos sanitizados, notas, `consent_version`, `status`, `submitted_at`/timestamps e `expires_at`.
+- `account_deletion_requests` deve registrar solicitacao, status, confirmacao, timestamps e trilha minima; remocao Auth/admin nao deve ser implicita sem fluxo seguro.
+- Retencao operacional de 90 dias mira apenas `product_analytics_events`, `beta_feedback_items` e `ai_run_audits`.
+
+Status: documentos e contratos locais foram sincronizados com a Etapa 7, mas migration/typegen/RLS preview ainda precisam de evidencia fresca antes de beta real.
+
 ## Tipos TypeScript
 
 `src/types/database.ts` permanece como placeholder tipado ate que as migrations sejam aplicadas e os tipos reais sejam gerados:

@@ -13,6 +13,7 @@ Fundacao Supabase do Proposito em Acao.
 - Branches lidas em modo read-only: `main` e `preview-release-readiness`.
 - O cutover seguro para branch preview esta documentado em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 - Etapa 2 criou a migration local `20260603211654_accountability_acceptance_rls_hardening.sql`; ela ainda nao foi aplicada em preview remoto.
+- Etapa 7 preparou contratos de privacidade para `product_analytics_events`, `beta_feedback_items`, `account_deletion_requests`, preferencias e consentimentos ampliados; aplicacao/typegen/RLS preview ainda exigem evidencia fresca antes de beta real.
 
 ## Migrations
 
@@ -31,6 +32,8 @@ Ordem de aplicacao:
 11. `202606010011_mobile_pwa_prompt14_alignment.sql`
 12. `20260602214345_accountability_partner_active_select_policy.sql`
 13. `20260603211654_accountability_acceptance_rls_hardening.sql`
+
+As migrations da Etapa 7 devem ser adicionadas/aplicadas somente no escopo aprovado da etapa de banco/RLS e validadas em branch preview antes de qualquer uso com usuarios reais.
 
 ## Aplicacao manual
 
@@ -58,3 +61,5 @@ Nao aplicar a migration de hardening do Atalaia no Supabase principal nesta etap
 - Atalaia convidado nao executa update direto para aceitar convite; aceite/revogacao ficam em action server-side auditavel.
 - Metacognicao permanece privada por padrao.
 - Storage e privado por padrao.
+- Analytics/feedback first-party exigem consentimento ativo, owner-only, allowlist/minimizacao e retencao de 90 dias.
+- Exportacao/exclusao devem rodar server-side, sem expor service role, secrets, tokens, hashes ou dados de terceiros.

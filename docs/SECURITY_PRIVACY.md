@@ -308,3 +308,17 @@ Analytics e feedback entram como superficie operacional sensivel. Regras especif
 - Suporte nao deve pedir prints com dados intimos nem copiar feedback bruto sensivel para issues, docs, e-mail ou ferramentas externas.
 - PWA/mobile nao deve armazenar feedback ou analytics sensivel em localStorage, sessionStorage, IndexedDB ou CacheStorage.
 - Metricas do beta devem ser agregadas e orientadas a acoes significativas, nao pageviews com conteudo de vida.
+
+## Etapa 7 - Configuracoes, privacidade, analytics e feedback
+
+A Etapa 7 prepara o centro `/settings` e os contratos de privacidade para beta fechado, sem liberar coleta real com usuarios.
+
+Regras especificas:
+
+- Consentimentos versionados: `ai_provider_openai_v1`, `ai_provider_deepseek_v1`, `product_analytics_v1` e `beta_feedback_v1`.
+- Analytics first-party em `product_analytics_events` permanece opt-in por padrao, allowlist-only, com metadata minimizada e retencao de 90 dias.
+- Feedback beta em `beta_feedback_items` exige envio explicito, aviso aceito, consentimento ativo e bloqueio de indicio sensivel antes da persistencia.
+- Exportacao JSON autenticada deve usar `Cache-Control: no-store` e remover secrets, tokens, hashes, prompts/respostas brutas, logs internos, stack traces e dados de terceiros.
+- Exclusao de conta registra solicitacao segura, revoga consentimentos/grants/notificacoes e deixa remocao Auth/admin pendente quando nao houver operacao isolada aprovada.
+- `local-demo` pode validar fluxo sem persistir; `preview`, `beta` e `production` devem falhar fechado quando Supabase/Auth/service role server-side exigidos estiverem ausentes.
+- Supabase/Auth/RLS preview, typegen real e smoke externo seguem pendentes; nao declarar LGPD, analytics ou feedback real como validados remotamente.

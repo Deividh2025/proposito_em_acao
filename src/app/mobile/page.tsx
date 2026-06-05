@@ -1,10 +1,14 @@
 import Link from "next/link";
 
+import { persistPreparedBetaFeedbackAction } from "@/app/settings/actions";
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";
 import { MobileQuickActionGrid } from "@/components/mobile/MobileQuickActionGrid";
 import { MobileShell } from "@/components/mobile/MobileShell";
+import { getRealIntegrationFlags } from "@/lib/config";
 
 export default function MobileHomePage() {
+  const { feedback } = getRealIntegrationFlags();
+
   return (
     <MobileShell
       showBack={false}
@@ -24,7 +28,11 @@ export default function MobileHomePage() {
           Ver atalhos de hoje
         </Link>
       </section>
-      <FeedbackButton compact defaultModule="mobile" />
+      <FeedbackButton
+        compact
+        defaultModule="mobile"
+        persistFeedback={feedback ? persistPreparedBetaFeedbackAction : undefined}
+      />
     </MobileShell>
   );
 }

@@ -94,6 +94,10 @@ SQL versionado, scripts preparados ou migrations locais nao sao prova de validac
 11. Updates/deletes e escritas sensiveis devem confirmar erro e linha afetada quando o resultado altera estado real.
 12. Aceite do Atalaia nunca pode ampliar escopo definido pelo dono; permissoes, alvo, consentimento e grant revisados devem permanecer imutaveis durante o aceite.
 13. `APP_RUNTIME_MODE` define o contrato de runtime: `local-demo` permite fallback local/dev controlado; `preview`, `beta` e `production` devem falhar fechado quando persistencia/configuracao/sessao real exigida estiver ausente ou falhar.
+14. Analytics real exige opt-in explicito `product_analytics_v1`; sem consentimento ativo, evento allowlisted e metadata minimizada, nada deve ser persistido.
+15. Feedback beta com indicio sensivel, token, URL privada ou payload tecnico bruto deve ser bloqueado antes de persistir.
+16. Exportacao de dados nunca inclui secrets, tokens, hashes, logs internos, stack traces, prompts/respostas brutas ou dados de terceiros.
+17. Exclusao de conta exige confirmacao explicita e fluxo server-side seguro; remocao Auth/admin fica pendente quando nao houver isolamento operacional aprovado.
 
 ## Nunca fazer sem aprovacao explicita
 

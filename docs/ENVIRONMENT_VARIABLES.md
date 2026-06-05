@@ -151,3 +151,11 @@ npm.cmd run supabase:validate:preview
 ```
 
 Enquanto `npm.cmd run supabase:types:preview` nao rodar contra preview aprovado, `DB-TYPES-001` permanece aberto e `src/types/database.ts` nao deve ser tratado como schema real validado.
+
+## Etapa 7 - settings, analytics e feedback
+
+- `ANALYTICS_REAL_ENABLED=false` e `FEEDBACK_REAL_ENABLED=false` permanecem default seguro.
+- Mesmo com env `true`, analytics exige sessao autenticada, `product_analytics_v1`, evento allowlisted e metadata minimizada.
+- Mesmo com env `true`, feedback exige sessao autenticada, aviso aceito, `beta_feedback_v1`, envio explicito e ausencia de indicio sensivel.
+- Exportacao e exclusao dependem de Supabase/Auth real; fora de `local-demo`, falta de config/sessao/service role quando exigido deve bloquear ou retornar erro seguro.
+- Nenhuma variavel `NEXT_PUBLIC_*` deve carregar consentimento, token de exportacao, token de exclusao, service role, API key, URL privada com senha ou segredo de feedback.

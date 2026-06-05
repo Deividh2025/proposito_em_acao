@@ -24,6 +24,13 @@ describe("RLS policy safety", () => {
     join(migrationsPath, migrationFileNames.find((fileName) => fileName.includes("rls_policies")) ?? ""),
     "utf8"
   );
+  const privacyStageSql = readFileSync(
+    join(
+      migrationsPath,
+      migrationFileNames.find((fileName) => fileName.includes("privacy_settings_analytics_feedback")) ?? ""
+    ),
+    "utf8"
+  );
 
   test("binds Atalaia access to the specific partner and grant rows", () => {
     expect(sql).toContain("partners.id = accountability_grants.accountability_partner_id");
@@ -99,7 +106,10 @@ describe("RLS policy safety", () => {
       "calendar_blocks",
       "focus_distractions",
       "audit_events",
-      "ai_run_audits"
+      "ai_run_audits",
+      "product_analytics_events",
+      "beta_feedback_items",
+      "account_deletion_requests"
     ]) {
       const tablePolicyBlocks = policyBlocks.filter((block) =>
         new RegExp(`on\\s+public\\.${tableName}\\b`, "i").test(block)
@@ -131,5 +141,52 @@ describe("RLS policy safety", () => {
     }
 
     expect(ownerPolicyLoop).not.toMatch(/has_active_accountability_grant|accountability_partner_id|partner_user_id/i);
+  });
+
+  test("adds Etapa 7 privacy tables with owner-only RLS policies", () => {
+    for (const tableName of [
+      "product_analytics_events",
+      "beta_feedback_items",
+      "account_deletion_requests"
+    ]) {
+      expect(privacyStageSql).toContain(`alter table public.${tableName} enable row level security`);
+      expect(privacyStageSql).toContain(`alter table public.${tableName} force row level security`);
+
+      const tablePolicyBlocks = policyBlocks.filter((block) =>
+        new RegExp(`on\\s+public\\.${tableName}\\b`, "i").test(block)
+      );
+      const policyText = tablePolicyBlocks.join("\n");
+
+      expect(policyText).toMatch(
+        /for select\s+to authenticated\s+using \(user_id = \(select auth\.uid\(\)\)\)/i
+      );
+      expect(policyText).toMatch(/for insert\s+to authenticated\s+with check \(/i);
+      expect(policyText).toContain("user_id = (select auth.uid())");
+      expect(policyText).not.toMatch(/has_active_accountability_grant|partner_user_id|accountability_partner_id/i);
+    }
+
+    expect(privacyStageSql).toMatch(
+      /product_analytics_events_owner_insert[\s\S]*consent_type = 'product_analytics'[\s\S]*version = 'product_analytics_v1'[\s\S]*revoked_at is null/i
+    );
+    expect(privacyStageSql).toMatch(
+      /beta_feedback_items_owner_insert[\s\S]*status = 'submitted'[\s\S]*has_sensitive_hint = false[\s\S]*consent_type = 'beta_feedback'[\s\S]*version = 'beta_feedback_v1'[\s\S]*revoked_at is null/i
+    );
+    expect(privacyStageSql).toMatch(
+      /account_deletion_requests_owner_insert[\s\S]*status = 'pending_manual_review'[\s\S]*confirmation_phrase_matched = true[\s\S]*admin_deletion_allowed = false/i
+    );
+  });
+
+  test("keeps operational retention pruning private and service-role only", () => {
+    expect(privacyStageSql).toMatch(/create or replace function app_private\.prune_operational_retention/i);
+    expect(privacyStageSql).toMatch(/security definer/i);
+    expect(privacyStageSql).toContain("product_analytics_events");
+    expect(privacyStageSql).toContain("beta_feedback_items");
+    expect(privacyStageSql).toContain("ai_run_audits");
+    expect(privacyStageSql).toMatch(
+      /revoke all on function app_private\.prune_operational_retention\(boolean\) from authenticated/i
+    );
+    expect(privacyStageSql).toMatch(
+      /grant execute on function app_private\.prune_operational_retention\(boolean\) to service_role/i
+    );
   });
 });

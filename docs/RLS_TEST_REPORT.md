@@ -129,3 +129,19 @@ Cobertura adicionada ao harness `scripts/validate-supabase-preview.mjs`:
 Status remoto: nao aplicado e nao executado contra Supabase preview nesta etapa. O projeto principal nao foi modificado. A evidencia RLS remota continua pendente ate executar dry-run, push em branch preview aprovada, `supabase:types:preview` e `supabase:validate:preview`.
 
 Risco residual: criacao/aceite/revogacao usam actions server-side com ordem fail-closed e compensacao de falha, nao RPC transacional. Antes de beta real, preferir RPC em `app_private` ou validar compensacao no preview com falhas induzidas.
+
+## Addendum Etapa 7 - Privacidade, analytics e feedback
+
+Data: 2026-06-04.
+
+Cobertura local/documental preparada para novos cenarios:
+
+- `product_analytics_events`: user A insere/le apenas evento proprio com `product_analytics_v1`; user B/anon/Atalaia nao acessam; ausencia/revogacao de consentimento bloqueia insert antes do banco.
+- `beta_feedback_items`: user A persiste apenas feedback proprio apos aviso e `beta_feedback_v1`; indicio sensivel bloqueia persistencia; user B/anon/Atalaia nao acessam.
+- `user_preferences`: owner-only para preferencias de settings; outro usuario nao le nem atualiza.
+- `consent_records`: dono le historico proprio; grant/revoke real passa por server-side e service role server-only.
+- `account_deletion_requests`: solicitacao exige confirmacao explicita e owner-only; status operacional/admin nao deve ser atualizavel pelo cliente.
+- Export JSON: resposta autenticada deve conter apenas dados do dono e remover secrets/tokens/hashes/logs internos antes de retornar.
+- Retencao: prune de 90 dias deve apagar apenas `product_analytics_events`, `beta_feedback_items` e `ai_run_audits` expirados.
+
+Status remoto: nao executado contra Supabase preview nesta etapa. Fechamento exige dry-run/push em branch aprovada, typegen, harness atualizado e `npm.cmd run supabase:validate:preview` com evidencia fresca.

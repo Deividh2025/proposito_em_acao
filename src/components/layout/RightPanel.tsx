@@ -1,9 +1,13 @@
 import { ShieldCheck } from "lucide-react";
 
+import { persistPreparedBetaFeedbackAction } from "@/app/settings/actions";
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";
+import { getRealIntegrationFlags } from "@/lib/config";
 import { designModes } from "@/lib/design/modes";
 
 export function RightPanel() {
+  const { feedback } = getRealIntegrationFlags();
+
   return (
     <aside className="sticky top-4 ml-4 flex h-[calc(100vh-2rem)] flex-col gap-4 overflow-y-auto rounded-panel border border-ink-100 bg-white/82 p-4 shadow-soft">
       <section aria-labelledby="support-modes-heading" className="space-y-3">
@@ -32,7 +36,10 @@ export function RightPanel() {
         </p>
       </section>
 
-      <FeedbackButton defaultModule="dashboard" />
+      <FeedbackButton
+        defaultModule="dashboard"
+        persistFeedback={feedback ? persistPreparedBetaFeedbackAction : undefined}
+      />
     </aside>
   );
 }

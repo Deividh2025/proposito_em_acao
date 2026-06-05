@@ -186,3 +186,17 @@ Criterio antes de beta real:
 - `atalia_revoked` perde leitura futura.
 
 Status: validado por testes locais/estaticos nesta branch. Validacao dinamica em Supabase preview segue pendente ate aplicar a migration em branch/ambiente aprovado.
+
+## Etapa 7 - Privacidade, analytics e feedback
+
+Policies esperadas para as tabelas/colunas da etapa:
+
+- `user_preferences`: owner-only por `user_id = auth.uid()` para select/insert/update; sem acesso de Atalaia.
+- `consent_records`: dono pode ler seu historico; escrita/revogacao deve ser server-side controlada para preservar versionamento e auditoria minima.
+- `product_analytics_events`: owner-only para leitura do proprio usuario; insert somente com `user_id = auth.uid()`, consentimento ativo verificado pela action e metadata allowlisted. Sem policy para Atalaia ou anon.
+- `beta_feedback_items`: owner-only; insert deve passar por server action com aviso/consentimento e bloqueio de indicio sensivel. Sem policy para Atalaia ou ferramenta externa.
+- `account_deletion_requests`: dono pode criar/ler a propria solicitacao; atualizacao de status operacional deve ficar server-side/admin, sem expor `service_role` ao cliente.
+- Exportacao JSON nao e tabela: deve selecionar apenas linhas owner-only ou consultas server-side por usuario autenticado e redigir secrets/tokens/hashes antes de responder.
+- Prune de retencao deve ficar em `app_private`/operacao server-side com `search_path` fixo e mirar apenas `product_analytics_events`, `beta_feedback_items` e `ai_run_audits`.
+
+Status: criterios documentais preparados; aplicacao/validacao dinamica em Supabase preview segue pendente e nao pode ser tratada como evidencia remota.

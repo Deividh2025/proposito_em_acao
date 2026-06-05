@@ -187,6 +187,10 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Prompt 16 confirmou via Supabase que o projeto remoto esta ativo, mas ainda lista somente `20260602134002 mobile_pwa_prompt14_alignment`; producao aberta segue bloqueada.
 - Prompt 17 limita analytics a eventos/metadados minimos, consentimento especifico e sem conteudo sensivel. Em 2026-06-03, a retencao operacional foi definida como 90 dias para analytics, feedback beta e metadados de auditoria de IA, mas enforcement tecnico ainda e pendente.
 - Feedback beta nasce como rascunho local; formulario externo depende de `NEXT_PUBLIC_BETA_FEEDBACK_URL` aprovado, sem tokens.
+- Etapa 7 prepara `/settings` com consentimentos versionados `ai_provider_openai_v1`, `ai_provider_deepseek_v1`, `product_analytics_v1` e `beta_feedback_v1`.
+- Etapa 7 reduz `ANALYTICS-001` localmente: analytics first-party exige opt-in, allowlist, metadata minimizada e retencao de 90 dias, sem validar remoto ainda.
+- Etapa 7 prepara feedback beta first-party com envio explicito, aviso/consentimento e bloqueio de indicio sensivel antes de persistir.
+- Etapa 7 prepara export JSON autenticado sem secrets/tokens/hashes/logs internos e solicitacao de exclusao com confirmacao explicita; remocao Auth/admin segue pendente de operacao segura.
 - Harness Supabase preview exige `SUPABASE_PREVIEW_CONFIRM=preview`, usa service role apenas no terminal do operador e remove fixtures ficticios ao final.
 - `/onboarding` mudou de placeholder para fluxo interativo do Prompt 6.
 - `docs/OPENAI_INTEGRATION_PLAN.md` atualizado de plano conceitual para plano tecnico preparado com Responses API, Structured Outputs e limites server-side.

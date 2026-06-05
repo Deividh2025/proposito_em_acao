@@ -42,6 +42,7 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [x] Etapa 4 preparada localmente para substituir dados demonstrativos por queries autenticadas/empty states, mantendo amostras apenas em `local-demo`.
 - [x] Etapa 5 preparada localmente para roteamento seguro OpenAI/DeepSeek, consentimento por provider, guardrails executados e fallback local sem fallback cruzado.
 - [x] Etapa 6 preparada localmente com adapter Resend server-only, templates neutros, webhook assinado e envio real bloqueado por default.
+- [x] Etapa 7 preparada localmente com `/settings`, consentimentos `ai_provider_openai_v1`, `ai_provider_deepseek_v1`, `product_analytics_v1`, `beta_feedback_v1`, analytics opt-in, feedback seguro, export JSON e solicitacao de exclusao.
 - [x] Auditoria transversal do PR #8 executada localmente: gates completos passaram, smoke local desktop/mobile sem console/pageerror e nenhum secret real identificado no diff.
 - [ ] Corrigir/validar bugs S0/S1 do `docs/BUG_TRIAGE.md`.
 - [ ] Publicar preview HTTPS em Hostinger/Coolify.
@@ -66,8 +67,10 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [x] Kill switch `EMAIL_REAL_ENABLED=false` e `EMAIL_DOMAIN_VERIFIED=false` permanecem default e bloqueiam Resend real localmente.
 - [ ] Dominio/remetente Resend, SMTP Auth e smoke de entrega real ainda nao validados.
 - [ ] Smoke externo de Resend/Auth em URL HTTPS ainda nao executado; PR #8 foi apenas merge preparatorio local.
-- [ ] Consentimento de analytics/feedback antes de coleta real.
-- [ ] Retencao de 90 dias implementada quando houver persistencia de analytics/feedback/auditoria de IA.
+- [x] Consentimento de analytics/feedback preparado localmente antes de coleta real.
+- [x] Retencao de 90 dias preparada localmente para analytics/feedback/auditoria de IA.
+- [ ] Validar remotamente consentimento, RLS e retencao de analytics/feedback/auditoria de IA em Supabase preview aprovado.
+- [ ] Validar exportacao sem secrets/tokens/hashes e exclusao com confirmacao explicita em preview aprovado.
 - [ ] `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se usada, sem tokens, query sensivel ou dados pessoais.
 - [x] Atalaia limitado localmente por alvo/grant/permissao/revogacao, sem expansao no aceite.
 - [ ] Atalaia validado remotamente em Supabase preview apos aplicar a migration da Etapa 2.

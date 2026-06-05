@@ -32,8 +32,8 @@
 | Documento de compromisso | Compromisso | Alta | Sim, se usuario escolher | Sim | Revisar antes de compartilhar | Dono; Atalaia autorizado |
 | ConsentRecord | Consentimento | Critica | Nao | N/A | Registro auditavel e versionado | Dono; backend; auditoria |
 | Logs tecnicos | Observabilidade | Media | Nao | Politica clara | Sem prompt bruto, pensamento ou dado intimo | Operacional minimo; retencao definida |
-| Eventos de analytics | Beta/Observabilidade | Media/Alta | Nao | Sim | Apenas eventos/metadados minimos; sem conteudo sensivel | Consentimento especifico; retencao curta; agregacao |
-| Feedback beta | Beta/Feedback | Alta | Nao | Sim | Campo livre pode conter dado intimo; redigir antes de compartilhar | Rascunho local ate formulario/canal aprovado |
+| Eventos de analytics | Beta/Observabilidade | Media/Alta | Nao | Sim | Apenas eventos/metadados minimos allowlisted; sem conteudo sensivel | `product_analytics_v1`; owner-only; retencao 90 dias; agregacao |
+| Feedback beta | Beta/Feedback | Alta | Nao | Sim | Campo livre pode conter dado intimo; bloquear indicio sensivel antes de persistir | `beta_feedback_v1`; owner-only; rascunho local/dev ou persistencia first-party; retencao 90 dias |
 | Auditoria de IA | IA/Observabilidade | Media/Alta | Nao | Sim, por provider quando houver chamada real | Somente metadados: provider, modelo, agente, schema/prompt version, guardrail, latencia, fallback e consentimento; sem prompt/resposta bruta | Backend owner/operacional minimo; retencao futura de 90 dias |
 | Anexos de usuario | Storage | Alta | Nao por padrao | Sim | Bucket privado e path por usuario | Dono; signed URL server-side se autorizado |
 | Documento anexado de compromisso | Storage/Compromisso | Alta | Sim, se usuario escolher | Sim, por alvo/escopo | Nunca publico; previa antes de compartilhar | Dono; Atalaia via signed URL curta e grant ativo |
@@ -93,3 +93,11 @@ Desbloqueador e Metacognicao entram como dados de autorregulacao sensiveis. `act
 - OpenAI/DeepSeek reais nao podem receber dados sensiveis sem minimizacao, consentimento versionado do provider e guardrails.
 - Auditoria de IA deve permanecer como metadado tecnico redigido, sem prompt bruto, resposta bruta, conteudo intimo, tokens, API keys, e-mail com contexto sensivel ou payload de Atalaia.
 - DeepSeek JSON mode nao e considerado schema estrito; toda saida que vira dado continua validada por Zod.
+
+## Etapa 7 - Privacidade operacional
+
+- `user_preferences`: media/alta; guarda preferencias de provider, tom, camada crista, modo baixa energia e opt-in de analytics. Owner-only.
+- `product_analytics_events`: media/alta; somente eventos allowlisted, metadata minimizada, `consent_version`, `schema_version`, `occurred_at` e `expires_at`. Sem texto de usuario, titulo, URL, e-mail, token, prompt ou resposta.
+- `beta_feedback_items`: alta; campos livres curtos e normalizados, mas ainda sensiveis. Persistencia bloqueia indicio sensivel e exige `beta_feedback_v1`.
+- `account_deletion_requests`: critica; confirma intencao de exclusao e aciona restricao de processamento/revogacoes. Deve ser server-side, owner-only/admin operacional e sem remover Auth automaticamente sem operacao segura.
+- Export JSON: critica; inclui dados do dono e omite secrets, tokens, hashes, logs internos, stack traces, prompts/respostas brutas e registros de terceiros.

@@ -2,14 +2,23 @@
 
 import { useState } from "react";
 
-import { buildFeedbackDraft, type BetaFeedbackInput, betaFeedbackModules } from "@/domain/feedback";
+import {
+  BETA_FEEDBACK_CONSENT_VERSION,
+  buildFeedbackDraft,
+  prepareBetaFeedbackForPersistence,
+  type BetaFeedbackInput,
+  betaFeedbackModules,
+  type PersistBetaFeedbackAction
+} from "@/domain/feedback";
 import { Button } from "@/components/ui/Button";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
 import { SuccessState } from "@/components/ui/SuccessState";
 
 type FeedbackFormProps = {
   defaultModule?: BetaFeedbackInput["module"];
   externalUrl?: string;
+  persistFeedback?: PersistBetaFeedbackAction;
 };
 
 type FeedbackStatus =
@@ -28,21 +37,60 @@ function readFormValue(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();
 }
 
-export function FeedbackForm({ defaultModule = "dashboard", externalUrl }: FeedbackFormProps) {
+function readFeedbackInput(formData: FormData): BetaFeedbackInput {
+  return {
+    module: readFormValue(formData, "module") as BetaFeedbackInput["module"],
+    worked: readFormValue(formData, "worked"),
+    confused: readFormValue(formData, "confused"),
+    blocked: readFormValue(formData, "blocked"),
+    clarityScore: readFormValue(formData, "clarityScore"),
+    usefulnessScore: readFormValue(formData, "usefulnessScore"),
+    frictionScore: readFormValue(formData, "frictionScore"),
+    comment: readFormValue(formData, "comment")
+  };
+}
+
+function hasAcceptedFeedbackNotice(formData: FormData) {
+  return formData.get("feedbackConsent") === "accepted";
+}
+
+export function FeedbackForm({
+  defaultModule = "dashboard",
+  externalUrl,
+  persistFeedback
+}: FeedbackFormProps) {
   const [status, setStatus] = useState<FeedbackStatus | null>(null);
 
-  function submitFeedback(formData: FormData) {
+  async function submitFeedback(formData: FormData) {
     try {
-      const draft = buildFeedbackDraft({
-        module: readFormValue(formData, "module") as BetaFeedbackInput["module"],
-        worked: readFormValue(formData, "worked"),
-        confused: readFormValue(formData, "confused"),
-        blocked: readFormValue(formData, "blocked"),
-        clarityScore: readFormValue(formData, "clarityScore"),
-        usefulnessScore: readFormValue(formData, "usefulnessScore"),
-        frictionScore: readFormValue(formData, "frictionScore"),
-        comment: readFormValue(formData, "comment")
-      });
+      const input = readFeedbackInput(formData);
+
+      if (persistFeedback) {
+        const prepared = prepareBetaFeedbackForPersistence({
+          consentGranted: hasAcceptedFeedbackNotice(formData),
+          consentVersion: BETA_FEEDBACK_CONSENT_VERSION,
+          input,
+          noticeAccepted: hasAcceptedFeedbackNotice(formData)
+        });
+
+        if (!prepared.ok) {
+          setStatus({
+            kind: "error",
+            message: prepared.message
+          });
+          return;
+        }
+
+        const result = await persistFeedback(prepared.feedback);
+
+        setStatus({
+          kind: result.ok ? "success" : "error",
+          message: result.message
+        });
+        return;
+      }
+
+      const draft = buildFeedbackDraft(input);
 
       setStatus({
         kind: "success",
@@ -59,9 +107,20 @@ export function FeedbackForm({ defaultModule = "dashboard", externalUrl }: Feedb
   return (
     <form action={submitFeedback} className="space-y-4">
       <SensitiveDataNotice title="Feedback sem dados intimos">
-        Use frases curtas. O rascunho fica local/dev; nao envie Chamado,
-        Metacognicao, saude, familia, financas, calendario, tokens ou conteudo privado.
+        Use frases curtas. O rascunho fica local/dev; nao envie Chamado, Metacognicao, saude,
+        familia, financas, calendario, tokens ou conteudo privado.
       </SensitiveDataNotice>
+
+      <div className="rounded-card border border-ink-100 bg-ink-50 p-3">
+        <Checkbox
+          label="Revisei o texto, removi dados sensiveis e autorizo salvar este feedback no canal first-party do beta quando a persistencia segura estiver habilitada."
+          name="feedbackConsent"
+          value="accepted"
+        />
+        <p className="mt-2 text-xs leading-5 text-ink-600">
+          O envio seguro nao dispara analytics e aceita somente os campos visiveis deste formulario.
+        </p>
+      </div>
 
       <label className="block text-sm font-semibold text-ink-800">
         Modulo
@@ -86,6 +145,7 @@ export function FeedbackForm({ defaultModule = "dashboard", externalUrl }: Feedb
             maxLength={500}
             name="worked"
             placeholder="Ex.: ficou claro qual era a proxima acao."
+            required
           />
         </label>
         <label className="block text-sm font-semibold text-ink-800">
@@ -95,6 +155,7 @@ export function FeedbackForm({ defaultModule = "dashboard", externalUrl }: Feedb
             maxLength={500}
             name="confused"
             placeholder="Ex.: nao entendi se era rascunho ou dado salvo."
+            required
           />
         </label>
         <label className="block text-sm font-semibold text-ink-800">
@@ -104,6 +165,7 @@ export function FeedbackForm({ defaultModule = "dashboard", externalUrl }: Feedb
             maxLength={500}
             name="blocked"
             placeholder="Ex.: muitos passos antes de comecar."
+            required
           />
         </label>
       </div>
@@ -143,7 +205,7 @@ export function FeedbackForm({ defaultModule = "dashboard", externalUrl }: Feedb
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button className="w-full sm:w-auto" intent="action" type="submit">
-          Preparar rascunho local
+          {persistFeedback ? "Enviar feedback seguro" : "Preparar rascunho local"}
         </Button>
         {externalUrl ? (
           <a
@@ -159,10 +221,7 @@ export function FeedbackForm({ defaultModule = "dashboard", externalUrl }: Feedb
 
       <div aria-live="polite">
         {status?.kind === "success" ? (
-          <SuccessState
-            description={status.message}
-            title="Rascunho local pronto"
-          />
+          <SuccessState description={status.message} title="Rascunho local pronto" />
         ) : null}
         {status?.kind === "error" ? (
           <p className="rounded-card border border-warmth-100 bg-warmth-50 p-3 text-sm font-semibold text-warmth-900">

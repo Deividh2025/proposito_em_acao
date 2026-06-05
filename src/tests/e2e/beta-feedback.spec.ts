@@ -14,17 +14,23 @@ async function fillFeedbackDraft(scope: Locator, sensitive = false) {
   await scope.getByLabel("O que funcionou").fill("A proxima acao ficou clara.");
   await scope
     .getByLabel("O que confundiu")
-    .fill(sensitive ? "Minha senha apareceu no texto de feedback." : "Nao entendi o que era salvo.");
+    .fill(
+      sensitive ? "Minha senha apareceu no texto de feedback." : "Nao entendi o que era salvo."
+    );
   await scope.getByLabel("Onde travou").fill("Nada travou.");
 }
 
-test("Prompt 17 desktop feedback beta prepares a local draft without external send", async ({ page }) => {
+test("Prompt 17 desktop feedback beta prepares a local draft without external send", async ({
+  page
+}) => {
   await page.goto("/dashboard");
 
   const feedback = await openFeedback(page);
 
   await expect(feedback.getByText("Feedback sem dados intimos")).toBeVisible();
   await expect(feedback.getByText(/nao envie Chamado, Metacognicao/)).toBeVisible();
+  await expect(feedback.getByLabel(/Revisei o texto/)).toBeVisible();
+  await expect(feedback.getByText(/nao dispara analytics/)).toBeVisible();
 
   await fillFeedbackDraft(feedback, true);
   await feedback.getByRole("button", { name: "Preparar rascunho local" }).click();

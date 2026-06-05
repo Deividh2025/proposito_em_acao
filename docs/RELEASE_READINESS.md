@@ -206,6 +206,7 @@ Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparat
 - E-mail: Resend para transacional e SMTP customizado do Supabase Auth; adapter local preparado, envio real bloqueado ate dominio/secrets/smoke.
 - Analytics: first-party no Supabase, opt-in desligado por padrao.
 - Retencao: 90 dias para analytics, feedback beta e metadados de auditoria de IA.
+- Etapa 7: `/settings` preparado localmente para preferencias, consentimentos versionados, analytics opt-in, feedback beta, export JSON e solicitacao de exclusao; validacao remota ainda pendente.
 
 ## Bloqueadores antes do beta real
 
@@ -221,6 +222,8 @@ Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparat
 - Rodar smoke externo contra URL HTTPS.
 - Confirmar que PWA/service worker nao cacheia `/auth`, callback, recovery, APIs autenticadas, server actions ou payloads privados.
 - Aprovar LGPD minima: termos, privacidade, consentimentos, revogacao, exportacao, exclusao e retencao.
+- Validar em preview aprovado as tabelas/policies de `product_analytics_events`, `beta_feedback_items`, `account_deletion_requests`, `user_preferences` e consentimentos ampliados.
+- Confirmar que analytics/feedback reais bloqueiam sem consentimento e que exportacao nao inclui secrets/tokens/hashes/logs internos.
 - Ensaiar Docker/Coolify/rollback com release/tag ou deployment anterior conhecido.
 - Configurar CI ou registrar limitacao operacional aceita antes de qualquer release publica.
 
@@ -243,6 +246,8 @@ Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparat
 - IA real segura.
 - Resend real configurado com dominio/remetente, SMTP Auth e smoke de entrega.
 - Analytics real consentido.
+- Feedback beta real consentido e sem persistir indicio sensivel.
+- Exportacao/exclusao validadas remotamente.
 - Health/readiness produtivo.
 - Docker/Coolify validado.
 - Beta real com usuarios.

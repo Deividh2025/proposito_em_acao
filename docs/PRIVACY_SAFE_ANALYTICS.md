@@ -1,12 +1,12 @@
 # Privacy-Safe Analytics
 
-## Estado atual verificado em 2026-06-03
+## Estado atual verificado em 2026-06-04
 
-- Analytics real ainda nao esta ativo.
 - Decisao atual: analytics first-party no Supabase, com opt-in desligado por padrao.
 - Retencao operacional decidida: 90 dias para eventos de analytics, feedback beta e metadados de auditoria de IA.
-- O contrato local em `src/domain/analytics/` ainda nao persiste eventos e nao deve ser tratado como coleta pronta.
-- Antes de qualquer persistencia, o codigo deve bloquear coleta quando consentimento estiver ausente ou revogado.
+- A Etapa 7 preparou persistencia first-party em `product_analytics_events`, mas coleta real continua desligada por default e bloqueada sem `ANALYTICS_REAL_ENABLED=true`, sessao autenticada e consentimento ativo `product_analytics_v1`.
+- O contrato local em `src/domain/analytics/` bloqueia ausencia/revogacao de consentimento, evento fora da allowlist e metadata sensivel antes de persistir.
+- Validacao remota Supabase/Auth/RLS e smoke externo ainda nao foram executados; nao declarar analytics real pronto para usuarios beta.
 
 ## Regra central
 
@@ -14,19 +14,20 @@ Analytics deve medir comportamento de produto sem capturar conteúdo de vida do 
 
 ## Consentimento
 
-Antes de qualquer coleta real:
+Antes de qualquer persistencia real:
 
-- Criar consentimento específico para analytics/telemetria.
+- Exigir consentimento específico `product_analytics_v1`.
 - Registrar versão, data, escopo e revogação.
 - Bloquear eventos quando consentimento estiver ausente ou revogado.
+- Manter opt-in desligado por padrao em preferencias.
 
 ## Minimização
 
 Permitido:
 
-- Evento.
-- Módulo.
-- Status.
+- Evento allowlisted.
+- Módulo allowlisted.
+- Status allowlisted.
 - Buckets e contagens.
 - Duração aproximada.
 - Superfície desktop/mobile.
@@ -43,7 +44,7 @@ Proibido:
 
 ## Feedback
 
-Feedback livre deve ser tratado como potencialmente sensível. O beta atual só prepara rascunho local e alerta para indícios sensíveis. Envio externo depende de aprovação de política, formulário e acesso.
+Feedback livre deve ser tratado como potencialmente sensível. A Etapa 7 prepara persistencia first-party em `beta_feedback_items` apenas apos envio explicito, aviso/consentimento `beta_feedback_v1` e ausencia de indicio sensivel. Envio externo continua dependente de aprovacao de politica, formulario e acesso.
 
 ## Retenção
 
@@ -56,6 +57,7 @@ Politica decidida antes da primeira coleta real:
 - Quem acessa.
 - Como exportar/excluir quando aplicável.
 - Como apagar dados após revogação.
+- O prune deve mirar somente `product_analytics_events`, `beta_feedback_items` e `ai_run_audits`; dados principais do produto nao entram nessa rotina operacional.
 
 ## PWA/mobile
 

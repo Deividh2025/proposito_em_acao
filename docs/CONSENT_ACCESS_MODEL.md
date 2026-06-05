@@ -1,12 +1,13 @@
 # Consent Access Model
 
-## Estado atual verificado em 2026-06-03
+## Estado atual verificado em 2026-06-04
 
-- Consentimento de IA deve ser separado por provider (`openai`, `deepseek` e modo `automatic`), versionado, auditavel e revogavel.
-- Analytics e feedback beta exigem opt-in antes de coleta real; analytics sera first-party no Supabase e desligado por padrao.
+- Consentimento de IA e separado por provider, versionado, auditavel e revogavel: `ai_provider_openai_v1` e `ai_provider_deepseek_v1`.
+- Analytics e feedback beta exigem opt-in antes de coleta real: `product_analytics_v1` e `beta_feedback_v1`.
+- Analytics first-party no Supabase fica desligado por padrao e feedback beta persiste apenas apos envio explicito, aviso aceito e ausencia de indicio sensivel.
 - Retencao decidida: 90 dias para analytics, feedback beta e metadados de auditoria de IA.
 - Atalaia nao pode ampliar permissoes no aceite do convite; o escopo revisado pelo dono deve ser imutavel para o convidado.
-- Etapa 2 persiste consentimento minimo do Atalaia em criacao, aceite e revogacao do grant, mas nao fecha consentimentos amplos de IA, analytics ou feedback.
+- Etapa 7 prepara consentimentos amplos de IA/analytics/feedback no centro `/settings`, mas validacao remota Supabase/Auth/RLS segue pendente.
 
 ## Principio
 
@@ -70,3 +71,11 @@ Na Etapa 2, a revogacao do Atalaia corta grant/parceiro e cancela notificacoes a
 Analytics de produto exige consentimento especifico, versao, finalidade, retencao e revogacao. Eventos devem usar allowlist e metadados minimos, sem Chamado, Metacognicao, Inbox, calendario detalhado, fe, saude, familia, financas, emocoes, prompts, respostas de IA ou mensagens ao Atalaia.
 
 Feedback beta com campo livre deve ser tratado como potencialmente sensivel. Envio externo so pode ocorrer apos aprovacao de formulario/canal, acesso, retencao e aviso claro para nao inserir dados intimos.
+
+## Etapa 7 - Settings e direitos do titular
+
+- `/settings` passa a concentrar preferencias, consentimentos por provider, analytics, feedback, exportacao e exclusao.
+- Preferencia de provider (`automatic`, `openai`, `deepseek`) nao substitui consentimento do provider; chamada real continua bloqueada sem consentimento ativo e kill switch aprovado.
+- Revogar analytics ou feedback deve impedir novas persistencias; historico minimo pode ficar ate expiracao/retencao ou processo de exclusao aprovado.
+- Exportacao autenticada gera JSON sob demanda e nao deve armazenar arquivo permanente.
+- Solicitacao de exclusao exige frase de confirmacao explicita, revoga consentimentos/grants/notificacoes e registra `account_deletion_requests`; remocao Auth/admin permanece operacao segura pendente quando nao houver isolamento aprovado.

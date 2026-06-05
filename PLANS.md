@@ -370,6 +370,85 @@ Se a auditoria docs-only causar problema, reverter o commit documental. Se PR #8
 
 `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/SECURITY_AUDIT_REPORT.md`, `docs/SMOKE_TEST_REPORT.md`, `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md` e `docs/CHANGELOG.md`.
 
+## Plano - Etapa 7 privacidade, configuracoes, analytics e feedback
+
+## Objetivo
+
+Implementar o centro de configuracoes e privacidade do beta fechado com preferencias, consentimentos por provider, analytics first-party opt-in, feedback seguro, exportacao JSON, solicitacao/exclusao de conta e retencao operacional de 90 dias, sem deploy nem ativacao externa.
+
+## Contexto
+
+Lidos `AGENTS.md`, `PLANS.md`, `docs/SECURITY_PRIVACY.md`, `docs/DATA_SENSITIVITY_MATRIX.md`, `docs/CONSENT_ACCESS_MODEL.md`, `docs/PRIVACY_SAFE_ANALYTICS.md`, `docs/BETA_FEEDBACK_PLAN.md`, `docs/ENVIRONMENT_VARIABLES.md`, `docs/BUG_TRIAGE.md`, `docs/RELEASE_READINESS.md` e `docs/BETA_CHECKLIST.md`. GitHub confirmou PRs #1 a #8 mergeados na `main`, incluindo Etapa 6. `main` local foi atualizada com `git pull --ff-only origin main`, a branch `codex/privacy-analytics-feedback-settings` foi criada e a varredura inicial encontrou apenas placeholders/docs/scripts, sem secret real. Estado atual: `/settings` e placeholder; analytics/feedback existem como contratos locais sem persistencia; `ANALYTICS-001`, `AI-CONSENT-AUDIT-001` e `FEEDBACK-REAL-001` permanecem abertos/reduziveis. Decisoes fixas: analytics first-party no Supabase, opt-in desligado, feedback persistido apenas apos envio explicito, indicio sensivel bloqueia persistencia, consentimento de IA por provider versionado/revogavel, retencao de 90 dias para analytics, feedback e auditoria de IA.
+
+## Arquivos envolvidos
+
+- Criar: `src/components/settings/**`, `src/domain/privacy/**`, queries/actions focadas para settings/consentimentos/analytics/feedback/exportacao/exclusao, migration Supabase da Etapa 7, testes unitarios/integracao/E2E focados.
+- Modificar: `src/app/settings/**`, `src/components/feedback/**`, `src/domain/analytics/**`, `src/domain/feedback/**`, `src/lib/supabase/queries/**`, `scripts/validate-supabase-preview.mjs`, docs obrigatorias da etapa e `PLANS.md`.
+- Nao tocar: deploy Hostinger/Coolify, CI/CD, dominio, secrets reais, envio de e-mail real, analytics de terceiros, ativacao real de OpenAI/DeepSeek, aplicacao remota de migrations no Supabase principal e politica juridica final.
+
+## Subagentes necessarios
+
+- Subagente 1: Settings e consentimentos, dono de UI/configuracoes e preferencias de IA/tom/camada crista.
+- Subagente 2: Analytics first-party, dono de allowlist, opt-in off, persistencia e migration/RLS de eventos.
+- Subagente 3: Feedback beta, dono de sanitizacao, bloqueio de indicio sensivel e persistencia explicita.
+- Subagente 4: Exportacao/exclusao/retencao, dono de JSON export, solicitacao/exclusao segura e prune de 90 dias.
+- Subagente 5: Testes/docs, dono de cobertura, docs sincronizadas e registros de bugs/release.
+
+## Skills necessarias
+
+`execution-plan-skill`, `security-privacy-skill`, `consent-permissions-skill`, `private-reflection-data-skill`, `product-analytics-skill`, `feedback-triage-skill`, `beta-operations-skill`, `supabase-architecture-skill`, `supabase-rls-skill`, `database-migration-skill`, `rls-testing-skill`, `auth-security-skill`, `testing-architecture-skill`, `frontend-playwright-qa-skill`, `nextjs-tailwind-skill`, `docs-sync-skill`, `superpowers:using-superpowers`, `superpowers:using-git-worktrees`, `superpowers:writing-plans` e `superpowers:subagent-driven-development`.
+
+## Riscos
+
+- Coletar analytics sem consentimento ou com metadata sensivel.
+- Persistir feedback livre com dado intimo, token, URL sensivel ou payload tecnico bruto.
+- Criar falso sucesso fora de `local-demo` quando Supabase/Auth/persistencia real falhar.
+- Expor `service_role` em client, barrel publico, logs ou docs.
+- Exportar secrets, hashes, tokens, logs internos ou dados de terceiros/Atalaia alem do minimo.
+- Excluir Auth user com admin client sem isolamento suficiente; se houver risco, registrar solicitacao de exclusao em vez de executar remocao total.
+- Retencao apagar dados principais por engano; prune deve mirar apenas analytics, feedback e auditoria IA expirados.
+- Declarar LGPD/release/beta real como pronto sem URL HTTPS, Auth/RLS externo, smoke, secrets e revisao legal humana.
+
+## Estrategia
+
+1. Criar contratos de dominio para consentimentos versionados, preferencias, analytics, feedback, exportacao, exclusao e retencao.
+2. Criar migration incremental para ampliar `user_preferences`, endurecer `consent_records`, adicionar `product_analytics_events`, `beta_feedback_items`, `account_deletion_requests`, indices, `expires_at`, RLS owner-only e funcao segura de prune em `app_private`.
+3. Implementar queries/actions server-only usando cliente autenticado normal para owner data e admin apenas onde estritamente necessario, sem exportar service role ao client.
+4. Substituir `/settings` por UI real com secoes pequenas: preferencias, IA/consentimentos, analytics, feedback, exportacao e exclusao.
+5. Adaptar `FeedbackForm` para server action quando persistencia real estiver habilitada e consentida; manter copy honesta/local quando bloqueado.
+6. Implementar analytics allowlist-only com opt-in off, metadata allowlist e resultado bloqueado quando consentimento ausente/revogado.
+7. Implementar export JSON sob demanda em route handler sem armazenamento permanente.
+8. Implementar exclusao como solicitacao segura e revogacao de consentimentos/grants quando admin deletion completa nao for segura nesta etapa.
+9. Atualizar preview harness para novas tabelas/casos quando houver credenciais aprovadas, sem aplicar migration remota.
+10. Atualizar docs, bugs e release readiness separando "preparado localmente" de "validado em preview".
+
+## Criterios de aceite
+
+- `/settings` renderiza centro funcional e salva preferencias.
+- Consentimentos `ai_provider_openai_v1`, `ai_provider_deepseek_v1`, `product_analytics_v1` e `beta_feedback_v1` sao versionados, auditaveis e revogaveis.
+- Analytics com opt-in desligado nao persiste evento; com consentimento persiste somente evento/metadata allowlisted.
+- Feedback beta persiste somente apos envio explicito, consentimento/aviso e ausencia de indicio sensivel.
+- Export JSON autenticado inclui dados do dono e exclui secrets/tokens/hashes/logs internos/dados de terceiros.
+- Exclusao exige confirmacao explicita e fica funcional como solicitacao segura ou fluxo completo se admin deletion ficar isolado.
+- Retencao de 90 dias existe em migration/funcao/script, com teste provando que remove apenas expirados.
+- RLS cobre novas tabelas; user A nao acessa user B.
+- `ANALYTICS-001` fechado ou reduzido com evidencia clara.
+
+## Testes e verificacoes
+
+- Focados durante implementacao: `npm.cmd run test -- <arquivos de privacy/analytics/feedback/settings>`.
+- Gates finais: `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test`, `npm.cmd run build`, `npm.cmd run test:e2e` e `git diff --check`.
+- Supabase preview: `npx.cmd -y supabase db push --dry-run --db-url "$env:SUPABASE_PREVIEW_DB_URL"`, `npx.cmd -y supabase db push --db-url "$env:SUPABASE_PREVIEW_DB_URL"`, `npx.cmd -y supabase db lint --db-url "$env:SUPABASE_PREVIEW_DB_URL"`, `npm.cmd run supabase:types:preview` e `npm.cmd run supabase:validate:preview` somente se credenciais preview estiverem disponiveis e aprovadas.
+- Smoke externo/deploy: N/A nesta etapa sem URL HTTPS publicada/aprovada.
+
+## Rollback
+
+Reverter o commit/PR da Etapa 7. Se migration tiver sido aplicada em ambiente preview aprovado, executar rollback manual documentado removendo policies/tabelas novas da etapa ou restaurando backup antes da aplicacao. Nenhuma migration deve ser aplicada no Supabase principal sem aprovacao explicita. Se algum secret for exposto por engano, parar, rotacionar e registrar incidente antes de novo push.
+
+## Documentacao a atualizar
+
+`docs/SECURITY_PRIVACY.md`, `docs/DATA_SENSITIVITY_MATRIX.md`, `docs/CONSENT_ACCESS_MODEL.md`, `docs/PRIVACY_SAFE_ANALYTICS.md`, `docs/BETA_FEEDBACK_PLAN.md`, `docs/DATABASE_SCHEMA.md`, `docs/RLS_POLICIES.md`, `docs/RLS_TEST_REPORT.md`, `docs/ENVIRONMENT_VARIABLES.md`, `docs/TESTING_STRATEGY.md`, `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/SECURITY_AUDIT_REPORT.md`, `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md`, `docs/CHANGELOG.md`, `supabase/README.md`, `supabase/tests/README.md` e `AGENTS.md` apenas para regras duraveis novas.
+
 ## Regras de execucao
 
 - Nao avancar fase sem criterio de aceite verificavel.

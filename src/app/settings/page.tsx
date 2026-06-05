@@ -1,34 +1,25 @@
-import { PlaceholderPage } from "@/components/layout/PlaceholderPage";
-import { RadioGroup } from "@/components/ui/RadioGroup";
-import { Select } from "@/components/ui/Select";
-import { Switch } from "@/components/ui/Switch";
-import { getPlaceholderPage } from "@/lib/design/navigation";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SettingsCenter } from "@/components/settings/SettingsCenter";
+import { loadSettingsSnapshot } from "@/lib/supabase/queries/privacy-settings";
 
-export default function SettingsPage() {
-  const page = getPlaceholderPage("/settings")!;
+type SettingsPageProps = {
+  searchParams?: Promise<{ status?: string }> | { status?: string };
+};
+
+export default async function SettingsPage({ searchParams }: SettingsPageProps) {
+  const [snapshot, resolvedSearchParams] = await Promise.all([
+    loadSettingsSnapshot(),
+    Promise.resolve(searchParams)
+  ]);
 
   return (
-    <PlaceholderPage page={page}>
-      <div className="grid gap-4">
-        <Switch
-          description="Preparado para modo baixa energia futuro."
-          disabled
-          label="Reduzir estímulos visuais"
-        />
-        <RadioGroup
-          disabled
-          legend="Camada cristã futura"
-          name="faith-mode-placeholder"
-          options={[
-            { label: "Discreta", value: "subtle" },
-            { label: "Equilibrada", value: "balanced" },
-            { label: "Intensa", value: "intense" }
-          ]}
-        />
-        <Select disabled>
-          <option>Preferência futura de tom da IA</option>
-        </Select>
-      </div>
-    </PlaceholderPage>
+    <div className="space-y-6">
+      <PageHeader
+        description="Preferencias, consentimentos, analytics opt-in, feedback beta, exportacao e exclusao com privacidade por padrao."
+        status={snapshot.mode === "local-demo" ? "Local-demo sem persistencia real" : "Sessao autenticada"}
+        title="Configuracoes e privacidade"
+      />
+      <SettingsCenter snapshot={snapshot} status={resolvedSearchParams?.status} />
+    </div>
   );
 }

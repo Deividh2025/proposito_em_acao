@@ -1,8 +1,11 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  PRODUCT_ANALYTICS_CONSENT_VERSION,
+  PRODUCT_ANALYTICS_EVENT_SCHEMA_VERSION,
   activationEventNames,
   buildAnalyticsEvent,
+  productAnalyticsEventNames,
   retentionEventNames,
   sanitizeAnalyticsMetadata
 } from "@/domain/analytics";
@@ -14,10 +17,16 @@ import {
 
 describe("Prompt 17 beta analytics domain", () => {
   test("defines activation and retention events without sensitive payload names", () => {
-    expect(activationEventNames).toContain("profile_completed");
-    expect(activationEventNames).toContain("first_goal_created");
-    expect(retentionEventNames).toContain("weekly_returned");
-    expect(retentionEventNames).toContain("recurring_metacognition_used");
+    expect(productAnalyticsEventNames).toEqual([
+      "module_navigation",
+      "action_created",
+      "action_completed",
+      "local_fallback_used",
+      "flow_error",
+      "feedback_submitted"
+    ]);
+    expect(activationEventNames).toEqual(["action_created"]);
+    expect(retentionEventNames).toEqual(["module_navigation", "action_completed"]);
   });
 
   test("keeps analytics metadata minimal and strips sensitive keys", () => {
@@ -40,9 +49,14 @@ describe("Prompt 17 beta analytics domain", () => {
   });
 
   test("builds a consent-aware analytics event without user content", () => {
-    const event = buildAnalyticsEvent({
+    const eventResult = buildAnalyticsEvent({
       name: "task_completed",
-      consentGranted: true,
+      consent: {
+        granted: true,
+        version: PRODUCT_ANALYTICS_CONSENT_VERSION,
+        recordedAt: "2026-06-04T09:00:00.000Z",
+        revokedAt: null
+      },
       metadata: {
         module: "tasks",
         alignedToCalling: true,
@@ -51,11 +65,18 @@ describe("Prompt 17 beta analytics domain", () => {
       }
     });
 
-    expect(event.name).toBe("task_completed");
-    expect(event.consentGranted).toBe(true);
-    expect(event.metadata).toEqual({
+    expect(eventResult.ok).toBe(true);
+
+    if (!eventResult.ok) {
+      throw new Error("expected analytics event to be built");
+    }
+
+    expect(eventResult.event.name).toBe("action_completed");
+    expect(eventResult.event.metadata).toEqual({
       module: "tasks",
-      alignedToCalling: true
+      alignedToCalling: true,
+      schemaVersion: PRODUCT_ANALYTICS_EVENT_SCHEMA_VERSION,
+      consentVersion: PRODUCT_ANALYTICS_CONSENT_VERSION
     });
   });
 });

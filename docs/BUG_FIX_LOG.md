@@ -169,3 +169,15 @@ Esta auditoria nao aplicou correcao de codigo. Ela confirmou que os bugs reduzid
 | `SEC-CSP-001` | Mantido pendente | Varredura confirmou `unsafe-inline` ainda presente na CSP; nao houve mudanca de codigo nesta auditoria. |
 
 Subagentes foram tentados para os cinco recortes da auditoria, mas falharam por sessao expirada do conector. A evidencia registrada foi coletada por comandos locais.
+
+## Etapa 7 - Settings, privacidade, analytics e feedback
+
+Data: 2026-06-04.
+
+| Bug | Correcao | Evidencia |
+|---|---|---|
+| `ANALYTICS-001` reduzido localmente | Analytics first-party passou a exigir `product_analytics_v1`, evento allowlisted, metadata minimizada e expiracao de 90 dias antes de preparar persistencia. Ausencia/revogacao de consentimento, evento nao permitido ou metadata sensivel bloqueiam a persistencia. | `src/domain/analytics/index.ts`, `src/domain/analytics/types.ts`, `src/tests/unit/analytics-domain.test.ts`. Validacao remota Supabase/RLS ainda pendente. |
+| `FEEDBACK-REAL-001` reduzido localmente | Feedback beta passou a exigir aviso aceito, `beta_feedback_v1`, envio explicito, campos limitados/sanitizados e bloqueio de indicio sensivel antes de persistir em first-party. | `src/domain/feedback/index.ts`, `src/domain/feedback/types.ts`, `src/components/feedback/FeedbackForm.tsx`, `src/tests/unit/feedback-domain.test.ts`, `src/tests/e2e/beta-feedback.spec.ts`. |
+| Direitos do titular preparados | Export JSON autenticado remove secrets/tokens/hashes/logs internos/dados de terceiros; exclusao exige confirmacao explicita e registra solicitacao segura, revogando consentimentos/grants/notificacoes quando possivel. | `src/domain/privacy/index.ts`, `src/lib/supabase/queries/privacy-settings.ts`, `src/app/settings/export/route.ts`, `src/tests/unit/privacy-export-delete-retention.test.ts`. |
+
+Pendencias: aplicacao da migration/RLS local, typegen e preview validation da Etapa 7 ainda precisam de ambiente aprovado. Nao houve coleta real com usuarios, smoke externo ou aplicacao remota.

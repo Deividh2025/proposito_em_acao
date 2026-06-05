@@ -232,6 +232,17 @@ Testes adicionados/esperados:
 - Smoke publicado deve validar que `NEXT_PUBLIC_BETA_FEEDBACK_URL`, se configurada, nao contem token ou query sensivel.
 - Testes futuros de analytics real devem confirmar consentimento, bloqueio sem consentimento, rejeicao de chaves sensiveis e ausencia de texto de usuario.
 
+## Etapa 7
+
+Testes adicionados/esperados:
+
+- `src/tests/unit/analytics-domain.test.ts` valida allowlist, aliases, opt-in `product_analytics_v1`, bloqueio por consentimento ausente/revogado e metadata sensivel.
+- `src/tests/unit/feedback-domain.test.ts` valida `beta_feedback_v1`, aviso obrigatorio, sanitizacao, limites, bloqueio de indicio sensivel e payload sem analytics.
+- `src/tests/unit/privacy-export-delete-retention.test.ts` valida export JSON sem secrets/tokens/hashes/logs internos, confirmacao explicita de exclusao e retencao de 90 dias.
+- `src/tests/unit/beta-operations-domain.test.ts` e `src/tests/e2e/beta-feedback.spec.ts` devem continuar cobrindo UX local/dev e alerta de dados sensiveis.
+- RLS real de `product_analytics_events`, `beta_feedback_items`, `account_deletion_requests`, `user_preferences` e consentimentos ampliados permanece pendente ate rerun fresco em ambiente aprovado.
+- Smoke externo deve confirmar que analytics/feedback reais seguem bloqueados sem consentimento e que export usa `Cache-Control: no-store`.
+
 ## Testes de UX critico
 
 - Proxima acao clara no dashboard.
@@ -252,7 +263,7 @@ Testes adicionados/esperados:
 - Logs sem dados intimos.
 - Consentimento registrado e revogavel.
 - Mensagem ao Atalaia com previa.
-- Exportacao/exclusao quando a fase existir.
+- Exportacao/exclusao da Etapa 7: JSON autenticado sem secrets/tokens/hashes/logs internos e solicitacao de exclusao com confirmacao explicita.
 
 ## Testes de regressao
 
@@ -260,6 +271,14 @@ Testes adicionados/esperados:
 - Contratos de schemas de IA versionados.
 - Snapshot de politicas RLS/matriz de acesso.
 - Evals negativos de IA em cada PR que mexer em prompts, schemas ou guardrails.
+
+## Etapa 7 - privacidade e LGPD operacional
+
+- Unit: analytics first-party bloqueia ausencia/revogacao de `product_analytics_v1`, evento fora da allowlist e metadata sensivel; persiste somente payload minimizado com `expiresAt`.
+- Unit: feedback beta exige aviso/`beta_feedback_v1`, limita/sanitiza campos e bloqueia indicio sensivel antes do insert.
+- Unit: export JSON redige secrets/tokens/hashes/logs internos e retencao remove apenas `product_analytics_events`, `beta_feedback_items` e `ai_run_audits` expirados.
+- E2E: `/settings` renderiza preferencias, consentimentos, analytics, export JSON e solicitacao de exclusao; feedback beta continua local/dev quando `FEEDBACK_REAL_ENABLED=false`.
+- RLS: teste estatico cobre policies owner-only das novas tabelas; harness preview foi preparado, mas validacao remota depende de ambiente aprovado.
 
 ## Criterios minimos para PR
 

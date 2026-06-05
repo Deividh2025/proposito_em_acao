@@ -14,6 +14,13 @@ export default defineConfig({
       "src/tests/integration/**/*.test.ts",
       "src/ai/evals/**/*.test.ts"
     ],
+    allowOnly: !process.env.CI,
+    clearMocks: true,
+    restoreMocks: true,
+    unstubEnvs: true,
+    unstubGlobals: true,
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
     passWithNoTests: false
   }
 });

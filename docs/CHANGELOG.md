@@ -18,6 +18,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 6 adiciona adapter Resend server-only com `fetch`, webhook assinado, templates transacionais neutros e testes focados de e-mail.
 - Auditoria transversal do PR #8 adiciona registro documental de gates locais, smoke Playwright desktop/mobile, scans de secrets/CSP e status GitHub antes do merge preparatorio.
 - Auditoria transversal do PR #10 adiciona registro documental de gates locais/remotos, smoke local dedicado, tempos de rotas, scans de secrets/PWA/service role e status de merge preparatorio.
+- PR runner reliability adiciona teste estatico para os contratos dos runners Vitest, E2E local e smoke externo.
 
 ### Changed
 
@@ -29,6 +30,9 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Providers OpenAI/DeepSeek passam a receber `AbortSignal` e input minimizado antes de qualquer chamada real autorizada.
 
 - Persistencia de convites do Atalaia passa a registrar notificacao antes da tentativa de provider e atualizar `provider_status` depois, sem marcar provider falho como enviado.
+- Runner E2E local passa a sobrescrever `PLAYWRIGHT_BASE_URL` para `http://127.0.0.1:3000`, capturar logs do `next start` e falhar cedo quando o servidor encerra antes da readiness.
+- Smoke externo passa a exigir origem limpa, sem credenciais, caminho, query ou hash, mantendo HTTPS obrigatorio para URLs nao locais.
+- Configs Vitest/Playwright passam a preferir gates seriais, isolamento de mocks/env/globals e artefatos em falha.
 
 ### Security
 

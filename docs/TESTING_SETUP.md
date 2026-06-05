@@ -26,6 +26,15 @@ npm.cmd run test:e2e
 
 O comando `npm.cmd run test:e2e` usa `scripts/run-e2e.mjs` para buildar, iniciar o Next, executar Playwright e encerrar o servidor corretamente no Windows.
 
+## Confiabilidade dos runners
+
+- `npm.cmd run test:e2e` sempre aponta Playwright para `http://127.0.0.1:3000`, mesmo que `PLAYWRIGHT_BASE_URL` esteja definido no shell. Smoke contra preview publicado deve usar somente `npm.cmd run test:e2e:external`.
+- O runner local espera `/api/health`, captura as ultimas linhas do `next start` e falha cedo quando o servidor encerra antes da readiness.
+- O timeout de readiness local pode ser ajustado com `E2E_SERVER_READY_TIMEOUT_MS` quando uma maquina lenta precisar de mais tempo.
+- No Windows, o runner encerra a arvore de processos do `next start` com `taskkill /T /F` ao final ou em sinal de interrupcao.
+- `npm.cmd run test:e2e:external` exige `PREVIEW_URL` ou `PLAYWRIGHT_BASE_URL` como origem HTTPS publicada. A URL nao deve conter credenciais, caminho, query ou hash.
+- A suite externa define `EXTERNAL_SMOKE=1` e normaliza `PLAYWRIGHT_BASE_URL` para a origem aprovada, evitando rodar o smoke contra destino implicito.
+
 ## Minimo por PR
 
 - Lint.

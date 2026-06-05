@@ -136,12 +136,12 @@ Data: 2026-06-04.
 
 Cobertura local/documental preparada para novos cenarios:
 
-- `product_analytics_events`: user A insere/le apenas evento proprio com `product_analytics_v1`; user B/anon/Atalaia nao acessam; ausencia/revogacao de consentimento bloqueia insert antes do banco.
-- `beta_feedback_items`: user A persiste apenas feedback proprio apos aviso e `beta_feedback_v1`; indicio sensivel bloqueia persistencia; user B/anon/Atalaia nao acessam.
+- `product_analytics_events`: user A le apenas evento proprio; insert direto por cliente anonimo/autenticado fica revogado e a persistencia real deve passar por action server-side/admin apos `product_analytics_v1`, allowlist e minimizacao. User B/anon/Atalaia nao acessam; ausencia/revogacao de consentimento bloqueia antes do banco/admin.
+- `beta_feedback_items`: user A le apenas feedback proprio; insert direto por cliente anonimo/autenticado fica revogado e a persistencia real deve passar por action server-side/admin apos aviso, `beta_feedback_v1` e bloqueio de indicio sensivel. User B/anon/Atalaia nao acessam.
 - `user_preferences`: owner-only para preferencias de settings; outro usuario nao le nem atualiza.
 - `consent_records`: dono le historico proprio; grant/revoke real passa por server-side e service role server-only.
 - `account_deletion_requests`: solicitacao exige confirmacao explicita e owner-only; status operacional/admin nao deve ser atualizavel pelo cliente.
 - Export JSON: resposta autenticada deve conter apenas dados do dono e remover secrets/tokens/hashes/logs internos antes de retornar.
 - Retencao: prune de 90 dias deve apagar apenas `product_analytics_events`, `beta_feedback_items` e `ai_run_audits` expirados.
 
-Status remoto: nao executado contra Supabase preview nesta etapa. Fechamento exige dry-run/push em branch aprovada, typegen, harness atualizado e `npm.cmd run supabase:validate:preview` com evidencia fresca.
+Status remoto: nao executado contra Supabase preview nesta etapa. Fechamento exige aplicar a migration de hardening `20260605130314_analytics_feedback_server_only_persistence.sql` em branch aprovada, typegen, harness atualizado e `npm.cmd run supabase:validate:preview` com evidencia fresca.

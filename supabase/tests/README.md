@@ -90,10 +90,10 @@ O roteiro operacional completo esta em `docs/SUPABASE_PREVIEW_CUTOVER.md`.
 
 56. `user_a` cria/le suas `user_preferences`; `user_b` nao le nem altera.
 57. `user_a` le historico proprio de `consent_records`; `user_b`, anonimo e Atalaia nao leem.
-58. `product_analytics_events` aceita insert apenas para o dono autenticado e com evento/minimetadata allowlisted preparados pela action.
-59. Ausencia ou revogacao de `product_analytics_v1` bloqueia persistencia antes do banco.
+58. `product_analytics_events` nao aceita insert direto por cliente anonimo/autenticado; fixture e persistencia real usam caminho server-side/admin apos action preparar evento/minimetadata allowlisted.
+59. Ausencia ou revogacao de `product_analytics_v1` bloqueia persistencia antes do banco/admin.
 60. `user_b`, anonimo e Atalaia nao leem `product_analytics_events` de `user_a`.
-61. `beta_feedback_items` aceita apenas feedback proprio, com aviso/consentimento `beta_feedback_v1`; indicio sensivel bloqueia antes do insert.
+61. `beta_feedback_items` nao aceita insert direto por cliente anonimo/autenticado; fixture e persistencia real usam caminho server-side/admin apos aviso/consentimento `beta_feedback_v1`; indicio sensivel bloqueia antes do insert.
 62. `user_b`, anonimo e Atalaia nao leem `beta_feedback_items` de `user_a`.
 63. `account_deletion_requests` exige dono autenticado e confirmacao explicita; cliente nao atualiza status operacional/admin.
 64. Exportacao autenticada retorna somente dados do dono e remove secrets, tokens, hashes, logs internos, stack traces e registros de terceiros.
@@ -124,7 +124,7 @@ O harness cria usuarios ficticios `user-a`, `user-b`, `atalia_invited`, `atalia_
 
 Desde a Etapa 2, o harness tambem tenta escalar `permissions`, `goal_id`, `user_id`, `tracking_level`, `notification_frequency` e `expires_at`, valida aceite de grant especifico por token hash e confirma que revogacao corta leituras futuras.
 
-Na Etapa 7, o harness local foi ampliado para cobrir isolamento de `product_analytics_events`, `beta_feedback_items` e `account_deletion_requests` entre user A/user B/anon/Atalaia. Exportacao redigida, ausencia/revogacao de consentimento e retencao de 90 dias tambem ficam cobertas por testes de dominio locais; a validacao remota ainda exige aplicar a migration em preview aprovado.
+Na Etapa 7, o harness local foi ampliado para cobrir isolamento de `product_analytics_events`, `beta_feedback_items` e `account_deletion_requests` entre user A/user B/anon/Atalaia. A migration de hardening `20260605130314_analytics_feedback_server_only_persistence.sql` muda analytics/feedback para persistencia server-only/admin; o harness deve criar essas fixtures via admin e provar que `user_a.client` tambem nao consegue inserir diretamente. Exportacao redigida, ausencia/revogacao de consentimento e retencao de 90 dias tambem ficam cobertas por testes de dominio locais; a validacao remota ainda exige aplicar a migration em preview aprovado.
 
 ## Estado local verificado em 2026-06-03
 

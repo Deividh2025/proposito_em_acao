@@ -423,7 +423,13 @@ export async function persistProductAnalyticsEvent(input: AnalyticsRecordInput):
     return blockedResult("Analytics bloqueado por consentimento, allowlist ou metadata insegura.", prepared.reason);
   }
 
-  const { error } = await auth.supabase.from("product_analytics_events").insert({
+  const admin = createAdminClientOrNull();
+
+  if (!admin) {
+    return blockedResult("Analytics exige service role server-side configurada.", "missing_service_role");
+  }
+
+  const { error } = await admin.from("product_analytics_events").insert({
     consent_version: prepared.event.consentVersion,
     event_name: prepared.event.name,
     expires_at: prepared.event.expiresAt,
@@ -473,7 +479,13 @@ export async function persistBetaFeedback(input: BetaFeedbackInput, noticeAccept
     return blockedResult(prepared.message, prepared.reason);
   }
 
-  const { error } = await auth.supabase.from("beta_feedback_items").insert({
+  const admin = createAdminClientOrNull();
+
+  if (!admin) {
+    return blockedResult("Feedback beta exige service role server-side configurada.", "missing_service_role");
+  }
+
+  const { error } = await admin.from("beta_feedback_items").insert({
     blocked: prepared.feedback.blocked,
     clarity_score: prepared.feedback.clarityScore,
     comment: prepared.feedback.comment,

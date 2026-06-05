@@ -177,3 +177,25 @@ Tempos locais apos warmup:
 | `/api/ready` | 200 | 18 ms |
 
 Limitacao: smoke local nao substitui URL HTTPS publicada, Auth real, Supabase/RLS remoto, Resend real, IA real, analytics real, Docker/Coolify ou rollback.
+
+## PR - Auth proxy e analytics/feedback server-only
+
+Data: 2026-06-05.
+
+URL HTTPS publicada: indisponivel. Smoke externo real: nao executado. Smoke runtime local: executado contra `http://127.0.0.1:3107` com `APP_RUNTIME_MODE=preview` e Supabase/Auth ausentes.
+
+Comandos/resultados:
+
+- `npm.cmd run build`: passou e mostrou `ƒ Proxy (Middleware)`.
+- `npm.cmd run test:e2e`: passou; 35 testes e 5 external-smoke pulados por design.
+- Smoke manual preview/local confirmou:
+
+| Rota | Status | Resultado |
+|---|---:|---|
+| `/api/health` | 200 | Handler publico respondeu JSON `ok:true`. |
+| `/api/ready` | 503 | Handler publico respondeu JSON estruturado com `missing-essential-config`. |
+| `/dashboard` | 503 | Proxy bloqueou rota protegida por Auth essencial ausente. |
+| `/onboarding` | 503 | Proxy bloqueou rota protegida por Auth essencial ausente. |
+| `/settings` | 503 | Proxy bloqueou rota protegida por Auth essencial ausente. |
+
+Limitacao: esta evidencia confirma o contrato local do proxy/runtime, mas nao substitui URL HTTPS, Auth real, cookies reais, redirects Supabase, Supabase/RLS preview, smoke externo, analytics/feedback reais ou rollback.

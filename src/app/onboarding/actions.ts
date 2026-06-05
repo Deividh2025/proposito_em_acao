@@ -3,6 +3,7 @@
 import { callingDraftSchema, reviewCallingDraftSafety } from "@/ai/schemas/calling";
 import { lifeMapAreas } from "@/domain/life-map";
 import type { LifeMapAreaInput, ProfileEssentialInput } from "@/domain/onboarding";
+import { getAppRuntimeMode } from "@/lib/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type SaveOnboardingInput = {
@@ -57,6 +58,10 @@ function isMissingSupabaseConfigurationError(error: unknown) {
   return error instanceof Error && error.message.includes("environment variables are not configured");
 }
 
+function isLocalDemoRuntime() {
+  return getAppRuntimeMode() === "local-demo";
+}
+
 export async function saveOnboarding(input: SaveOnboardingInput): Promise<SaveOnboardingResult> {
   const parsedDraft = callingDraftSchema.parse(input.callingDraft);
   const safetyReview = reviewCallingDraftSafety(parsedDraft);
@@ -76,6 +81,14 @@ export async function saveOnboarding(input: SaveOnboardingInput): Promise<SaveOn
     } = await supabase.auth.getUser();
 
     if (!user) {
+      if (!isLocalDemoRuntime()) {
+        return {
+          mode: "local-draft",
+          ok: false,
+          message: "Entre na sua conta para salvar o onboarding no Supabase com RLS."
+        };
+      }
+
       return {
         mode: "local-draft",
         ok: true,
@@ -219,6 +232,15 @@ export async function saveOnboarding(input: SaveOnboardingInput): Promise<SaveOn
         ok: false,
         message:
           "Nao foi possivel confirmar o salvamento no Supabase. Mantenha o rascunho local e tente novamente antes de tratar estes dados como persistidos."
+      };
+    }
+
+    if (!isLocalDemoRuntime()) {
+      return {
+        mode: "local-draft",
+        ok: false,
+        message:
+          "Este ambiente exige Supabase/Auth configurado antes de salvar o onboarding."
       };
     }
 

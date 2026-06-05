@@ -8,7 +8,7 @@ Veredito: seguranca ainda bloqueia beta real. A evidencia local e historica nao 
 
 Achados bloqueantes atuais:
 
-- S1 `SEC-CONSENT-001` residual: consentimento/auditoria do Atalaia foi reduzido na Etapa 2, mas consentimentos amplos de IA/analytics/feedback e validacao remota ainda nao foram fechados.
+- S1 `SEC-CONSENT-001` residual: consentimento/auditoria do Atalaia foi reduzido na Etapa 2; analytics/feedback foram reduzidos localmente para action server-side/admin, mas consentimentos amplos de IA e validacao remota ainda nao foram fechados.
 - S1 `AUTH-SSR-001`: fundacao local de Auth SSR foi implementada, mas ainda falta validacao externa em URL HTTPS publicada com redirects reais, SMTP/Resend decidido e cookies reais.
 - S1 `DB-TYPES-001`: tipos reais Supabase ainda nao foram gerados a partir de preview aprovado.
 - S1 `AI-CONSENT-AUDIT-001` reduzido localmente: IA real possui rota segura, consentimento versionado por provider e persistencia server-only de auditoria minima, mas ainda falta aplicar/validar em preview aprovado e rodar provider real autorizado.
@@ -100,7 +100,9 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Fallback de crise de Metacognicao deixou de reecoar impulso/pensamento bruto do usuario bloqueado.
 - Etapa 6 adicionou provider Resend server-only bloqueado por default, templates de e-mail sem conteudo sensivel, webhook com assinatura Svix, redaction de tokens/secrets e regressao para provider falho nao marcar notificacao como enviada.
 - Etapa 7 reduziu `ANALYTICS-001` localmente: analytics first-party exige `product_analytics_v1`, evento/metadata allowlisted, opt-in desligado por default e retencao de 90 dias.
+- PR de hardening de analytics moveu persistencia de `product_analytics_events` para client admin server-only apos sanitizacao/consentimento e adicionou migration para revogar insert direto de anon/autenticado.
 - Etapa 7 reduziu feedback real localmente: `beta_feedback_v1`, aviso aceito, envio explicito e bloqueio de indicio sensivel antes de persistir em `beta_feedback_items`.
+- PR de hardening de feedback moveu persistencia de `beta_feedback_items` para client admin server-only apos sanitizacao/consentimento e adicionou migration para revogar insert direto de anon/autenticado.
 - Etapa 7 preparou export JSON autenticado com `no-store` e redacao de secrets/tokens/hashes/logs internos, alem de solicitacao de exclusao com confirmacao explicita e revogacoes server-side.
 
 ## Supabase remoto
@@ -116,8 +118,8 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 
 - Validar Etapa 4 em preview HTTPS com Auth real, RLS remoto e fixtures de usuario antes de chamar `PROD-DEMO-001` de fechado para beta.
 - Validar Supabase Auth real: signup, login, confirmacao de e-mail, callback, recovery/update de senha, logout, redirect seguro, refresh/getClaims e expiracao de sessao.
-- Consentimentos de IA, analytics e feedback precisam ficar granulares, versionados, revogaveis e auditaveis antes do beta real.
-- IA real ainda precisa de preview/Auth/RLS aplicado, contador diario por usuario, readiness/smoke de provider real e evals reais autorizados antes de qualquer ativacao.
+- Consentimentos de IA, analytics e feedback precisam ficar granulares, versionados, revogaveis e auditaveis antes do beta real; analytics/feedback tambem exigem validacao remota do caminho server-side/admin e da negacao de insert direto por cliente.
+- IA real ainda precisa de preview/Auth/RLS aplicado, validacao remota de consentimento/auditoria persistidos, contador diario por usuario, readiness/smoke de provider real e evals reais autorizados antes de qualquer ativacao.
 - Implementar retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA quando houver persistencia real.
 - Validar remotamente retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA quando houver persistencia real.
 - Validar exportacao/exclusao em preview aprovado antes da primeira coleta real com usuarios.

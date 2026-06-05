@@ -216,6 +216,39 @@ Executado localmente em 2026-06-05 na branch `codex/ai-consent-audit-persistence
 - `npm.cmd run typecheck`: passou.
 
 Limitacao: nenhuma chamada real OpenAI/DeepSeek foi executada; migration nao foi aplicada em preview; provider real continua bloqueado ate secrets, consentimento validado em ambiente aprovado, auditoria/RLS remotos, evals reais e smoke operacional.
+## Evidencia do PR - Auth proxy e analytics/feedback server-only
+
+Executado localmente em 2026-06-05 na branch `codex/fix-auth-analytics-guards`:
+
+- Proxy de request movido de `proxy.ts` para `src/proxy.ts`; build Next mostra `Proxy (Middleware)`.
+- `/onboarding` passa a ser rota protegida fora de `local-demo`.
+- `saveOnboarding` falha fechado fora de `local-demo` quando falta sessao/configuracao Auth real.
+- Analytics e feedback persistem por action server-side/admin apos consentimento/sanitizacao; migration aditiva revoga insert direto de anon/autenticado.
+- `scripts/validate-supabase-preview.mjs` passa a criar fixtures analytics/feedback via admin e validar que cliente autenticado nao insere diretamente.
+
+Gates locais frescos:
+
+- Focado: `npm.cmd run test -- src/tests/integration/auth-ssr-proxy.test.ts src/tests/integration/auth-ssr-actions.test.ts src/tests/unit/auth-ssr-safety-contracts.test.ts src/tests/unit/rls-policy-safety.test.ts src/tests/integration/privacy-persistence-boundary.test.ts`: passou, 5 arquivos e 37 testes.
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 40 arquivos e 240 testes.
+- `npm.cmd run build`: passou, 45 paginas/rotas geradas e `Proxy (Middleware)` presente.
+- `npm.cmd run test:e2e`: passou, 35 testes e 5 external-smoke pulados por design.
+- `git diff --check`: passou.
+- `node --check scripts\validate-supabase-preview.mjs`: passou.
+- Secret scan estrito do diff: sem padroes reais de secrets.
+
+Smoke runtime local em `APP_RUNTIME_MODE=preview` sem Supabase configurado:
+
+| Rota | Status | Resultado |
+|---|---:|---|
+| `/api/health` | 200 | Handler publico respondeu `ok:true`. |
+| `/api/ready` | 503 | Handler publico respondeu JSON estruturado com `missing-essential-config`. |
+| `/dashboard` | 503 | Proxy falhou fechado por Auth essencial ausente. |
+| `/onboarding` | 503 | Proxy falhou fechado por Auth essencial ausente. |
+| `/settings` | 503 | Proxy falhou fechado por Auth essencial ausente. |
+
+Limitacao: `supabase:validate:preview`, typegen real, Auth real em URL HTTPS, smoke externo, deploy Coolify, rollback e aplicacao remota da migration nao foram executados nesta PR. Beta real continua bloqueado pelos gates externos.
 
 ## Decisoes atuais de release
 
@@ -228,6 +261,7 @@ Limitacao: nenhuma chamada real OpenAI/DeepSeek foi executada; migration nao foi
 - Consentimento de IA: separado, versionado e revogavel por provider.
 - E-mail: Resend para transacional e SMTP customizado do Supabase Auth; adapter local preparado, envio real bloqueado ate dominio/secrets/smoke.
 - Analytics: first-party no Supabase, opt-in desligado por padrao.
+- Analytics/feedback: persistencia real deve passar por action server-side/admin; cliente anon/autenticado nao deve inserir diretamente.
 - Retencao: 90 dias para analytics, feedback beta e metadados de auditoria de IA.
 - Etapa 7: `/settings` preparado localmente para preferencias, consentimentos versionados, analytics opt-in, feedback beta, export JSON e solicitacao de exclusao; validacao remota ainda pendente.
 - Etapa 8: rollback/docs de Hostinger/Coolify sincronizados; preview continua pendente sem dominio/VPS/Coolify/smoke externo.
@@ -247,7 +281,7 @@ Limitacao: nenhuma chamada real OpenAI/DeepSeek foi executada; migration nao foi
 - Confirmar que PWA/service worker nao cacheia `/auth`, callback, recovery, APIs autenticadas, server actions ou payloads privados.
 - Aprovar LGPD minima: termos, privacidade, consentimentos, revogacao, exportacao, exclusao e retencao.
 - Validar em preview aprovado as tabelas/policies de `product_analytics_events`, `beta_feedback_items`, `account_deletion_requests`, `user_preferences` e consentimentos ampliados.
-- Confirmar que analytics/feedback reais bloqueiam sem consentimento e que exportacao nao inclui secrets/tokens/hashes/logs internos.
+- Confirmar que analytics/feedback reais bloqueiam sem consentimento, que insert direto por cliente anon/autenticado falha e que exportacao nao inclui secrets/tokens/hashes/logs internos.
 - Ensaiar Docker/Coolify/rollback com release/tag ou deployment anterior conhecido.
 - Configurar CI ou registrar limitacao operacional aceita antes de qualquer release publica.
 - Validar gate da Hostinger KVM 1: build, runtime, logs, HTTPS, restart, recursos e rollback estaveis; fazer upgrade se falhar.

@@ -23,6 +23,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 ### Changed
 
 - Aceite do Atalaia passa a buscar preview real sanitizada quando Supabase/Auth estao configurados, sem grant demonstrativo.
+- Request proxy de Auth passa a viver em `src/proxy.ts`, junto de `src/app`, para ser incluido pelo Next; `/onboarding` passa a respeitar protecao Auth fora de `local-demo`.
 - Permissoes do Atalaia passam a persistir exatamente a selecao revisada pelo dono, sem reintroduzir defaults do nivel automaticamente.
 - Criacao, aceite e revogacao do Atalaia passam a exigir consentimento/auditoria/notificacao obrigatoria ou retornar `ok:false`.
 - Rotas principais deixam de importar amostras diretamente em `src/app`/`src/components`; `local-demo` continua rotulado e separado de dados reais.
@@ -47,6 +48,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Webhook Resend valida assinatura Svix pelo corpo cru e grava apenas metadados redigidos de entrega.
 - Auditoria transversal do PR #8 confirma ausencia de secret real no diff, service role restrito a server-only/docs/testes e risco residual de CSP `unsafe-inline` ainda aberto.
 - Auditoria transversal do PR #10 confirma CI remoto verde, smoke local de health/ready/PWA/cache, ausencia de secrets no diff e mantem bloqueios externos de Docker/Coolify/Auth/RLS/HTTPS.
+- Analytics e feedback passam a persistir somente por caminho server-only/admin apos consentimento/sanitizacao; insert direto de anon/autenticado fica revogado por migration aditiva.
 
 ### Docs
 
@@ -62,10 +64,12 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Auditoria transversal do PR #8 sincroniza bug triage, bug fix log, security audit, smoke, release readiness e beta checklist; subagentes foram tentados, mas falharam por sessao expirada do conector.
 - Etapa 8 sincroniza rollback/docs para Hostinger/Coolify, triggers de rollback, gate da KVM 1, limitacao de CI/branch protection/release e preview ainda pendente sem dominio/VPS/URL HTTPS.
 - Auditoria transversal do PR #10 sincroniza bug triage, bug fix log, security audit, smoke report, release readiness e testing strategy antes de merge preparatorio; subagentes foram tentados, mas falharam por sessao expirada do conector.
+- PR de hardening sincroniza release readiness, smoke, bug triage, RLS e seguranca com proxy Auth efetivo e persistencia server-only de analytics/feedback.
 
 ### Fixed
 
 - Etapa 1 adiciona contratos de runtime/fallback para impedir que erro real de Supabase configurado vire `local-draft ok:true`.
+- Onboarding deixa de retornar `local-draft ok:true` em `preview`, `beta` ou `production` quando falta sessao/configuracao Auth real.
 - Etapa 1 confirma linha afetada em updates/deletes priorizados de alvos, projetos, tarefas, habitos, foco e Atalaia.
 - Etapa 1 corrige Inbox para nao alterar estado local quando a action retorna `ok:false`.
 - Etapa 1 corrige validacao do calendario para retornar erro controlado em input invalido.

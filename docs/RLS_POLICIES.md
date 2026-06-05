@@ -2,7 +2,7 @@
 
 ## Fonte
 
-Policies implementadas em `supabase/migrations/202605310002_rls_policies.sql`, ajuste de leitura ativa de Atalaia em `supabase/migrations/20260602214345_accountability_partner_active_select_policy.sql`, hardening de aceite em `supabase/migrations/20260603211654_accountability_acceptance_rls_hardening.sql` e storage em `supabase/migrations/202605310003_private_storage.sql`.
+Policies implementadas em `supabase/migrations/202605310002_rls_policies.sql`, ajuste de leitura ativa de Atalaia em `supabase/migrations/20260602214345_accountability_partner_active_select_policy.sql`, hardening de aceite em `supabase/migrations/20260603211654_accountability_acceptance_rls_hardening.sql`, hardening server-only de analytics/feedback em `supabase/migrations/20260605130314_analytics_feedback_server_only_persistence.sql` e storage em `supabase/migrations/202605310003_private_storage.sql`.
 
 ## Modelo por persona
 
@@ -193,8 +193,8 @@ Policies esperadas para as tabelas/colunas da etapa:
 
 - `user_preferences`: owner-only por `user_id = auth.uid()` para select/insert/update; sem acesso de Atalaia.
 - `consent_records`: dono pode ler seu historico; escrita/revogacao deve ser server-side controlada para preservar versionamento e auditoria minima.
-- `product_analytics_events`: owner-only para leitura do proprio usuario; insert somente com `user_id = auth.uid()`, consentimento ativo verificado pela action e metadata allowlisted. Sem policy para Atalaia ou anon.
-- `beta_feedback_items`: owner-only; insert deve passar por server action com aviso/consentimento e bloqueio de indicio sensivel. Sem policy para Atalaia ou ferramenta externa.
+- `product_analytics_events`: owner-only para leitura do proprio usuario; insert direto por cliente autenticado e anonimo fica revogado. Persistencia real deve passar por action server-side, sanitizacao/allowlist e client admin server-only.
+- `beta_feedback_items`: owner-only para leitura do proprio usuario; insert direto por cliente autenticado e anonimo fica revogado. Persistencia real deve passar por action server-side, aviso/consentimento, bloqueio de indicio sensivel e client admin server-only.
 - `account_deletion_requests`: dono pode criar/ler a propria solicitacao; atualizacao de status operacional deve ficar server-side/admin, sem expor `service_role` ao cliente.
 - Exportacao JSON nao e tabela: deve selecionar apenas linhas owner-only ou consultas server-side por usuario autenticado e redigir secrets/tokens/hashes antes de responder.
 - Prune de retencao deve ficar em `app_private`/operacao server-side com `search_path` fixo e mirar apenas `product_analytics_events`, `beta_feedback_items` e `ai_run_audits`.

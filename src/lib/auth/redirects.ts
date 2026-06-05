@@ -13,6 +13,7 @@ export const publicRoutes = [
 
 export const protectedRoutes = [
   "/dashboard",
+  "/onboarding",
   "/settings",
   "/goals",
   "/projects",

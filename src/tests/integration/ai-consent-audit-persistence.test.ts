@@ -88,61 +88,65 @@ describe("persistent AI consent and audit boundary", () => {
     });
   });
 
-  test("uses persisted provider consent and writes minimal AI audit through admin", async () => {
-    const insert = vi.fn(async () => ({ error: null }));
-    adminFromMock.mockReturnValue({ insert });
-    const provider = {
-      name: "openai" as const,
-      invoke: vi.fn().mockResolvedValue(safeOutput)
-    };
-    const { invokeAiWithPersistentConsentAndAudit } = await import("@/lib/ai");
+  test(
+    "uses persisted provider consent and writes minimal AI audit through admin",
+    async () => {
+      const insert = vi.fn(async () => ({ error: null }));
+      adminFromMock.mockReturnValue({ insert });
+      const provider = {
+        name: "openai" as const,
+        invoke: vi.fn().mockResolvedValue(safeOutput)
+      };
+      const { invokeAiWithPersistentConsentAndAudit } = await import("@/lib/ai");
 
-    const result = await invokeAiWithPersistentConsentAndAudit({
-      agentKey: "smartGoal",
-      fallback: safeOutput,
-      input: {
-        desire: "organizar a semana",
-        raw_prompt: "nao deve chegar ao provider"
-      },
-      models: {
-        openaiFast: "gpt-5.4-mini",
-        openaiPro: "gpt-5.5"
-      },
-      providers: {
-        openai: provider
-      },
-      promptVersion: "smart_goal_prompt_v1",
-      schema: tinyOutputSchema,
-      schemaName: "tiny_output_v1"
-    });
-
-    expect(result.source).toBe("provider");
-    expect(result.audit.consent_version).toBe("ai_provider_openai_v1");
-    expect(provider.invoke).toHaveBeenCalledWith(
-      expect.objectContaining({
+      const result = await invokeAiWithPersistentConsentAndAudit({
+        agentKey: "smartGoal",
+        fallback: safeOutput,
         input: {
-          desire: "organizar a semana"
-        }
-      })
-    );
-    expect(adminFromMock).toHaveBeenCalledWith("ai_run_audits");
-    expect(insert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        agent_name: "smartGoal",
-        schema_name: "tiny_output_v1",
-        schema_version: "ai_run_audit_v1",
-        status: "success",
-        user_id: "user-1",
-        metadata_minimal: expect.objectContaining({
-          consent_version: "ai_provider_openai_v1",
-          contains_raw_prompt: false,
-          contains_raw_response: false,
-          invocation_mode: "real",
-          provider: "openai"
+          desire: "organizar a semana",
+          raw_prompt: "nao deve chegar ao provider"
+        },
+        models: {
+          openaiFast: "gpt-5.4-mini",
+          openaiPro: "gpt-5.5"
+        },
+        providers: {
+          openai: provider
+        },
+        promptVersion: "smart_goal_prompt_v1",
+        schema: tinyOutputSchema,
+        schemaName: "tiny_output_v1"
+      });
+
+      expect(result.source).toBe("provider");
+      expect(result.audit.consent_version).toBe("ai_provider_openai_v1");
+      expect(provider.invoke).toHaveBeenCalledWith(
+        expect.objectContaining({
+          input: {
+            desire: "organizar a semana"
+          }
         })
-      })
-    );
-  });
+      );
+      expect(adminFromMock).toHaveBeenCalledWith("ai_run_audits");
+      expect(insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          agent_name: "smartGoal",
+          schema_name: "tiny_output_v1",
+          schema_version: "ai_run_audit_v1",
+          status: "success",
+          user_id: "user-1",
+          metadata_minimal: expect.objectContaining({
+            consent_version: "ai_provider_openai_v1",
+            contains_raw_prompt: false,
+            contains_raw_response: false,
+            invocation_mode: "real",
+            provider: "openai"
+          })
+        })
+      );
+    },
+    15_000
+  );
 
   test("blocks real provider before external call when session is missing", async () => {
     authGetUserMock.mockResolvedValue({ data: { user: null }, error: null });

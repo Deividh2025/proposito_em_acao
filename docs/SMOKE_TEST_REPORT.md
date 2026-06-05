@@ -104,6 +104,21 @@ $env:PLAYWRIGHT_BASE_URL="https://URL-APROVADA"
 npm.cmd run test:e2e:external
 ```
 
+## Etapa 8 - preparo do smoke externo
+
+Status em 2026-06-05: preparado, nao executado contra URL real. `PREVIEW_URL` e `PLAYWRIGHT_BASE_URL` estavam ausentes no ambiente local desta passada; por contrato, `npm.cmd run test:e2e:external` deve abortar antes de abrir navegador quando nenhuma URL for informada.
+
+Cobertura preparada em `src/tests/e2e/external-smoke.spec.ts`:
+
+- `/api/health` e `/api/ready` com resposta JSON, headers basicos de seguranca e readiness `ok:true`.
+- Rotas criticas desktop: home, auth, dashboard, alvos, projetos, tarefas, calendario, inbox, Desbloqueador, Metacognicao, foco, habitos, Placar, Revisao, Jardim, Atalaia e configuracoes.
+- Rotas mobile/PWA: `/mobile`, atalhos mobile principais, `/offline`, `/manifest.json` e `/sw.js`.
+- Verificacao de console/pageerror durante renderizacao das rotas publicadas.
+- Service worker sem `cache.put` e sem precache explicito de rotas autenticadas, Auth, API ou exportacao.
+- `/settings/export`, callbacks de Auth e service worker com politica de cache bloqueando armazenamento.
+
+Limitacao: esta suite nao substitui validacao manual de signup, confirmacao por e-mail, recovery, Supabase/RLS remoto, Resend, IA real, analytics real ou rollback. Ela e o gate de smoke HTTP/browser para a URL HTTPS publicada.
+
 ## Criterios minimos para beta real
 
 - URL HTTPS publicada.
@@ -115,3 +130,50 @@ npm.cmd run test:e2e:external
 - Health/readiness valida dependencias relevantes.
 - Smoke externo passa contra URL publicada.
 - S0/S1 de `docs/BUG_TRIAGE.md` corrigidos ou formalmente bloqueados antes de convite real.
+
+## Auditoria transversal PR #10
+
+Data: 2026-06-05.
+
+URL HTTPS publicada: indisponivel. Smoke externo real: nao executado. Smoke local dedicado: executado contra `http://127.0.0.1:3000`.
+
+Comandos/resultados:
+
+- `npm.cmd run test:e2e`: passou; 35 testes, 5 external-smoke pulados por design.
+- `npm.cmd run test:e2e:external` sem URL: abortou corretamente com `Set PLAYWRIGHT_BASE_URL or PREVIEW_URL to the published preview URL.`
+- `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000 npm.cmd run test:e2e:external`: passou, 5 testes em 6,5s.
+
+Cobertura do smoke local dedicado:
+
+- `/api/health` e `/api/ready`.
+- Rotas desktop principais e mobile/PWA.
+- Headers basicos de seguranca.
+- Console/pageerror durante renderizacao.
+- Manifest, service worker e pagina offline.
+- Export/Auth callbacks com politica de cache nao armazenavel.
+
+Tempos locais apos warmup:
+
+| Rota | Status | Tempo |
+|---|---:|---:|
+| `/` | 200 | 207 ms |
+| `/auth` | 200 | 173 ms |
+| `/dashboard` | 200 | 101 ms |
+| `/goals` | 200 | 130 ms |
+| `/tasks` | 200 | 159 ms |
+| `/calendar` | 200 | 107 ms |
+| `/inbox` | 200 | 67 ms |
+| `/metacognition` | 200 | 68 ms |
+| `/action-unblocker` | 200 | 80 ms |
+| `/focus` | 200 | 143 ms |
+| `/habits` | 200 | 70 ms |
+| `/scoreboard` | 200 | 75 ms |
+| `/review` | 200 | 83 ms |
+| `/garden` | 200 | 90 ms |
+| `/accountability` | 200 | 73 ms |
+| `/settings` | 200 | 157 ms |
+| `/mobile` | 200 | 92 ms |
+| `/api/health` | 200 | 18 ms |
+| `/api/ready` | 200 | 18 ms |
+
+Limitacao: smoke local nao substitui URL HTTPS publicada, Auth real, Supabase/RLS remoto, Resend real, IA real, analytics real, Docker/Coolify ou rollback.

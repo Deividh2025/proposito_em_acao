@@ -17,6 +17,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 - Etapa 6 adiciona adapter Resend server-only com `fetch`, webhook assinado, templates transacionais neutros e testes focados de e-mail.
 - Auditoria transversal do PR #8 adiciona registro documental de gates locais, smoke Playwright desktop/mobile, scans de secrets/CSP e status GitHub antes do merge preparatorio.
+- Auditoria transversal do PR #10 adiciona registro documental de gates locais/remotos, smoke local dedicado, tempos de rotas, scans de secrets/PWA/service role e status de merge preparatorio.
 
 ### Changed
 
@@ -42,6 +43,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 6 mantem `EMAIL_REAL_ENABLED=false` e `EMAIL_DOMAIN_VERIFIED=false` por default, exige Resend server-side, remetente `notify.<dominio>` aprovado e bloqueia corpo sensivel nos templates de e-mail.
 - Webhook Resend valida assinatura Svix pelo corpo cru e grava apenas metadados redigidos de entrega.
 - Auditoria transversal do PR #8 confirma ausencia de secret real no diff, service role restrito a server-only/docs/testes e risco residual de CSP `unsafe-inline` ainda aberto.
+- Auditoria transversal do PR #10 confirma CI remoto verde, smoke local de health/ready/PWA/cache, ausencia de secrets no diff e mantem bloqueios externos de Docker/Coolify/Auth/RLS/HTTPS.
 
 ### Docs
 
@@ -55,6 +57,8 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 - Etapa 6 sincroniza docs de e-mail, SMTP Auth Supabase, variaveis, seguranca, bug triage, beta e release com Resend preparado localmente e envio real ainda pendente de dominio/secrets/smoke.
 - Auditoria transversal do PR #8 sincroniza bug triage, bug fix log, security audit, smoke, release readiness e beta checklist; subagentes foram tentados, mas falharam por sessao expirada do conector.
+- Etapa 8 sincroniza rollback/docs para Hostinger/Coolify, triggers de rollback, gate da KVM 1, limitacao de CI/branch protection/release e preview ainda pendente sem dominio/VPS/URL HTTPS.
+- Auditoria transversal do PR #10 sincroniza bug triage, bug fix log, security audit, smoke report, release readiness e testing strategy antes de merge preparatorio; subagentes foram tentados, mas falharam por sessao expirada do conector.
 
 ### Fixed
 

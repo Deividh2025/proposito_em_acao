@@ -49,7 +49,7 @@ Configuracao de preview preparada no repo:
 
 - `Dockerfile` multi-stage com servidor de producao do Next.js.
 - `.dockerignore` bloqueando `.env*`, `.next`, `node_modules`, logs e outputs locais.
-- Health check HTTP em `/api/health`, atualmente apenas liveness; readiness real ainda precisa validar dependencias.
+- Health check HTTP em `/api/health` como liveness; `/api/ready` valida Supabase/Auth essencial e URL HTTPS publicada fora de `local-demo`, mas ainda precisa de smoke externo em preview.
 - Smoke externo parametrizado por `PLAYWRIGHT_BASE_URL` via `npm.cmd run test:e2e:external`.
 - Guia operacional em `docs/COOLIFY_PREVIEW_SETUP.md`.
 
@@ -83,6 +83,37 @@ Validacao local:
 11. Rodar gates locais e build no Coolify.
 12. Rodar smoke tests de preview.
 13. Registrar resultados em `docs/SMOKE_TEST_REPORT.md`.
+
+## Etapa 8 - configuracao Coolify sem secrets reais
+
+Esta etapa e preparatoria e documental. Nao houve acesso ao painel Hostinger, ao Coolify, ao DNS ou ao Supabase remoto. Portanto, nenhum item abaixo deve ser lido como configurado ate existir evidencia operacional fresca.
+
+Checklist de configuracao no Coolify para preview:
+
+- Criar projeto/app de preview separado da futura producao.
+- Apontar para a branch de preview aprovada, atualmente `codex/ci-docker-hostinger-preview`, ou para a branch/PR que estiver formalmente escolhida no momento do deploy.
+- Usar build por Dockerfile do repo quando disponivel; se usar preset Node/Next, manter Node 20+, `npm.cmd run build` equivalente e start de producao equivalente a `npm.cmd run start`.
+- Definir porta interna `3000` e proxy HTTPS no Coolify.
+- Configurar variaveis de preview no cofre/painel do Coolify, nunca em `.env.example` com valor real.
+- Marcar secrets server-side como runtime variables; usar `NEXT_PUBLIC_*` somente para valores publicos que o browser pode receber.
+- Configurar `NEXT_PUBLIC_APP_URL` com a URL HTTPS exata do preview depois que o dominio temporario existir.
+- Configurar Site URL e Redirect URLs do Supabase Auth com a URL HTTPS exata do preview antes de validar Auth real.
+- Rodar build/deploy, revisar logs e executar smoke externo com `PLAYWRIGHT_BASE_URL` ou `PREVIEW_URL`.
+- Validar rollback no Coolify antes de convidar usuarios reais.
+
+Upgrade Hostinger:
+
+- Comecar pela VPS KVM 1 conforme decisao atual.
+- Subir para KVM 2 antes de beta real se build, runtime Next.js, Coolify, logs, HTTPS, rollback ou smoke externo apresentarem instabilidade, lentidao operacional ou falta de margem de recurso.
+- Nao compensar limite de recurso relaxando seguranca, desligando gates, removendo logs necessarios ou compartilhando secrets entre ambientes.
+
+Bloqueios externos da Etapa 8:
+
+- Dominio temporario/final ainda precisa ser escolhido e configurado.
+- HTTPS publicado ainda precisa ser emitido/validado.
+- Secrets de preview ainda precisam ser inseridos manualmente no Coolify por operador autorizado.
+- Auth real ainda depende de redirects/callbacks na URL publicada.
+- Smoke externo ainda depende de URL HTTPS publicada.
 
 ## Variaveis
 

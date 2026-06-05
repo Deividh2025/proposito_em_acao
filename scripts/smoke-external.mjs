@@ -18,15 +18,27 @@ if (url.protocol !== "https:" && url.hostname !== "127.0.0.1" && url.hostname !=
   process.exit(1);
 }
 
-const child = spawn(process.execPath, [playwrightCli, "test", "--reporter=list", "--workers=1"], {
-  cwd: root,
-  env: {
-    ...process.env,
-    PLAYWRIGHT_BASE_URL: url.origin
-  },
-  stdio: "inherit",
-  windowsHide: true
-});
+const child = spawn(
+  process.execPath,
+  [
+    playwrightCli,
+    "test",
+    "src/tests/e2e/external-smoke.spec.ts",
+    "--project=desktop-chromium",
+    "--reporter=list",
+    "--workers=1"
+  ],
+  {
+    cwd: root,
+    env: {
+      ...process.env,
+      EXTERNAL_SMOKE: "1",
+      PLAYWRIGHT_BASE_URL: url.origin
+    },
+    stdio: "inherit",
+    windowsHide: true
+  }
+);
 
 child.on("error", (error) => {
   console.error(error);

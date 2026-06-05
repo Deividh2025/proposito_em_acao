@@ -1,10 +1,12 @@
 # Beta Checklist
 
-Data de sincronizacao: 2026-06-04.
+Data de sincronizacao: 2026-06-05.
 
 ## Status
 
 Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-beta real. A proxima meta e publicar um preview HTTPS controlado e validar Auth/Supabase/RLS/smoke antes de convidar usuarios reais.
+
+Etapa 8 sincronizou rollback/docs para Hostinger/Coolify, mas nao publicou preview. Sem dominio/URL HTTPS, VPS provisionada, Coolify validado, secrets de preview, smoke externo, branch protection/release referenciavel e rehearsal de rollback, beta/producao continuam bloqueados.
 
 ## Decisoes fechadas
 
@@ -44,6 +46,7 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [x] Etapa 6 preparada localmente com adapter Resend server-only, templates neutros, webhook assinado e envio real bloqueado por default.
 - [x] Etapa 7 preparada localmente com `/settings`, consentimentos `ai_provider_openai_v1`, `ai_provider_deepseek_v1`, `product_analytics_v1`, `beta_feedback_v1`, analytics opt-in, feedback seguro, export JSON e solicitacao de exclusao.
 - [x] Auditoria transversal do PR #8 executada localmente: gates completos passaram, smoke local desktop/mobile sem console/pageerror e nenhum secret real identificado no diff.
+- [x] Etapa 8 sincronizou docs de rollback Coolify, triggers, KVM gate e limitacoes de release sem liberar deploy.
 - [ ] Corrigir/validar bugs S0/S1 do `docs/BUG_TRIAGE.md`.
 - [ ] Publicar preview HTTPS em Hostinger/Coolify.
 - [ ] Configurar secrets de preview no provedor.
@@ -55,6 +58,9 @@ Beta fechado real ainda nao aprovado. O produto esta em V1 local ampla / pre-bet
 - [ ] Validar PWA install/offline via HTTPS sem cache de rotas Auth, callback, recovery, API autenticada, server actions ou payloads privados.
 - [ ] Criar CI ou registrar alternativa de governanca antes de release publica.
 - [ ] Ensaiar rollback com release/tag/deployment conhecido.
+- [ ] Confirmar branch protection efetiva ou governanca equivalente para impedir release sem gates.
+- [ ] Validar `/api/ready` em preview HTTPS e provar falha fechada quando config essencial faltar.
+- [ ] Validar imagem Docker/Coolify, healthcheck operacional e rollback/redeploy anterior.
 
 ## Seguranca
 

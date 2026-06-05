@@ -1,10 +1,12 @@
 # Operations Runbook
 
-Data: 2026-06-02.
+Data: 2026-06-05.
 
 ## Estado operacional
 
 O produto esta em V1 local ampla / pre-beta real e pronto para continuar a preparacao de preview controlado em Hostinger VPS KVM 1 com Coolify. Beta real e producao aberta estao bloqueados ate Supabase/Auth/RLS/LGPD/secrets/smoke reais passarem e S0/S1 de `docs/BUG_TRIAGE.md` serem resolvidos.
+
+Etapa 8: a preparacao operacional de Coolify/Hostinger permanece documental/local. Nao ha preview publicado, dominio/URL HTTPS aprovado, VPS/Coolify validado, secrets de preview configurados, smoke externo, Docker rollback rehearsal ou evidencia fresca de Supabase/Auth/RLS. Nao convidar usuarios beta e nao declarar producao pronta.
 
 Decisoes atuais:
 
@@ -13,6 +15,12 @@ Decisoes atuais:
 - Resend para e-mail transacional e SMTP customizado do Supabase Auth.
 - Analytics first-party no Supabase, opt-in desligado por padrao.
 - Retencao de 90 dias para analytics, feedback beta e auditoria de IA.
+
+Limitacoes operacionais abertas:
+
+- `OPS-GH-001`: CI/branch protection/release ainda nao sustentam release publica; branch protection efetiva ou governanca equivalente segue pendente.
+- `OPS-DOCKER-001`: Docker/Coolify/rollback ainda nao foram ensaiados em VPS.
+- `OPS-HEALTH-001`: readiness externo depende de smoke em URL HTTPS publicada.
 
 ## Dono e contato
 
@@ -40,6 +48,26 @@ Decisoes atuais:
 12. Rodar matriz RLS dinamica.
 13. Fazer deploy de preview.
 14. Rodar smoke tests de preview.
+15. Ensaiar rollback Coolify para deployment anterior conhecido como bom.
+16. Registrar evidencia de KVM gate: build, runtime, logs, HTTPS, restart, uso de recursos e rollback.
+
+## Operacao Hostinger/Coolify preview
+
+O preview so pode ser considerado operacional quando todos os itens abaixo tiverem evidencia fresca:
+
+- VPS Hostinger KVM 1 provisionada com acesso administrativo aprovado.
+- Coolify instalado, conectado ao repositorio privado e restrito aos operadores aprovados.
+- Dominio/URL HTTPS de preview configurado sem wildcard amplo indevido.
+- Variaveis de preview configuradas no Coolify, nunca em Git.
+- Build e start da imagem passam no servidor.
+- Logs de app/proxy ficam acessiveis sem conter conteudo sensivel.
+- `/api/health` e `/api/ready` respondem conforme contrato em URL HTTPS.
+- Rollback para deployment anterior conhecido como bom foi ensaiado e documentado.
+
+Gate de upgrade KVM 1:
+
+- Se build falhar por recurso, demorar de forma instavel, gerar OOM, reiniciar container, perder logs, degradar HTTPS/proxy ou impedir rollback previsivel, pausar o preview e aprovar upgrade antes de beta.
+- Nao contornar o gate reduzindo seguranca, removendo readiness, desativando logs essenciais ou tratando falha de config como sucesso.
 
 ## Rotina diaria do beta fechado
 
@@ -88,6 +116,9 @@ Criticos:
 - secret exposto;
 - auth redirect inseguro;
 - cache PWA com dado sensivel.
+- deploy Coolify em commit/deployment errado;
+- `/api/ready` falso positivo ou indisponivel em preview;
+- KVM 1 saturada impedindo rollback ou smoke.
 
 Acao imediata:
 
@@ -96,6 +127,16 @@ Acao imediata:
 3. Rotacionar secrets se aplicavel.
 4. Validar correcao com smoke/RLS.
 5. Registrar causa e prevencao.
+
+Triggers especificos para rollback Coolify:
+
+- erro 5xx persistente em rotas centrais;
+- Auth real quebrado em signup/login/logout/callback/recovery;
+- readiness falha ou mente sobre configuracao essencial;
+- container em restart loop ou sem logs confiaveis;
+- vazamento de secret/dado sensivel em HTML, bundle, log ou console;
+- smoke externo reprova home, auth, dashboard, mobile, health ou ready;
+- service worker/cache interfere em Auth, APIs autenticadas ou payload privado.
 
 ## IA
 

@@ -1,6 +1,6 @@
 # Release Readiness
 
-Data de sincronizacao: 2026-06-04.
+Data de sincronizacao: 2026-06-05.
 
 ## Veredito
 
@@ -194,6 +194,17 @@ Tempos locais observados no smoke do PR #8:
 
 Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparatorio. Beta real e release continuam bloqueados pelos S1/S2 abertos em `docs/BUG_TRIAGE.md`, especialmente Auth/RLS externo, CI/release, Docker/rollback, tipos Supabase reais, Resend/SMTP real, analytics/feedback consentidos, LGPD/exportacao/exclusao e smoke HTTPS.
 
+## Evidencia da Etapa 8 - rollback/docs Hostinger/Coolify
+
+Executado localmente em 2026-06-05 na branch `codex/ci-docker-hostinger-preview`:
+
+- Subagente 5 atualizou a documentacao operacional permitida para preview Hostinger/Coolify, rollback, KVM gate e limitacoes de release.
+- `docs/ROLLBACK_PLAN.md` passou a listar triggers especificos de rollback Coolify, rehearsal obrigatorio e gate da Hostinger KVM 1.
+- `docs/OPERATIONS_RUNBOOK.md` passou a exigir evidencia de VPS/Coolify, dominio HTTPS, secrets de preview, logs, `/api/health`, `/api/ready`, rollback e upgrade se KVM 1 nao sustentar o ambiente.
+- Bugs `OPS-GH-001`, `OPS-DOCKER-001` e `OPS-HEALTH-001` continuam abertos como bloqueadores, com status documental sincronizado.
+
+Limitacao: nao houve deploy real, URL HTTPS publicada, acesso Hostinger/Coolify, smoke externo, Docker image validation, branch protection efetiva, release/tag ou rerun Supabase/Auth/RLS. Esta etapa nao libera beta real nem producao.
+
 ## Decisoes atuais de release
 
 - Plataforma: Hostinger VPS KVM 1 com Coolify.
@@ -207,6 +218,7 @@ Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparat
 - Analytics: first-party no Supabase, opt-in desligado por padrao.
 - Retencao: 90 dias para analytics, feedback beta e metadados de auditoria de IA.
 - Etapa 7: `/settings` preparado localmente para preferencias, consentimentos versionados, analytics opt-in, feedback beta, export JSON e solicitacao de exclusao; validacao remota ainda pendente.
+- Etapa 8: rollback/docs de Hostinger/Coolify sincronizados; preview continua pendente sem dominio/VPS/Coolify/smoke externo.
 
 ## Bloqueadores antes do beta real
 
@@ -226,6 +238,7 @@ Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparat
 - Confirmar que analytics/feedback reais bloqueiam sem consentimento e que exportacao nao inclui secrets/tokens/hashes/logs internos.
 - Ensaiar Docker/Coolify/rollback com release/tag ou deployment anterior conhecido.
 - Configurar CI ou registrar limitacao operacional aceita antes de qualquer release publica.
+- Validar gate da Hostinger KVM 1: build, runtime, logs, HTTPS, restart, recursos e rollback estaveis; fazer upgrade se falhar.
 
 ## Bloqueadores antes de producao aberta
 
@@ -250,4 +263,54 @@ Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparat
 - Exportacao/exclusao validadas remotamente.
 - Health/readiness produtivo.
 - Docker/Coolify validado.
+- Branch protection/release/rollback referenciavel.
+- Preview HTTPS Hostinger/Coolify publicado.
 - Beta real com usuarios.
+
+## Auditoria transversal PR #10
+
+Data: 2026-06-05.
+
+Status: aprovado com restricoes para merge preparatorio; bloqueado para beta/release real.
+
+Contexto GitHub:
+
+- Branch: `codex/ci-docker-hostinger-preview`.
+- PR: `#10`, draft antes da auditoria, merge state `CLEAN`.
+- Commit auditado antes do registro documental: `243805c`.
+- CI remoto: `Lint, test, build and E2E` passou no GitHub.
+
+Gates frescos locais:
+
+- `npm.cmd run lint`: passou.
+- `npm.cmd run typecheck`: passou.
+- `npm.cmd run test`: passou, 39 arquivos e 233 testes.
+- `npm.cmd run build`: passou; build local total observado ~66s, compilacao 23,4s, TypeScript 14,8s, 45 paginas em 3,2s.
+- `npm.cmd run test:e2e`: passou, 35 testes e 5 external-smoke pulados por design.
+- `git diff --check`: passou.
+- Secret scan do diff: sem padroes reais de secrets.
+
+Smoke/performance:
+
+- `npm.cmd run test:e2e:external` sem URL abortou corretamente.
+- Smoke local dedicado com `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000` passou 5 testes em 6,5s.
+- Rotas principais apos warmup responderam entre 67 ms e 207 ms; `/api/health` e `/api/ready` responderam em 18 ms.
+
+Achados:
+
+- Nenhum S0 novo encontrado.
+- Nenhum S1 novo de codigo funcional encontrado.
+- `OPS-GH-001` reduziu porque o CI remoto existe e passou, mas segue S1 para beta/release sem branch protection/governanca equivalente, release/tag/deployment anterior e rollback referenciavel.
+- `OPS-DOCKER-001` segue S1 porque Docker daemon local estava indisponivel e Coolify/rollback nao foram ensaiados.
+- `OPS-HEALTH-001` reduziu localmente, mas segue S1 externo sem URL HTTPS publicada.
+- `SEC-CSP-001` segue S2 por `unsafe-inline`.
+- `OPS-START-001` registrado como S3: `npm.cmd run start` avisa que `output: standalone` deve usar `node .next/standalone/server.js`.
+
+Subagentes:
+
+- Foram tentados cinco subagentes conforme a auditoria, mas todos falharam por sessao expirada do conector. A auditoria foi concluida pelo agente principal com evidencias locais.
+
+Recomendacao:
+
+- Merge preparatorio do PR #10 pode seguir apos atualizar estes registros e CI verde.
+- Nao liberar beta real, preview publico com usuarios ou producao aberta sem URL HTTPS, Docker/Coolify, secrets no provedor, Supabase/Auth/RLS fresco, smoke externo, KVM gate e rollback ensaiado.

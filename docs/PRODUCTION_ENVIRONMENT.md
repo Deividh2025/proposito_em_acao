@@ -15,8 +15,8 @@ Data: 2026-06-02.
 - Proximo objetivo: beta real fechado, nao producao aberta.
 - GitHub: repositorio privado, `main` sem protecao efetiva pela API, zero workflows, zero releases e zero tags/deployments publicados.
 - Supabase CLI local disponivel (`2.98.2`) e projeto `proposito_em_acao` listado em modo read-only; evidencia de RLS preview continua historica de 2026-06-02 e deve ser repetida antes de beta real.
-- `/api/health` e liveness simples; nao valida Supabase, Auth, secrets, provider de IA, Resend ou dependencias.
-- Dockerfile existe, mas a imagem nao foi validada nesta auditoria e nao possui `HEALTHCHECK`.
+- `/api/health` e liveness simples; `/api/ready` valida Supabase/Auth essencial e URL HTTPS publicada fora de `local-demo`, mas nao valida provider de IA, Resend ou smoke autenticado real.
+- Dockerfile existe com `HEALTHCHECK` em `/api/health`, mas a imagem ainda precisa ser validada com Docker daemon/Coolify.
 - Auth real publicado segue bloqueado por falta de callback/confirmacao/recuperacao/refresh centralizado validados em URL HTTPS.
 
 ## Responsavel
@@ -86,6 +86,39 @@ Nao registrar valores reais neste documento.
 | `EMAIL_PROVIDER` | vazio | vazio ou provider aprovado | provider aprovado | Server-side/config |
 | `EMAIL_FROM` | vazio | vazio ou remetente aprovado | remetente aprovado | Config |
 | `NODE_ENV` | `development` | `production` | `production` | Config |
+
+Separacao operacional obrigatoria:
+
+- Local usa `.env.local` privado e pode operar em `APP_RUNTIME_MODE=local-demo`.
+- Preview usa apenas variaveis cadastradas no Coolify para o app de preview; nao deve herdar `.env.local`, secrets de producao ou service role de outro ambiente.
+- Producao deve ter app/projeto/secret set proprio e so pode ser configurada apos aprovacao explicita.
+- Valores `NEXT_PUBLIC_*` sao publicos no bundle cliente; nunca colocar tokens, senhas, URLs privadas com senha, service role, API keys ou webhook secrets nessa familia.
+- Secrets server-side incluem `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`, `DEEPSEEK_API_KEY`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, SMTP password, tokens de CLI e URLs Postgres com senha.
+- Variaveis de operador para CLI, como `SUPABASE_ACCESS_TOKEN` e `SUPABASE_PREVIEW_DB_URL`, nao pertencem ao runtime do app e nao devem ser configuradas como `NEXT_PUBLIC_*`.
+
+## Hostinger/Coolify preview - Etapa 8
+
+Estado desta etapa:
+
+- Plano documentado: Hostinger VPS KVM 1 + Coolify para preview controlado.
+- Sem evidencia local de dominio temporario configurado.
+- Sem evidencia local de HTTPS publicado.
+- Sem evidencia local de deploy Coolify executado.
+- Sem evidencia local de secrets inseridos no provedor.
+- Sem smoke externo executado contra URL publicada.
+
+Regras para o ambiente de preview:
+
+- `APP_RUNTIME_MODE` deve ser `preview`.
+- `NEXT_PUBLIC_APP_URL` deve apontar para a URL HTTPS exata do preview depois de publicada.
+- Supabase Auth deve ter Site URL e Redirect URLs alinhadas com a URL HTTPS exata.
+- E-mail real, IA real, analytics real e feedback real ficam desligados ate aprovacao operacional e smoke especifico.
+- Logs e variaveis devem ser conferidos antes de qualquer convite de beta.
+
+Gate de recurso:
+
+- A KVM 1 permanece adequada somente se sustentar build, runtime Next.js, Coolify, logs, HTTPS e rollback com estabilidade.
+- Upgrade para KVM 2 e obrigatorio antes de beta real se a KVM 1 apresentar saturacao, deploy instavel, falta de memoria/CPU/disco, indisponibilidade de logs, proxy/HTTPS instavel ou rollback lento/inseguro.
 
 ## Headers
 

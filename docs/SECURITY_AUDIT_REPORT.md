@@ -40,6 +40,20 @@ Riscos residuais:
 - `SEC-CSP-001`: CSP ainda usa `unsafe-inline`; endurecer com nonce/hash ou aceitar formalmente antes de beta/producao publica.
 - Auth/RLS externo, SMTP Auth Resend, webhook real delivered/bounced, PWA em HTTPS e Supabase preview com personas reais ainda nao foram validados nesta auditoria.
 
+## Addendum Etapa 8 - Hostinger/Coolify/secrets
+
+Data: 2026-06-05.
+
+Veredito: nenhum S0/S1 novo foi identificado na documentacao desta etapa, desde que os gates externos continuem bloqueando beta real. O risco principal permanece operacional: publicar preview sem dominio/HTTPS, redirects Auth, secrets segregados, logs revisados, rollback validado e smoke externo.
+
+Controles documentados:
+
+- Hostinger deve ser VPS com Coolify, nao hospedagem estatica/shared sem runtime Node persistente.
+- KVM 1 e apenas plano inicial; upgrade para KVM 2 e obrigatorio se build, runtime, Coolify, HTTPS, logs ou rollback ficarem instaveis.
+- Secrets reais nao devem aparecer em docs, `.env.example`, Git, logs, comentarios de PR ou variaveis `NEXT_PUBLIC_*`.
+- Preview, producao e local devem ter conjuntos de variaveis separados; preview nao deve reutilizar service role ou secrets de producao.
+- Dominio/HTTPS, Coolify remoto, secrets no provedor e smoke externo seguem pendentes sem evidencia local nesta etapa.
+
 ## Resultado geral
 
 Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a superficie critica de Atalaia/consentimento. No preview Supabase, migrations e matriz RLS dinamica foram validadas historicamente em 2026-06-02, mas a migration da Etapa 2 ainda nao foi aplicada em preview. Deploy produtivo e beta real ainda devem aguardar rerun fresco, Auth real, secrets/deploy, smoke externo, revisao de LGPD/retencao e correcao dos S1 restantes.
@@ -116,3 +130,24 @@ Data: 2026-06-02.
 - Supabase preview foi criado, migrations locais foram aplicadas e matriz RLS dinamica passou historicamente ate `20260602214345`.
 - Producao aberta segue bloqueada ate validar Auth real, configurar secrets fora do Git, publicar preview/deploy, rodar smoke externo e aprovar LGPD minima.
 - OpenAI/DeepSeek reais e e-mail real seguem desativados por padrao. Resend foi implementado localmente como provider server-only, mas continua bloqueado por dominio/secrets/smoke.
+
+## Auditoria transversal PR #10
+
+Data: 2026-06-05.
+
+Veredito de seguranca: aprovado com restricoes para merge preparatorio; bloqueado para beta/release real ate evidencia externa.
+
+Evidencias:
+
+- Secret scan do diff: nenhum padrao real de `OPENAI_API_KEY`, JWT Supabase, `RESEND_API_KEY`, database URL com senha, private key ou `.env*` adicionado.
+- `SUPABASE_SERVICE_ROLE_KEY` aparece em `.env.example`, docs, testes, migrations e `src/lib/supabase/admin.ts`; o admin client contem `import "server-only"` e guarda contra `window`.
+- `NEXT_PUBLIC_*` revisado: variaveis publicas atuais sao app URL/nome, URL/chave publica Supabase e URL publica opcional de feedback beta; nao foi identificado secret em `NEXT_PUBLIC_*`.
+- PWA/cache: `public/sw.js` precacheia apenas `/offline`, manifest e icones; nao ha `cache.put`, rotas Auth, APIs, exportacao ou payload autenticado em precache.
+- Smoke local dedicado com `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3000` passou 5 testes cobrindo health/ready, headers, rotas desktop/mobile, manifest, service worker, no-store de export/Auth e console/pageerror.
+- IA real, DeepSeek real, e-mail real, analytics real e feedback real permanecem bloqueados por kill switches, consentimento e/ou falta de ambiente aprovado.
+
+Riscos residuais:
+
+- `SEC-CSP-001` segue S2: CSP ainda usa `unsafe-inline` em `next.config.ts`.
+- Auth/RLS/Supabase remoto seguem S1 sem URL HTTPS publicada, redirects Supabase configurados, `supabase:validate:preview` fresco e personas reais.
+- Docker/Coolify/rollback seguem S1 sem daemon/VPS/Coolify operacional.

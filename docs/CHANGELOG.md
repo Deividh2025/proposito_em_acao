@@ -55,6 +55,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 - Etapa 6 sincroniza docs de e-mail, SMTP Auth Supabase, variaveis, seguranca, bug triage, beta e release com Resend preparado localmente e envio real ainda pendente de dominio/secrets/smoke.
 - Auditoria transversal do PR #8 sincroniza bug triage, bug fix log, security audit, smoke, release readiness e beta checklist; subagentes foram tentados, mas falharam por sessao expirada do conector.
+- Etapa 8 sincroniza rollback/docs para Hostinger/Coolify, triggers de rollback, gate da KVM 1, limitacao de CI/branch protection/release e preview ainda pendente sem dominio/VPS/URL HTTPS.
 
 ### Fixed
 

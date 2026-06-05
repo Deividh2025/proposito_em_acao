@@ -32,7 +32,7 @@ Quando a stack existir, cobrir regras puras:
 
 ## Testes de integracao
 
-Estado atual: a Etapa 1 adicionou `src/tests/integration/runtime-error-contracts.test.ts` para contratos de runtime/fallback/erro com Supabase mockado. Isso reduz `QA-INT-001`, mas ainda nao substitui suites reais de Auth/RLS/preview antes do beta.
+Estado atual: ja existem suites de integracao para contratos de runtime/fallback/erro, Auth SSR actions, Atalaia actions seguras, webhook Resend e fluxos relacionados. Isso reduz `QA-INT-001`, mas ainda nao substitui suites reais de Auth/RLS/preview antes do beta.
 
 - Auth e perfil.
 - Persistencia de Chamado, alvos, projetos, tarefas e calendario.
@@ -242,6 +242,22 @@ Testes adicionados/esperados:
 - `src/tests/unit/beta-operations-domain.test.ts` e `src/tests/e2e/beta-feedback.spec.ts` devem continuar cobrindo UX local/dev e alerta de dados sensiveis.
 - RLS real de `product_analytics_events`, `beta_feedback_items`, `account_deletion_requests`, `user_preferences` e consentimentos ampliados permanece pendente ate rerun fresco em ambiente aprovado.
 - Smoke externo deve confirmar que analytics/feedback reais seguem bloqueados sem consentimento e que export usa `Cache-Control: no-store`.
+
+## Etapa 8 - smoke externo publicado
+
+`npm.cmd run test:e2e:external` usa `scripts/smoke-external.mjs` e exige `PREVIEW_URL` ou `PLAYWRIGHT_BASE_URL`. Sem uma dessas variaveis, o runner aborta e nao executa navegador contra destino implicito.
+
+A suite dedicada `src/tests/e2e/external-smoke.spec.ts` fica desabilitada no E2E local comum e roda apenas com `EXTERNAL_SMOKE=1`, definido pelo runner externo. Ela cobre:
+
+- HTTPS obrigatorio para URL nao local.
+- `/api/health` e `/api/ready`.
+- Headers basicos de seguranca configurados no Next.
+- Rotas principais desktop e mobile com renderizacao, `<main>` visivel e sem console/pageerror.
+- Manifest, service worker e offline shell.
+- Service worker sem cache de rotas autenticadas, Auth, API ou exportacao.
+- Export autenticado e callbacks de Auth sem cache armazenavel.
+
+O resultado esperado para beta real e passar esta suite contra uma URL HTTPS publicada, depois de Auth/Supabase/RLS/SMTP estarem configurados e validados no ambiente correto.
 
 ## Testes de UX critico
 

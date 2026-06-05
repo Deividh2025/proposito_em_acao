@@ -458,3 +458,86 @@ Reverter o commit/PR da Etapa 7. Se migration tiver sido aplicada em ambiente pr
 - Risco de privacidade sem mitigacao bloqueia merge.
 - Atalaia exige plano proprio com RLS, consentimento, previa e revogacao.
 - Metacognicao exige revisao de guardrails e privacidade.
+
+## Plano - Etapa 8 CI, Docker, Hostinger/Coolify e preview controlado
+
+## Objetivo
+
+Preparar a infraestrutura real de entrega para CI, Docker de producao, ambientes seguros, Hostinger VPS com Coolify, dominio/HTTPS, smoke externo e deploy preview controlado. Esta etapa nao libera beta com usuarios reais nem producao aberta.
+
+## Contexto
+
+Lidos `AGENTS.md`, `PLANS.md`, `docs/RELEASE_READINESS.md`, `docs/PRODUCTION_DEPLOYMENT.md`, `docs/PRODUCTION_ENVIRONMENT.md`, `docs/DEPLOYMENT_PLAN.md`, `docs/ENVIRONMENT_VARIABLES.md`, `docs/ROLLBACK_PLAN.md`, `docs/OPERATIONS_RUNBOOK.md`, `docs/SMOKE_TEST_REPORT.md`, `docs/BETA_CHECKLIST.md` e `docs/BUG_TRIAGE.md`. PRs #1 a #9 foram confirmados como mergeados na `main`; PR #9 foi marcado como ready e mergeado antes desta branch. `main` foi atualizada com `git pull --ff-only`, e a branch `codex/ci-docker-hostinger-preview` foi criada. O repo ainda registra dominio exato, VPS/URL HTTPS, Coolify aplicado, secrets no provedor, Supabase/Auth redirects e smoke externo como pendentes; portanto o deploy preview real fica preparado/documentado, nao declarado como executado.
+
+## Arquivos envolvidos
+
+- Criar/modificar: `.github/workflows/**`, `Dockerfile`, `.dockerignore`, `next.config.ts`, `scripts/**`, `src/app/api/health/**`, `src/app/api/ready/**`, `.env.example` e docs operacionais obrigatorias.
+- Possivel ajuste seguro: `public/sw.js`, somente se o cache de preview/PWA precisar de protecao adicional.
+
+## Arquivos que nao serao tocados
+
+Nao alterar produto/UX funcional, migrations/RLS, Supabase remoto, Auth remoto, secrets reais, e-mail real, IA real, analytics externo, billing, modelo comercial, stack principal, producao aberta ou beta com usuarios reais.
+
+## Subagentes necessarios
+
+- Subagente 1: CI/GitHub, dono de workflows, gates de PR e limitacao de branch protection.
+- Subagente 2: Docker/Next, dono de Dockerfile, `.dockerignore`, headers e health/readiness.
+- Subagente 3: Hostinger/Coolify/secrets, dono de checklist de VPS, dominio, HTTPS, env vars e gate KVM 1.
+- Subagente 4: Smoke externo/Browser QA, dono de smoke externo, headers, rotas principais e mobile/PWA.
+- Subagente 5: Rollback/docs, dono de rollback Coolify, bugs OPS, release readiness, runbook e checklist beta.
+
+## Skills necessarias
+
+`execution-plan-skill`, `deployment-planning-skill`, `hostinger-deploy-skill`, `production-deploy-skill`, `production-secrets-skill`, `github-workflow-skill`, `smoke-test-skill`, `rollback-skill`, `release-readiness-skill`, `security-privacy-skill`, `testing-architecture-skill`, `frontend-playwright-qa-skill`, `mobile-privacy-skill`, `docs-sync-skill`, `superpowers:dispatching-parallel-agents` e `superpowers:verification-before-completion`.
+
+## Riscos
+
+- Declarar preview/HTTPS/Coolify/rollback como concluido sem VPS, dominio ou URL publicada.
+- Embutir `.env`, `.env.local`, service role, API keys ou webhook secrets em imagem, logs, CI ou docs.
+- Criar CI que dependa de secrets reais ou rode smoke externo sem URL aprovada.
+- Quebrar runtime Next.js ao ativar `output: "standalone"` ou endurecer Docker sem validar build.
+- Expor detalhes sensiveis em `/api/ready`.
+- Cachear rotas autenticadas, callbacks, APIs ou payloads privados no PWA.
+- Manter branch protection como "ativa" sem evidencia GitHub; se indisponivel, registrar gate manual.
+- Fechar bugs OPS sem evidencias locais/external apropriadas.
+
+## Estrategia
+
+1. Confirmar gate Git/GitHub e branch limpa.
+2. Criar CI basico com `npm ci`, lint, typecheck, test, build e Playwright E2E; criar workflow manual de preview externo com URL informada.
+3. Endurecer Dockerfile para build reproduzivel, runtime minimo, usuario nao root, sem secrets e healthcheck.
+4. Ampliar `.dockerignore` sem excluir arquivos necessarios ao build.
+5. Revisar `next.config.ts` para standalone, headers minimos e risco residual de CSP.
+6. Revisar `/api/health` como liveness simples e `/api/ready` como readiness fail-closed fora de `local-demo`.
+7. Preparar smoke externo e documentar que ele so roda contra URL HTTPS publicada.
+8. Documentar Hostinger/Coolify, secrets por ambiente, gate KVM 1, rollback e pendencias externas.
+9. Rodar gates locais, Docker local se o daemon estiver disponivel, secret scan e diff review.
+10. Commitar, publicar branch e abrir draft PR sem merge.
+
+## Criterios de aceite
+
+- CI basico existe e nao usa secrets reais.
+- Workflow manual de preview valida URL informada sem rodar em todo PR.
+- Dockerfile usa `npm ci`, nao embute `.env*`, roda como usuario nao root e expoe porta `3000`.
+- `.dockerignore` protege secrets e reduz contexto sem quebrar build.
+- `/api/health` e `/api/ready` retornam status util e sanitizado.
+- Hostinger/Coolify, dominio/HTTPS, secrets, KVM 1, smoke externo e rollback ficam executados com evidencia ou marcados como pendentes bloqueantes.
+- `OPS-GH-001`, `OPS-DOCKER-001` e `OPS-HEALTH-001` ficam fechados ou reduzidos com evidencia proporcional.
+- Nenhum secret aparece no diff.
+- Docs obrigatorias sincronizadas.
+
+## Testes e verificacoes
+
+- Locais: `npm.cmd run lint`, `npm.cmd run typecheck`, `npm.cmd run test`, `npm.cmd run build`, `npm.cmd run test:e2e` e `git diff --check`.
+- Docker local se daemon disponivel: `docker build`, start do container, `/api/health` e `/api/ready`.
+- CI remoto apos push: checar workflow quando o GitHub reportar checks.
+- Smoke externo: `npm.cmd run test:e2e:external` somente quando houver `PLAYWRIGHT_BASE_URL` ou `PREVIEW_URL` HTTPS aprovada.
+- Supabase preview: apenas se credenciais aprovadas estiverem disponiveis; caso contrario, registrar pendencia.
+
+## Rollback
+
+Reverter o commit/PR da Etapa 8. Se o CI quebrar fluxo de PR, desabilitar/remover workflow por PR corretivo. Se Docker falhar em preview, reverter para imagem/deployment anterior conhecido como bom no Coolify. Se env var, dominio, redirect ou secret remoto causar incidente, reverter configuracao no provedor, remover redirect inseguro e rotacionar secrets afetados antes de reabrir acesso.
+
+## Documentacao a atualizar
+
+`docs/DEPLOYMENT_PLAN.md`, `docs/PRODUCTION_DEPLOYMENT.md`, `docs/PRODUCTION_ENVIRONMENT.md`, `docs/ENVIRONMENT_VARIABLES.md`, `docs/OPERATIONS_RUNBOOK.md`, `docs/ROLLBACK_PLAN.md`, `docs/SMOKE_TEST_REPORT.md`, `docs/RELEASE_READINESS.md`, `docs/BETA_CHECKLIST.md`, `docs/BUG_TRIAGE.md`, `docs/BUG_FIX_LOG.md`, `docs/SECURITY_AUDIT_REPORT.md`, `docs/TESTING_STRATEGY.md`, `docs/CHANGELOG.md`, `docs/CODEX_WORKFLOW.md`, `docs/PR_CHECKLIST.md` e `AGENTS.md` apenas para regras duraveis novas.

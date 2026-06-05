@@ -10,9 +10,9 @@
 
 - Hostinger KVM 1 e a VPS inicial escolhida; upgrade e obrigatorio se build/runtime/HTTPS/logs/rollback nao forem estaveis.
 - Dominio exato ainda nao foi definido e bloqueia deploy publicado.
-- GitHub nao tem workflows, releases, tags ou branch protection efetiva na `main`.
-- Dockerfile existe, mas imagem nao foi validada nesta auditoria e nao ha `HEALTHCHECK`.
-- `/api/health` e apenas liveness; nao serve como readiness de Supabase/Auth/secrets/providers.
+- GitHub Actions basico foi preparado nesta etapa, mas releases, tags e branch protection efetiva na `main` ainda precisam de evidencia remota.
+- Dockerfile existe com `HEALTHCHECK` em `/api/health`, mas imagem/container ainda nao foram validados porque dependem de Docker daemon/Coolify.
+- `/api/health` e apenas liveness; `/api/ready` falha fechado fora de `local-demo` sem Supabase/Auth essencial ou URL HTTPS publicada, mas ainda precisa de smoke externo.
 - Beta real depende de smoke externo contra URL HTTPS publicada.
 
 ## Estrategia local
@@ -56,6 +56,31 @@ Coolify sera a camada de deploy na VPS:
 - emitir/gerenciar HTTPS via proxy configurado;
 - fornecer logs e rollback operacional;
 - executar preview antes de producao aberta.
+
+## Etapa 8 - Hostinger/Coolify preview
+
+Escopo desta etapa: documentar o caminho de preview em Hostinger VPS KVM 1 com Coolify. Nenhum recurso remoto foi configurado, nenhum secret real foi solicitado e nenhum valor real deve ser registrado em docs, Git, logs ou comentarios de PR.
+
+Configuracao alvo do preview:
+
+- Infraestrutura: Hostinger VPS KVM 1 nova ou limpa, com sistema Linux estavel e acesso SSH seguro.
+- Orquestracao: Coolify instalado na VPS e conectado ao repositorio privado.
+- Aplicacao: app Next.js por Dockerfile do repo, porta interna `3000`, comando de build/start definido pelo Dockerfile ou pelo preset Coolify equivalente.
+- Ambiente: `APP_RUNTIME_MODE=preview`, `NODE_ENV=production` e variaveis de preview segregadas das variaveis locais e de producao.
+- HTTPS: dominio temporario ou subdominio aprovado no Coolify antes de qualquer teste com usuario externo.
+- Health: `/api/health` pode ser usado como liveness inicial; `/api/ready` deve validar Supabase/Auth essencial e `NEXT_PUBLIC_APP_URL` HTTPS publicado. Secrets, redirects e Auth real ainda exigem smoke externo.
+- Logs: logs do Coolify/servidor devem ser revisados para confirmar ausencia de prompt bruto, dados intimos, tokens, URLs com token, stack traces sensiveis e secrets.
+- Rollback: rollback de release no Coolify deve ser testado antes de beta real.
+
+Gates manuais ainda pendentes nesta branch:
+
+- Dominio temporario de preview nao foi evidenciado localmente.
+- HTTPS publicado nao foi evidenciado localmente.
+- Acesso operacional a Hostinger/Coolify nao foi usado nesta etapa.
+- Docker build/runtime na VPS nao foi evidenciado localmente nesta etapa.
+- Smoke externo contra URL HTTPS publicada nao foi executado.
+
+Gate de upgrade: a KVM 1 e apenas o ponto inicial. Upgrade para KVM 2 e obrigatorio antes de beta real se houver instabilidade de build, falta de memoria/CPU/disco, deploy lento demais para rollback seguro, logs inacessiveis, HTTPS instavel, reinicios do processo Next.js, saturacao durante smoke externo ou impossibilidade de manter Coolify e a aplicacao com folga operacional.
 
 ## Alternativas
 

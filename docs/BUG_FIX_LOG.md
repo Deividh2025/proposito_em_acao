@@ -181,3 +181,17 @@ Data: 2026-06-04.
 | Direitos do titular preparados | Export JSON autenticado remove secrets/tokens/hashes/logs internos/dados de terceiros; exclusao exige confirmacao explicita e registra solicitacao segura, revogando consentimentos/grants/notificacoes quando possivel. | `src/domain/privacy/index.ts`, `src/lib/supabase/queries/privacy-settings.ts`, `src/app/settings/export/route.ts`, `src/tests/unit/privacy-export-delete-retention.test.ts`. |
 
 Pendencias: aplicacao da migration/RLS local, typegen e preview validation da Etapa 7 ainda precisam de ambiente aprovado. Nao houve coleta real com usuarios, smoke externo ou aplicacao remota.
+
+## Etapa 8 - Rollback/docs Hostinger/Coolify
+
+Data: 2026-06-05.
+
+Esta etapa nao fechou bugs por codigo, deploy ou smoke externo. Ela reduziu ambiguidade operacional dos bloqueadores `OPS-GH-001`, `OPS-DOCKER-001` e `OPS-HEALTH-001` ao registrar criterios minimos de rollback Coolify, triggers de rollback, gate da Hostinger KVM 1, limitacao de CI/branch protection/release e preview pendente sem dominio/VPS.
+
+| Bug | Resultado | Evidencia |
+|---|---|---|
+| `OPS-GH-001` | Mantido como S1 | Release publica continua bloqueada sem branch protection efetiva ou governanca equivalente, CI/gates verdes, release/tag e deployment anterior referenciavel. |
+| `OPS-DOCKER-001` | Mantido como S1 | Docker/Coolify/rollback ainda precisam de validacao em VPS; docs agora exigem rehearsal de rollback, logs, health/ready e gate de upgrade se KVM 1 falhar. |
+| `OPS-HEALTH-001` | Mantido como S1 | `/api/ready` precisa de smoke externo em URL HTTPS e prova de falha fechada quando config essencial faltar. |
+
+Pendencias: nenhum deploy Hostinger/Coolify foi executado; nao ha URL HTTPS publicada, VPS provisionada, secrets de preview, smoke externo, branch protection efetiva, release/tag ou rerun Supabase/Auth/RLS. Beta real e producao continuam bloqueados.

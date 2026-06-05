@@ -40,6 +40,20 @@ Riscos residuais:
 - `SEC-CSP-001`: CSP ainda usa `unsafe-inline`; endurecer com nonce/hash ou aceitar formalmente antes de beta/producao publica.
 - Auth/RLS externo, SMTP Auth Resend, webhook real delivered/bounced, PWA em HTTPS e Supabase preview com personas reais ainda nao foram validados nesta auditoria.
 
+## Addendum Etapa 8 - Hostinger/Coolify/secrets
+
+Data: 2026-06-05.
+
+Veredito: nenhum S0/S1 novo foi identificado na documentacao desta etapa, desde que os gates externos continuem bloqueando beta real. O risco principal permanece operacional: publicar preview sem dominio/HTTPS, redirects Auth, secrets segregados, logs revisados, rollback validado e smoke externo.
+
+Controles documentados:
+
+- Hostinger deve ser VPS com Coolify, nao hospedagem estatica/shared sem runtime Node persistente.
+- KVM 1 e apenas plano inicial; upgrade para KVM 2 e obrigatorio se build, runtime, Coolify, HTTPS, logs ou rollback ficarem instaveis.
+- Secrets reais nao devem aparecer em docs, `.env.example`, Git, logs, comentarios de PR ou variaveis `NEXT_PUBLIC_*`.
+- Preview, producao e local devem ter conjuntos de variaveis separados; preview nao deve reutilizar service role ou secrets de producao.
+- Dominio/HTTPS, Coolify remoto, secrets no provedor e smoke externo seguem pendentes sem evidencia local nesta etapa.
+
 ## Resultado geral
 
 Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a superficie critica de Atalaia/consentimento. No preview Supabase, migrations e matriz RLS dinamica foram validadas historicamente em 2026-06-02, mas a migration da Etapa 2 ainda nao foi aplicada em preview. Deploy produtivo e beta real ainda devem aguardar rerun fresco, Auth real, secrets/deploy, smoke externo, revisao de LGPD/retencao e correcao dos S1 restantes.

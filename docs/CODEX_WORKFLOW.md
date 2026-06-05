@@ -38,7 +38,9 @@ Cada PR deve ter escopo claro, checklist preenchido, documentacao sincronizada e
 
 Estado verificado em 2026-06-03: o remoto `origin` ja aponta para `https://github.com/Deividh2025/proposito_em_acao.git`, a branch principal e `main` e o PR #1 ja foi mergeado.
 
-Antes de producao aberta ainda faltam CI/workflows, branch protection efetiva ou governanca equivalente, releases/tags e rollback verificavel.
+CI basico pode existir em GitHub Actions para PR/push em `main`, com workflow manual de smoke externo por URL de preview, mas isso nao libera release por si so. Antes de beta real ou producao aberta ainda faltam branch protection efetiva ou governanca equivalente, releases/tags, rollback verificavel, Docker/Coolify ensaiado e validacao externa fresca em URL HTTPS publicada.
+
+Para Etapa 8/preview Hostinger-Coolify, registrar explicitamente quando nao houver dominio/VPS/URL HTTPS. Nao apresentar preview, beta ou producao como prontos enquanto `OPS-GH-001`, `OPS-DOCKER-001` ou `OPS-HEALTH-001` estiverem sem evidencia fresca.
 
 Use branches pequenas e publique explicitamente:
 

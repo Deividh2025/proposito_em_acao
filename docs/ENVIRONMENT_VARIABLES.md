@@ -96,6 +96,32 @@ Configurar valores reais somente no cofre do provedor escolhido.
 
 No Coolify, separar variaveis de runtime e build. Secrets server-side devem ser runtime-only sempre que possivel; valores publicos `NEXT_PUBLIC_*` podem ser necessarios no build do Next.js porque sao embutidos no bundle cliente.
 
+## Etapa 8 - matriz Hostinger/Coolify sem valores reais
+
+Nenhum valor real deve ser solicitado, impresso, colado em docs ou commitado. O operador deve preencher valores reais apenas no `.env.local` privado ou no painel/cofre do Coolify, conforme o ambiente.
+
+| Grupo | Local | Preview Coolify | Producao | Regra |
+|---|---|---|---|---|
+| App publico | `.env.local` | Coolify preview | Coolify producao futura | `NEXT_PUBLIC_*` somente com valores publicos. |
+| Supabase publico | `.env.local` | Coolify preview | Coolify producao futura | URL e anon/publishable key podem ir ao browser. |
+| Supabase admin | Evitar; operador apenas | Server-side se aprovado | Server-side se aprovado | Nunca `NEXT_PUBLIC_*`; nunca compartilhar entre ambientes. |
+| IA real | Vazio/desligado | Server-side se aprovado | Server-side se aprovado | Exige `AI_REAL_ENABLED=true`, consentimento, guardrails e evals. |
+| DeepSeek real | Vazio/desligado | Server-side se aprovado | Server-side se aprovado | Sem fallback automatico entre providers. |
+| E-mail/Resend | Vazio/desligado | Server-side se aprovado | Server-side se aprovado | Exige dominio/remetente verificado e `EMAIL_REAL_ENABLED=true`. |
+| Analytics/feedback | Desligado | Desligado ate opt-in/politica | Desligado ate opt-in/politica | Retencao 90 dias quando houver persistencia real. |
+| CLI/operador | Sessao local do operador | Maquina do operador | Maquina do operador | Tokens de CLI e DB URLs com senha nao sao runtime do app. |
+
+Para preview em Coolify:
+
+- Usar `APP_RUNTIME_MODE=preview`.
+- Usar `NODE_ENV=production`.
+- Definir `NEXT_PUBLIC_APP_URL` apenas depois de existir URL HTTPS publicada.
+- Manter `AI_REAL_ENABLED=false`, `EMAIL_REAL_ENABLED=false`, `ANALYTICS_REAL_ENABLED=false` e `FEEDBACK_REAL_ENABLED=false` ate etapa propria aprovada.
+- Manter `EMAIL_DOMAIN_VERIFIED=false` ate o dominio/remetente ser verificado no provider.
+- Nao inserir `SUPABASE_ACCESS_TOKEN` ou `SUPABASE_PREVIEW_DB_URL` no runtime do app; essas variaveis sao de operador/CLI.
+
+Gate Hostinger: KVM 1 e o ponto inicial. KVM 2 e obrigatoria antes de beta real se a KVM 1 nao sustentar build, runtime, Coolify, HTTPS, logs e rollback com estabilidade.
+
 Obrigatorias em preview/producao:
 
 - `NEXT_PUBLIC_APP_NAME`

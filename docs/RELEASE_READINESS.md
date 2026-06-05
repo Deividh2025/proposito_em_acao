@@ -1,6 +1,6 @@
 # Release Readiness
 
-Data de sincronizacao: 2026-06-04.
+Data de sincronizacao: 2026-06-05.
 
 ## Veredito
 
@@ -194,6 +194,17 @@ Tempos locais observados no smoke do PR #8:
 
 Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparatorio. Beta real e release continuam bloqueados pelos S1/S2 abertos em `docs/BUG_TRIAGE.md`, especialmente Auth/RLS externo, CI/release, Docker/rollback, tipos Supabase reais, Resend/SMTP real, analytics/feedback consentidos, LGPD/exportacao/exclusao e smoke HTTPS.
 
+## Evidencia da Etapa 8 - rollback/docs Hostinger/Coolify
+
+Executado localmente em 2026-06-05 na branch `codex/ci-docker-hostinger-preview`:
+
+- Subagente 5 atualizou a documentacao operacional permitida para preview Hostinger/Coolify, rollback, KVM gate e limitacoes de release.
+- `docs/ROLLBACK_PLAN.md` passou a listar triggers especificos de rollback Coolify, rehearsal obrigatorio e gate da Hostinger KVM 1.
+- `docs/OPERATIONS_RUNBOOK.md` passou a exigir evidencia de VPS/Coolify, dominio HTTPS, secrets de preview, logs, `/api/health`, `/api/ready`, rollback e upgrade se KVM 1 nao sustentar o ambiente.
+- Bugs `OPS-GH-001`, `OPS-DOCKER-001` e `OPS-HEALTH-001` continuam abertos como bloqueadores, com status documental sincronizado.
+
+Limitacao: nao houve deploy real, URL HTTPS publicada, acesso Hostinger/Coolify, smoke externo, Docker image validation, branch protection efetiva, release/tag ou rerun Supabase/Auth/RLS. Esta etapa nao libera beta real nem producao.
+
 ## Decisoes atuais de release
 
 - Plataforma: Hostinger VPS KVM 1 com Coolify.
@@ -207,6 +218,7 @@ Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparat
 - Analytics: first-party no Supabase, opt-in desligado por padrao.
 - Retencao: 90 dias para analytics, feedback beta e metadados de auditoria de IA.
 - Etapa 7: `/settings` preparado localmente para preferencias, consentimentos versionados, analytics opt-in, feedback beta, export JSON e solicitacao de exclusao; validacao remota ainda pendente.
+- Etapa 8: rollback/docs de Hostinger/Coolify sincronizados; preview continua pendente sem dominio/VPS/Coolify/smoke externo.
 
 ## Bloqueadores antes do beta real
 
@@ -226,6 +238,7 @@ Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparat
 - Confirmar que analytics/feedback reais bloqueiam sem consentimento e que exportacao nao inclui secrets/tokens/hashes/logs internos.
 - Ensaiar Docker/Coolify/rollback com release/tag ou deployment anterior conhecido.
 - Configurar CI ou registrar limitacao operacional aceita antes de qualquer release publica.
+- Validar gate da Hostinger KVM 1: build, runtime, logs, HTTPS, restart, recursos e rollback estaveis; fazer upgrade se falhar.
 
 ## Bloqueadores antes de producao aberta
 
@@ -250,4 +263,6 @@ Veredito desta auditoria: PR #8 fica aprovado com restricoes para merge preparat
 - Exportacao/exclusao validadas remotamente.
 - Health/readiness produtivo.
 - Docker/Coolify validado.
+- Branch protection/release/rollback referenciavel.
+- Preview HTTPS Hostinger/Coolify publicado.
 - Beta real com usuarios.

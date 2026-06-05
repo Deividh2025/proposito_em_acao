@@ -104,6 +104,21 @@ $env:PLAYWRIGHT_BASE_URL="https://URL-APROVADA"
 npm.cmd run test:e2e:external
 ```
 
+## Etapa 8 - preparo do smoke externo
+
+Status em 2026-06-05: preparado, nao executado contra URL real. `PREVIEW_URL` e `PLAYWRIGHT_BASE_URL` estavam ausentes no ambiente local desta passada; por contrato, `npm.cmd run test:e2e:external` deve abortar antes de abrir navegador quando nenhuma URL for informada.
+
+Cobertura preparada em `src/tests/e2e/external-smoke.spec.ts`:
+
+- `/api/health` e `/api/ready` com resposta JSON, headers basicos de seguranca e readiness `ok:true`.
+- Rotas criticas desktop: home, auth, dashboard, alvos, projetos, tarefas, calendario, inbox, Desbloqueador, Metacognicao, foco, habitos, Placar, Revisao, Jardim, Atalaia e configuracoes.
+- Rotas mobile/PWA: `/mobile`, atalhos mobile principais, `/offline`, `/manifest.json` e `/sw.js`.
+- Verificacao de console/pageerror durante renderizacao das rotas publicadas.
+- Service worker sem `cache.put` e sem precache explicito de rotas autenticadas, Auth, API ou exportacao.
+- `/settings/export`, callbacks de Auth e service worker com politica de cache bloqueando armazenamento.
+
+Limitacao: esta suite nao substitui validacao manual de signup, confirmacao por e-mail, recovery, Supabase/RLS remoto, Resend, IA real, analytics real ou rollback. Ela e o gate de smoke HTTP/browser para a URL HTTPS publicada.
+
 ## Criterios minimos para beta real
 
 - URL HTTPS publicada.

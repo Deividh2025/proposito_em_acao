@@ -1,6 +1,6 @@
 # Bug Triage
 
-Data de sincronizacao: 2026-06-04.
+Data de sincronizacao: 2026-06-05.
 
 ## Objetivo
 
@@ -40,7 +40,7 @@ Padronizar registro, severidade, reproducao e fechamento de bugs do beta fechado
 | ID | Status | Evidencia |
 |---|---|---|
 | AUTH-SSR-001 | Reduzido localmente | `proxy.ts`, `src/lib/supabase/proxy.ts`, rotas `/auth/callback`, `/auth/confirm`, `/auth/error`, `/auth/forgot-password`, `/auth/update-password`, redirects seguros e testes Auth SSR foram implementados. Fechamento completo exige URL HTTPS publicada, redirects Supabase configurados, smoke Auth externo e evidencia de cookies reais. |
-| OPS-HEALTH-001 | Reduzido localmente | `/api/ready` foi criado separado de `/api/health`, com falha fechada fora de `local-demo` quando Supabase/Auth essencial esta ausente. Fechamento completo exige smoke externo em preview/deploy aprovado. |
+| OPS-HEALTH-001 | Reduzido localmente | `/api/ready` foi criado separado de `/api/health`, com falha fechada fora de `local-demo` quando Supabase/Auth essencial ou `NEXT_PUBLIC_APP_URL` HTTPS publicado estao ausentes. Fechamento completo exige smoke externo em preview/deploy aprovado. |
 | QA-INT-001 | Reduzido | Suites Auth SSR/unit/integration/E2E foram adicionadas; ainda falta cobertura Auth/RLS real em preview aprovado. |
 
 ## Fechados ou reduzidos na Etapa 4
@@ -102,9 +102,9 @@ Subagentes de auditoria foram tentados para cinco recortes, mas todos falharam p
 |---|---|---|---|---|---|---|
 | AUTH-SSR-001 | S1 | Auth | Auth SSR local implementado, externo nao validado | Fundacao local existe e gates locais passaram, mas nao houve URL HTTPS, Site URL/Redirect URLs Supabase, SMTP/Resend nem smoke externo de cookies reais | Publicar preview aprovado, configurar redirects Auth e validar fluxo real completo | Smoke Auth em URL HTTPS cobre signup, confirmacao, login, rota protegida, logout, recovery, redirects seguros e refresh/getClaims |
 | DB-TYPES-001 | S1 | Supabase | Tipos de banco continuam genericos | `src/types/database.ts` usa `Record<string, ...>` | Gerar tipos reais apos cutover preview aprovado | Diff de tipos reais revisado e typecheck passa com schema concreto |
-| OPS-HEALTH-001 | S1 | Operacao | Readiness externo nao validado | `/api/ready` existe localmente, mas ainda nao foi validado em preview/deploy aprovado | Rodar smoke externo em URL HTTPS e confirmar falha fechada quando config essencial faltar | Smoke externo usa endpoint que detecta Supabase/Auth/config ausente |
-| OPS-GH-001 | S1 | GitHub/release | Sem CI, branch protection efetiva ou releases | API GitHub: `main` protected false, zero workflows, zero releases | Criar workflow/gates, tags/release process ou registrar limitacao operacional aceita | PR/release exige CI verde e rollback referenciavel |
-| OPS-DOCKER-001 | S1 | Deploy | Docker/rollback nao ensaiados | Dockerfile sem `HEALTHCHECK`; imagem nao validada nesta auditoria; sem releases/deployments | Validar build da imagem, healthcheck e rollback Coolify | Smoke de container e rollback rehearsal documentados |
+| OPS-HEALTH-001 | S1 | Operacao | Readiness externo nao validado | `/api/ready` existe localmente e valida Supabase/Auth essencial mais URL HTTPS publicada fora de `local-demo`, mas ainda nao foi validado em preview/deploy aprovado | Rodar smoke externo em URL HTTPS e confirmar falha fechada quando config essencial faltar | Smoke externo usa endpoint que detecta Supabase/Auth/config/app URL ausente |
+| OPS-GH-001 | S1 | GitHub/release | CI/branch protection/release ainda nao efetivos para beta | Workflow local pode estar preparado, mas ainda faltam branch protection efetiva ou governanca equivalente, checks remotos obrigatorios, releases/tags e deployment anterior referenciavel | Validar workflow remoto, exigir gates, criar tags/release process ou registrar limitacao operacional aceita | PR/release exige CI verde obrigatorio e rollback referenciavel |
+| OPS-DOCKER-001 | S1 | Deploy | Docker/rollback nao ensaiados | Dockerfile pode estar preparado com healthcheck, mas `docker build -t proposito-em-acao:codex-preview .` falhou porque o daemon `dockerDesktopLinuxEngine` nao estava disponivel; imagem, container e rollback Coolify ainda nao foram validados em VPS; sem releases/deployments publicados | Validar build da imagem, healthcheck em container real e rollback Coolify | Smoke de container e rollback rehearsal documentados |
 | ANALYTICS-001 | S1 | Analytics/LGPD | Reduzido localmente; validacao remota pendente | Etapa 7 prepara persistencia somente com `product_analytics_v1`, allowlist, metadata minimizada, migration/RLS local e retencao 90 dias; falta aplicacao/typegen e preview fresco | Validar tabelas/policies em Supabase preview aprovado e rodar harness/smoke | Preview confirma ausencia/revogacao de consentimento bloqueia evento e user B/Atalaia/anon nao acessam |
 | AI-CONSENT-AUDIT-001 | S1 | IA/LGPD | Consentimento e auditoria de IA ainda nao sao persistidos | A rota checa `consentRecords`, mas os fluxos reais ainda nao consultam/persistem consentimento/auditoria em banco | Implementar persistencia de consentimento por provider e `ai_run_audits` com retencao 90 dias em etapa aprovada | IA real so chama provider quando consentimento versionado/revogavel e auditoria minima persistida estiverem validados |
 | EMAIL-RESEND-001 | S1 | Email/Auth | Resend preparado localmente, mas nao configurado em dominio/SMTP real | Etapa 6 adicionou adapter Resend server-only, templates neutros, webhook assinado e testes locais; envio real segue bloqueado por `EMAIL_REAL_ENABLED=false`, `EMAIL_DOMAIN_VERIFIED=false`, sem dominio/remetente verificado e sem SMTP Auth dashboard | Configurar dominio/remetente Resend, SMTP Auth Supabase e smoke aprovado com `RESEND_TEST_RECIPIENT` | E-mail real passa smoke com dominio verificado, webhook delivered/bounced e sem dados sensiveis |
@@ -132,3 +132,17 @@ Data: 2026-06-04.
 | ANALYTICS-001 | Reduzido localmente | `src/domain/analytics/` agora prepara persistencia somente com consentimento ativo `product_analytics_v1`, evento allowlisted, metadata minimizada e `expiresAt` de 90 dias; bloqueia consentimento ausente/revogado, evento fora da allowlist e metadata sensivel. Fechamento completo exige aplicar migration/RLS local, gerar typegen e validar Supabase preview com evidencia fresca. |
 | FEEDBACK-REAL-001 | Reduzido localmente | `src/domain/feedback/` e actions de settings preparam feedback first-party somente apos aviso/consentimento `beta_feedback_v1`, envio explicito e ausencia de indicio sensivel; envio externo continua bloqueado por politica/canal aprovado. |
 | AI-CONSENT-AUDIT-001 | Reduzido no eixo consentimento | `/settings` passa a registrar/revogar consentimentos `ai_provider_openai_v1` e `ai_provider_deepseek_v1`; auditoria persistida de IA real e validacao remota ainda seguem pendentes. |
+
+## Etapa 8 - rollback/docs Hostinger/Coolify
+
+Data: 2026-06-05.
+
+Esta etapa nao fechou bugs S1. Ela sincronizou criterios documentais de operacao, rollback e release para evitar liberar preview/beta sem evidencia externa.
+
+| ID | Status | Evidencia |
+|---|---|---|
+| OPS-GH-001 | Mantido como S1 | CI/branch protection/release continuam insuficientes para release publica. A documentacao agora exige branch protection efetiva ou governanca equivalente, release/tag/deployment anterior conhecido e rollback referenciavel antes de beta/producao. |
+| OPS-DOCKER-001 | Mantido como S1 | Rollback Coolify, Docker image validation, healthcheck operacional e rehearsal em VPS ainda nao foram executados. `docs/ROLLBACK_PLAN.md` e `docs/OPERATIONS_RUNBOOK.md` passaram a exigir ensaio com deployment anterior conhecido. |
+| OPS-HEALTH-001 | Mantido como S1 | `/api/ready` foi endurecido para URL HTTPS publicada fora de `local-demo`, mas continua sem evidencia em preview real. A Etapa 8 exige smoke externo em URL HTTPS e falha fechada quando configuracao essencial faltar antes de qualquer beta real. |
+
+Preview Hostinger/Coolify segue pendente sem dominio/URL HTTPS, VPS provisionada, secrets no provedor, smoke externo, Supabase/Auth/RLS fresco e KVM gate validado.

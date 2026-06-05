@@ -38,6 +38,13 @@
 - [ ] Limitacoes ou comandos nao executados foram reportados.
 - [ ] Secret scan executado quando houver arquivos novos ou alterados.
 
+## Release/preview
+
+- [ ] Mudancas de deploy/release documentam se houve ou nao URL HTTPS publicada.
+- [ ] Preview Hostinger/Coolify so e marcado pronto com dominio/HTTPS, secrets no provedor, logs, health/ready, smoke externo e rollback ensaiado.
+- [ ] Beta/producao permanecem bloqueados se `OPS-GH-001`, `OPS-DOCKER-001` ou `OPS-HEALTH-001` seguirem sem evidencia fresca.
+- [ ] Branch protection efetiva, CI/gates, release/tag e deployment anterior conhecido foram verificados ou a limitacao operacional foi registrada.
+
 ## Revisao
 
 - [ ] PR pronto para revisao Codex/CodeRabbit quando disponivel.

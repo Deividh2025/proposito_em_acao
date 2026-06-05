@@ -18,6 +18,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 6 adiciona adapter Resend server-only com `fetch`, webhook assinado, templates transacionais neutros e testes focados de e-mail.
 - Auditoria transversal do PR #8 adiciona registro documental de gates locais, smoke Playwright desktop/mobile, scans de secrets/CSP e status GitHub antes do merge preparatorio.
 - Auditoria transversal do PR #10 adiciona registro documental de gates locais/remotos, smoke local dedicado, tempos de rotas, scans de secrets/PWA/service role e status de merge preparatorio.
+- PR de IA adiciona `invokeAiWithPersistentConsentAndAudit` para carregar consentimentos persistidos por provider e gravar auditoria tecnica minima em `ai_run_audits`.
 
 ### Changed
 
@@ -28,6 +29,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Rotas principais deixam de importar amostras diretamente em `src/app`/`src/components`; `local-demo` continua rotulado e separado de dados reais.
 - Actions elegiveis de IA passam pela camada `safeInvokeAi` com mock deterministico/fallback seguro para SMART-E, projetos, microtarefas, inbox, Desbloqueador, Metacognicao, Revisao Semanal/Jardim, Atalaia e Documento de Compromisso.
 - Providers OpenAI/DeepSeek passam a receber `AbortSignal` e input minimizado antes de qualquer chamada real autorizada.
+- Roteamento de IA passa a exigir as versoes persistidas `ai_provider_openai_v1` e `ai_provider_deepseek_v1`, mantendo fallback local seguro sem fallback cruzado.
 
 - Persistencia de convites do Atalaia passa a registrar notificacao antes da tentativa de provider e atualizar `provider_status` depois, sem marcar provider falho como enviado.
 
@@ -38,6 +40,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 3 usa `auth.getClaims()` no proxy SSR, `next` seguro apenas para paths internos, falha fechada fora de `local-demo` quando Supabase/Auth essencial falta e mantem `service_role` fora do barrel publico.
 - Etapa 4 usa usuario autenticado + RLS para leituras normais de UI, sem `service_role`, e mantem Atalaia limitado a grants sanitizados.
 - Etapa 5 mantem `AI_REAL_ENABLED=false` por default, bloqueia provider real sem consentimento versionado e remove `guardrail_status: not_run` dos caminhos provider/mock.
+- Auditoria de IA passa a ter caminho server-only/admin para persistir `ai_run_audits` com metadados minimos e sem prompt/resposta bruta; validacao remota segue pendente.
 - Etapa 5 proibe fallback automatico entre OpenAI e DeepSeek; falha usa fallback local seguro ou fluxo manual.
 - Auditoria transversal do PR #7 reforca que output de Atalaia nao pode incluir Metacognicao/contexto privado, que timeout aborta a chamada quando suportado e que fallback de crise nao reecoa pensamento/impulso bruto.
 

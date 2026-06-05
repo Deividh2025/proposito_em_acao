@@ -39,13 +39,13 @@ const safeOutput = {
 const consentRecords = [
   {
     provider: "openai" as const,
-    version: "ai-provider-consent-v1",
+    version: "ai_provider_openai_v1",
     grantedAt: "2026-06-04T03:00:00.000Z",
     revokedAt: null
   },
   {
     provider: "deepseek" as const,
-    version: "ai-provider-consent-v1",
+    version: "ai_provider_deepseek_v1",
     grantedAt: "2026-06-04T03:00:00.000Z",
     revokedAt: null
   }
@@ -133,7 +133,7 @@ describe("AI provider routing and consent", () => {
     expect(
       hasRequiredAiProviderConsent({
         provider: "openai",
-        requiredVersion: "ai-provider-consent-v1",
+        requiredVersion: "ai_provider_openai_v1",
         records: [{ ...consentRecords[0], revokedAt: "2026-06-04T04:00:00.000Z" }]
       })
     ).toBe(false);
@@ -154,12 +154,12 @@ describe("AI provider routing and consent", () => {
     });
 
     expect(route).toMatchObject({
-      providerName: "mock",
+      providerName: "deepseek",
       mode: "fallback",
       fallbackReason: "missing_provider_consent"
     });
     expect(revokedRoute).toMatchObject({
-      providerName: "mock",
+      providerName: "openai",
       mode: "fallback",
       fallbackReason: "missing_provider_consent"
     });
@@ -294,7 +294,7 @@ describe("safe AI invocation guardrails and audit", () => {
       promptVersion: "planner_prompt_v1",
       input: { task: "Organizar semana" },
       fallback: safeOutput,
-      consentVersion: "ai-provider-consent-v1"
+      consentVersion: "ai_provider_openai_v1"
     });
 
     expect(result.source).toBe("provider");
@@ -303,7 +303,7 @@ describe("safe AI invocation guardrails and audit", () => {
     expect(result.audit.blocked_behaviors).toEqual([]);
     expect(result.audit.contains_raw_prompt).toBe(false);
     expect(result.audit.contains_raw_response).toBe(false);
-    expect(result.audit.consent_version).toBe("ai-provider-consent-v1");
+    expect(result.audit.consent_version).toBe("ai_provider_openai_v1");
   });
 
   test("blocks direct real provider invocation without router authorization", async () => {

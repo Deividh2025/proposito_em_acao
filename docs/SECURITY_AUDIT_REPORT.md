@@ -11,7 +11,7 @@ Achados bloqueantes atuais:
 - S1 `SEC-CONSENT-001` residual: consentimento/auditoria do Atalaia foi reduzido na Etapa 2; analytics/feedback foram reduzidos localmente para action server-side/admin, mas consentimentos amplos de IA e validacao remota ainda nao foram fechados.
 - S1 `AUTH-SSR-001`: fundacao local de Auth SSR foi implementada, mas ainda falta validacao externa em URL HTTPS publicada com redirects reais, SMTP/Resend decidido e cookies reais.
 - S1 `DB-TYPES-001`: tipos reais Supabase ainda nao foram gerados a partir de preview aprovado.
-- S1 `AI-CONSENT-AUDIT-001`: IA real possui rota segura local, mas consentimento/auditoria ainda nao sao persistidos em banco aprovado.
+- S1 `AI-CONSENT-AUDIT-001` reduzido localmente: IA real possui rota segura, consentimento versionado por provider e persistencia server-only de auditoria minima, mas ainda falta aplicar/validar em preview aprovado e rodar provider real autorizado.
 - S1 `EMAIL-RESEND-001` reduzido localmente: adapter Resend, templates neutros e webhook assinado foram preparados, mas envio real, dominio verificado, SMTP Auth e smoke externo seguem pendentes.
 - S2 residual `SEC-CSP-001`: CSP de producao nao usa mais `unsafe-eval`, mas ainda permite `unsafe-inline` ate etapa de nonce/hash.
 
@@ -96,6 +96,7 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Etapa 4 manteve Metacognicao, Inbox, Calendario, Revisao, Jardim e Atalaia como privados/owner-only na UI, com Atalaia lendo apenas grants compartilhados e sanitizados.
 - Etapa 5 removeu `guardrail_status: not_run` da auditoria de IA, adicionou roteamento server-side OpenAI/DeepSeek com kill switch default off, consentimento por provider e redaction recursiva de metadados.
 - Auditoria transversal do PR #7 reforcou `safeInvokeAi` com minimizacao de chaves sensiveis antes de provider, timeout abortavel por `AbortSignal`, limite diario stub antes de chamada real e guardrail de saida especifico para impedir vazamento de Metacognicao ao Atalaia.
+- PR de consentimento/auditoria de IA alinhou as versoes de consentimento persistidas (`ai_provider_openai_v1`, `ai_provider_deepseek_v1`) ao roteador e adicionou persistencia server-only de `ai_run_audits`, sem prompt bruto ou resposta bruta.
 - Fallback de crise de Metacognicao deixou de reecoar impulso/pensamento bruto do usuario bloqueado.
 - Etapa 6 adicionou provider Resend server-only bloqueado por default, templates de e-mail sem conteudo sensivel, webhook com assinatura Svix, redaction de tokens/secrets e regressao para provider falho nao marcar notificacao como enviada.
 - Etapa 7 reduziu `ANALYTICS-001` localmente: analytics first-party exige `product_analytics_v1`, evento/metadata allowlisted, opt-in desligado por default e retencao de 90 dias.
@@ -118,7 +119,7 @@ Seguranca local e estatica melhorou durante o Prompt 15 e a Etapa 2 reduziu a su
 - Validar Etapa 4 em preview HTTPS com Auth real, RLS remoto e fixtures de usuario antes de chamar `PROD-DEMO-001` de fechado para beta.
 - Validar Supabase Auth real: signup, login, confirmacao de e-mail, callback, recovery/update de senha, logout, redirect seguro, refresh/getClaims e expiracao de sessao.
 - Consentimentos de IA, analytics e feedback precisam ficar granulares, versionados, revogaveis e auditaveis antes do beta real; analytics/feedback tambem exigem validacao remota do caminho server-side/admin e da negacao de insert direto por cliente.
-- IA real ainda precisa de consentimento/auditoria persistidos, contador diario por usuario, readiness/smoke de provider real e evals reais autorizados antes de qualquer ativacao.
+- IA real ainda precisa de preview/Auth/RLS aplicado, validacao remota de consentimento/auditoria persistidos, contador diario por usuario, readiness/smoke de provider real e evals reais autorizados antes de qualquer ativacao.
 - Implementar retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA quando houver persistencia real.
 - Validar remotamente retencao de 90 dias para analytics, feedback beta e metadados de auditoria de IA quando houver persistencia real.
 - Validar exportacao/exclusao em preview aprovado antes da primeira coleta real com usuarios.

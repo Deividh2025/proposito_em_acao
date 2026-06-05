@@ -205,11 +205,22 @@ Executado localmente em 2026-06-05 na branch `codex/ci-docker-hostinger-preview`
 
 Limitacao: nao houve deploy real, URL HTTPS publicada, acesso Hostinger/Coolify, smoke externo, Docker image validation, branch protection efetiva, release/tag ou rerun Supabase/Auth/RLS. Esta etapa nao libera beta real nem producao.
 
+## Evidencia do PR - IA consentida e auditoria persistida
+
+Executado localmente em 2026-06-05 na branch `codex/ai-consent-audit-persistence`:
+
+- Roteamento de IA passa a usar as mesmas versoes persistidas por `/settings`: `ai_provider_openai_v1` e `ai_provider_deepseek_v1`.
+- Novo caminho `invokeAiWithPersistentConsentAndAudit` carrega preferencia/consentimentos da sessao, bloqueia provider real quando falta sessao/auditoria viavel e persiste `ai_run_audits` via admin server-only com metadados minimos redigidos.
+- Migration local `20260605172000_ai_audit_persistence_contract.sql` alinha constraints de `ai_run_audits` aos estados de `ai_run_audit_v1`.
+- Teste focado: `npm.cmd run test -- src/tests/unit/ai-provider-routing.test.ts src/tests/integration/ai-consent-audit-persistence.test.ts src/tests/unit/rls-policy-safety.test.ts`: passou, 3 arquivos e 32 testes.
+- `npm.cmd run typecheck`: passou.
+
+Limitacao: nenhuma chamada real OpenAI/DeepSeek foi executada; migration nao foi aplicada em preview; provider real continua bloqueado ate secrets, consentimento validado em ambiente aprovado, auditoria/RLS remotos, evals reais e smoke operacional.
 ## Evidencia do PR - Auth proxy e analytics/feedback server-only
 
 Executado localmente em 2026-06-05 na branch `codex/fix-auth-analytics-guards`:
 
-- Proxy de request movido de `proxy.ts` para `src/proxy.ts`; build Next mostra `ƒ Proxy (Middleware)`.
+- Proxy de request movido de `proxy.ts` para `src/proxy.ts`; build Next mostra `Proxy (Middleware)`.
 - `/onboarding` passa a ser rota protegida fora de `local-demo`.
 - `saveOnboarding` falha fechado fora de `local-demo` quando falta sessao/configuracao Auth real.
 - Analytics e feedback persistem por action server-side/admin apos consentimento/sanitizacao; migration aditiva revoga insert direto de anon/autenticado.
@@ -221,7 +232,7 @@ Gates locais frescos:
 - `npm.cmd run lint`: passou.
 - `npm.cmd run typecheck`: passou.
 - `npm.cmd run test`: passou, 40 arquivos e 240 testes.
-- `npm.cmd run build`: passou, 45 paginas/rotas geradas e `ƒ Proxy (Middleware)` presente.
+- `npm.cmd run build`: passou, 45 paginas/rotas geradas e `Proxy (Middleware)` presente.
 - `npm.cmd run test:e2e`: passou, 35 testes e 5 external-smoke pulados por design.
 - `git diff --check`: passou.
 - `node --check scripts\validate-supabase-preview.mjs`: passou.

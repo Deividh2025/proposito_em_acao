@@ -25,7 +25,8 @@ describe("test runner reliability contracts", () => {
     expect(smokeExternal).toContain("Set PLAYWRIGHT_BASE_URL or PREVIEW_URL");
     expect(smokeExternal).toContain("new URL(rawTargetUrl)");
     expect(smokeExternal).toContain("External smoke URL must be the preview origin only");
-    expect(smokeExternal).toContain("External smoke tests require HTTPS");
+    expect(smokeExternal).toContain("External smoke tests require HTTPS except temporary sslip.io HTTP previews");
+    expect(smokeExternal).toContain("isTemporarySslipPreview");
     expect(smokeExternal).toContain('EXTERNAL_SMOKE: "1"');
   });
 

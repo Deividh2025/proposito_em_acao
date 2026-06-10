@@ -8,6 +8,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 ### Added
 
+- Fundacao de deploy smoke adiciona `/api/health` sanitizado, scripts `smoke`, `smoke:external` e `healthcheck`, smoke Playwright de rotas criticas em `local-demo` e runbook Coolify/Oracle para HTTP temporario `sslip.io`.
 - Etapa 2 adiciona migration local `20260603211654_accountability_acceptance_rls_hardening.sql` para hardening de aceite do Atalaia, com `invite_token_hash` no grant, triggers de imutabilidade e `search_path` seguro.
 - Harness Supabase preview passa a cobrir `atalia_invited`, tentativa de escalada de escopo, aceite de grant especifico e revogacao cortando leituras futuras.
 - Etapa 3 adiciona fundacao local de Auth SSR com `proxy.ts`, `src/lib/supabase/proxy.ts`, rotas `/auth/callback`, `/auth/confirm`, `/auth/error`, `/auth/forgot-password`, `/auth/update-password`, helpers server-only de sessao, queries minimas autenticadas e `/api/ready`.
@@ -25,6 +26,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 ### Changed
 
+- Smoke externo passa a aceitar HTTP somente para hosts temporarios `sslip.io`, mantendo origem limpa e HTTPS obrigatorio para demais URLs publicadas nao locais.
 - Aceite do Atalaia passa a buscar preview real sanitizada quando Supabase/Auth estao configurados, sem grant demonstrativo.
 - Request proxy de Auth passa a viver em `src/proxy.ts`, junto de `src/app`, para ser incluido pelo Next; `/onboarding` passa a respeitar protecao Auth fora de `local-demo`.
 - Permissoes do Atalaia passam a persistir exatamente a selecao revisada pelo dono, sem reintroduzir defaults do nivel automaticamente.
@@ -41,6 +43,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 ### Security
 
+- Healthcheck de liveness retorna apenas metadados sanitizados e nao consulta nem expoe Supabase, Auth, IA, e-mail ou variaveis de ambiente sensiveis.
 - Etapa 2 remove policies diretas de update do convidado no aceite do Atalaia e concentra ativacao/revogacao em action server-side auditavel.
 - Nenhuma migration remota foi aplicada no Supabase principal; validacao preview da Etapa 2 segue pendente.
 - Etapa 3 usa `auth.getClaims()` no proxy SSR, `next` seguro apenas para paths internos, falha fechada fora de `local-demo` quando Supabase/Auth essencial falta e mantem `service_role` fora do barrel publico.

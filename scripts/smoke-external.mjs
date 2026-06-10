@@ -27,8 +27,16 @@ if (url.username || url.password || url.search || url.hash || (url.pathname !== 
   process.exit(1);
 }
 
-if (url.protocol !== "https:" && url.hostname !== "127.0.0.1" && url.hostname !== "localhost") {
-  console.error("External smoke tests require HTTPS for non-local URLs.");
+function isLocalPreview(url) {
+  return url.hostname === "127.0.0.1" || url.hostname === "localhost";
+}
+
+function isTemporarySslipPreview(url) {
+  return url.protocol === "http:" && (url.hostname === "sslip.io" || url.hostname.endsWith(".sslip.io"));
+}
+
+if (url.protocol !== "https:" && !isLocalPreview(url) && !isTemporarySslipPreview(url)) {
+  console.error("External smoke tests require HTTPS except temporary sslip.io HTTP previews.");
   process.exit(1);
 }
 

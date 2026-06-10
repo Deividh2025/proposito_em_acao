@@ -67,30 +67,42 @@ function expectNoStore(headers: Record<string, string>) {
 
 async function expectRouteRenders(page: Page, route: string) {
   const runtimeErrors: string[] = [];
-
-  page.on("console", (message) => {
+  const onConsole = (message: { type: () => string; text: () => string }) => {
     if (message.type() === "error") runtimeErrors.push(message.text());
-  });
-  page.on("pageerror", (error) => runtimeErrors.push(error.message));
+  };
+  const onPageError = (error: Error) => runtimeErrors.push(error.message);
 
-  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  page.on("console", onConsole);
+  page.on("pageerror", onPageError);
 
-  expect(response, `${route} should return a response`).toBeTruthy();
-  expect(response?.status(), `${route} should not be 5xx`).toBeLessThan(500);
-  expectSecurityHeaders(response?.headers() ?? {});
-  await expect(page.locator("body")).toBeVisible();
-  await expect(page.locator("main").first()).toBeVisible();
-  expect(runtimeErrors, `${route} should not emit console/page errors`).toEqual([]);
+  try {
+    const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+
+    expect(response, `${route} should return a response`).toBeTruthy();
+    expect(response?.status(), `${route} should render successfully`).toBe(200);
+    expectSecurityHeaders(response?.headers() ?? {});
+    await expect(page.locator("body")).toBeVisible();
+    await expect(page.locator("main").first()).toBeVisible();
+    expect(runtimeErrors, `${route} should not emit console/page errors`).toEqual([]);
+  } finally {
+    page.off("console", onConsole);
+    page.off("pageerror", onPageError);
+  }
 }
 
-test.describe("external HTTPS smoke", () => {
+test.describe("external preview smoke", () => {
   test("health and readiness endpoints are live", async ({ request }) => {
     const health = await request.get("/api/health", { failOnStatusCode: false });
 
     expect(health.status()).toBe(200);
     expectSecurityHeaders(health.headers());
     expect(health.headers()["content-type"]).toMatch(/application\/json/);
-    expect(await health.json()).toMatchObject({ ok: true, service: "proposito-em-acao" });
+    expect(await health.json()).toMatchObject({
+      ok: true,
+      app: expect.any(String),
+      service: "proposito-em-acao",
+      environment: "sanitized"
+    });
 
     const readiness = await request.get("/api/ready", { failOnStatusCode: false });
 

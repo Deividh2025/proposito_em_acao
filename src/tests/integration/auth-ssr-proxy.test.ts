@@ -64,6 +64,18 @@ describe("Auth SSR proxy contracts", () => {
     expect(getClaimsMock).not.toHaveBeenCalled();
   });
 
+  test("keeps operational status routes independent from Auth when Supabase is configured", async () => {
+    setRuntime("preview", true);
+    const { refreshSupabaseAuth } = await import("@/lib/supabase/proxy");
+
+    const healthResponse = await refreshSupabaseAuth(requestFor("/api/health"));
+    const readyResponse = await refreshSupabaseAuth(requestFor("/api/ready"));
+
+    expect(healthResponse.status).toBe(200);
+    expect(readyResponse.status).toBe(200);
+    expect(getClaimsMock).not.toHaveBeenCalled();
+  });
+
   test("redirects protected routes to Auth when claims are absent", async () => {
     setRuntime("preview", true);
     getClaimsMock.mockResolvedValue({ data: { claims: null }, error: null });

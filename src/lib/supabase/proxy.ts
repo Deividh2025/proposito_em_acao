@@ -34,6 +34,10 @@ function isLocalDemoRuntime() {
   return getServerEnv().APP_RUNTIME_MODE === "local-demo";
 }
 
+function isOperationalStatusRoute(pathname: string) {
+  return pathname === "/api/health" || pathname === "/api/ready";
+}
+
 function createNextResponse(request: NextRequest, previousResponse?: NextResponse) {
   const response = NextResponse.next({
     request: {
@@ -54,6 +58,10 @@ export async function refreshSupabaseAuth(request: NextRequest) {
   const config = getSupabasePublicConfig();
   const pathname = request.nextUrl.pathname;
   const publicRoute = isPublicRoute(pathname);
+
+  if (isOperationalStatusRoute(pathname)) {
+    return createNextResponse(request);
+  }
 
   if (!config) {
     if (!publicRoute && shouldFailClosedWithoutAuthConfig()) {

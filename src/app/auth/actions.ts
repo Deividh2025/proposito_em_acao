@@ -17,12 +17,17 @@ function readMode(formData: FormData): AuthMode {
   return readText(formData, "mode") === "sign-up" ? "sign-up" : "sign-in";
 }
 
+function hasConfiguredEnvValue(value: string | null | undefined) {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
 function hasSupabasePublicEnv() {
   const env = getPublicEnv();
 
-  return Boolean(
-    env.NEXT_PUBLIC_SUPABASE_URL &&
-      (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  return (
+    hasConfiguredEnvValue(env.NEXT_PUBLIC_SUPABASE_URL) &&
+    (hasConfiguredEnvValue(env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) ||
+      hasConfiguredEnvValue(env.NEXT_PUBLIC_SUPABASE_ANON_KEY))
   );
 }
 

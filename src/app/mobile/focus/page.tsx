@@ -15,7 +15,7 @@ export default async function MobileFocusPage({ searchParams }: MobileFocusPageP
 
   return (
     <MobileShell
-      subtitle="Foco curto com captura de distraÃ§Ã£o. Sem modo foco mobile completo nesta etapa."
+      subtitle="Foco curto com captura de distração. Sem modo foco mobile completo nesta etapa."
       title="Foco curto"
     >
       <MobileFocusQuickStart initialDurationMinutes={initialDurationMinutes} />

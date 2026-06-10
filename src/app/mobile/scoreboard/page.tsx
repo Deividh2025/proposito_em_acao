@@ -8,8 +8,8 @@ import { MobileShell } from "@/components/mobile/MobileShell";
 export default function MobileScoreboardPage() {
   return (
     <MobileShell
-      subtitle="MarcaÃ§Ã£o leve. Retomada conta como progresso real."
-      title="Placar rÃ¡pido"
+      subtitle="Marcação leve. Retomada conta como progresso real."
+      title="Placar rápido"
     >
       <MobileScoreboardCheck />
       <Link className="text-sm font-semibold text-purpose-900" href="/scoreboard">

@@ -9,7 +9,7 @@ export default function OnboardingPage() {
       <PageHeader
         description="Perfil essencial, Mapa da Vida e Chamado Pessoal em discernimento, com mock seguro e salvamento preparado para Supabase/Auth."
         status="Prompt 6"
-        title="Onboarding e direÃ§Ã£o"
+        title="Onboarding e direção"
       />
       <OnboardingFlow />
     </div>

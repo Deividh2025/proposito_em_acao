@@ -10,7 +10,7 @@ export default async function InboxPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        description="Capture pendÃªncias, ideias e preocupaÃ§Ãµes sem sobrecarregar a mente. Classifique depois, com revisÃ£o."
+        description="Capture pendências, ideias e preocupações sem sobrecarregar a mente. Classifique depois, com revisão."
         status={dailyData.canUseSampleData ? "Amostra local-demo" : "Dados autenticados"}
         title="Caixa de entrada"
       />

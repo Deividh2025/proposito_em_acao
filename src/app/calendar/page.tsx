@@ -10,9 +10,9 @@ export default async function CalendarPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        description="Transforme prÃ³xima aÃ§Ã£o em tempo real, protegendo descanso, famÃ­lia, espiritualidade e energia."
+        description="Transforme próxima ação em tempo real, protegendo descanso, família, espiritualidade e energia."
         status="Prompt 9"
-        title="CalendÃ¡rio de execuÃ§Ã£o"
+        title="Calendário de execução"
       />
       <CalendarShell
         canUseSampleData={dailyData.canUseSampleData}

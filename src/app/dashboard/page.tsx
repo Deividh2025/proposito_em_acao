@@ -12,7 +12,7 @@ export default async function DashboardPage() {
       <PageHeader
         description="Direcao, proximas acoes e dados de execucao carregados com Supabase/RLS quando ha usuario autenticado."
         status={executionData.mode === "local-demo" ? "Amostra local-demo" : "Dados autenticados"}
-        title="Sua direÃ§Ã£o agora"
+        title="Sua direção agora"
       />
       <InitialJourneyDashboard executionData={executionData} />
     </div>

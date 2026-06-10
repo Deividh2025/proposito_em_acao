@@ -7,9 +7,9 @@ export default function MetacognitionPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        description="Separe fato, interpretaÃ§Ã£o, sentimento e impulso; confronte sem humilhaÃ§Ã£o e volte para uma rota segura."
+        description="Separe fato, interpretação, sentimento e impulso; confronte sem humilhação e volte para uma rota segura."
         status="Prompt 10"
-        title="MetacogniÃ§Ã£o"
+        title="Metacognição"
       />
       <MetacognitionForm />
     </div>

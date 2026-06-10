@@ -1,9 +1,11 @@
-import { Badge } from "@/components/ui/Badge";
+﻿import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
 import { listWeeklyReviewHistoryForCurrentUser } from "@/lib/supabase/queries/reflection";
+
+export const dynamic = "force-dynamic";
 
 export default async function ReviewHistoryPage() {
   const history = await listWeeklyReviewHistoryForCurrentUser(8);

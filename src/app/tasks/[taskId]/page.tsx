@@ -1,9 +1,11 @@
-import { PageHeader } from "@/components/layout/PageHeader";
+﻿import { PageHeader } from "@/components/layout/PageHeader";
 import { ExecutionStatusBadge } from "@/components/execution/ExecutionStatus";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Tag } from "@/components/ui/Tag";
 import { loadTaskDetail } from "@/lib/supabase/queries/execution";
+
+export const dynamic = "force-dynamic";
 
 type TaskDetailPageProps = {
   params: Promise<{ taskId: string }>;

@@ -6,6 +6,8 @@ type SettingsPageProps = {
   searchParams?: Promise<{ status?: string }> | { status?: string };
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage({ searchParams }: SettingsPageProps) {
   const [snapshot, resolvedSearchParams] = await Promise.all([
     loadSettingsSnapshot(),

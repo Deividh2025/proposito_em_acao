@@ -165,9 +165,30 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
     openai: false
   });
   const [isPending, startTransition] = useTransition();
+  const canUseSettingsActions = snapshot.mode === "local-demo" || snapshot.isAuthenticated;
+  const actionDisabled = isPending || !canUseSettingsActions;
+
+  function showBlockedAction(area: string) {
+    setMessage({
+      area,
+      result: {
+        message:
+          "Configuracoes reais indisponiveis neste ambiente. Entre na conta ou configure Supabase/Auth para persistir alteracoes.",
+        ok: false,
+        persisted: false,
+        status: "blocked"
+      }
+    });
+  }
 
   function submitPreferences(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!canUseSettingsActions) {
+      showBlockedAction("Preferencias");
+      return;
+    }
+
     const formData = new FormData(event.currentTarget);
 
     startTransition(async () => {
@@ -183,6 +204,11 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
   }
 
   function submitProviderConsent(provider: ConsentProvider, decision: ConsentDecision) {
+    if (!canUseSettingsActions) {
+      showBlockedAction(privacyConsentDefinitions[providerConsentMap[provider]].label);
+      return;
+    }
+
     const formData = new FormData();
     formData.set("provider", provider);
     formData.set("decision", decision);
@@ -216,6 +242,11 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
     consentType: "product_analytics" | "beta_feedback",
     decision: ConsentDecision
   ) {
+    if (!canUseSettingsActions) {
+      showBlockedAction(privacyConsentDefinitions[consentType].label);
+      return;
+    }
+
     const formData = new FormData();
     formData.set("decision", decision);
 
@@ -255,6 +286,12 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
 
   function requestDeletion(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (!canUseSettingsActions) {
+      showBlockedAction("Exclusao de conta");
+      return;
+    }
+
     const formData = new FormData(event.currentTarget);
 
     startTransition(async () => {
@@ -337,7 +374,7 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
               value={christianLayerIntensity}
             />
 
-            <Button disabled={isPending} type="submit">
+            <Button disabled={actionDisabled} type="submit">
               <Save aria-hidden className="h-4 w-4" />
               Salvar preferencias
             </Button>
@@ -375,6 +412,7 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
                     {!active ? (
                       <Checkbox
                         checked={providerConfirmations[provider]}
+                        disabled={!canUseSettingsActions}
                         label={`Entendo e autorizo somente ${details.version}.`}
                         onChange={(event) =>
                           setProviderConfirmations((current) => ({
@@ -387,7 +425,7 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
 
                     {!active ? (
                       <Button
-                        disabled={isPending || !providerConfirmations[provider]}
+                        disabled={actionDisabled || !providerConfirmations[provider]}
                         onClick={() => submitProviderConsent(provider, "grant")}
                         variant="soft"
                       >
@@ -396,7 +434,7 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
                       </Button>
                     ) : (
                       <Button
-                        disabled={isPending}
+                        disabled={actionDisabled}
                         intent="warning"
                         onClick={() => submitProviderConsent(provider, "revoke")}
                         variant="outline"
@@ -421,7 +459,7 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
           <Switch
             checked={analyticsConsent}
             description="Somente eventos allowlisted, sem conteudo livre, tokens, URLs sensiveis ou dados intimos."
-            disabled={isPending}
+            disabled={actionDisabled}
             label={`${privacyConsentDefinitions.product_analytics.label} (${privacyConsentDefinitions.product_analytics.version})`}
             onChange={(event) =>
               submitSimpleConsent("product_analytics", event.currentTarget.checked ? "grant" : "revoke")
@@ -431,7 +469,7 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
           <Switch
             checked={betaFeedbackConsent}
             description="Feedback beta so deve ser persistido apos envio explicito e filtro de indicio sensivel."
-            disabled={isPending}
+            disabled={actionDisabled}
             label={`${privacyConsentDefinitions.beta_feedback.label} (${privacyConsentDefinitions.beta_feedback.version})`}
             onChange={(event) =>
               submitSimpleConsent("beta_feedback", event.currentTarget.checked ? "grant" : "revoke")
@@ -475,13 +513,24 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
 
         <Card as="section" className="space-y-4">
           <SectionHeader description="Exportacao autenticada em JSON com Cache-Control no-store." title="Seus dados" />
-          <a
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control border border-ink-300 bg-white px-4 text-sm font-semibold text-ink-900 transition duration-200 hover:bg-ink-50"
-            href="/settings/export"
-          >
-            <Download aria-hidden className="h-4 w-4" />
-            Exportar JSON
-          </a>
+          {canUseSettingsActions ? (
+            <a
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-control border border-ink-300 bg-white px-4 text-sm font-semibold text-ink-900 transition duration-200 hover:bg-ink-50"
+              href="/settings/export"
+            >
+              <Download aria-hidden className="h-4 w-4" />
+              Exportar JSON
+            </a>
+          ) : (
+            <button
+              className="inline-flex min-h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-control border border-ink-200 bg-ink-50 px-4 text-sm font-semibold text-ink-500"
+              disabled
+              type="button"
+            >
+              <Download aria-hidden className="h-4 w-4" />
+              Exportar JSON
+            </button>
+          )}
         </Card>
 
         <Card as="section" className="space-y-4 border-gentleDanger-100 bg-gentleDanger-50">
@@ -497,9 +546,9 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
           <form className="space-y-3" onSubmit={requestDeletion}>
             <label className="grid gap-2 text-sm font-semibold text-gentleDanger-900">
               Confirmacao
-              <Input name="confirmation" placeholder={ACCOUNT_DELETION_CONFIRMATION} />
+              <Input disabled={actionDisabled} name="confirmation" placeholder={ACCOUNT_DELETION_CONFIRMATION} />
             </label>
-            <Button className="w-full" disabled={isPending} intent="danger" type="submit">
+            <Button className="w-full" disabled={actionDisabled} intent="danger" type="submit">
               <Trash2 aria-hidden className="h-4 w-4" />
               Solicitar exclusao
             </Button>

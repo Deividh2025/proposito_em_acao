@@ -141,6 +141,22 @@ describe("privacy persistence boundary", () => {
     );
   });
 
+  test("returns a blocked settings snapshot instead of throwing when preview Supabase config is missing", async () => {
+    vi.stubEnv("APP_RUNTIME_MODE", "preview");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
+    const { loadSettingsSnapshot } = await import("@/lib/supabase/queries/privacy-settings");
+
+    const snapshot = await loadSettingsSnapshot();
+
+    expect(snapshot.mode).toBe("supabase");
+    expect(snapshot.isAuthenticated).toBe(false);
+    expect(snapshot.statusMessage).toContain("NEXT_PUBLIC_SUPABASE_URL");
+    expect(authGetUserMock).not.toHaveBeenCalled();
+  });
+
   test("persists beta feedback through the server-only admin client after sensitive-hint screening", async () => {
     const insert = adminInsertQuery().insert;
     adminFromMock.mockReturnValue({ insert });

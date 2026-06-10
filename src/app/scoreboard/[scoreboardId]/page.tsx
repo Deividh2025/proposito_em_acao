@@ -1,6 +1,8 @@
-import { PageHeader } from "@/components/layout/PageHeader";
+﻿import { PageHeader } from "@/components/layout/PageHeader";
 import { ScoreboardCard } from "@/components/scoreboard/ScoreboardCard";
 import { getDailyRoutineData } from "@/lib/supabase/queries/daily";
+
+export const dynamic = "force-dynamic";
 
 type ScoreboardDetailPageProps = {
   params: Promise<{ scoreboardId: string }>;

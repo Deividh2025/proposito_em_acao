@@ -1,4 +1,6 @@
-import Link from "next/link";
+﻿import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 import { persistPreparedBetaFeedbackAction } from "@/app/settings/actions";
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";
@@ -13,11 +15,11 @@ export default function MobileHomePage() {
     <MobileShell
       showBack={false}
       subtitle="Abrir, tocar, registrar e fechar. O desktop continua sendo o lugar de planejamento profundo."
-      title="Ações rápidas"
+      title="AÃ§Ãµes rÃ¡pidas"
     >
       <MobileQuickActionGrid />
       <section className="rounded-card border border-warmth-100 bg-warmth-50 p-4 text-sm leading-6 text-warmth-900">
-        Mobile complementar: sem calendário complexo, sem edição profunda de projetos e sem Atalaia funcional.
+        Mobile complementar: sem calendÃ¡rio complexo, sem ediÃ§Ã£o profunda de projetos e sem Atalaia funcional.
       </section>
       <section className="rounded-card border border-ink-100 bg-white p-4">
         <h2 className="font-bold text-ink-900">Agora</h2>

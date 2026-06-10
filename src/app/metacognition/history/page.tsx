@@ -1,17 +1,19 @@
-import { MetacognitionHistoryList } from "@/components/metacognition/MetacognitionHistoryList";
+﻿import { MetacognitionHistoryList } from "@/components/metacognition/MetacognitionHistoryList";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
+
+export const dynamic = "force-dynamic";
 
 export default function MetacognitionHistoryPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        description="Revise sessões privadas de forma compacta. Conteúdo íntimo longo não é exibido por padrão."
+        description="Revise sessÃµes privadas de forma compacta. ConteÃºdo Ã­ntimo longo nÃ£o Ã© exibido por padrÃ£o."
         status="Prompt 10"
-        title="Histórico privado"
+        title="HistÃ³rico privado"
       />
       <SensitiveDataNotice>
-        Histórico de Metacognição é owner-only. Não há compartilhamento automático com Atalaia.
+        HistÃ³rico de MetacogniÃ§Ã£o Ã© owner-only. NÃ£o hÃ¡ compartilhamento automÃ¡tico com Atalaia.
       </SensitiveDataNotice>
       <MetacognitionHistoryList />
     </div>

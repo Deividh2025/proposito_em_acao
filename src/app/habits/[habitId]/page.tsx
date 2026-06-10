@@ -1,7 +1,9 @@
-import { HabitList } from "@/components/habits/HabitList";
+﻿import { HabitList } from "@/components/habits/HabitList";
 import { HabitRestartPrompt } from "@/components/habits/HabitRestartPrompt";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { getDailyRoutineData } from "@/lib/supabase/queries/daily";
+
+export const dynamic = "force-dynamic";
 
 type HabitDetailPageProps = {
   params: Promise<{ habitId: string }>;

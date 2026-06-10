@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 
-import { getAppRuntimeMode, getPublicEnv } from "@/lib/config";
+import { getAppRuntimeMode, getPublicEnv, getRuntimeEnvironmentStatus } from "@/lib/config";
 import { appendSafeNext, sanitizeAuthNext } from "@/lib/auth/redirects";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -42,6 +42,32 @@ function redirectToAuthError(status = "unavailable"): never {
   redirect(`/auth/error?status=${encodeURIComponent(status)}`);
 }
 
+function getAuthRuntimeBlockStatus() {
+  const status = getRuntimeEnvironmentStatus();
+
+  if (status.localDemoFallbackAllowed) {
+    return null;
+  }
+
+  if (!status.supabase.configured) {
+    return "config";
+  }
+
+  if (!status.appUrl.configured) {
+    return "app-url";
+  }
+
+  return null;
+}
+
+function redirectIfAuthRuntimeBlocked() {
+  const status = getAuthRuntimeBlockStatus();
+
+  if (status) {
+    redirectToAuthError(status);
+  }
+}
+
 function buildAppUrl(path: string) {
   const env = getPublicEnv();
   const baseUrl = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
@@ -58,6 +84,8 @@ export async function submitAuthAction(formData: FormData) {
   if (!email.includes("@") || password.length < 6) {
     redirectToAuthStatus("invalid", next);
   }
+
+  redirectIfAuthRuntimeBlocked();
 
   if (!hasSupabasePublicEnv()) {
     if (isLocalDemoRuntime()) {
@@ -101,6 +129,8 @@ export async function requestPasswordResetAction(formData: FormData) {
     redirect("/auth/forgot-password?status=sent");
   }
 
+  redirectIfAuthRuntimeBlocked();
+
   if (!hasSupabasePublicEnv()) {
     if (isLocalDemoRuntime()) {
       redirect("/auth/forgot-password?status=local");
@@ -129,6 +159,8 @@ export async function updatePasswordAction(formData: FormData) {
     redirect("/auth/update-password?status=invalid");
   }
 
+  redirectIfAuthRuntimeBlocked();
+
   if (!hasSupabasePublicEnv()) {
     if (isLocalDemoRuntime()) {
       redirect("/auth/update-password?status=local");
@@ -149,6 +181,8 @@ export async function updatePasswordAction(formData: FormData) {
 
 export async function signOutAction(formData?: FormData) {
   const next = sanitizeAuthNext(formData ? readText(formData, "next") : undefined, "/auth");
+
+  redirectIfAuthRuntimeBlocked();
 
   if (!hasSupabasePublicEnv()) {
     if (isLocalDemoRuntime()) {

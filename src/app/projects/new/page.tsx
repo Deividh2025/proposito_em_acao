@@ -1,5 +1,7 @@
-import { PageHeader } from "@/components/layout/PageHeader";
+﻿import { PageHeader } from "@/components/layout/PageHeader";
 import { ProjectPlanner } from "@/components/projects/ProjectPlanner";
+
+export const dynamic = "force-dynamic";
 
 export default function NewProjectPage() {
   return (

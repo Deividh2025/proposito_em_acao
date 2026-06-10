@@ -2,7 +2,7 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { isProtectedRoute, isPublicRoute } from "@/lib/auth/redirects";
-import { getServerEnv } from "@/lib/config";
+import { formatMissingEnvVars, getMissingSupabasePublicEnvVars, getServerEnv, getSupabasePublicKey } from "@/lib/config";
 import type { Database } from "@/types/database";
 
 type SupabaseCookieToSet = {
@@ -14,7 +14,7 @@ type SupabaseCookieToSet = {
 function getSupabasePublicConfig() {
   const env = getServerEnv();
   const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseAnonKey = getSupabasePublicKey(env);
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return null;
@@ -60,7 +60,8 @@ export async function refreshSupabaseAuth(request: NextRequest) {
       return new NextResponse("Auth essencial ausente neste ambiente.", {
         status: 503,
         headers: {
-          "Cache-Control": "no-store"
+          "Cache-Control": "no-store",
+          "X-Required-Env": formatMissingEnvVars(getMissingSupabasePublicEnvVars(getServerEnv()))
         }
       });
     }

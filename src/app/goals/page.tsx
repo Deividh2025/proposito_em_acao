@@ -1,4 +1,6 @@
-import Link from "next/link";
+﻿import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { GoalSummary } from "@/components/goals/GoalSummary";

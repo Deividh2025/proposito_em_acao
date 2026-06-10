@@ -1,7 +1,9 @@
-import { LifeGarden } from "@/components/garden/GardenComponents";
+﻿import { LifeGarden } from "@/components/garden/GardenComponents";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
 import { getGardenStateForCurrentUser } from "@/lib/supabase/queries/reflection";
+
+export const dynamic = "force-dynamic";
 
 export default async function GardenPage() {
   const garden = await getGardenStateForCurrentUser();

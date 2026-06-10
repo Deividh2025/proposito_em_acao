@@ -65,6 +65,24 @@ export type PublicEnv = z.infer<typeof publicEnvSchema>;
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
 export type AppRuntimeMode = z.infer<typeof runtimeModeSchema>;
 
+const supabasePublicKeyFallbackLabel =
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY";
+
+function hasValue(value: string | undefined) {
+  return Boolean(value && value.trim().length > 0);
+}
+
+function isPublishedHttpsUrl(value: string) {
+  try {
+    const url = new URL(value);
+    const isLocalhost = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "::1";
+
+    return url.protocol === "https:" && !isLocalhost;
+  } catch {
+    return false;
+  }
+}
+
 export function getPublicEnv(): PublicEnv {
   return publicEnvSchema.parse({
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
@@ -116,6 +134,56 @@ export function getServerEnv(): ServerEnv {
 
 export function getAppRuntimeMode(): AppRuntimeMode {
   return getServerEnv().APP_RUNTIME_MODE;
+}
+
+export function getSupabasePublicKey(env: Pick<PublicEnv, "NEXT_PUBLIC_SUPABASE_ANON_KEY" | "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY">) {
+  return env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+}
+
+export function getMissingSupabasePublicEnvVars(
+  env: Pick<PublicEnv, "NEXT_PUBLIC_SUPABASE_ANON_KEY" | "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" | "NEXT_PUBLIC_SUPABASE_URL">
+) {
+  const missing: string[] = [];
+
+  if (!hasValue(env.NEXT_PUBLIC_SUPABASE_URL)) {
+    missing.push("NEXT_PUBLIC_SUPABASE_URL");
+  }
+
+  if (!hasValue(getSupabasePublicKey(env))) {
+    missing.push(supabasePublicKeyFallbackLabel);
+  }
+
+  return missing;
+}
+
+export function getRuntimeEnvironmentStatus(env = getServerEnv()) {
+  const requiresRealAuth = env.APP_RUNTIME_MODE !== "local-demo";
+  const missingSupabase = getMissingSupabasePublicEnvVars(env);
+  const appUrlIsPublishedHttps = isPublishedHttpsUrl(env.NEXT_PUBLIC_APP_URL);
+  const missingAppUrl = requiresRealAuth && !appUrlIsPublishedHttps ? ["NEXT_PUBLIC_APP_URL"] : [];
+
+  return {
+    appUrl: {
+      configured: !requiresRealAuth || appUrlIsPublishedHttps,
+      missing: missingAppUrl,
+      publishedHttps: appUrlIsPublishedHttps,
+      value: env.NEXT_PUBLIC_APP_URL
+    },
+    auth: {
+      configured: !requiresRealAuth || (missingSupabase.length === 0 && appUrlIsPublishedHttps),
+      missing: requiresRealAuth ? [...missingSupabase, ...missingAppUrl] : []
+    },
+    localDemoFallbackAllowed: env.APP_RUNTIME_MODE === "local-demo",
+    runtimeMode: env.APP_RUNTIME_MODE,
+    supabase: {
+      configured: missingSupabase.length === 0,
+      missing: missingSupabase
+    }
+  };
+}
+
+export function formatMissingEnvVars(missing: string[]) {
+  return missing.length > 0 ? missing.join(", ") : "none";
 }
 
 export function getRealIntegrationFlags() {

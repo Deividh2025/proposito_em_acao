@@ -1,5 +1,7 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Inbox, Leaf, ListRestart, TimerReset, Zap } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 import { MobileShell } from "@/components/mobile/MobileShell";
 import { getAuthenticatedDataContext } from "@/lib/supabase/queries/authenticated-data";
@@ -9,7 +11,7 @@ const todayActions = [
   { href: "/mobile/capture", label: "Capturar agora", icon: Inbox },
   { href: "/mobile/energy", label: "Registrar energia", icon: Zap },
   { href: "/mobile/focus", label: "Foco 5 min", icon: TimerReset },
-  { href: "/mobile/habits", label: "Marcar hábito", icon: Leaf },
+  { href: "/mobile/habits", label: "Marcar hÃ¡bito", icon: Leaf },
   { href: "/mobile/unblock", label: "Destravar tarefa", icon: ListRestart }
 ];
 

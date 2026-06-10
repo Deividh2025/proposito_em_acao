@@ -1,6 +1,8 @@
-import { CalendarShell } from "@/components/calendar/CalendarShell";
+﻿import { CalendarShell } from "@/components/calendar/CalendarShell";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { getDailyRoutineData } from "@/lib/supabase/queries/daily";
+
+export const dynamic = "force-dynamic";
 
 export default async function CalendarPage() {
   const dailyData = await getDailyRoutineData();
@@ -8,9 +10,9 @@ export default async function CalendarPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        description="Transforme próxima ação em tempo real, protegendo descanso, família, espiritualidade e energia."
+        description="Transforme prÃ³xima aÃ§Ã£o em tempo real, protegendo descanso, famÃ­lia, espiritualidade e energia."
         status="Prompt 9"
-        title="Calendário de execução"
+        title="CalendÃ¡rio de execuÃ§Ã£o"
       />
       <CalendarShell
         canUseSampleData={dailyData.canUseSampleData}

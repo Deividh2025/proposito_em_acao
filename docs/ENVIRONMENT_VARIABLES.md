@@ -14,7 +14,9 @@
 
 - `NEXT_PUBLIC_SUPABASE_URL`: URL publica do projeto Supabase.
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: chave publica anon/publishable para cliente.
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: alternativa publica aceita pelo codigo; quando definida, tem prioridade sobre `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - `SUPABASE_SERVICE_ROLE_KEY`: chave server-side altamente sensivel; nunca usar no browser.
+- `SUPABASE_JWT_SECRET`: segredo server-side; nao e necessario nos helpers SSR atuais e deve ficar vazio ate uma etapa propria.
 - `SUPABASE_PROJECT_ID`: id/ref do projeto para CLI e geracao de tipos; nao e secret, mas deve ser mantido por ambiente.
 
 `.env.local` deve permanecer ignorado e pode ficar vazio ate a etapa administrativa propria. Valores reais devem ser preenchidos apenas no ambiente local do operador ou no cofre de secrets do provedor, nunca em arquivo versionado.
@@ -24,7 +26,19 @@ Projeto Supabase informado para desenvolvimento:
 - URL: `https://bceumcfmjftoukzrfthe.supabase.co`.
 - Project ref: `bceumcfmjftoukzrfthe`.
 
-Chaves publicaveis devem usar `NEXT_PUBLIC_SUPABASE_ANON_KEY` para compatibilidade com os helpers atuais. `SUPABASE_SERVICE_ROLE_KEY` deve permanecer server-side e vazio ate haver necessidade administrativa controlada.
+Chaves publicaveis devem usar `NEXT_PUBLIC_SUPABASE_ANON_KEY` para compatibilidade simples; `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` tambem e aceito. `SUPABASE_SERVICE_ROLE_KEY` deve permanecer server-side e vazio ate haver necessidade administrativa controlada.
+
+Variaveis de operador/CLI, nunca runtime do app nem `NEXT_PUBLIC_*`:
+
+- `SUPABASE_ACCESS_TOKEN`
+- `SUPABASE_PREVIEW_DB_URL`
+- `SUPABASE_PREVIEW_CONFIRM`
+- `SUPABASE_PREVIEW_PROJECT_REF`
+- `SUPABASE_TYPES_OUTPUT`
+- `SUPABASE_PREVIEW_STORAGE_BUCKET`
+- `SUPABASE_PREVIEW_TEST_EMAIL_DOMAIN`
+- `SUPABASE_PREVIEW_KEEP_FIXTURES`
+- `SUPABASE_SKIP_STORAGE_RLS`
 
 ## Runtime e kill switches
 

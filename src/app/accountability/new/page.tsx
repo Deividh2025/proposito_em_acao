@@ -1,5 +1,7 @@
-import { AccountabilityPartnerForm } from "@/components/accountability/AccountabilityPartnerForm";
+﻿import { AccountabilityPartnerForm } from "@/components/accountability/AccountabilityPartnerForm";
 import { PageHeader } from "@/components/layout/PageHeader";
+
+export const dynamic = "force-dynamic";
 
 export default function NewAccountabilityPage() {
   return (

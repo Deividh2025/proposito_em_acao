@@ -1,5 +1,7 @@
-import { HabitForm } from "@/components/habits/HabitForm";
+﻿import { HabitForm } from "@/components/habits/HabitForm";
 import { PageHeader } from "@/components/layout/PageHeader";
+
+export const dynamic = "force-dynamic";
 
 export default function NewHabitPage() {
   return (

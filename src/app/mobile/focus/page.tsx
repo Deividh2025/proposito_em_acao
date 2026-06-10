@@ -1,5 +1,7 @@
-import { MobileFocusQuickStart } from "@/components/mobile/MobileFocusQuickStart";
+﻿import { MobileFocusQuickStart } from "@/components/mobile/MobileFocusQuickStart";
 import { MobileShell } from "@/components/mobile/MobileShell";
+
+export const dynamic = "force-dynamic";
 
 type MobileFocusPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;

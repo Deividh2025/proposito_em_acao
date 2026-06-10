@@ -1,5 +1,7 @@
-import { ActionUnblockerForm } from "@/components/action-unblocker/ActionUnblockerForm";
+﻿import { ActionUnblockerForm } from "@/components/action-unblocker/ActionUnblockerForm";
 import { PageHeader } from "@/components/layout/PageHeader";
+
+export const dynamic = "force-dynamic";
 
 export default function ActionUnblockerPage() {
   return (

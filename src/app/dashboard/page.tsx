@@ -1,6 +1,8 @@
-import { PageHeader } from "@/components/layout/PageHeader";
+﻿import { PageHeader } from "@/components/layout/PageHeader";
 import { InitialJourneyDashboard } from "@/components/dashboard/InitialJourneyDashboard";
 import { loadExecutionOverview } from "@/lib/supabase/queries/execution";
+
+export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const executionData = await loadExecutionOverview();

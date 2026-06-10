@@ -1,6 +1,8 @@
-import { CalendarShell } from "@/components/calendar/CalendarShell";
+﻿import { CalendarShell } from "@/components/calendar/CalendarShell";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { getDailyRoutineData } from "@/lib/supabase/queries/daily";
+
+export const dynamic = "force-dynamic";
 
 export default async function CalendarPage() {
   const dailyData = await getDailyRoutineData();

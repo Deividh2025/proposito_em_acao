@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getServerEnv } from "@/lib/config";
+import { getRuntimeEnvironmentStatus, getServerEnv } from "@/lib/config";
 import {
   hasEssentialSupabaseConfig,
   shouldFailClosedForMissingSupabase
@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 export function GET() {
   const env = getServerEnv();
   const runtimeMode = env.APP_RUNTIME_MODE;
+  const runtimeStatus = getRuntimeEnvironmentStatus(env);
   const hasSupabase = hasEssentialSupabaseConfig();
   const appUrlStatus = getReadinessAppUrlStatus(runtimeMode, env.NEXT_PUBLIC_APP_URL);
   const hasPublishedAppUrl = isReadinessAppUrlConfigured(appUrlStatus);
@@ -24,6 +25,7 @@ export function GET() {
           appUrl: appUrlStatus,
           supabase: hasSupabase ? "configured" : "missing-essential-config"
         },
+        missing: runtimeStatus.auth.missing,
         runtimeMode,
         service: "proposito-em-acao"
       },
@@ -37,6 +39,7 @@ export function GET() {
       appUrl: appUrlStatus,
       supabase: hasSupabase ? "configured" : "local-demo-not-configured"
     },
+    missing: runtimeStatus.auth.missing,
     runtimeMode,
     service: "proposito-em-acao",
     timestamp: new Date().toISOString()

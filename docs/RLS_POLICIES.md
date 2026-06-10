@@ -159,6 +159,7 @@ Nenhuma policy de Atalaia foi adicionada a Chamado completo, Metacognicao, revis
 - user B nao acessa check-ins de user A.
 - anonimo nao acessa `energy_checkins`.
 - Atalaia nao tem policy direta em `energy_checkins`, mesmo com grant ativo.
+- A migration `20260610020145_auth_foundation_runtime_grants.sql` alinha grant explicito para `authenticated` em `energy_checkins`, mantendo RLS/force RLS como barreira efetiva e removendo acesso `anon`.
 
 As acoes mobile que reutilizam Inbox, Habitos, Placar, Foco, Desbloqueador e Metacognicao herdam as policies owner-only desses modulos. Service worker e cache nao substituem RLS nem armazenam dados sensiveis.
 
@@ -196,6 +197,7 @@ Policies esperadas para as tabelas/colunas da etapa:
 - `product_analytics_events`: owner-only para leitura do proprio usuario; insert direto por cliente autenticado e anonimo fica revogado. Persistencia real deve passar por action server-side, sanitizacao/allowlist e client admin server-only.
 - `beta_feedback_items`: owner-only para leitura do proprio usuario; insert direto por cliente autenticado e anonimo fica revogado. Persistencia real deve passar por action server-side, aviso/consentimento, bloqueio de indicio sensivel e client admin server-only.
 - `account_deletion_requests`: dono pode criar/ler a propria solicitacao; atualizacao de status operacional deve ficar server-side/admin, sem expor `service_role` ao cliente.
+- A migration `20260610020145_auth_foundation_runtime_grants.sql` limita grants de `account_deletion_requests` a `select, insert` para `authenticated` e revoga `update/delete` de `anon, authenticated`; mudancas de status seguem server-side/admin.
 - Exportacao JSON nao e tabela: deve selecionar apenas linhas owner-only ou consultas server-side por usuario autenticado e redigir secrets/tokens/hashes antes de responder.
 - Prune de retencao deve ficar em `app_private`/operacao server-side com `search_path` fixo e mirar apenas `product_analytics_events`, `beta_feedback_items` e `ai_run_audits`.
 

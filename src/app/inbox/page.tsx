@@ -1,6 +1,8 @@
-import { InboxCapture } from "@/components/inbox/InboxCapture";
+﻿import { InboxCapture } from "@/components/inbox/InboxCapture";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { getDailyRoutineData } from "@/lib/supabase/queries/daily";
+
+export const dynamic = "force-dynamic";
 
 export default async function InboxPage() {
   const dailyData = await getDailyRoutineData();

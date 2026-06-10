@@ -1,5 +1,7 @@
-import { CommitmentDocumentBuilder } from "@/components/commitments/CommitmentDocumentBuilder";
+﻿import { CommitmentDocumentBuilder } from "@/components/commitments/CommitmentDocumentBuilder";
 import { PageHeader } from "@/components/layout/PageHeader";
+
+export const dynamic = "force-dynamic";
 
 export default function CommitmentsPage() {
   return (

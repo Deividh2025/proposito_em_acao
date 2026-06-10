@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   getAppRuntimeMode,
   getRealIntegrationFlags,
+  getRuntimeEnvironmentStatus,
   getServerEnv
 } from "@/lib/config/env";
 import {
@@ -46,6 +47,37 @@ describe("runtime environment contract", () => {
       EMAIL_REAL_ENABLED: false,
       FEEDBACK_REAL_ENABLED: false
     });
+  });
+
+  test("does not require Supabase/Auth config in local-demo readiness", () => {
+    vi.stubEnv("APP_RUNTIME_MODE", "local-demo");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "");
+
+    const status = getRuntimeEnvironmentStatus();
+
+    expect(status.auth.configured).toBe(true);
+    expect(status.auth.missing).toEqual([]);
+    expect(status.localDemoFallbackAllowed).toBe(true);
+  });
+
+  test("reports exact missing Auth env vars outside local-demo", () => {
+    vi.stubEnv("APP_RUNTIME_MODE", "preview");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://localhost:3000");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "");
+
+    const status = getRuntimeEnvironmentStatus();
+
+    expect(status.auth.configured).toBe(false);
+    expect(status.auth.missing).toEqual([
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+      "NEXT_PUBLIC_APP_URL"
+    ]);
   });
 });
 

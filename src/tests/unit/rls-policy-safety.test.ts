@@ -45,6 +45,13 @@ describe("RLS policy safety", () => {
     ),
     "utf8"
   );
+  const authFoundationRuntimeGrantsSql = readFileSync(
+    join(
+      migrationsPath,
+      migrationFileNames.find((fileName) => fileName.includes("auth_foundation_runtime_grants")) ?? ""
+    ),
+    "utf8"
+  );
   test("binds Atalaia access to the specific partner and grant rows", () => {
     expect(sql).toContain("partners.id = accountability_grants.accountability_partner_id");
     expect(sql).toContain("grants.id = accountability_notifications.accountability_grant_id");
@@ -203,6 +210,21 @@ describe("RLS policy safety", () => {
       /revoke insert, update, delete on public\.product_analytics_events, public\.beta_feedback_items from anon, authenticated/i
     );
     expect(privacyServerOnlySql).not.toMatch(/create policy[\s\S]*for insert\s+to authenticated/i);
+  });
+
+  test("aligns post-baseline runtime grants with RLS-protected tables", () => {
+    expect(authFoundationRuntimeGrantsSql).toMatch(
+      /grant select, insert, update, delete on public\.energy_checkins to authenticated/i
+    );
+    expect(authFoundationRuntimeGrantsSql).toMatch(
+      /grant select, insert on public\.account_deletion_requests to authenticated/i
+    );
+    expect(authFoundationRuntimeGrantsSql).toMatch(
+      /revoke update, delete on public\.account_deletion_requests from anon, authenticated/i
+    );
+    expect(authFoundationRuntimeGrantsSql).toMatch(
+      /revoke all on public\.energy_checkins, public\.account_deletion_requests from anon/i
+    );
   });
 
   test("keeps operational retention pruning private and service-role only", () => {

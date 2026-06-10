@@ -20,6 +20,8 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Auditoria transversal do PR #10 adiciona registro documental de gates locais/remotos, smoke local dedicado, tempos de rotas, scans de secrets/PWA/service role e status de merge preparatorio.
 - PR runner reliability adiciona teste estatico para os contratos dos runners Vitest, E2E local e smoke externo.
 - PR de IA adiciona `invokeAiWithPersistentConsentAndAudit` para carregar consentimentos persistidos por provider e gravar auditoria tecnica minima em `ai_run_audits`.
+- Fundacao Coolify/Supabase adiciona helper central de status de runtime para `local-demo`, `preview`, `beta` e `production`, com lista sanitizada de variaveis Auth ausentes.
+- Fundacao Coolify/Supabase adiciona migration local `20260610020145_auth_foundation_runtime_grants.sql` para alinhar grants de `energy_checkins` e `account_deletion_requests`.
 
 ### Changed
 
@@ -47,6 +49,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Auditoria de IA passa a ter caminho server-only/admin para persistir `ai_run_audits` com metadados minimos e sem prompt/resposta bruta; validacao remota segue pendente.
 - Etapa 5 proibe fallback automatico entre OpenAI e DeepSeek; falha usa fallback local seguro ou fluxo manual.
 - Auditoria transversal do PR #7 reforca que output de Atalaia nao pode incluir Metacognicao/contexto privado, que timeout aborta a chamada quando suportado e que fallback de crise nao reecoa pensamento/impulso bruto.
+- Auth real fora de `local-demo` passa a bloquear actions quando `NEXT_PUBLIC_APP_URL` nao e uma URL HTTPS publicada, evitando links de confirmacao ou recovery com URL local/http.
 
 - Etapa 6 mantem `EMAIL_REAL_ENABLED=false` e `EMAIL_DOMAIN_VERIFIED=false` por default, exige Resend server-side, remetente `notify.<dominio>` aprovado e bloqueia corpo sensivel nos templates de e-mail.
 - Webhook Resend valida assinatura Svix pelo corpo cru e grava apenas metadados redigidos de entrega.
@@ -63,6 +66,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 3 Subagente 5 detalha readiness documental de Auth/seguranca: SSR proxy/getClaims, falha fechada fora de `local-demo`, redirects seguros, Auth externo pendente sem URL HTTPS/SMTP/redirect real, typegen preview pendente e PWA/cache sem rotas Auth.
 - Etapa 5 sincroniza docs de IA, guardrails, evals, seguranca, ambiente, bug triage, release e beta com OpenAI/DeepSeek server-side ainda desativados para chamadas reais.
 - Auditoria transversal do PR #7 registra gates locais finais, performance local, console/pageerror check, riscos residuais e bloqueios de beta/release.
+- Runbook `docs/deploy-coolify-supabase.md` documenta o estado atual Coolify/Oracle/sslip.io em `local-demo`, variaveis futuras de Supabase e checklist para virar `preview` sem commitar secrets.
 
 - Etapa 6 sincroniza docs de e-mail, SMTP Auth Supabase, variaveis, seguranca, bug triage, beta e release com Resend preparado localmente e envio real ainda pendente de dominio/secrets/smoke.
 - Auditoria transversal do PR #8 sincroniza bug triage, bug fix log, security audit, smoke, release readiness e beta checklist; subagentes foram tentados, mas falharam por sessao expirada do conector.
@@ -78,6 +82,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 - Etapa 1 corrige Inbox para nao alterar estado local quando a action retorna `ok:false`.
 - Etapa 1 corrige validacao do calendario para retornar erro controlado em input invalido.
 - Etapa 1 remove `<main>` aninhado no shell mobile.
+- `/settings` deixa de lancar erro fatal quando Supabase/Auth esta ausente fora de `local-demo`; a pagina renderiza estado bloqueado e as actions retornam erro seguro.
 
 ### Security
 

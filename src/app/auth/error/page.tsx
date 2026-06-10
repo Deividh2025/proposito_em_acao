@@ -13,6 +13,11 @@ const errorMessages: Record<string, { title: string; description: string }> = {
     title: "Acesso indisponivel neste ambiente",
     description: "A configuracao de Auth precisa ser revisada antes de continuar com sessao real."
   },
+  "app-url": {
+    title: "URL publica obrigatoria ausente",
+    description:
+      "Em preview, beta ou producao, NEXT_PUBLIC_APP_URL precisa ser uma URL HTTPS publicada antes de usar Auth real."
+  },
   "invalid-link": {
     title: "Link nao confirmado",
     description: "Use o link mais recente enviado para o seu e-mail ou solicite uma nova etapa de acesso."

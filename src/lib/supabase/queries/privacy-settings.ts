@@ -21,7 +21,13 @@ import {
 } from "@/domain/privacy";
 import { prepareAnalyticsEventForPersistence } from "@/domain/analytics";
 import { prepareBetaFeedbackForPersistence, type BetaFeedbackInput } from "@/domain/feedback";
-import { getAppRuntimeMode, getRealIntegrationFlags, getServerEnv } from "@/lib/config";
+import {
+  formatMissingEnvVars,
+  getAppRuntimeMode,
+  getRealIntegrationFlags,
+  getRuntimeEnvironmentStatus,
+  getServerEnv
+} from "@/lib/config";
 import { hasEssentialSupabaseConfig } from "@/lib/supabase/guards";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -164,6 +170,24 @@ function blockedResult(message: string, reason: string): PrivacyActionResult {
   };
 }
 
+function buildBlockedSettingsSnapshot(message: string): SettingsSnapshot {
+  const env = getServerEnv();
+  const flags = getRealIntegrationFlags();
+
+  return {
+    ...buildLocalDemoSettingsSnapshot(),
+    isAuthenticated: false,
+    mode: "supabase",
+    runtime: {
+      aiRealEnabled: flags.ai,
+      analyticsRealEnabled: flags.analytics,
+      feedbackRealEnabled: flags.feedback,
+      runtimeMode: env.APP_RUNTIME_MODE
+    },
+    statusMessage: message
+  };
+}
+
 function createAdminClientOrNull() {
   try {
     return createSupabaseAdminClient();
@@ -178,7 +202,7 @@ async function ensureAuthenticatedSupabase() {
       return { mode: "local-demo" as const, supabase: null, user: null };
     }
 
-    throw new Error("Supabase/Auth configuration is required for this privacy action.");
+    return { blockedReason: "missing_config" as const, mode: "supabase" as const, supabase: null, user: null };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -210,7 +234,11 @@ export async function loadSettingsSnapshot(): Promise<SettingsSnapshot> {
       return buildLocalDemoSettingsSnapshot();
     }
 
-    throw new Error("Supabase/Auth configuration is required for settings.");
+    const status = getRuntimeEnvironmentStatus();
+
+    return buildBlockedSettingsSnapshot(
+      `Configuracoes reais indisponiveis neste ambiente. Variaveis ausentes: ${formatMissingEnvVars(status.supabase.missing)}.`
+    );
   }
 
   const supabase = await createSupabaseServerClient();
@@ -272,7 +300,11 @@ export async function saveUserSettings(preferences: UserSettingsPreferences): Pr
     return localDemoResult("Modo local-demo: preferencias validadas sem persistencia real.");
   }
 
-  if (!auth.user || !auth.supabase) {
+  if (!auth.supabase) {
+    return blockedResult("Supabase/Auth nao esta configurado para salvar configuracoes reais.", "missing_config");
+  }
+
+  if (!auth.user) {
     return blockedResult("Entre na sua conta para salvar configuracoes.", "missing_session");
   }
 
@@ -311,6 +343,10 @@ export async function grantPrivacyConsent(type: PrivacyConsentType): Promise<Pri
 
   if (auth.mode === "local-demo") {
     return localDemoResult("Modo local-demo: consentimento revisado sem persistencia real.");
+  }
+
+  if (!auth.supabase) {
+    return blockedResult("Supabase/Auth nao esta configurado para registrar consentimento real.", "missing_config");
   }
 
   if (!auth.user) {
@@ -366,6 +402,10 @@ export async function revokePrivacyConsent(type: PrivacyConsentType): Promise<Pr
     return localDemoResult("Modo local-demo: revogacao revisada sem persistencia real.");
   }
 
+  if (!auth.supabase) {
+    return blockedResult("Supabase/Auth nao esta configurado para revogar consentimento real.", "missing_config");
+  }
+
   if (!auth.user) {
     return blockedResult("Entre na sua conta para revogar consentimento.", "missing_session");
   }
@@ -405,7 +445,11 @@ export async function persistProductAnalyticsEvent(input: AnalyticsRecordInput):
     return localDemoResult("Analytics real esta desligado; nenhum evento foi persistido.");
   }
 
-  if (!auth.user || !auth.supabase) {
+  if (!auth.supabase) {
+    return blockedResult("Supabase/Auth nao esta configurado para persistir analytics real.", "missing_config");
+  }
+
+  if (!auth.user) {
     return blockedResult("Analytics bloqueado sem sessao autenticada.", "missing_session");
   }
 
@@ -458,7 +502,11 @@ export async function persistBetaFeedback(input: BetaFeedbackInput, noticeAccept
     return localDemoResult("Feedback real esta desligado; use o rascunho local/dev.");
   }
 
-  if (!auth.user || !auth.supabase) {
+  if (!auth.supabase) {
+    return blockedResult("Supabase/Auth nao esta configurado para persistir feedback real.", "missing_config");
+  }
+
+  if (!auth.user) {
     return blockedResult("Feedback bloqueado sem sessao autenticada.", "missing_session");
   }
 
@@ -537,7 +585,11 @@ export async function buildAuthenticatedUserDataExport(): Promise<ExportablePriv
     });
   }
 
-  if (!auth.user || !auth.supabase) {
+  if (!auth.supabase) {
+    throw new Error("Supabase/Auth configuration is required for export.");
+  }
+
+  if (!auth.user) {
     throw new Error("Authenticated user is required for export.");
   }
 
@@ -576,6 +628,10 @@ export async function createAccountDeletionRequest(): Promise<PrivacyActionResul
 
   if (auth.mode === "local-demo") {
     return localDemoResult("Modo local-demo: solicitacao de exclusao validada sem persistencia real.");
+  }
+
+  if (!auth.supabase) {
+    return blockedResult("Supabase/Auth nao esta configurado para solicitar exclusao real.", "missing_config");
   }
 
   if (!auth.user) {

@@ -133,8 +133,9 @@ Nao houve `db push`, lint remoto, typegen real ou harness dinamico contra previe
 ## Variaveis necessarias
 
 - `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` ou `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`, somente server-side quando fluxo admin aprovado exigir.
+- `SUPABASE_JWT_SECRET`, somente se etapa futura implementar validacao JWT server-side propria.
 - `SUPABASE_PROJECT_ID`
 
 `.env.example` deve continuar apenas com placeholders. Valores reais pertencem a `.env.local`, secrets do provedor de deploy ou cofre operacional.
@@ -150,3 +151,12 @@ Nao houve `db push`, lint remoto, typegen real ou harness dinamico contra previe
 7. Configurar redirects de Auth no dashboard.
 8. Revisar backups antes de producao.
 9. Registrar resultado em `docs/SMOKE_TEST_REPORT.md` e `docs/RLS_TEST_REPORT.md`.
+
+## Auth foundation runtime grants
+
+A migration local `20260610020145_auth_foundation_runtime_grants.sql` alinha grants para tabelas criadas depois do baseline inicial:
+
+- `energy_checkins`: `select, insert, update, delete` para `authenticated`, sem acesso `anon`, com RLS owner-only ja existente.
+- `account_deletion_requests`: `select, insert` para `authenticated`; `update/delete` revogados de `anon, authenticated`, mantendo status operacional server-side/admin.
+
+Essa migration ainda nao foi aplicada nem validada em preview remoto nesta etapa.

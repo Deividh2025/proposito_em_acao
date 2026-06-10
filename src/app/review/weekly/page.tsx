@@ -1,5 +1,7 @@
-import { PageHeader } from "@/components/layout/PageHeader";
+﻿import { PageHeader } from "@/components/layout/PageHeader";
 import { WeeklyReviewForm } from "@/components/review/WeeklyReviewForm";
+
+export const dynamic = "force-dynamic";
 
 export default function WeeklyReviewPage() {
   return (

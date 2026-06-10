@@ -1,5 +1,7 @@
-import { PageHeader } from "@/components/layout/PageHeader";
+﻿import { PageHeader } from "@/components/layout/PageHeader";
 import { TaskBreakdownForm } from "@/components/tasks/TaskBreakdownForm";
+
+export const dynamic = "force-dynamic";
 
 export default function NewTaskPage() {
   return (

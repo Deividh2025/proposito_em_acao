@@ -1,5 +1,7 @@
-import { PageHeader } from "@/components/layout/PageHeader";
+﻿import { PageHeader } from "@/components/layout/PageHeader";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
+
+export const dynamic = "force-dynamic";
 
 export default function OnboardingPage() {
   return (

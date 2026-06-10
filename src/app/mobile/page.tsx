@@ -1,4 +1,6 @@
-import Link from "next/link";
+﻿import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 import { persistPreparedBetaFeedbackAction } from "@/app/settings/actions";
 import { FeedbackButton } from "@/components/feedback/FeedbackButton";

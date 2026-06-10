@@ -1,5 +1,7 @@
-import { MobileShell } from "@/components/mobile/MobileShell";
+﻿import { MobileShell } from "@/components/mobile/MobileShell";
 import { MobileUnblockerQuick } from "@/components/mobile/MobileUnblockerQuick";
+
+export const dynamic = "force-dynamic";
 
 export default function MobileUnblockPage() {
   return (

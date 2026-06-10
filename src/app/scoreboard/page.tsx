@@ -1,6 +1,8 @@
-import { PageHeader } from "@/components/layout/PageHeader";
+﻿import { PageHeader } from "@/components/layout/PageHeader";
 import { ScoreboardCard } from "@/components/scoreboard/ScoreboardCard";
 import { getDailyRoutineData } from "@/lib/supabase/queries/daily";
+
+export const dynamic = "force-dynamic";
 
 export default async function ScoreboardPage() {
   const dailyData = await getDailyRoutineData();

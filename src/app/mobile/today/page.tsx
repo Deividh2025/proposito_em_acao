@@ -1,5 +1,7 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Inbox, Leaf, ListRestart, TimerReset, Zap } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 import { MobileShell } from "@/components/mobile/MobileShell";
 import { getAuthenticatedDataContext } from "@/lib/supabase/queries/authenticated-data";

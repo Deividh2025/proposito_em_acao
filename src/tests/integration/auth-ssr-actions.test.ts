@@ -125,6 +125,16 @@ describe("Auth SSR action contracts", () => {
     });
   });
 
+  test("blocks real Auth outside local-demo when app URL is not published HTTPS", async () => {
+    vi.stubEnv("APP_RUNTIME_MODE", "preview");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://preview.example.test");
+    const { submitAuthAction } = await import("@/app/auth/actions");
+
+    await expectRedirect(() => submitAuthAction(authForm()), "/auth/error?status=app-url");
+    expect(supabaseMock.auth.signInWithPassword).not.toHaveBeenCalled();
+    expect(supabaseMock.auth.signUp).not.toHaveBeenCalled();
+  });
+
   test("allows only same-origin next paths after successful login", async () => {
     const { submitAuthAction } = await import("@/app/auth/actions");
 

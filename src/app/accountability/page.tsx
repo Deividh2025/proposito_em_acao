@@ -1,4 +1,6 @@
-import Link from "next/link";
+﻿import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 import { AccountabilityGrantCard } from "@/components/accountability/AccountabilityGrantCard";
 import { PartnerLimitedPanel } from "@/components/accountability/PartnerLimitedPanel";

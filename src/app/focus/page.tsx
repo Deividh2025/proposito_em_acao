@@ -1,6 +1,8 @@
-import { FocusSessionShell } from "@/components/focus/FocusSessionShell";
+﻿import { FocusSessionShell } from "@/components/focus/FocusSessionShell";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { getFocusSetupData } from "@/lib/supabase/queries/daily";
+
+export const dynamic = "force-dynamic";
 
 type FocusPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;

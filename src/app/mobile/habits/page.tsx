@@ -1,4 +1,6 @@
-import Link from "next/link";
+﻿import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 import { MobileHabitCheck } from "@/components/mobile/MobileHabitCheck";
 import { MobileShell } from "@/components/mobile/MobileShell";

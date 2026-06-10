@@ -3,25 +3,32 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-import { getServerEnv } from "@/lib/config";
+import {
+  formatMissingEnvVars,
+  getMissingSupabasePublicEnvVars,
+  getServerEnv,
+  getSupabasePublicKey
+} from "@/lib/config";
 import type { Database } from "@/types/database";
 
 export async function createSupabaseServerClient() {
   const env = getServerEnv();
-  const supabasePublicKey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabasePublicKey = getSupabasePublicKey(env);
+  const missing = getMissingSupabasePublicEnvVars(env);
 
-  if (!env.NEXT_PUBLIC_SUPABASE_URL || !supabasePublicKey) {
+  if (missing.length > 0 || !supabaseUrl || !supabasePublicKey) {
     if (env.APP_RUNTIME_MODE === "local-demo") {
-      throw new Error("Supabase public environment variables are not configured for local demo.");
+      throw new Error(`Supabase public environment variables are not configured for local demo: ${formatMissingEnvVars(missing)}.`);
     }
 
-    throw new Error("Supabase Auth is required but public environment variables are not configured.");
+    throw new Error(`Supabase Auth is required but these public environment variables are missing: ${formatMissingEnvVars(missing)}.`);
   }
 
   const cookieStore = await cookies();
 
   return createServerClient<Database>(
-    env.NEXT_PUBLIC_SUPABASE_URL,
+    supabaseUrl,
     supabasePublicKey,
     {
       cookies: {

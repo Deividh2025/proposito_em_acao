@@ -1,5 +1,7 @@
-import { MetacognitionForm } from "@/components/metacognition/MetacognitionForm";
+﻿import { MetacognitionForm } from "@/components/metacognition/MetacognitionForm";
 import { PageHeader } from "@/components/layout/PageHeader";
+
+export const dynamic = "force-dynamic";
 
 export default function MetacognitionPage() {
   return (

@@ -1,5 +1,7 @@
-import { PageHeader } from "@/components/layout/PageHeader";
+﻿import { PageHeader } from "@/components/layout/PageHeader";
 import { GoalForm } from "@/components/goals/GoalForm";
+
+export const dynamic = "force-dynamic";
 
 export default function NewGoalPage() {
   return (

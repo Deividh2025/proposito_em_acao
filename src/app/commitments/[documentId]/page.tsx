@@ -1,9 +1,11 @@
-import { CommitmentDocumentPreview } from "@/components/commitments/CommitmentDocumentPreview";
+﻿import { CommitmentDocumentPreview } from "@/components/commitments/CommitmentDocumentPreview";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
 import { getAuthenticatedDataContext } from "@/lib/supabase/queries/authenticated-data";
 import { getCommitmentDocumentDetail } from "@/lib/supabase/queries/commitments";
+
+export const dynamic = "force-dynamic";
 
 type CommitmentDetailPageProps = {
   params: Promise<{ documentId: string }>;

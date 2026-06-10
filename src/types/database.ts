@@ -1,9 +1,12 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
+// Placeholder until `npm.cmd run supabase:types:preview` is executed against an
+// approved preview branch. Keep it loose so runtime code can compile without
+// pretending these are generated schema-accurate types.
 export type DatabaseTable = {
-  Row: Record<string, Json | undefined>;
-  Insert: Record<string, Json | undefined>;
-  Update: Record<string, Json | undefined>;
+  Row: Record<string, unknown>;
+  Insert: Record<string, unknown>;
+  Update: Record<string, unknown>;
   Relationships: Array<{
     foreignKeyName: string;
     columns: string[];

@@ -1,5 +1,7 @@
-import { FocusSessionShell } from "@/components/focus/FocusSessionShell";
+﻿import { FocusSessionShell } from "@/components/focus/FocusSessionShell";
 import { PageHeader } from "@/components/layout/PageHeader";
+
+export const dynamic = "force-dynamic";
 
 type FocusSessionPageProps = {
   params: Promise<{ sessionId: string }>;

@@ -1,8 +1,10 @@
-import { HabitForm } from "@/components/habits/HabitForm";
+﻿import { HabitForm } from "@/components/habits/HabitForm";
 import { HabitList } from "@/components/habits/HabitList";
 import { HabitRestartPrompt } from "@/components/habits/HabitRestartPrompt";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { getDailyRoutineData } from "@/lib/supabase/queries/daily";
+
+export const dynamic = "force-dynamic";
 
 export default async function HabitsPage() {
   const dailyData = await getDailyRoutineData();

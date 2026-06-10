@@ -1,10 +1,12 @@
-import { AccountabilityGrantCard } from "@/components/accountability/AccountabilityGrantCard";
+﻿import { AccountabilityGrantCard } from "@/components/accountability/AccountabilityGrantCard";
 import { PartnerLimitedPanel } from "@/components/accountability/PartnerLimitedPanel";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
 import { getAccountabilityGrantDetail } from "@/lib/supabase/queries/accountability";
 import { getAuthenticatedDataContext } from "@/lib/supabase/queries/authenticated-data";
+
+export const dynamic = "force-dynamic";
 
 type AccountabilityGrantPageProps = {
   params: Promise<{ grantId: string }>;

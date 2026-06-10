@@ -1,6 +1,8 @@
-import { MetacognitionHistoryList } from "@/components/metacognition/MetacognitionHistoryList";
+﻿import { MetacognitionHistoryList } from "@/components/metacognition/MetacognitionHistoryList";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SensitiveDataNotice } from "@/components/ui/SensitiveDataNotice";
+
+export const dynamic = "force-dynamic";
 
 export default function MetacognitionHistoryPage() {
   return (

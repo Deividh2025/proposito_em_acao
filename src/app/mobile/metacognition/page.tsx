@@ -1,5 +1,7 @@
-import { MobileMetacognitionQuick } from "@/components/mobile/MobileMetacognitionQuick";
+﻿import { MobileMetacognitionQuick } from "@/components/mobile/MobileMetacognitionQuick";
 import { MobileShell } from "@/components/mobile/MobileShell";
+
+export const dynamic = "force-dynamic";
 
 export default function MobileMetacognitionPage() {
   return (

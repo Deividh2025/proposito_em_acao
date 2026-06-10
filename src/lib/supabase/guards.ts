@@ -1,7 +1,12 @@
 import "server-only";
 
 import type { User } from "@supabase/supabase-js";
-import { getAppRuntimeMode, getPublicEnv } from "@/lib/config";
+import {
+  formatMissingEnvVars,
+  getAppRuntimeMode,
+  getMissingSupabasePublicEnvVars,
+  getPublicEnv
+} from "@/lib/config";
 
 export function assertServerOnlySupabasePath() {
   if (typeof window !== "undefined") {
@@ -28,15 +33,14 @@ export function assertOwnUserId(user: User, userId: string) {
 export function hasEssentialSupabaseConfig() {
   const env = getPublicEnv();
 
-  return Boolean(
-    env.NEXT_PUBLIC_SUPABASE_URL &&
-      (env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
-  );
+  return getMissingSupabasePublicEnvVars(env).length === 0;
 }
 
 export function requireEssentialSupabaseConfig() {
-  if (!hasEssentialSupabaseConfig()) {
-    throw new Error("Supabase public environment variables are required.");
+  const missing = getMissingSupabasePublicEnvVars(getPublicEnv());
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required Supabase environment variables: ${formatMissingEnvVars(missing)}.`);
   }
 }
 

@@ -7,6 +7,7 @@ import {
 import {
   buildCalendarWeekModel,
   detectScheduleOverload,
+  formatCalendarTimeLabel,
   getNextCalendarAction,
   rescheduleCalendarBlock,
   sampleCalendarBlocks
@@ -61,6 +62,11 @@ describe("calendar execution domain", () => {
     expect(rescheduled.startTime).toBe("2026-06-02T10:00:00-03:00");
     expect(rescheduled.status).toBe("scheduled");
     expect(getNextCalendarAction([rescheduled])?.title).toContain("Organizar");
+  });
+
+  test("formats calendar block times with a stable Sao Paulo timezone", () => {
+    expect(formatCalendarTimeLabel("2026-06-01T12:00:00Z")).toBe("09:00");
+    expect(formatCalendarTimeLabel("2026-06-01T09:00:00-03:00")).toBe("09:00");
   });
 });
 

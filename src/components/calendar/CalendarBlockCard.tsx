@@ -2,7 +2,12 @@
 
 import { CheckCircle2, RotateCcw, XCircle } from "lucide-react";
 
-import { completeCalendarBlock, getCalendarBlockDurationMinutes, rescheduleCalendarBlock } from "@/domain/calendar";
+import {
+  completeCalendarBlock,
+  formatCalendarTimeLabel,
+  getCalendarBlockDurationMinutes,
+  rescheduleCalendarBlock
+} from "@/domain/calendar";
 import type { CalendarBlock } from "@/domain/calendar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -29,11 +34,6 @@ const typeLabels: Record<CalendarBlock["type"], string> = {
   appointment: "Compromisso",
   buffer: "Buffer"
 };
-
-function timeLabel(value: string) {
-  const date = new Date(value);
-  return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-}
 
 export function CalendarBlockCard({ block, onCancel, onChange }: CalendarBlockCardProps) {
   const duration = getCalendarBlockDurationMinutes(block);
@@ -68,7 +68,7 @@ export function CalendarBlockCard({ block, onCancel, onChange }: CalendarBlockCa
         <Tag>{duration} min</Tag>
       </div>
       <p className="mt-2 text-sm leading-6 text-ink-600">
-        {timeLabel(block.startTime)} - {timeLabel(block.endTime)}
+        {formatCalendarTimeLabel(block.startTime)} - {formatCalendarTimeLabel(block.endTime)}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         {block.energyLevel ? <Tag>energia {block.energyLevel}</Tag> : null}

@@ -105,6 +105,15 @@ export function getCalendarBlockDurationMinutes(block: CalendarBlock) {
   return durationMinutes(block);
 }
 
+export function formatCalendarTimeLabel(value: string, timeZone = "America/Sao_Paulo") {
+  return new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone
+  }).format(new Date(value));
+}
+
 export function buildCalendarWeekModel(blocks: CalendarBlock[], weekStart: string): CalendarWeekModel {
   const start = normalizeDateInput(weekStart);
   const days: CalendarDayModel[] = Array.from({ length: 7 }, (_, index) => {

@@ -1,36 +1,26 @@
 import type { NextConfig } from "next";
 
-const scriptSrc =
-  process.env.NODE_ENV === "production"
-    ? "script-src 'self' 'unsafe-inline'"
-    : "script-src 'self' 'unsafe-inline' 'unsafe-eval'";
+import { buildStaticContentSecurityPolicy } from "./src/lib/security/csp";
 
-const securityHeaders = [
+// The per-request Content-Security-Policy (with a nonce and without
+// 'unsafe-inline' in production) is emitted by the Auth proxy in
+// src/lib/supabase/proxy.ts for every routed document. The static CSP below
+// only covers asset responses that bypass the proxy (e.g. /sw.js,
+// /manifest.json), which never execute inline scripts.
+const baseSecurityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), xr-spatial-tracking=()"
-  },
-  {
-    key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      "base-uri 'self'",
-      "frame-ancestors 'none'",
-      "object-src 'none'",
-      "form-action 'self'",
-      "img-src 'self' data: blob: https://*.supabase.co",
-      "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co",
-      scriptSrc,
-      "style-src 'self' 'unsafe-inline'",
-      "worker-src 'self'",
-      "manifest-src 'self'"
-    ].join("; ")
   }
 ];
+
+const staticCspHeader = {
+  key: "Content-Security-Policy",
+  value: buildStaticContentSecurityPolicy()
+};
 
 const productionOnlySecurityHeaders =
   process.env.NODE_ENV === "production"
@@ -43,18 +33,19 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/:path*",
-        headers: [...securityHeaders, ...productionOnlySecurityHeaders]
+        headers: [...baseSecurityHeaders, ...productionOnlySecurityHeaders]
       },
       {
         source: "/sw.js",
         headers: [
+          staticCspHeader,
           { key: "Content-Type", value: "application/javascript; charset=utf-8" },
           { key: "Cache-Control", value: "no-store, no-cache, must-revalidate" }
         ]
       },
       {
         source: "/manifest.json",
-        headers: [{ key: "Cache-Control", value: "public, max-age=3600, must-revalidate" }]
+        headers: [staticCspHeader, { key: "Cache-Control", value: "public, max-age=3600, must-revalidate" }]
       }
     ];
   },

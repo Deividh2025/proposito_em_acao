@@ -43,6 +43,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 ### Security
 
+- Cutover do Supabase concluido em 2026-06-15: schema completo aplicado na nuvem (`bceumcfmjftoukzrfthe`, sa-east-1, Postgres 17) com 38 tabelas, RLS forcado em todas as 38, 134 policies e advisors de seguranca limpos; evidencia ao vivo registrada em `docs/RLS_LIVE_EVIDENCE.md`.
 - Healthcheck de liveness retorna apenas metadados sanitizados e nao consulta nem expoe Supabase, Auth, IA, e-mail ou variaveis de ambiente sensiveis.
 - Etapa 2 remove policies diretas de update do convidado no aceite do Atalaia e concentra ativacao/revogacao em action server-side auditavel.
 - Nenhuma migration remota foi aplicada no Supabase principal; validacao preview da Etapa 2 segue pendente.
@@ -62,6 +63,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 
 ### Docs
 
+- Adiciona artefatos da avaliacao externa: `docs/EXTERNAL_REVIEW_ACTION_PLAN.md` (plano de cutover/CI-CD/caminho para beta), `docs/RLS_LIVE_EVIDENCE.md` (evidencia ao vivo do cutover 2026-06-15) e `.github/pull_request_template.md` (espelha `docs/PR_CHECKLIST.md`).
 - Sincroniza fontes de verdade para o estado V1 local ampla / pre-beta real em 2026-06-03.
 - Registra decisoes atuais: Hostinger VPS KVM 1 com gate de upgrade, dominio Hostinger pendente, Supabase principal apos cutover validado, IA selecionavel `automatic`/`openai`/`deepseek`, consentimento por provider, sem fallback automatico entre providers, Resend transacional/SMTP Auth, analytics first-party Supabase opt-in off e retencao de 90 dias.
 - Formaliza bloqueadores de beta real: Auth externo ainda sem URL HTTPS/smoke, tipos Supabase genericos, Atalaia/consentimento/auditoria remotos, escrita sem confirmacao, readiness externo, CSP permissiva, ausencia de CI/branch protection/releases, Docker/rollback nao ensaiados e dados demonstrativos em rotas principais.

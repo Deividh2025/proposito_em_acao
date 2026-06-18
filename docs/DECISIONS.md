@@ -112,9 +112,9 @@ Registro das decisoes de produto, arquitetura e governanca.
 Estas decisoes substituem perguntas antigas quando houver conflito. O fato de estarem decididas nao significa que estejam implementadas ou validadas.
 
 - Estado do produto: V1 local ampla / pre-beta real. O proximo objetivo e beta real fechado, nao producao aberta.
-- Dominio e VPS serao adquiridos na Hostinger.
-- A VPS inicial escolhida e Hostinger KVM 1, com gate obrigatorio para upgrade se nao suportar a aplicacao com estabilidade, build, runtime, HTTPS, logs e rollback.
-- O dominio exato ainda nao foi definido e permanece gate manual antes de deploy publicado.
+- **Dominio adquirido em 2026-06-18: `proposito-em-acao.app.br` (Registro.br).** URL de producao: `https://proposito-em-acao.app.br`.
+- **Plataforma de deploy: Oracle Cloud VPS com Coolify (ja operacional). Hostinger descartada como decisao principal.**
+- Dominio exato: gate concluido. `proposito-em-acao.app.br` e o dominio final aprovado.
 - O backend do beta usara o projeto Supabase principal somente depois de cutover validado, evidencia fresca de Auth/RLS e aprovacao explicita.
 - GitHub remoto atual: `origin` em `https://github.com/Deividh2025/proposito_em_acao.git`, branch principal `main`. Em 2026-06-03, a API retornou repositorio privado, `main` sem protecao efetiva, zero workflows e sem releases publicadas.
 - Selecionador de IA planejado em configuracoes: `automatic`, `openai` ou `deepseek`; padrao `automatic`.
@@ -137,7 +137,8 @@ Estas decisoes substituem perguntas antigas quando houver conflito. O fato de es
 - Modelo comercial.
 - Materiais proprios para base de conhecimento da IA.
 - Definir dominio exato de preview/producao na Hostinger antes de deploy publicado.
-- Aplicacao das migrations anteriores ao Prompt 14 no projeto Supabase remoto e execucao dos testes RLS completos.
+- Aplicacao das migrations anteriores ao Prompt 14 no projeto Supabase remoto: **CONCLUIDA em 2026-06-15** via cutover com evidencia ao vivo em `docs/RLS_LIVE_EVIDENCE.md` (38 tabelas, RLS 100%, 134 policies).
+- Executar smoke tests em URL `https://proposito-em-acao.app.br` apos DNS + HTTPS configurados no Coolify.
 - Escopo avancado do Atalaia em V1.1/V2.
 - Validacao visual aprofundada com screenshots comparativos quando houver telas finais.
 - Consentimento versionado, retencao, exportacao e exclusao antes de coleta produtiva de dados de onboarding.

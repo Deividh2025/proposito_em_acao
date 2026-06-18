@@ -44,6 +44,7 @@ Formato baseado em Keep a Changelog, com secoes `Added`, `Changed`, `Fixed`, `Se
 ### Security
 
 - Content-Security-Policy passa a ser servida com nonce por request pelo proxy de Auth (`src/lib/supabase/proxy.ts`), removendo `'unsafe-inline'` de `script-src` em producao (`'nonce-<valor>' 'strict-dynamic'`); o desenvolvimento mantem `'unsafe-inline'`/`'unsafe-eval'` para HMR/React Refresh. `next.config.ts` mantem apenas a CSP estatica dos assets fora do proxy (`/sw.js`, `/manifest.json`). Resolve o risco residual de CSP `unsafe-inline` em script-src.
+- Follow-up de performance RLS aplicado no Supabase principal (`bceumcfmjftoukzrfthe`) envolve `auth.jwt()` em `(select auth.jwt())` na policy `accountability_partners_invitee_select_pending` e adiciona 49 indices de cobertura para FKs compostas sinalizadas pelo Performance Advisor; `auth_rls_initplan` foi resolvido e `unindexed_foreign_keys` caiu de 53 para 4 FKs simples fora do escopo.
 - Cutover do Supabase concluido em 2026-06-15: schema completo aplicado na nuvem (`bceumcfmjftoukzrfthe`, sa-east-1, Postgres 17) com 38 tabelas, RLS forcado em todas as 38, 134 policies e advisors de seguranca limpos; evidencia ao vivo registrada em `docs/RLS_LIVE_EVIDENCE.md`.
 - Healthcheck de liveness retorna apenas metadados sanitizados e nao consulta nem expoe Supabase, Auth, IA, e-mail ou variaveis de ambiente sensiveis.
 - Etapa 2 remove policies diretas de update do convidado no aceite do Atalaia e concentra ativacao/revogacao em action server-side auditavel.

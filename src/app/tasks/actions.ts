@@ -134,6 +134,8 @@ export async function persistTaskBreakdown(input: unknown): Promise<ExecutionAct
     );
   }
 
+  const taskId = parsed.taskId;
+
   try {
     const supabase = await createSupabaseServerClient();
     const {
@@ -149,7 +151,7 @@ export async function persistTaskBreakdown(input: unknown): Promise<ExecutionAct
 
     const rows = parsed.output.microtasks.map((microtask) => ({
       user_id: user.id,
-      task_id: parsed.taskId,
+      task_id: taskId,
       title: microtask.title,
       position: microtask.order,
       estimated_minutes: microtask.estimated_minutes,
@@ -165,7 +167,7 @@ export async function persistTaskBreakdown(input: unknown): Promise<ExecutionAct
     return supabaseSuccessResult(
       executionActionResultSchema,
       "Microtarefas salvas no Supabase com FK composta e RLS owner-only.",
-      parsed.taskId
+      taskId
     );
   } catch {
     return persistenceCatchResult(

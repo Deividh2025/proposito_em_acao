@@ -98,6 +98,10 @@ const accountabilityExportTables = [
   "commitment_levers"
 ] as const;
 
+type ModuleExportTableName = (typeof moduleExportTables)[number];
+type AccountabilityExportTableName = (typeof accountabilityExportTables)[number];
+type OwnerExportTableName = ModuleExportTableName | AccountabilityExportTableName | "beta_feedback_items";
+
 function stringOrNull(value: unknown) {
   return typeof value === "string" ? value : null;
 }
@@ -560,7 +564,7 @@ export async function persistBetaFeedback(input: BetaFeedbackInput, noticeAccept
   };
 }
 
-async function selectOwnerRows(supabase: TypedSupabaseClient, table: string, userId: string) {
+async function selectOwnerRows(supabase: TypedSupabaseClient, table: OwnerExportTableName, userId: string) {
   const { data, error } = await supabase.from(table).select("*").eq("user_id", userId);
 
   if (error || !Array.isArray(data)) {

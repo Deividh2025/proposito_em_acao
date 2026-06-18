@@ -92,3 +92,35 @@ Backend persistido aplicado em producao, com RLS habilitado e forcado em todas a
 1. Envolver `auth.<func>()` em `(select ...)` na policy `accountability_partners_invitee_select_pending` (e revisar padrao nas demais).
 2. Avaliar indices de cobertura para as FKs compostas mais consultadas, quando os padroes de query reais existirem.
 3. Consolidar policies permissivas multiplas de SELECT nas tabelas de accountability, se a performance pedir em escala.
+
+## Addendum - Follow-up RLS/performance
+
+Data: 2026-06-18. Projeto Supabase: `proposito_em_acao` (`bceumcfmjftoukzrfthe`, sa-east-1, Postgres 17.6).
+
+Migration versionada no repo: `supabase/migrations/20260618140641_rls_perf_followups.sql`.
+
+Escopo aplicado:
+
+- `accountability_partners_invitee_select_pending` passou a usar `(select auth.jwt()) ->> 'email'`, removendo a reavaliacao direta de `auth.jwt()` por linha apontada pelo advisor `auth_rls_initplan`.
+- Revisao remota de `pg_policies` confirmou que nao havia outro uso direto de `auth.jwt()`, `auth.role()` ou `auth.email()` nas policies; os demais usos de `auth.uid()` ja apareciam como `SELECT auth.uid()`.
+- 49 indices `idx_fk_*` foram criados para cobrir todas as FKs compostas (`*_id, user_id`) sinalizadas pelo Performance Advisor.
+
+Aplicacao remota:
+
+- `supabase db push --linked --dry-run` foi tentado, mas a CLI retornou falta de `SUPABASE_DB_PASSWORD` no processo (`failed SASL auth` / `Set SUPABASE_DB_PASSWORD`).
+- A migration foi aplicada pelo conector Supabase (`apply_migration`) no projeto linkado, com sucesso, e o historico remoto registrou `20260618140641 | 20260618140251_rls_perf_followups`.
+- `supabase migration list --linked` confirmou paridade local/remota apos alinhar o arquivo local para `20260618140641`.
+
+Evidencia de advisors apos aplicacao:
+
+| Advisor | Antes | Depois | Observacao |
+| --- | ---: | ---: | --- |
+| `auth_rls_initplan` | 1 | 0 | Resolvido para `accountability_partners_invitee_select_pending`. |
+| `unindexed_foreign_keys` | 53 | 4 | Restaram apenas FKs simples: `commitment_levers_user_id_fkey`, `discipline_scoreboards_user_id_fkey`, `focus_distractions_user_id_fkey`, `life_map_area_scores_user_id_fkey`. |
+| `multiple_permissive_policies` | 5 | 5 | Mantido por design (owner + parceiro autorizado). |
+| `auth_db_connections_absolute` | 1 | 1 | Ajuste operacional de Auth fora do escopo da migration. |
+| `unused_index` | 56 | 105 | Esperado apos criar 49 indices em banco sem workload suficiente; reavaliar com trafego real. |
+
+Security advisor: sem issues em `info+`.
+
+Conclusao: os advisors melhoraram nos dois pontos acionaveis desta follow-up (`auth_rls_initplan` e FKs compostas). As pendencias restantes sao FKs simples, policies permissivas multiplas intencionais, configuracao operacional de Auth e `unused_index` esperado para indices novos/sem trafego.

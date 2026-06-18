@@ -101,7 +101,6 @@ Subagentes de auditoria foram tentados para cinco recortes, mas todos falharam p
 | ID | Sev | Dominio | Titulo | Evidencia | Proximo passo | Criterio de fechamento |
 |---|---|---|---|---|---|---|
 | AUTH-SSR-001 | S1 | Auth | Auth SSR local implementado, externo nao validado | Fundacao local existe; PR de hardening moveu proxy para `src/proxy.ts`, protegeu `/onboarding` e manteve health/ready publicos ate o handler, mas nao houve URL HTTPS, Site URL/Redirect URLs Supabase, SMTP/Resend nem smoke externo de cookies reais | Publicar preview aprovado, configurar redirects Auth e validar fluxo real completo | Smoke Auth em URL HTTPS cobre signup, confirmacao, login, rota protegida, logout, recovery, redirects seguros e refresh/getClaims |
-| DB-TYPES-001 | S1 | Supabase | Tipos de banco continuam genericos | `src/types/database.ts` usa `Record<string, ...>` | Gerar tipos reais apos cutover preview aprovado | Diff de tipos reais revisado e typecheck passa com schema concreto |
 | OPS-HEALTH-001 | S1 | Operacao | Readiness externo nao validado | `/api/ready` existe localmente e valida Supabase/Auth essencial mais URL HTTPS publicada fora de `local-demo`, mas ainda nao foi validado em preview/deploy aprovado | Rodar smoke externo em URL HTTPS e confirmar falha fechada quando config essencial faltar | Smoke externo usa endpoint que detecta Supabase/Auth/config/app URL ausente |
 | OPS-GH-001 | S1 | GitHub/release | CI/branch protection/release ainda nao efetivos para beta | Workflow local pode estar preparado, mas ainda faltam branch protection efetiva ou governanca equivalente, checks remotos obrigatorios, releases/tags e deployment anterior referenciavel | Validar workflow remoto, exigir gates, criar tags/release process ou registrar limitacao operacional aceita | PR/release exige CI verde obrigatorio e rollback referenciavel |
 | OPS-DOCKER-001 | S1 | Deploy | Docker/rollback nao ensaiados | Dockerfile pode estar preparado com healthcheck, mas `docker build -t proposito-em-acao:codex-preview .` falhou porque o daemon `dockerDesktopLinuxEngine` nao estava disponivel; imagem, container e rollback Coolify ainda nao foram validados em VPS; sem releases/deployments publicados | Validar build da imagem, healthcheck em container real e rollback Coolify | Smoke de container e rollback rehearsal documentados |
@@ -114,7 +113,6 @@ Subagentes de auditoria foram tentados para cinco recortes, mas todos falharam p
 | AI-RATE-PERSIST-001 | S2 | IA/custos | Limite diario de IA ainda depende de contador externo | `AI_DAILY_USER_LIMIT` e `checkAiDailyLimit` bloqueiam chamada quando `usedToday` e informado, mas ainda nao ha contador persistido por usuario | Implementar contador diario server-side antes de ativar IA real | Teste de integracao prova bloqueio por usuario/dia sem chamada externa |
 | AI-READY-001 | S2 | Operacao/IA | `/api/ready` ainda nao valida provider real quando IA for ativada | Readiness local cobre app/Supabase/Auth, mas nao valida chaves/modelos OpenAI/DeepSeek sob `AI_REAL_ENABLED=true` | Expandir readiness ou smoke operacional de IA real em ambiente isolado | Preview com IA real falha fechado quando provider/model/API key obrigatorio faltar |
 | FEEDBACK-REAL-001 | S2 | Feedback/LGPD | Reduzido localmente; feedback externo ainda pendente | Etapa 7 prepara feedback first-party somente com aviso, `beta_feedback_v1`, envio explicito e bloqueio de indicio sensivel; PR de hardening moveu insert para action server-side/admin e migration aditiva revoga insert direto de anon/autenticado; canal externo segue sem aprovacao | Validar persistencia/RLS em preview aprovado e aprovar canal externo se houver | Feedback real nao salva sem opt-in/aviso, nao persiste indicio sensivel, insert direto por cliente falha e nao envia a ferramenta externa sem politica aprovada |
-| UX-BOUNDARY-001 | S2 | UX/operacao | Rotas App Router ainda nao possuem boundary global de erro/loading | Componentes `ErrorState`/`LoadingState` existem, mas nao ha `src/app/error.tsx`/`loading.tsx` globais | Adicionar boundaries com copy segura e sem vazamento tecnico | Falha de query/action renderiza estado controlado sem stack/overlay |
 | PWA-AUTH-CACHE-001 | S2 | PWA/Auth | Cache PWA precisa de prova negativa para Auth | Docs exigem cache apenas de assets seguros, mas smoke publicado ainda nao provou que `/auth`, callbacks, recovery, APIs autenticadas, server actions e payloads privados ficam fora do cache | Validar service worker em HTTPS e adicionar smoke/regressao quando houver preview | Evidencia mostra que rotas Auth e respostas privadas nao entram em CacheStorage/offline |
 
 ## Regras de fechamento
@@ -184,6 +182,15 @@ Subagentes: cinco frentes foram solicitadas, mas todas falharam por erro externo
 | `SEC-CSP-001` | Mantido como S2 | `next.config.ts` ainda permite `unsafe-inline` em `script-src` e `style-src`; `unsafe-eval` permanece restrito a ambiente nao produtivo. |
 | `PWA-AUTH-CACHE-001` | Reduzido localmente, ainda S2 externo | Smoke local dedicado validou service worker sem `cache.put` e sem rotas Auth/API/export em precache; prova final em HTTPS/CacheStorage real segue pendente. |
 | `OPS-START-001` | Novo S3 | `npm.cmd run start` ainda usa `next start` e o Next 16 avisa que `output: standalone` deve usar `node .next/standalone/server.js`. Dockerfile ja usa o runtime standalone; ajustar script local/Coolify preset em PR pequeno se o aviso atrapalhar operacao. |
+
+## Etapa 9 - Estabilização e Boundaries
+
+Data: 2026-06-18.
+
+| ID | Status | Evidencia |
+|---|---|---|
+| DB-TYPES-001 | Fechado | Tipos de banco concretos gerados no Supabase no arquivo `src/types/database.ts` a partir do schema atualizado, passando no typecheck. |
+| UX-BOUNDARY-001 | Fechado | Criados global `src/app/loading.tsx` e `src/app/error.tsx` no App Router usando componentes reutilizáveis e sem vazamento de stack. |
 
 Gates executados nesta auditoria:
 

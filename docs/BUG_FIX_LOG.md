@@ -261,3 +261,18 @@ Evidencia executada:
 - `git diff --check`: passou, com avisos CRLF esperados no Windows.
 - `npm.cmd run test:e2e:external` sem URL: abortou corretamente.
 - `npm.cmd run test:e2e:external` com URL contendo path/query/hash: abortou corretamente.
+
+## Etapa 9 - Boundaries globais do App Router (UX-BOUNDARY-001)
+
+Data: 2026-06-18.
+
+| Bug | Correção | Evidência |
+|---|---|---|
+| `UX-BOUNDARY-001` | Adicionados `src/app/loading.tsx` e `src/app/error.tsx` globais para cobrir rotas e renderizar estados de loading/erro controlados sem vazamento de stack ou informações técnicas sensíveis. | `src/app/loading.tsx`, `src/app/error.tsx` |
+
+Evidência executada:
+
+- `npm.cmd run lint`: passou com sucesso.
+- `npm.cmd run typecheck`: passou com sucesso.
+- `npm.cmd run test`: passou, 43 arquivos e 331 testes passados.
+

@@ -29,16 +29,17 @@ Este e-mail fica registrado como contato operacional/fundador. Ele ainda nao def
 ## URL
 
 - Local: `http://localhost:3000` ou `http://127.0.0.1:3000`.
-- Preview: pendente de dominio temporario e HTTPS na VPS Hostinger/Coolify.
-- Producao: pendente de dominio final aprovado.
-- Dominio exato: gate manual antes de qualquer deploy publicado.
+- Producao: `https://proposito-em-acao.app.br` (apos DNS + HTTPS configurados no Coolify).
+- Dominio adquirido: `proposito-em-acao.app.br` em 2026-06-18 via Registro.br.
+- Dominio temporario atual (Coolify demo): `http://op2shbecaxu92eru7u6n7px9.137.131.242.245.sslip.io`.
 
 ## Plataforma
 
-- Provedor de infraestrutura: VPS Hostinger.
-- Plano inicial: Hostinger KVM 1, com gate obrigatorio de upgrade se nao sustentar a aplicacao com estabilidade.
-- PaaS self-hosted: Coolify.
-- Plataforma anterior recomendada, Vercel, passa a alternativa de contingencia, nao decisao principal.
+- Provedor de infraestrutura: Oracle Cloud (Always Free Tier / VPS).
+- PaaS self-hosted: Coolify (ja rodando na VPS Oracle Cloud).
+- Dominio adquirido: `proposito-em-acao.app.br` (Registro.br, adquirido em 2026-06-18).
+- URL de producao: `https://proposito-em-acao.app.br` (apos DNS + HTTPS configurados).
+- Fallback de contingencia: Vercel (nao e a decisao principal).
 
 ## Supabase
 

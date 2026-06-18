@@ -3,12 +3,18 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { isProtectedRoute, isPublicRoute } from "@/lib/auth/redirects";
 import { formatMissingEnvVars, getMissingSupabasePublicEnvVars, getServerEnv, getSupabasePublicKey } from "@/lib/config";
+import { buildContentSecurityPolicy, generateNonce } from "@/lib/security/csp";
 import type { Database } from "@/types/database";
 
 type SupabaseCookieToSet = {
   name: string;
   value: string;
   options: CookieOptions;
+};
+
+type SecurityContext = {
+  nonce: string;
+  csp: string;
 };
 
 function getSupabasePublicConfig() {
@@ -38,10 +44,25 @@ function isOperationalStatusRoute(pathname: string) {
   return pathname === "/api/health" || pathname === "/api/ready";
 }
 
-function createNextResponse(request: NextRequest, previousResponse?: NextResponse) {
+function applyCspHeaders(response: NextResponse, security: SecurityContext) {
+  response.headers.set("Content-Security-Policy", security.csp);
+  response.headers.set("x-nonce", security.nonce);
+}
+
+function createNextResponse(
+  request: NextRequest,
+  security: SecurityContext,
+  previousResponse?: NextResponse
+) {
+  // Forward the nonce/CSP on the request so Next.js can stamp the matching
+  // nonce onto the framework `<script>` tags it renders for this request.
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", security.nonce);
+  requestHeaders.set("Content-Security-Policy", security.csp);
+
   const response = NextResponse.next({
     request: {
-      headers: request.headers
+      headers: requestHeaders
     }
   });
 
@@ -51,33 +72,39 @@ function createNextResponse(request: NextRequest, previousResponse?: NextRespons
     }
   });
 
+  applyCspHeaders(response, security);
   return response;
 }
 
 export async function refreshSupabaseAuth(request: NextRequest) {
+  const nonce = generateNonce();
+  const security: SecurityContext = { nonce, csp: buildContentSecurityPolicy(nonce) };
+
   const config = getSupabasePublicConfig();
   const pathname = request.nextUrl.pathname;
   const publicRoute = isPublicRoute(pathname);
 
   if (isOperationalStatusRoute(pathname)) {
-    return createNextResponse(request);
+    return createNextResponse(request, security);
   }
 
   if (!config) {
     if (!publicRoute && shouldFailClosedWithoutAuthConfig()) {
-      return new NextResponse("Auth essencial ausente neste ambiente.", {
+      const response = new NextResponse("Auth essencial ausente neste ambiente.", {
         status: 503,
         headers: {
           "Cache-Control": "no-store",
           "X-Required-Env": formatMissingEnvVars(getMissingSupabasePublicEnvVars(getServerEnv()))
         }
       });
+      applyCspHeaders(response, security);
+      return response;
     }
 
-    return createNextResponse(request);
+    return createNextResponse(request, security);
   }
 
-  let response = createNextResponse(request);
+  let response = createNextResponse(request, security);
 
   const supabase = createServerClient<Database>(
     config.supabaseUrl,
@@ -92,7 +119,7 @@ export async function refreshSupabaseAuth(request: NextRequest) {
             request.cookies.set(name, value);
           });
 
-          response = createNextResponse(request, response);
+          response = createNextResponse(request, security, response);
 
           cookiesToSet.forEach(({ name, value, options }) => {
             response.cookies.set(name, value, options);
@@ -113,7 +140,9 @@ export async function refreshSupabaseAuth(request: NextRequest) {
     const loginUrl = new URL("/auth", request.url);
     loginUrl.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
 
-    return NextResponse.redirect(loginUrl);
+    const redirectResponse = NextResponse.redirect(loginUrl);
+    applyCspHeaders(redirectResponse, security);
+    return redirectResponse;
   }
 
   return response;

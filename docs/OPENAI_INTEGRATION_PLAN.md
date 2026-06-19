@@ -111,26 +111,23 @@ Arquivos:
 
 Logs de IA devem usar `ai_run_audit_v1`, sem prompt bruto e sem resposta bruta.
 
-## Decisao atual - OpenAI + DeepSeek
+## Decisão atual - NVIDIA Integrate API (Nemotron + DeepSeek)
 
-Decisao do fundador:
+Decisão do fundador:
 
-- OpenAI API sera usada como provider real planejado.
-- DeepSeek API sera usada como provider real planejado.
-- Configuracoes futuras devem permitir `automatic`, `openai` e `deepseek`, com `automatic` como padrao.
-- OpenAI e DeepSeek permanecem configuraveis por variaveis de ambiente.
-- Modelos DeepSeek configuraveis nesta etapa: `deepseek-chat` e `deepseek-reasoner`.
+- A API da OpenAI foi adaptada para apontar para a **NVIDIA Integrate API** (`https://integrate.api.nvidia.com/v1`).
+- O modelo de imagem-para-texto (Vision) utilizado é o **Nemotron 3 Nano Omni 30B A3B Reasoning** da NVIDIA, configurado no lugar de modelos GPT da OpenAI.
+- O provider `deepseek` também foi configurado para apontar para a NVIDIA Integrate API.
+- As configurações de provedor do sistema aceitam `automatic`, `openai` e `deepseek`.
+- O adapter `openai` detecta automaticamente se `OPENAI_BASE_URL` está configurado. Se estiver configurado (como no caso da NVIDIA), ele desvia da Responses API da OpenAI e realiza chamadas no padrão `chat.completions.create` com `response_format: { type: "json_object" }` para assegurar máxima compatibilidade com o formato Zod do backend.
+- OpenAI (Nemotron) e DeepSeek permanecem configuráveis localmente via `.env.local`.
 
-DeepSeek deve seguir o mesmo padrao de seguranca do OpenAI provider:
-
-- somente server-side;
-- chave apenas em secret do provedor de deploy;
-- sem `NEXT_PUBLIC_`;
-- schema estruturado e validacao server-side;
-- guardrails antes de persistir, enviar ou compartilhar;
-- logs sem prompt bruto/resposta bruta;
-- fallback local seguro ou fluxo manual quando provider falhar, sem fallback automatico para outro provider;
-- evals antes de ativar fluxo real.
+Ambos os provedores seguem as mesmas diretrizes de segurança:
+- Somente executados server-side;
+- Chaves confidenciais isoladas no servidor/ambiente local e nunca publicadas;
+- Validação server-side estrita com Zod;
+- Guardrails de tom, crise e privacidade ativos antes/depois da chamada;
+- Logs técnicos sem prompts/respostas brutas.
 
 Antes de ativar IA real, ainda falta aprovar:
 

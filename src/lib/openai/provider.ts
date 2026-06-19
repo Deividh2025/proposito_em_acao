@@ -18,26 +18,67 @@ export function createOpenAIProvider(): AiProvider {
       }
 
       const client = createOpenAIClient();
-      const response = await client.responses.parse(
-        {
-          model,
-          instructions,
-          input: typeof input === "string" ? input : JSON.stringify(input),
-          store: false,
-          text: {
-            format: zodTextFormat(schema, schemaName)
+      const isCustomBase = !!process.env.OPENAI_BASE_URL;
+
+      if (isCustomBase) {
+        const response = await client.chat.completions.create(
+          {
+            model,
+            messages: [
+              {
+                role: "system",
+                content:
+                  `${instructions ?? "Return only valid JSON."}\n` +
+                  `The answer must be valid json and conform to the schema: ${schemaName}.`
+              },
+              {
+                role: "user",
+                content: typeof input === "string" ? input : JSON.stringify(input)
+              }
+            ],
+            response_format: { type: "json_object" },
+            stream: false
+          },
+          {
+            signal
           }
-        },
-        {
-          signal
+        );
+
+        const content = response.choices[0]?.message?.content;
+        if (!content) {
+          throw new OpenAIProviderError("provider_unavailable", "NVIDIA/OpenAI compatible response did not include content.");
         }
-      );
 
-      if (!response.output_parsed) {
-        throw new OpenAIProviderError("schema_validation", "OpenAI response did not include parsed output.");
+        try {
+          return schema.parse(JSON.parse(content));
+        } catch (error) {
+          if (error instanceof SyntaxError) {
+            throw new OpenAIProviderError("schema_validation", "NVIDIA/OpenAI compatible response was not valid JSON.");
+          }
+          throw error;
+        }
+      } else {
+        const response = await client.responses.parse(
+          {
+            model,
+            instructions,
+            input: typeof input === "string" ? input : JSON.stringify(input),
+            store: false,
+            text: {
+              format: zodTextFormat(schema, schemaName)
+            }
+          },
+          {
+            signal
+          }
+        );
+
+        if (!response.output_parsed) {
+          throw new OpenAIProviderError("schema_validation", "OpenAI response did not include parsed output.");
+        }
+
+        return schema.parse(response.output_parsed);
       }
-
-      return schema.parse(response.output_parsed);
     }
   };
 }

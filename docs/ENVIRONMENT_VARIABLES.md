@@ -53,14 +53,15 @@ Semantica obrigatoria: `local-draft ok:true` so pode representar modo `local-dem
 
 Para Auth SSR, `preview`, `beta` e `production` tambem devem falhar fechado quando `NEXT_PUBLIC_APP_URL`, Redirect URLs/Site URL do Supabase, cookies de sessao, callback/recovery ou SMTP Auth exigido nao estiverem configurados/validados. `local-demo` pode mostrar fallback local/dev, mas nao deve declarar persistencia, Auth externo ou e-mail real.
 
-## OpenAI
+## OpenAI (Adaptado para NVIDIA Integrate API)
 
-- `OPENAI_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
-- `OPENAI_MODEL_FAST`: modelo rapido aprovado por ambiente/fluxo. Placeholder atual: `gpt-5.4-mini`.
-- `OPENAI_MODEL_PRO`: modelo pro aprovado por ambiente/fluxo. Placeholder atual: `gpt-5.5`.
-- `OPENAI_MODEL`: legado/fallback de compatibilidade quando `OPENAI_MODEL_FAST` ou `OPENAI_MODEL_PRO` nao estiverem definidos.
+- `OPENAI_API_KEY`: chave server-side; no contexto atual, armazena a chave da NVIDIA para o modelo Nemotron (`nvapi-...`). Nunca prefixar com `NEXT_PUBLIC_`.
+- `OPENAI_BASE_URL`: URL base customizada para rotear chamadas do SDK compatível da OpenAI. Valor configurado para NVIDIA: `https://integrate.api.nvidia.com/v1`.
+- `OPENAI_MODEL_FAST`: modelo rápido/visão. Configurado para NVIDIA: `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` (Nemotron 3 Nano Omni 30B A3B Reasoning).
+- `OPENAI_MODEL_PRO`: modelo pro/raciocínio. Configurado para NVIDIA: `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`.
+- `OPENAI_MODEL`: legado/fallback de compatibilidade.
 
-O seletor server-side de provider aceita `automatic`, `openai` e `deepseek`, com padrao `automatic`. A rota real continua bloqueada por `AI_REAL_ENABLED=false` ate secrets, consentimento versionado, evals aprovados e kill switch explicitamente ligado.
+O seletor server-side de provider aceita `automatic`, `openai` e `deepseek`, com padrão `automatic`. Ao configurar `OPENAI_BASE_URL`, o provedor `openai` desvia automaticamente da Responses API da OpenAI (que é incompatível com a NVIDIA) para a API padrão de `chat.completions.create` com modo JSON, garantindo total compatibilidade. A rota real continua bloqueada por `AI_REAL_ENABLED=false` até secrets, consentimento versionado, evals aprovados e kill switch ligado.
 
 ## DeepSeek
 

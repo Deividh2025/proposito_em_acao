@@ -132,22 +132,23 @@ OpenAI real nao foi ativada em fluxo de produto nesta etapa.
 - Auditoria minima registra provider, modelo, agente, prompt/schema version, modo de invocacao, status de guardrail, latencia, motivo de fallback, consentimento e timestamp, sem prompt bruto ou resposta bruta. O banco aceita os estados de `ai_run_audit_v1`: `success`, `fallback`, `blocked` e `error`.
 - Metadados de auditoria de IA devem aplicar retencao operacional de 90 dias quando houver persistencia real.
 
-## Prompt 16 - Providers de producao planejados
+## Prompt 16 - Provedores NVIDIA (Nemotron e DeepSeek)
 
-Decisao do fundador:
+Decisão do fundador:
 
-- Usar OpenAI API.
-- Usar DeepSeek API.
-- Modelos DeepSeek configuraveis na Etapa 5: `deepseek-chat` e `deepseek-reasoner`.
-- Permitir selecao futura entre `automatic`, `openai` e `deepseek`, com `automatic` como padrao.
-- Manter fallback entre providers desabilitado; usar fallback local/manual por fluxo.
+- Usar a **NVIDIA Integrate API** como infraestrutura unificada de IA local.
+- Usar o modelo **Nemotron 3 Nano Omni 30B A3B Reasoning** no lugar dos modelos GPT da OpenAI.
+- Usar o modelo **DeepSeek-V4-Pro** no lugar dos modelos diretos da DeepSeek API.
+- Permitir seleção entre `automatic`, `openai` (roteando para o Nemotron da Nvidia) e `deepseek` (roteando para o Deepseek da Nvidia).
+- Manter o fallback cruzado entre provedores desabilitado; falhas usam fallback local/manual.
 
-Diretriz tecnica:
+Diretriz técnica:
 
-- DeepSeek deve entrar como provider server-side, nunca client-side.
-- DeepSeek Chat e candidato para fluxos de menor custo/latencia depois de evals.
-- DeepSeek Reasoner e candidato para fluxos de maior complexidade depois de evals.
-- OpenAI permanece provider candidato para fluxos que exigirem melhor aderencia a schemas, guardrails e qualidade avaliada.
+- Ambos os provedores rodam estritamente server-side.
+- O adapter `openai` implementa compatibilidade transparente para a API da NVIDIA: ao detectar `OPENAI_BASE_URL`, utiliza a API padrão de `chat.completions.create` com `response_format: { type: "json_object" }` em vez da Responses API proprietária da OpenAI.
+- O modelo Nemotron é o provedor candidato para fluxos de imagem-para-texto (Vision) e tarefas de alta complexidade.
+- O DeepSeek é o provedor candidato para raciocínio e tarefas gerais de alta precisão.
+- Ambos exigem guardrails de tom, crise e privacidade ativos antes/depois da chamada.
 - O roteamento por agente deve ser explicito e versionado antes de ativar IA real.
 - Todos os providers seguem as mesmas regras: schema estruturado, Zod/server validation, guardrails, minimizacao de contexto, sem prompt/resposta bruta em logs e fallback seguro.
 - Timeouts devem abortar a requisicao remota quando o SDK/provider suportar sinal de cancelamento; fallback local nao autoriza fallback cruzado entre providers.

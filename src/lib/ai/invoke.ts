@@ -125,10 +125,10 @@ function getAiInvocationEnv() {
     AI_REQUEST_TIMEOUT_MS: parsePositiveInteger(process.env.AI_REQUEST_TIMEOUT_MS, 20_000),
     AI_DAILY_USER_LIMIT: parsePositiveInteger(process.env.AI_DAILY_USER_LIMIT, 50),
     OPENAI_MODEL: process.env.OPENAI_MODEL || "",
-    OPENAI_MODEL_FAST: process.env.OPENAI_MODEL_FAST || "gpt-5.4-mini",
-    OPENAI_MODEL_PRO: process.env.OPENAI_MODEL_PRO || "gpt-5.5",
-    DEEPSEEK_MODEL_FLASH: process.env.DEEPSEEK_MODEL_FLASH || "deepseek-chat",
-    DEEPSEEK_MODEL_PRO: process.env.DEEPSEEK_MODEL_PRO || "deepseek-reasoner"
+    OPENAI_MODEL_FAST: process.env.OPENAI_MODEL_FAST || "",
+    OPENAI_MODEL_PRO: process.env.OPENAI_MODEL_PRO || "",
+    DEEPSEEK_MODEL_FLASH: process.env.DEEPSEEK_MODEL_FLASH || "deepseek-ai/deepseek-v4-pro",
+    DEEPSEEK_MODEL_PRO: process.env.DEEPSEEK_MODEL_PRO || "deepseek-ai/deepseek-v4-pro"
   };
 }
 

@@ -27,7 +27,7 @@ export const ACCOUNT_DELETION_CONFIRMATION_TEXT = ACCOUNT_DELETION_CONFIRMATION;
 
 export const privacyConsentDefinitions = {
   ai_provider_openai: {
-    label: "OpenAI",
+    label: "Nvidia Nemotron (Vision)",
     purpose:
       "Permitir chamadas server-side ao provider OpenAI somente quando IA real estiver habilitada.",
     type: "ai_provider_openai",

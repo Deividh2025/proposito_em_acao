@@ -63,19 +63,14 @@ const statusMessages: Record<string, string> = {
 
 const providerOptions = [
   {
-    label: "Automatico",
+    label: "Automatico (DeepSeek V4 Pro)",
     value: "automatic",
-    description: "Usa a decisao server-side aprovada, sem trocar provider apos falha."
+    description: "Usa o modelo DeepSeek V4 Pro na Nvidia Integrate API para todos os fluxos."
   },
   {
-    label: "OpenAI",
-    value: "openai",
-    description: "Preferencia explicita; chamadas reais exigem consentimento OpenAI ativo."
-  },
-  {
-    label: "DeepSeek",
+    label: "DeepSeek V4 Pro",
     value: "deepseek",
-    description: "Preferencia explicita; chamadas reais exigem consentimento DeepSeek ativo."
+    description: "Preferencia explicita para usar o modelo DeepSeek V4 Pro."
   }
 ] as const;
 
@@ -392,8 +387,10 @@ export function SettingsCenter({ snapshot, status }: SettingsCenterProps) {
           </SensitiveDataNotice>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            {(Object.keys(providerConsentMap) as ConsentProvider[]).map((provider) => {
-              const consentType = providerConsentMap[provider];
+            {(Object.keys(providerConsentMap) as ConsentProvider[])
+              .filter((provider) => provider !== "openai")
+              .map((provider) => {
+                const consentType = providerConsentMap[provider];
               const details = consents[consentType];
               const active = isConsentActive(details);
 

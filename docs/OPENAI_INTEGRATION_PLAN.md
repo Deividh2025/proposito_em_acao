@@ -4,16 +4,14 @@
 
 IA e camada operacional integrada, nao chatbot solto. Toda resposta que vira dado deve usar schema estruturado, validacao e revisao do usuario quando afetar agenda, alvos, tarefas, Metacognicao ou Atalaia.
 
-## Estado atual verificado em 2026-06-04 - Etapa 5
+## Estado atual e Unificação sob DeepSeek V4 Pro (2026-06-19)
 
-- OpenAI real e DeepSeek real continuam desativados em fluxos de produto por `AI_REAL_ENABLED=false` por default.
-- Codigo atual possui provider mock, provider OpenAI server-only e adapter DeepSeek server-only.
-- Tipos aceitam `mock | openai | deepseek`; o seletor aceita `automatic | openai | deepseek`.
-- `safeInvoke` valida schema, executa guardrails de entrada/saida, bloqueia provider real sem autorizacao explicita da rota, registra `guardrail_status` real e usa fallback local seguro sem fallback cruzado entre providers.
-- `safeInvoke` remove chaves sensiveis do input antes do provider, propaga `AbortSignal` para timeout abortavel e aplica guardrail adicional em outputs de Atalaia/Documento de Compromisso.
-- `ai_run_audit_v1` registra metadados minimos, `invocation_mode`, consentimento e motivo de fallback; `invokeAiWithPersistentConsentAndAudit` persiste auditoria tecnica minima em `ai_run_audits` via admin server-only.
-- Consentimento de IA e checado por provider e versao (`ai_provider_openai_v1` ou `ai_provider_deepseek_v1`) antes da rota real; a camada nao cria consentimento automaticamente.
-- Metadados de auditoria de IA terao retencao operacional de 90 dias quando houver persistencia real.
+- O plano de integração com múltiplos provedores foi unificado em um único modelo de alta capacidade: **Nvidia DeepSeek V4 Pro** (via NVIDIA Integrate API ou provedor DeepSeek homologado).
+- Os fluxos que usavam a API da OpenAI foram depreciados e não são mais utilizados em produção.
+- O seletor de provedor mapeia ambos os caminhos de roteamento (`automatic` e `deepseek`) para a mesma infraestrutura unificada do DeepSeek V4 Pro.
+- O consentimento de IA é gerenciado sob a versão `ai_provider_deepseek_v1`.
+- A barreira `AI_REAL_ENABLED=false` permanece ativa por padrão até homologação operacional e configuração de secrets e kill switch no provedor Hostinger/Coolify.
+- Metadados de auditoria de IA terão retenção operacional de 90 dias quando houver persistência real.
 
 ## Agentes internos
 
@@ -111,29 +109,11 @@ Arquivos:
 
 Logs de IA devem usar `ai_run_audit_v1`, sem prompt bruto e sem resposta bruta.
 
-## Decisão atual - NVIDIA Integrate API (Nemotron + DeepSeek)
+## Decisão de Unificação - Nvidia DeepSeek V4 Pro
 
 Decisão do fundador:
 
-- A API da OpenAI foi adaptada para apontar para a **NVIDIA Integrate API** (`https://integrate.api.nvidia.com/v1`).
-- O modelo de imagem-para-texto (Vision) utilizado é o **Nemotron 3 Nano Omni 30B A3B Reasoning** da NVIDIA, configurado no lugar de modelos GPT da OpenAI.
-- O provider `deepseek` também foi configurado para apontar para a NVIDIA Integrate API.
-- As configurações de provedor do sistema aceitam `automatic`, `openai` e `deepseek`.
-- O adapter `openai` detecta automaticamente se `OPENAI_BASE_URL` está configurado. Se estiver configurado (como no caso da NVIDIA), ele desvia da Responses API da OpenAI e realiza chamadas no padrão `chat.completions.create` com `response_format: { type: "json_object" }` para assegurar máxima compatibilidade com o formato Zod do backend.
-- OpenAI (Nemotron) e DeepSeek permanecem configuráveis localmente via `.env.local`.
-
-Ambos os provedores seguem as mesmas diretrizes de segurança:
-- Somente executados server-side;
-- Chaves confidenciais isoladas no servidor/ambiente local e nunca publicadas;
-- Validação server-side estrita com Zod;
-- Guardrails de tom, crise e privacidade ativos antes/depois da chamada;
-- Logs técnicos sem prompts/respostas brutas.
-
-Antes de ativar IA real, ainda falta aprovar:
-
-- secrets por ambiente;
-- consentimento persistido por provider e auditoria minima validada em preview;
-- evals reais/custo por usuario/ambiente;
-- rate limit persistente;
-- readiness/smoke de provider real com chaves/modelos configurados em ambiente isolado;
-- se algum fluxo sensivel ficara apenas mock/manual no beta.
+- A infraestrutura de IA do sistema foi 100% unificada sob o modelo **Nvidia DeepSeek V4 Pro** acessado via NVIDIA Integrate API ou provedor compatível.
+- A integração com OpenAI (Nemotron) foi totalmente depreciada e descontinuada do plano de produção para simplificar a manutenção e reduzir a latência de múltiplos modelos.
+- O adaptador DeepSeek gerencia todas as chamadas server-side, garantindo validação Zod estruturada, timeouts seguros e isolamento estrito.
+- Antes de ativar IA real com DeepSeek V4 Pro, ainda falta aprovar: secrets por ambiente, consentimento persistido e auditoria mínima validada em preview, evals de aderência de custo por usuário e rate limit persistente.

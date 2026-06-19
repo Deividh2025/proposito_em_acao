@@ -53,24 +53,28 @@ Semantica obrigatoria: `local-draft ok:true` so pode representar modo `local-dem
 
 Para Auth SSR, `preview`, `beta` e `production` tambem devem falhar fechado quando `NEXT_PUBLIC_APP_URL`, Redirect URLs/Site URL do Supabase, cookies de sessao, callback/recovery ou SMTP Auth exigido nao estiverem configurados/validados. `local-demo` pode mostrar fallback local/dev, mas nao deve declarar persistencia, Auth externo ou e-mail real.
 
-## OpenAI (Adaptado para NVIDIA Integrate API)
+## OpenAI (Deprecated / Unused)
 
-- `OPENAI_API_KEY`: chave server-side; no contexto atual, armazena a chave da NVIDIA para o modelo Nemotron (`nvapi-...`). Nunca prefixar com `NEXT_PUBLIC_`.
-- `OPENAI_BASE_URL`: URL base customizada para rotear chamadas do SDK compatível da OpenAI. Valor configurado para NVIDIA: `https://integrate.api.nvidia.com/v1`.
-- `OPENAI_MODEL_FAST`: modelo rápido/visão. Configurado para NVIDIA: `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` (Nemotron 3 Nano Omni 30B A3B Reasoning).
-- `OPENAI_MODEL_PRO`: modelo pro/raciocínio. Configurado para NVIDIA: `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning`.
-- `OPENAI_MODEL`: legado/fallback de compatibilidade.
+As variáveis de ambiente da OpenAI estão depreciadas e não são mais utilizadas pelo sistema. A infraestrutura de IA foi unificada sob o modelo único **Nvidia DeepSeek V4 Pro**.
 
-O seletor server-side de provider aceita `automatic`, `openai` e `deepseek`, com padrão `automatic`. Ao configurar `OPENAI_BASE_URL`, o provedor `openai` desvia automaticamente da Responses API da OpenAI (que é incompatível com a NVIDIA) para a API padrão de `chat.completions.create` com modo JSON, garantindo total compatibilidade. A rota real continua bloqueada por `AI_REAL_ENABLED=false` até secrets, consentimento versionado, evals aprovados e kill switch ligado.
+- `OPENAI_API_KEY`: Depreciada/não utilizada.
+- `OPENAI_BASE_URL`: Depreciada/não utilizada.
+- `OPENAI_MODEL_FAST`: Depreciada/não utilizada.
+- `OPENAI_MODEL_PRO`: Depreciada/não utilizada.
+- `OPENAI_MODEL`: Depreciada/não utilizada.
 
-## DeepSeek
+O seletor server-side de provider aceita `automatic` e `deepseek` como valores efetivos, ambos mapeados internamente para a unificação com DeepSeek V4 Pro. A rota real continua bloqueada por `AI_REAL_ENABLED=false` até secrets, consentimento versionado, evals aprovados e kill switch ligado.
+
+## DeepSeek (Unificação DeepSeek V4 Pro)
+
+A arquitetura de IA do sistema foi unificada sob o modelo **Nvidia DeepSeek V4 Pro** (acessado via NVIDIA Integrate API ou provedor DeepSeek homologado).
 
 - `DEEPSEEK_API_KEY`: chave server-side; nunca prefixar com `NEXT_PUBLIC_`.
-- `DEEPSEEK_BASE_URL`: base URL server-side. Valor planejado: `https://api.deepseek.com`.
-- `DEEPSEEK_MODEL_FLASH`: modelo DeepSeek rapido/custo menor. Placeholder atual: `deepseek-chat`.
-- `DEEPSEEK_MODEL_PRO`: modelo DeepSeek de maior capacidade. Placeholder atual: `deepseek-reasoner`.
+- `DEEPSEEK_BASE_URL`: base URL server-side. Valor configurado: `https://integrate.api.nvidia.com/v1` ou `https://api.deepseek.com`.
+- `DEEPSEEK_MODEL_PRO`: modelo DeepSeek de maior capacidade, unificado sob `nvidia/deepseek-v4-pro` (ou alias configurado para DeepSeek V4 Pro).
+- `DEEPSEEK_MODEL_FLASH`: depreciado/não utilizado, unificado sob o modelo principal Pro para todas as tarefas.
 
-DeepSeek foi aprovado como provider pelo fundador, junto com OpenAI, e possui adapter server-only. Ativacao real ainda exige guardrails/evals reais, custos, rate limit persistente, consentimento por provider e kill switch.
+Ativação real ainda exige guardrails/evals reais, custos, rate limit persistente, consentimento por provider e kill switch.
 
 ## IA operacional
 
@@ -121,7 +125,7 @@ Nenhum valor real deve ser solicitado, impresso, colado em docs ou commitado. O 
 | Supabase publico | `.env.local` | Coolify preview | Coolify producao futura | URL e anon/publishable key podem ir ao browser. |
 | Supabase admin | Evitar; operador apenas | Server-side se aprovado | Server-side se aprovado | Nunca `NEXT_PUBLIC_*`; nunca compartilhar entre ambientes. |
 | IA real | Vazio/desligado | Server-side se aprovado | Server-side se aprovado | Exige `AI_REAL_ENABLED=true`, consentimento, guardrails e evals. |
-| DeepSeek real | Vazio/desligado | Server-side se aprovado | Server-side se aprovado | Sem fallback automatico entre providers. |
+| DeepSeek real | Vazio/desligado | Server-side se aprovado | Server-side se aprovado | Unificado sob DeepSeek V4 Pro. |
 | E-mail/Resend | Vazio/desligado | Server-side se aprovado | Server-side se aprovado | Exige dominio/remetente verificado e `EMAIL_REAL_ENABLED=true`. |
 | Analytics/feedback | Desligado | Desligado ate opt-in/politica | Desligado ate opt-in/politica | Retencao 90 dias quando houver persistencia real. |
 | CLI/operador | Sessao local do operador | Maquina do operador | Maquina do operador | Tokens de CLI e DB URLs com senha nao sao runtime do app. |
@@ -152,8 +156,8 @@ Manter vazias/desativadas ate aprovacao explicita:
 
 - `AI_REAL_ENABLED`, `EMAIL_REAL_ENABLED`, `EMAIL_DOMAIN_VERIFIED`, `ANALYTICS_REAL_ENABLED` e `FEEDBACK_REAL_ENABLED`, salvo etapa propria aprovada.
 - `SUPABASE_SERVICE_ROLE_KEY`, salvo necessidade server-side controlada.
-- `OPENAI_API_KEY`, ate aprovar modelo, custo, rate limit e evals ampliados.
-- `DEEPSEEK_API_KEY`, ate aprovar custo, rate limit, evals ampliados e roteamento por agente.
+- `OPENAI_API_KEY`, depreciada/não utilizada.
+- `DEEPSEEK_API_KEY`, ate aprovar custo, rate limit, evals ampliados e roteamento por agente do modelo unificado DeepSeek V4 Pro.
 - `EMAIL_PROVIDER`, `EMAIL_FROM`, `EMAIL_FROM_AUTH`, `EMAIL_FROM_NOTIFICATIONS`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET` e `RESEND_TEST_RECIPIENT`, ate aprovar dominio, remetente, templates e SMTP Auth.
 
 Auth externo ainda pendente:
@@ -169,7 +173,7 @@ Gates manuais:
 - Hostinger KVM 1 precisa ser validada; upgrade e obrigatorio se build/runtime/HTTPS/logs/rollback nao ficarem estaveis.
 - Analytics, feedback beta e auditoria de IA devem aplicar retencao de 90 dias quando houver persistencia real.
 
-Nunca usar `NEXT_PUBLIC_` para OpenAI, service role, provider secrets, webhook secrets ou tokens.
+Nunca usar `NEXT_PUBLIC_` para OpenAI (depreciada), service role, provider secrets, webhook secrets ou tokens.
 Nunca usar `NEXT_PUBLIC_` para DeepSeek.
 Nunca usar `NEXT_PUBLIC_` para Resend, SMTP password, webhook secret ou remetente com token/query sensivel.
 

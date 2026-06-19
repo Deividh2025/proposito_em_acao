@@ -110,48 +110,35 @@ Fluxo previsto:
 
 1. UI ou server action chama uma camada server-side.
 2. A camada resolve agente, prompt, schema e contexto minimo.
-3. Provider mock, OpenAI server-side ou DeepSeek server-side gera saida conforme roteamento aprovado.
+3. Provider mock ou DeepSeek server-side (unificado sob DeepSeek V4 Pro) gera saida conforme roteamento aprovado.
 4. Saida e validada com Zod.
 5. Guardrails revisam risco clinico, pastoral, privacidade, Atalaia e crise.
 6. Persistencia futura salva apenas dado estruturado e metadados minimos.
 
-OpenAI real nao foi ativada em fluxo de produto nesta etapa.
+IA real nao foi ativada em fluxo de produto nesta etapa.
 
-## Estado atual verificado em 2026-06-04 - Etapa 5
+### Estado atual e Unificação sob DeepSeek V4 Pro (2026-06-19)
 
-- OpenAI e DeepSeek estao representados como providers server-side, mas chamadas reais continuam bloqueadas por `AI_REAL_ENABLED=false` por padrao.
-- O seletor server-side aceita `automatic`, `openai` ou `deepseek`, com padrao `automatic`.
-- `automatic` roteia fluxos sensiveis/complexos para OpenAI e fluxos operacionais de menor risco para DeepSeek quando houver consentimento valido do provider.
-- Nao ha fallback automatico entre OpenAI e DeepSeek; falha de provider usa fallback local seguro ou fluxo manual.
-- Consentimento de IA e verificado por provider e versao antes de qualquer rota real; a camada nao cria consentimento automaticamente.
-- DeepSeek possui adapter server-only em `src/lib/deepseek/` usando API compativel com OpenAI quando aplicavel, sempre com validacao Zod porque JSON mode nao e tratado como schema estrito.
-- `src/lib/ai/invoke.ts` unifica roteamento, provider real/mock, consentimento, kill switch e chamada segura.
-- `src/lib/ai/persistent-invoke.ts` e o caminho server-only para IA real: carrega preferencia/consentimentos persistidos, bloqueia chamada real sem sessao/auditoria viavel e persiste `ai_run_audits` com metadados redigidos.
-- A chamada segura minimiza chaves sensiveis antes do provider, propaga `AbortSignal` para OpenAI/DeepSeek e aplica limite diario quando o contador do usuario e informado.
-- Saidas de Atalaia/Documento de Compromisso recebem guardrail adicional de compartilhamento para impedir vazamento sem consentimento granular.
-- Auditoria minima registra provider, modelo, agente, prompt/schema version, modo de invocacao, status de guardrail, latencia, motivo de fallback, consentimento e timestamp, sem prompt bruto ou resposta bruta. O banco aceita os estados de `ai_run_audit_v1`: `success`, `fallback`, `blocked` e `error`.
+- A arquitetura de IA foi unificada sob um único modelo de alta capacidade: **Nvidia DeepSeek V4 Pro** (via NVIDIA Integrate API ou provedor DeepSeek homologado).
+- O seletor de provedor mapeia os modos `automatic` e `deepseek` para o DeepSeek V4 Pro. A chamada direta da OpenAI foi depreciada.
+- O consentimento de IA é checado sob a versão `ai_provider_deepseek_v1` antes de qualquer rota real.
+- O roteamento e chamada segura minimizam chaves sensíveis antes do provider, propagam `AbortSignal` para o DeepSeek e aplicam limites diários quando informados.
+- Auditoria mínima registra `nvidia/deepseek-v4-pro` como modelo unificado, sem prompt bruto ou resposta bruta. O banco aceita os estados de `ai_run_audit_v1`: `success`, `fallback`, `blocked` e `error`.
 - Metadados de auditoria de IA devem aplicar retencao operacional de 90 dias quando houver persistencia real.
 
-## Prompt 16 - Provedores NVIDIA (Nemotron e DeepSeek)
+### Prompt 16 - Unificação de IA (Nvidia DeepSeek V4 Pro)
 
 Decisão do fundador:
 
-- Usar a **NVIDIA Integrate API** como infraestrutura unificada de IA local.
-- Usar o modelo **Nemotron 3 Nano Omni 30B A3B Reasoning** no lugar dos modelos GPT da OpenAI.
-- Usar o modelo **DeepSeek-V4-Pro** no lugar dos modelos diretos da DeepSeek API.
-- Permitir seleção entre `automatic`, `openai` (roteando para o Nemotron da Nvidia) e `deepseek` (roteando para o Deepseek da Nvidia).
-- Manter o fallback cruzado entre provedores desabilitado; falhas usam fallback local/manual.
-
-Diretriz técnica:
-
+- Unificar toda a infraestrutura de IA sob o modelo **Nvidia DeepSeek V4 Pro** como o único modelo de IA da arquitetura V1.
+- A integração com OpenAI (Nemotron) foi totalmente depreciada e descontinuada em favor do DeepSeek V4 Pro.
+- O seletor de provedor aceita os modos `automatic` e `deepseek` como válidos, mapeando internamente para o DeepSeek V4 Pro.
+- O adaptador DeepSeek gerencia todas as chamadas server-side, garantindo validação Zod estruturada, timeouts seguros e isolamento estrito.
+- Todos os agentes internos rodam sob esse modelo unificado.
+- A chamada real a IA no backend permanece desativada por default (`AI_REAL_ENABLED=false`).
 - Ambos os provedores rodam estritamente server-side.
-- O adapter `openai` implementa compatibilidade transparente para a API da NVIDIA: ao detectar `OPENAI_BASE_URL`, utiliza a API padrão de `chat.completions.create` com `response_format: { type: "json_object" }` em vez da Responses API proprietária da OpenAI.
-- O modelo Nemotron é o provedor candidato para fluxos de imagem-para-texto (Vision) e tarefas de alta complexidade.
-- O DeepSeek é o provedor candidato para raciocínio e tarefas gerais de alta precisão.
-- Ambos exigem guardrails de tom, crise e privacidade ativos antes/depois da chamada.
-- O roteamento por agente deve ser explicito e versionado antes de ativar IA real.
 - Todos os providers seguem as mesmas regras: schema estruturado, Zod/server validation, guardrails, minimizacao de contexto, sem prompt/resposta bruta em logs e fallback seguro.
-- Timeouts devem abortar a requisicao remota quando o SDK/provider suportar sinal de cancelamento; fallback local nao autoriza fallback cruzado entre providers.
+- Timeouts devem abortar a requisicao remota quando o SDK/provider suportar sinal de cancelamento.
 - Chamado, Metacognicao, Atalaia, Revisao Semanal e dados sensiveis nao podem ir a provider real sem aprovacao de privacidade, consentimento quando aplicavel e evals negativos.
 
 ## Prompt 8 - SMART-E e Planejador
@@ -162,7 +149,7 @@ O Prompt 8 integra os contratos de IA ao nucleo de execucao:
 - `project_plan_output_v1`: sugere projetos vinculados a `goal_id`, fases, marcos, riscos, recursos, tarefas iniciais e plano de retomada.
 - `task_breakdown_output_v1`: quebra tarefa grande em microtarefas ordenadas, primeira microacao e sugestao caso trave.
 
-A UI usa mocks deterministos em `src/domain/goals`, `src/domain/projects` e `src/domain/tasks`. OpenAI real permanece server-side e nao e acionada por fluxo de produto. Nenhum prompt/resposta bruta deve ser salvo; apenas dados estruturados revisados e metadados minimos.
+A UI usa mocks deterministos em `src/domain/goals`, `src/domain/projects` e `src/domain/tasks`. IA real (unificada sob o DeepSeek V4 Pro) permanece server-side e nao e acionada por fluxo de produto. Nenhum prompt/resposta bruta deve ser salvo; apenas dados estruturados revisados e metadados minimos.
 
 ## Prompt 9 - Inbox e Agenda
 
@@ -171,7 +158,7 @@ O Prompt 9 adiciona dois fluxos operacionais:
 - `inbox_classification_output_v1`: classifica capturas em tarefa, projeto, evento, habito futuro, referencia, ideia futura, preocupacao, descarte ou necessidade de clareza.
 - `schedule_overload_output_v1`: revisa a semana/dia e emite alerta simples de sobrecarga sem culpa.
 
-Ambos usam mock/regra local segura nesta etapa. OpenAI real continua preparada apenas server-side e nao e chamada por rotas de produto. Capturas brutas, preocupacoes, calendario e links nao devem ir para logs; a persistencia salva dados estruturados e revisaveis.
+Ambos usam mock/regra local segura nesta etapa. IA real (unificada sob o DeepSeek V4 Pro) continua preparada apenas server-side e nao e chamada por rotas de produto. Capturas brutas, preocupacoes, calendario e links nao devem ir para logs; a persistencia salva dados estruturados e revisaveis.
 
 ## Prompt 10 - Desbloqueador e Metacognicao
 
@@ -189,20 +176,20 @@ Fluxo tecnico:
 5. Server action tenta persistir dado estruturado em Supabase com `user_id = auth.uid()`.
 6. Sem Auth/Supabase, retorna fallback `local-draft` explicito.
 
-OpenAI real continua fora da UI nesta etapa. Quando ativada, deve ser chamada somente server-side, com contexto minimo e sem logs de prompts/respostas brutas.
+IA real (unificada sob o DeepSeek V4 Pro) continua fora da UI nesta etapa. Quando ativada, deve ser chamada somente server-side, com contexto minimo e sem logs de prompts/respostas brutas.
 
 ## Prompt 11 - Habitos e Placar
 
 - Agente de Habitos usa `habit_plan_output_v1` ampliado para plano realista, versao minima, ambiente e retomada.
 - Agente do Placar da Disciplina usa `scoreboard_plan_output_v1` para sugerir itens leves, privados e revisaveis.
-- Ambos usam mock deterministico nesta etapa; OpenAI real nao e acionada pela UI.
+- Ambos usam mock deterministico nesta etapa; IA real (unificada sob o DeepSeek V4 Pro) nao e acionada pela UI.
 - Guardrails bloqueiam diagnostico, culpa espiritual, vergonha, ranking punitivo, streak como identidade e qualquer compartilhamento bruto com Atalaia.
 - Logs devem manter apenas metadados tecnicos, nunca distracoes, notas intimas, prompt bruto ou resposta bruta.
 
 ## Prompt 12 - Revisao Semanal e Jardim da Vida
 
 - Agente Revisor Semanal usa `weekly_review_output_v1` para sintetizar semana, vitorias, travamentos, padroes, sobrecarga, areas negligenciadas, retomadas, foco da proxima semana e primeira acao.
-- O fluxo usa mock deterministico seguro na UI; OpenAI real permanece server-side e desativada para produto.
+- O fluxo usa mock deterministico seguro na UI; IA real (unificada sob o DeepSeek V4 Pro) permanece server-side e desativada para produto.
 - Contexto permitido deve ser minimizado: respostas da revisao, progresso agregado de alvos/projetos/tarefas, resumo de habitos/foco/Placar, sobrecarga e retomadas.
 - Contexto proibido: Metacognicao bruta, distracoes completas, calendario sensivel, prompt/resposta bruta, dados de Atalaia e Chamado completo.
 - Jardim da Vida usa `garden_state_output_v1` como snapshot derivado da revisao/eventos, sem agente OpenAI separado nesta etapa.
@@ -212,7 +199,7 @@ OpenAI real continua fora da UI nesta etapa. Quando ativada, deve ser chamada so
 
 - Agente Atalaia usa `accountability_message_output_v1` com `message_type`, `shared_fields`, `privacy_check`, tom e chamada para acao.
 - Documento de Compromisso usa `commitment_document_output_v1` como contrato estruturado revisavel.
-- UI usa mock/contrato local; OpenAI real permanece server-side e desativada para produto.
+- UI usa mock/contrato local; IA real (unificada sob o DeepSeek V4 Pro) permanece server-side e desativada para produto.
 - Contexto permitido: alvo autorizado, prazo, status, progresso, marcos, pedido de ajuda, mensagem personalizada revisada, resumo limitado do Placar e Documento de Compromisso.
 - Contexto proibido: Chamado completo, Metacognicao, saude, familia, financas, emocoes, Revisao Semanal privada, inbox bruto, calendario completo, distracoes e logs brutos.
 - Fallback de e-mail nao envia nada sem provider configurado.

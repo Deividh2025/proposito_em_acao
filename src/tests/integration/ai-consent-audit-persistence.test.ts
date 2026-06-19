@@ -77,9 +77,9 @@ describe("persistent AI consent and audit boundary", () => {
         return query([
           {
             accepted_at: "2026-06-05T12:00:00.000Z",
-            consent_type: "ai_provider_openai",
+            consent_type: "ai_provider_deepseek",
             revoked_at: null,
-            version: "ai_provider_openai_v1"
+            version: "ai_provider_deepseek_v1"
           }
         ]);
       }
@@ -94,7 +94,7 @@ describe("persistent AI consent and audit boundary", () => {
       const insert = vi.fn(async () => ({ error: null }));
       adminFromMock.mockReturnValue({ insert });
       const provider = {
-        name: "openai" as const,
+        name: "deepseek" as const,
         invoke: vi.fn().mockResolvedValue(safeOutput)
       };
       const { invokeAiWithPersistentConsentAndAudit } = await import("@/lib/ai");
@@ -107,11 +107,11 @@ describe("persistent AI consent and audit boundary", () => {
           raw_prompt: "nao deve chegar ao provider"
         },
         models: {
-          openaiFast: "gpt-5.4-mini",
-          openaiPro: "gpt-5.5"
+          deepseekFlash: "deepseek-chat",
+          deepseekPro: "deepseek-reasoner"
         },
         providers: {
-          openai: provider
+          deepseek: provider
         },
         promptVersion: "smart_goal_prompt_v1",
         schema: tinyOutputSchema,
@@ -119,7 +119,7 @@ describe("persistent AI consent and audit boundary", () => {
       });
 
       expect(result.source).toBe("provider");
-      expect(result.audit.consent_version).toBe("ai_provider_openai_v1");
+      expect(result.audit.consent_version).toBe("ai_provider_deepseek_v1");
       expect(provider.invoke).toHaveBeenCalledWith(
         expect.objectContaining({
           input: {
@@ -136,11 +136,11 @@ describe("persistent AI consent and audit boundary", () => {
           status: "success",
           user_id: "user-1",
           metadata_minimal: expect.objectContaining({
-            consent_version: "ai_provider_openai_v1",
+            consent_version: "ai_provider_deepseek_v1",
             contains_raw_prompt: false,
             contains_raw_response: false,
             invocation_mode: "real",
-            provider: "openai"
+            provider: "deepseek"
           })
         })
       );
@@ -151,7 +151,7 @@ describe("persistent AI consent and audit boundary", () => {
   test("blocks real provider before external call when session is missing", async () => {
     authGetUserMock.mockResolvedValue({ data: { user: null }, error: null });
     const provider = {
-      name: "openai" as const,
+      name: "deepseek" as const,
       invoke: vi.fn().mockResolvedValue(safeOutput)
     };
     const { invokeAiWithPersistentConsentAndAudit } = await import("@/lib/ai");
@@ -161,7 +161,7 @@ describe("persistent AI consent and audit boundary", () => {
       fallback: safeOutput,
       input: { desire: "organizar a semana" },
       providers: {
-        openai: provider
+        deepseek: provider
       },
       promptVersion: "smart_goal_prompt_v1",
       schema: tinyOutputSchema,

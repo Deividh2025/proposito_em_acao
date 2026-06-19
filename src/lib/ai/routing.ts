@@ -7,7 +7,7 @@ export const AI_PROVIDER_CONSENT_VERSIONS = {
   deepseek: "ai_provider_deepseek_v1",
   openai: "ai_provider_openai_v1"
 } as const satisfies Record<RealAiProviderName, string>;
-export const AI_PROVIDER_CONSENT_VERSION = AI_PROVIDER_CONSENT_VERSIONS.openai;
+export const AI_PROVIDER_CONSENT_VERSION = AI_PROVIDER_CONSENT_VERSIONS.deepseek;
 
 export type AiProviderConsentRecord = {
   provider: RealAiProviderName;
@@ -38,6 +38,7 @@ export type AiDailyLimitResult =
   | { allowed: true; remaining: number | null; reason: null }
   | { allowed: false; remaining: 0; reason: "daily_user_limit_reached" };
 
+/*
 const sensitiveAgentKeys = new Set<AiAgentKey>([
   "calling",
   "lifeMap",
@@ -48,6 +49,7 @@ const sensitiveAgentKeys = new Set<AiAgentKey>([
   "commitmentDocument",
   "guardrailReviewer"
 ]);
+*/
 
 const proAgentKeys = new Set<AiAgentKey>(["calling", "metacognition", "weeklyReview", "accountability"]);
 
@@ -142,12 +144,9 @@ export function checkAiDailyLimit({
   return { allowed: true, remaining, reason: null };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function resolveConcreteProvider(agentKey: AiAgentKey, preference: AiProviderPreference): RealAiProviderName {
-  if (preference === "openai" || preference === "deepseek") {
-    return preference;
-  }
-
-  return sensitiveAgentKeys.has(agentKey) ? "openai" : "deepseek";
+  return "deepseek";
 }
 
 function resolveProviderModel(agentKey: AiAgentKey, providerName: RealAiProviderName, models: AiProviderModels) {

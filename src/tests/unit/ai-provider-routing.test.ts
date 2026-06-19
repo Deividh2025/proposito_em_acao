@@ -2,12 +2,18 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
 const openAIResponsesParseMock = vi.hoisted(() => vi.fn());
+const openAIChatCompletionsCreateMock = vi.hoisted(() => vi.fn());
 
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/openai/client", () => ({
   createOpenAIClient: () => ({
     responses: {
       parse: openAIResponsesParseMock
+    },
+    chat: {
+      completions: {
+        create: openAIChatCompletionsCreateMock
+      }
     }
   })
 }));
@@ -60,6 +66,7 @@ const providerModels = {
 
 beforeEach(() => {
   openAIResponsesParseMock.mockReset();
+  openAIChatCompletionsCreateMock.mockReset();
 });
 
 describe("AI provider routing and consent", () => {
@@ -95,7 +102,7 @@ describe("AI provider routing and consent", () => {
       models: providerModels
     });
 
-    expect(sensitive).toMatchObject({ providerName: "openai", mode: "real", model: "gpt-5.5" });
+    expect(sensitive).toMatchObject({ providerName: "deepseek", mode: "real", model: "deepseek-reasoner" });
     expect(operational).toMatchObject({ providerName: "deepseek", mode: "real", model: "deepseek-chat" });
   });
 
@@ -117,9 +124,9 @@ describe("AI provider routing and consent", () => {
 
     expect(openaiRoute).toMatchObject({
       requestedPreference: "openai",
-      providerName: "openai",
+      providerName: "deepseek",
       mode: "real",
-      model: "gpt-5.4-mini"
+      model: "deepseek-chat"
     });
     expect(deepseekRoute).toMatchObject({
       requestedPreference: "deepseek",
@@ -159,7 +166,7 @@ describe("AI provider routing and consent", () => {
       fallbackReason: "missing_provider_consent"
     });
     expect(revokedRoute).toMatchObject({
-      providerName: "openai",
+      providerName: "deepseek",
       mode: "fallback",
       fallbackReason: "missing_provider_consent"
     });
@@ -212,20 +219,20 @@ describe("AI provider routing and consent", () => {
 
     expect(disabledResult.audit.provider).toBe("mock");
     expect(disabledResult.audit.invocation_mode).toBe("mock");
-    expect(openaiProvider.invoke).toHaveBeenCalledTimes(1);
-    expect(deepseekProvider.invoke).not.toHaveBeenCalled();
-    expect(enabledResult.audit.provider).toBe("openai");
+    expect(openaiProvider.invoke).not.toHaveBeenCalled();
+    expect(deepseekProvider.invoke).toHaveBeenCalledTimes(1);
+    expect(enabledResult.audit.provider).toBe("deepseek");
     expect(enabledResult.audit.invocation_mode).toBe("real");
   });
 
   test("safe routing invoker does not call another provider after selected provider failure", async () => {
     const openaiProvider: AiProvider = {
       name: "openai",
-      invoke: vi.fn().mockRejectedValue(new OpenAIProviderError("provider_unavailable", "OpenAI unavailable"))
+      invoke: vi.fn().mockResolvedValue(safeOutput)
     };
     const deepseekProvider: AiProvider = {
       name: "deepseek",
-      invoke: vi.fn().mockResolvedValue(safeOutput)
+      invoke: vi.fn().mockRejectedValue(new OpenAIProviderError("provider_unavailable", "DeepSeek unavailable"))
     };
 
     const result = await invokeAiWithSafeRouting({
@@ -242,16 +249,16 @@ describe("AI provider routing and consent", () => {
       fallback: safeOutput
     });
 
-    expect(openaiProvider.invoke).toHaveBeenCalledTimes(1);
-    expect(deepseekProvider.invoke).not.toHaveBeenCalled();
+    expect(deepseekProvider.invoke).toHaveBeenCalledTimes(1);
+    expect(openaiProvider.invoke).not.toHaveBeenCalled();
     expect(result.source).toBe("fallback");
-    expect(result.audit.provider).toBe("openai");
+    expect(result.audit.provider).toBe("deepseek");
     expect(result.audit.fallback_reason).toBe("provider_unavailable");
   });
 
   test("daily user limit blocks real provider invocation before any external call", async () => {
-    const openaiProvider: AiProvider = {
-      name: "openai",
+    const deepseekProvider: AiProvider = {
+      name: "deepseek",
       invoke: vi.fn().mockResolvedValue(safeOutput)
     };
 
@@ -261,7 +268,7 @@ describe("AI provider routing and consent", () => {
       realEnabled: true,
       consentRecords,
       models: providerModels,
-      providers: { openai: openaiProvider },
+      providers: { deepseek: deepseekProvider },
       schema: tinyOutputSchema,
       schemaName: "tiny_output_v1",
       promptVersion: "smart_goal_prompt_v1",
@@ -270,9 +277,9 @@ describe("AI provider routing and consent", () => {
       usedToday: 50
     });
 
-    expect(openaiProvider.invoke).not.toHaveBeenCalled();
+    expect(deepseekProvider.invoke).not.toHaveBeenCalled();
     expect(result.source).toBe("fallback");
-    expect(result.audit.provider).toBe("openai");
+    expect(result.audit.provider).toBe("deepseek");
     expect(result.audit.invocation_mode).toBe("fallback");
     expect(result.audit.error_category).toBe("daily_user_limit_reached");
     expect(result.audit.fallback_reason).toBe("daily_user_limit_reached");
@@ -637,5 +644,78 @@ describe("OpenAI provider adapter", () => {
         signal: undefined
       })
     );
+  });
+
+  test("uses chat completions when OPENAI_BASE_URL is set (NVIDIA compatibility mode)", async () => {
+    vi.stubEnv("OPENAI_BASE_URL", "https://integrate.api.nvidia.com/v1");
+    openAIChatCompletionsCreateMock.mockResolvedValue({
+      choices: [{ message: { content: JSON.stringify(safeOutput) } }]
+    });
+
+    const provider = createOpenAIProvider();
+    const output = await provider.invoke({
+      agentKey: "smartGoal",
+      schema: tinyOutputSchema,
+      schemaName: "tiny_output_v1",
+      promptVersion: "smart_goal_prompt_v1",
+      input: { desire: "focar" },
+      model: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      instructions: "Responda somente no schema."
+    });
+
+    expect(output).toEqual(safeOutput);
+    expect(openAIChatCompletionsCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+        response_format: { type: "json_object" },
+        messages: expect.arrayContaining([
+          expect.objectContaining({
+            role: "system",
+            content: expect.stringContaining("Responda somente no schema.")
+          }),
+          expect.objectContaining({
+            role: "user",
+            content: JSON.stringify({ desire: "focar" })
+          })
+        ])
+      }),
+      expect.any(Object)
+    );
+
+    vi.unstubAllEnvs();
+  });
+
+  test("rejects invalid json, missing content and schema-invalid responses when OPENAI_BASE_URL is set", async () => {
+    vi.stubEnv("OPENAI_BASE_URL", "https://integrate.api.nvidia.com/v1");
+    
+    const request = {
+      agentKey: "smartGoal" as const,
+      schema: tinyOutputSchema,
+      schemaName: "tiny_output_v1",
+      promptVersion: "smart_goal_prompt_v1",
+      input: { desire: "focar" },
+      model: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
+    };
+
+    // 1. Invalid JSON
+    openAIChatCompletionsCreateMock.mockResolvedValue({
+      choices: [{ message: { content: "not-json" } }]
+    });
+    const provider = createOpenAIProvider();
+    await expect(provider.invoke(request)).rejects.toMatchObject({ category: "schema_validation" });
+
+    // 2. Missing content
+    openAIChatCompletionsCreateMock.mockResolvedValue({
+      choices: [{ message: { content: null } }]
+    });
+    await expect(provider.invoke(request)).rejects.toMatchObject({ category: "provider_unavailable" });
+
+    // 3. Schema invalid
+    openAIChatCompletionsCreateMock.mockResolvedValue({
+      choices: [{ message: { content: JSON.stringify({ message: "sem revisao" }) } }]
+    });
+    await expect(provider.invoke(request)).rejects.toThrow();
+
+    vi.unstubAllEnvs();
   });
 });

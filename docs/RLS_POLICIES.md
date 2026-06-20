@@ -39,7 +39,8 @@ Atalaia pode ler:
 
 Durante convite pendente, `atalia_invited` pode ler apenas a linha pendente de `accountability_partners` quando `status = 'invited'`, `invite_token_hash` existe, o convite nao expirou, `partner_user_id` ainda e nulo e o e-mail autenticado bate com o e-mail do convite. O aceite/revogacao real e feito por action server-side; a migration de hardening remove policies de update direto do convidado e adiciona triggers defensivas para impedir alteracao de escopo caso uma policy futura reabra update.
 
-A leitura da propria relacao ativa em `accountability_partners` tambem exige existencia de pelo menos um `accountability_grants` ativo, nao revogado e nao expirado para a relacao. Isso evita leitura residual do partner depois da revogacao do grant.
+A leitura da propria relacao ativa em `accountability_partners` tambem exige existencia de pelo menos um `accountability_grants` ativo, nao revogado e nao expirado para a relacao. Isso evita leitura residual do partner depois da revogacao do grant. Para evitar recursao infinita no RLS (ja que as policies de grants checam partners e vice-versa), essa validacao e feita de forma segura atraves da funcao `security definer` `app_private.has_active_grant_for_partner`.
+
 
 Atalaia nao tem policy em:
 
@@ -82,7 +83,7 @@ Checklist adicional:
 
 - user A cria, le, atualiza, conclui, reagenda e deleta seus `calendar_blocks`.
 - user B nao seleciona, atualiza ou deleta blocos de user A.
-- user B nao agenda tarefa de user A em `calendar_blocks.task_id`.
+- user B nao agenda tarefa de user A in `calendar_blocks.task_id`.
 - user A cria, classifica, processa, arquiva e descarta seus `inbox_items`.
 - user B nao acessa captura, classificacao, observacao ou destino de user A.
 - `inbox_items.destination_type` e `destination_id` continuam exigindo validacao server-side, pois sao campos polimorficos.
@@ -104,7 +105,7 @@ Checklist adicional:
 
 ## Prompt 11 - Foco, Habitos e Placar
 
-`focus_sessions`, `focus_distractions`, `habits`, `habit_logs`, `discipline_scoreboards`, `scoreboard_items` e `scoreboard_entries` permanecem owner-only por `user_id = auth.uid()`.
+`focus_sessions`, `focus_distractions`, `habits`, `habit_logs`, `discipline_scoreboards`, `scoreboard_items` and `scoreboard_entries` permanecem owner-only por `user_id = auth.uid()`.
 
 Checklist adicional:
 
@@ -159,7 +160,7 @@ Nenhuma policy de Atalaia foi adicionada a Chamado completo, Metacognicao, revis
 - user B nao acessa check-ins de user A.
 - anonimo nao acessa `energy_checkins`.
 - Atalaia nao tem policy direta em `energy_checkins`, mesmo com grant ativo.
-- A migration `20260610020145_auth_foundation_runtime_grants.sql` alinha grant explicito para `authenticated` em `energy_checkins`, mantendo RLS/force RLS como barreira efetiva e removendo acesso `anon`.
+- A migration `20260610020145_auth_foundation_runtime_grants.sql` limita grant explicito para `authenticated` em `energy_checkins`, mantendo RLS/force RLS como barreira efetiva e removendo acesso `anon`.
 
 As acoes mobile que reutilizam Inbox, Habitos, Placar, Foco, Desbloqueador e Metacognicao herdam as policies owner-only desses modulos. Service worker e cache nao substituem RLS nem armazenam dados sensiveis.
 

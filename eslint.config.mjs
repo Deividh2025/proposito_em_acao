@@ -12,7 +12,8 @@ const eslintConfig = [
       "playwright-report/**",
       "test-results/**",
       "%USERP~1/**",
-      "**/playwright-transform-cache/**"
+      "**/playwright-transform-cache/**",
+      ".agents/**"
     ]
   }
 ];

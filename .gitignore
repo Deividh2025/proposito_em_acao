@@ -66,3 +66,6 @@ Thumbs.db
 !.vscode/settings.example.json
 .idea/
 *.swp
+
+# Agents/Plugins
+.agents/plugins/

@@ -201,11 +201,11 @@ function createAdminClientOrNull() {
 }
 
 async function ensureAuthenticatedSupabase() {
-  if (!hasEssentialSupabaseConfig()) {
-    if (getAppRuntimeMode() === "local-demo") {
-      return { mode: "local-demo" as const, supabase: null, user: null };
-    }
+  if (getAppRuntimeMode() === "local-demo") {
+    return { mode: "local-demo" as const, supabase: null, user: null };
+  }
 
+  if (!hasEssentialSupabaseConfig()) {
     return { blockedReason: "missing_config" as const, mode: "supabase" as const, supabase: null, user: null };
   }
 
@@ -233,11 +233,11 @@ async function fetchConsentRecords(supabase: TypedSupabaseClient, user: User) {
 }
 
 export async function loadSettingsSnapshot(): Promise<SettingsSnapshot> {
-  if (!hasEssentialSupabaseConfig()) {
-    if (getAppRuntimeMode() === "local-demo") {
-      return buildLocalDemoSettingsSnapshot();
-    }
+  if (getAppRuntimeMode() === "local-demo") {
+    return buildLocalDemoSettingsSnapshot();
+  }
 
+  if (!hasEssentialSupabaseConfig()) {
     const status = getRuntimeEnvironmentStatus();
 
     return buildBlockedSettingsSnapshot(

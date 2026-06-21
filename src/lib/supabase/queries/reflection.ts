@@ -148,6 +148,19 @@ function blockedMessage(reason: AuthenticatedDataReason) {
 
 async function getReflectionAccess(): Promise<ReflectionAccess> {
   const runtimeMode = getAppRuntimeMode();
+
+  if (runtimeMode === "local-demo") {
+    return {
+      mode: {
+        canUseSampleData: true,
+        kind: "local-demo" as const,
+        reason: "local-demo" as const
+      },
+      supabase: null,
+      user: null
+    };
+  }
+
   const hasConfig = hasSupabasePublicConfig();
 
   if (!hasConfig) {
@@ -173,9 +186,9 @@ async function getReflectionAccess(): Promise<ReflectionAccess> {
     if (error) {
       return {
         mode: {
-          canUseSampleData: runtimeMode === "local-demo",
-          kind: runtimeMode === "local-demo" ? "local-demo" : "blocked",
-          reason: runtimeMode === "local-demo" ? "local-demo" : "auth-required"
+          canUseSampleData: false,
+          kind: "blocked",
+          reason: "auth-required"
         },
         supabase: null,
         user: null
@@ -196,9 +209,9 @@ async function getReflectionAccess(): Promise<ReflectionAccess> {
   } catch {
     return {
       mode: {
-        canUseSampleData: runtimeMode === "local-demo",
-        kind: runtimeMode === "local-demo" ? "local-demo" : "blocked",
-        reason: runtimeMode === "local-demo" ? "local-demo" : "query-error"
+        canUseSampleData: false,
+        kind: "blocked",
+        reason: "query-error"
       },
       supabase: null,
       user: null

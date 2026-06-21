@@ -446,12 +446,17 @@ type AccessResult =
     };
 
 async function getExecutionAccess(): Promise<AccessResult> {
+  if (isLocalDemoRuntime()) {
+    return {
+      ok: false,
+      state: { isSample: true, message: LOCAL_DEMO_MESSAGE, mode: "local-demo" }
+    };
+  }
+
   if (!hasEssentialSupabaseConfig()) {
     return {
       ok: false,
-      state: isLocalDemoRuntime()
-        ? { isSample: true, message: LOCAL_DEMO_MESSAGE, mode: "local-demo" }
-        : { isSample: false, message: BLOCKED_MESSAGE, mode: "blocked" }
+      state: { isSample: false, message: BLOCKED_MESSAGE, mode: "blocked" }
     };
   }
 

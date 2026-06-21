@@ -1,4 +1,4 @@
-import { LogIn, ShieldCheck, UserPlus } from "lucide-react";
+import { AlertCircle, LogIn, ShieldCheck, UserPlus } from "lucide-react";
 
 import { submitAuthAction, signOutAction } from "./actions";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { SuccessState } from "@/components/ui/SuccessState";
-import { sanitizeAuthNext } from "@/lib/auth/redirects";
-import { getPublicEnv } from "@/lib/config";
+import { isProtectedRoute, sanitizeAuthNext } from "@/lib/auth/redirects";
+import { getAppRuntimeMode, getPublicEnv } from "@/lib/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type AuthPageProps = {
@@ -41,7 +41,32 @@ const statusMessages: Record<string, { title: string; description: string }> = {
   }
 };
 
+const pageNames: Record<string, string> = {
+  "/dashboard": "Dashboard",
+  "/onboarding": "Onboarding",
+  "/settings": "Configurações",
+  "/goals": "Alvos",
+  "/projects": "Projetos",
+  "/tasks": "Tarefas",
+  "/calendar": "Calendário",
+  "/inbox": "Inbox",
+  "/focus": "Foco",
+  "/habits": "Hábitos",
+  "/scoreboard": "Placar",
+  "/review": "Revisão",
+  "/garden": "Jardim",
+  "/metacognition": "Metacognição",
+  "/action-unblocker": "Desbloqueador",
+  "/accountability": "Atalaia",
+  "/commitments": "Compromissos",
+  "/mobile": "Mobile"
+};
+
 async function getAuthSnapshot() {
+  if (getAppRuntimeMode() === "local-demo") {
+    return { configured: false, signedIn: false };
+  }
+
   const env = getPublicEnv();
   const configured = Boolean(
     env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -128,6 +153,31 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
       />
 
       {status ? <SuccessState description={status.description} title={status.title} /> : null}
+
+      {next && isProtectedRoute(next) ? (
+        <Card className="border-amber-200 bg-amber-50 text-amber-900">
+          <div className="flex items-start gap-3">
+            <AlertCircle aria-hidden className="mt-1 h-5 w-5 shrink-0 text-amber-700" />
+            <div>
+              <h3 className="font-bold text-amber-800">
+                Acesso Restrito: {pageNames[next] || next}
+              </h3>
+              <p className="mt-1 text-sm leading-relaxed text-amber-950">
+                Você tentou acessar a página <strong>{pageNames[next] || next}</strong>, que é uma área protegida. 
+                Como você não está autenticado, foi redirecionado para a página de login.
+              </p>
+              <div className="mt-3 text-xs space-y-2 border-t border-amber-200/60 pt-2.5 text-amber-900/80">
+                <p>
+                  💡 <strong>Para testar no deploy (Coolify):</strong> Se deseja apenas navegar pelo protótipo visual sem restrições de senha, altere a variável de ambiente <code>APP_RUNTIME_MODE</code> para <code>local-demo</code> no painel do Coolify e faça o deploy.
+                </p>
+                <p>
+                  🔑 <strong>Para testar com Autenticação Real:</strong> Crie uma conta usando o formulário ao lado. Se o e-mail de confirmação não chegar, desative a opção &quot;Confirm email&quot; nas configurações de Auth do seu projeto Supabase.
+                </p>
+              </div>
+            </div>
+          </div>
+        </Card>
+      ) : null}
 
       <Card as="aside" className="border-action-100 bg-action-50">
         <div className="flex items-start gap-3 text-action-900">

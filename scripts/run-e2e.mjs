@@ -14,6 +14,7 @@ function childEnv(overrides = {}) {
   return {
     ...process.env,
     NEXT_TELEMETRY_DISABLED: "1",
+    APP_RUNTIME_MODE: "local-demo",
     ...overrides
   };
 }
